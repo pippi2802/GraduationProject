@@ -1,0 +1,41 @@
+# Condition 1: workload running alone on the target node.
+# Replace IMAGE and NODE_NAME before applying.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rt-periodic-solo
+  labels:
+    app: rt-periodic
+    condition: solo
+spec:
+  restartPolicy: Never
+  # Pin to a specific node so the two conditions run on identical hardware.
+  # Get a node name with: kubectl get nodes
+  nodeName: aks-userpool-20803201-vmss000004
+  containers:
+    - name: rt-periodic
+      image: baselineaks.azurecr.io/rt-periodic:0.5 #baselineaks.azurecr.io/rt-periodic:0.4   # e.g. <acrname>.azurecr.io/rt-periodic:0.1
+      imagePullPolicy: Always
+      command: ["/bin/sh", "-c", "sleep 36000"] # otherwise i cannot access /out
+      env:
+        - name: PERIOD_US
+          value: "10000"
+        - name: RUNTIME_US
+          value: "2000"
+        - name: ITERS
+          value: "1500"   # >= 1000 invocations
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "128Mi"
+        limits:
+          cpu: "1000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+  volumes:
+    - name: out
+      emptyDir: {}

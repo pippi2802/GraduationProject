@@ -1,0 +1,70 @@
+# Condition 2: workload + CPU-intensive noisy neighbor on the SAME node.
+# Replace IMAGE and NODE_NAME before applying.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rt-periodic-noisy
+  labels:
+    app: rt-periodic
+    condition: noisy
+spec:
+  restartPolicy: Never
+  nodeName: aks-userpool-20803201-vmss000000
+  containers:
+    - name: rt-periodic
+      image: baselineaks.azurecr.io/rt-periodic:0.5 
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: PERIOD_US
+          value: "10000"
+        - name: RUNTIME_US
+          value: "2000"
+        - name: ITERS
+          value: "1500"
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "128Mi"
+        limits:
+          cpu: "1000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+  volumes:
+    - name: out
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stress-ng-noisy
+  labels:
+    app: stress-ng
+    condition: noisy
+spec:
+  restartPolicy: Never
+  nodeName: aks-userpool-20803201-vmss000004
+  # Active for the duration of the workload run; delete when measurement ends.
+  containers:
+    - name: stress
+      image: alexeiled/stress-ng:latest
+      command: ["/bin/sh", "-c", "sleep 36000"] # otherwise i cannot access /out
+      # 50% CPU load on 2 workers ~= 1 full core busy on a 4 vCPU node.
+      args:
+        - "--cpu"
+        - "2"
+        - "--cpu-load"
+        - "50"
+        - "--timeout"
+        - "300s"
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "128Mi"
+        limits:
+          cpu: "2000m"
+          memory: "256Mi"

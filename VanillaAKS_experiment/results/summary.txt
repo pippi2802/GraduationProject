@@ -1,0 +1,6 @@
+Metric: exec_cpu_us (per-invocation, microseconds)
+condition       n        p50        p95        p99        max
+solo         1450    2000.42    2000.66    2000.76    2005.73
+
+Steal-time accumulated during run (USER_HZ ticks, aggregate cpu line):
+  solo   : 0

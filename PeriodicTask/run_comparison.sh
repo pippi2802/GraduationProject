@@ -1,0 +1,63 @@
+#!/bin/bash
+# Comparison script - Run all three tests and show results
+
+echo "=========================================="
+echo "SCHEDULING COMPARISON TEST SUITE"
+echo "=========================================="
+echo ""
+echo "This will demonstrate:"
+echo "1. CFS Scheduler - Fair but misses deadlines"
+echo "2. SCHED_FIFO - Real-time with priority preemption"
+echo "3. SCHED_DEADLINE - Optimal deadline guarantee"
+echo ""
+echo "All using same task configuration (50+40+30=80% load on 1 core)"
+echo ""
+
+# Make scripts executable
+chmod +x run_cfs_test.sh run_fifo_test.sh
+
+echo "=========================================="
+echo "TEST 1: CFS Scheduler"
+echo "=========================================="
+./run_cfs_test.sh
+
+echo ""
+echo "=========================================="
+echo "TEST 2: SCHED_FIFO Real-Time Scheduler"
+echo "=========================================="
+./run_fifo_test.sh
+
+echo ""
+echo "=========================================="
+echo "COMPARISON SUMMARY"
+echo "=========================================="
+echo ""
+echo "CFS Results:"
+echo "  Task 1: $(grep "^task1:" results_cfs/summary.txt 2>/dev/null || echo '(pending)')"
+echo "  Task 2: $(grep "^task2:" results_cfs/summary.txt 2>/dev/null || echo '(pending)')"
+echo "  Task 3: $(grep "^task3:" results_cfs/summary.txt 2>/dev/null || echo '(pending)')"
+echo ""
+echo "SCHED_FIFO Results:"
+echo "  Task 1: $(grep "^task1:" results_fifo/summary.txt 2>/dev/null || echo '(pending)')"
+echo "  Task 2: $(grep "^task2:" results_fifo/summary.txt 2>/dev/null || echo '(pending)')"
+echo "  Task 3: $(grep "^task3:" results_fifo/summary.txt 2>/dev/null || echo '(pending)')"
+echo ""
+echo "Analysis:"
+echo "========="
+echo ""
+echo "CFS (Fair Scheduler):"
+echo "  - Shares CPU fairly based on nice values"
+echo "  - Does NOT provide hard real-time guarantees"
+echo "  - Expected: Multiple deadline misses, especially on low-priority tasks"
+echo ""
+echo "SCHED_FIFO (Real-Time):"
+echo "  - Uses strict priority preemption"
+echo "  - Higher priority tasks block lower priority tasks"
+echo "  - Expected: High-priority tasks meet deadlines, low-priority may miss"
+echo ""
+echo "SCHED_DEADLINE (Optimal):"
+echo "  - Uses deadline-based scheduling (EDF - Earliest Deadline First)"
+echo "  - Expected: Best deadline adherence among all three"
+echo "  - Requires: kernel support and implementation"
+echo ""
+echo "=========================================="
