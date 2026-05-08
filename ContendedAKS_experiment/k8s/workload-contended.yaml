@@ -1,0 +1,77 @@
+# Single Pod with TWO containers, each running 3 periodic tasks.
+# Both containers share the same node (the pod's node) and therefore
+# contend on the node's vCPUs. Target node: Standard_D2ps_v6 (2 vCPU).
+#
+# Per container utilization (3 tasks):
+#   T=20ms,  C=5ms   -> U=0.25
+#   T=50ms,  C=15ms  -> U=0.30
+#   T=100ms, C=25ms  -> U=0.25
+#   sum per container = 0.80
+# Two containers => total system utilization = 1.60 < 2.0 (schedulable in
+# theory, but vanilla AKS / CFS does not guarantee periodic deadlines).
+#
+# Replace IMAGE and NODE_NAME (kubectl get nodes) before applying.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rt-contended
+  labels:
+    app: rt-contended
+    condition: contended
+spec:
+  restartPolicy: Never
+  nodeName: aks-userpool-20803201-vmss000006
+  # Both containers in the same pod share the node's CPU resources and
+  # network namespace; they will be co-scheduled on the same kubelet.
+  containers:
+    - name: rt-a
+      image: baselineaks.azurecr.io/rt-contended:0.1
+      imagePullPolicy: Always
+      env:
+        - name: PREFIX
+          value: "cA"
+        - name: TASK_1
+          value: "20000:5000:1500"
+        - name: TASK_2
+          value: "50000:15000:600"
+        - name: TASK_3
+          value: "100000:25000:300"
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "64Mi"
+        limits:
+          cpu: "2000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+    - name: rt-b
+      image: baselineaks.azurecr.io/rt-contended:0.1
+      imagePullPolicy: Always
+      env:
+        - name: PREFIX
+          value: "cB"
+        - name: TASK_1
+          value: "20000:5000:1500"
+        - name: TASK_2
+          value: "50000:15000:600"
+        - name: TASK_3
+          value: "100000:25000:300"
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "64Mi"
+        limits:
+          cpu: "2000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+  volumes:
+    - name: out
+      emptyDir: {}
