@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Per-task statistics for the contended-AKS experiment.
+"""Per-task statistics for the Raspberry-Pi-on-Kubernetes experiment.
 
-For each task CSV in <results_dir> reports:
-  - n invocations (after warmup drop)
-  - mean / variance / std / p50 / p95 / p99 / max of exec_cpu_us
-  - mean / variance / std / p50 / p95 / p99 / max of response_us
-  - deadline miss count and miss rate
-  - configured period_us, runtime_us (inferred from CSV)
+Identical methodology to the AKS / bare-metal Pi analyzers; only the plot
+title differs. This lets you drop the three results directories next to
+each other (AKS / bare-metal Pi / k8s-on-Pi) and compare them directly.
 
-Also writes:
+Outputs:
   summary.txt  -- the textual table
   cdf.png      -- per-task CDF of response_us
 
 Usage:
-    python analyze.py <results_dir>
+    python3 analyze.py <results_dir>
 """
 from __future__ import annotations
 
@@ -24,7 +21,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-WARMUP = 20  # drop first N invocations of every task
+WARMUP = 20
 
 
 def load(csv_path: Path) -> pd.DataFrame:
@@ -37,8 +34,7 @@ def load(csv_path: Path) -> pd.DataFrame:
 def plot_distributions(root: Path, csvs: list, column: str, title: str,
                        out_path: Path) -> Path:
     """One subplot per task: normalized histogram + Gaussian fit (mean/std)
-    + vertical lines at p50/p95/p99. `column` is one of "exec_cpu_us" or
-    "response_us"."""
+    + vertical lines at p50/p95/p99."""
     n = len(csvs)
     cols = 3 if n >= 3 else n
     rows = (n + cols - 1) // cols
@@ -74,7 +70,6 @@ def plot_distributions(root: Path, csvs: list, column: str, title: str,
         ax.set_ylabel("density")
         ax.grid(True, alpha=0.25)
         ax.legend(fontsize=7, loc="upper right")
-    # Hide unused axes if any
     for ax in axes.flat[n:]:
         ax.set_visible(False)
     fig.suptitle(title, fontsize=12)
@@ -88,12 +83,8 @@ def task_stats(name: str, df: pd.DataFrame) -> dict:
     exec_us = df["exec_cpu_us"].to_numpy(dtype=float)
     resp_us = df["response_us"].to_numpy(dtype=float)
     miss = df["miss"].to_numpy(dtype=int)
-    # period inferred from release_ns deltas (median to be robust)
     rel = df["release_ns"].to_numpy(dtype=np.int64)
-    if len(rel) >= 2:
-        period_us = float(np.median(np.diff(rel))) / 1000.0
-    else:
-        period_us = float("nan")
+    period_us = float(np.median(np.diff(rel))) / 1000.0 if len(rel) >= 2 else float("nan")
     return {
         "task": name,
         "n": len(df),
@@ -145,7 +136,6 @@ def main() -> int:
     print(text)
     (root / "summary.txt").write_text(text + "\n")
 
-    # CDF of response time per task
     fig, ax = plt.subplots(figsize=(8, 5))
     for name, s in series.items():
         s = np.sort(s)
@@ -153,16 +143,14 @@ def main() -> int:
         ax.plot(s, y, label=name, linewidth=1.3)
     ax.set_xlabel("response_us (release -> finish)")
     ax.set_ylabel("CDF")
-    ax.set_title("Per-task response time on contended vanilla AKS")
+    ax.set_title("Per-task response time on Raspberry Pi worker (k8s, contended)")
     ax.grid(True, alpha=0.3)
     ax.legend(fontsize=8)
     fig.tight_layout()
     out_png = root / "cdf.png"
     fig.savefig(out_png, dpi=140)
 
-    # Distribution (histogram + Gaussian fit) per task, with p95 / p99 marks,
-    # for BOTH exec_cpu_us and response_us.
-    title = "contended vanilla AKS"
+    title = "Raspberry Pi worker, k8s, contended"
     dist_exec = plot_distributions(root, csvs, "exec_cpu_us",
                                    f"Per-task execution-time distribution ({title})",
                                    root / "dist_exec.png")

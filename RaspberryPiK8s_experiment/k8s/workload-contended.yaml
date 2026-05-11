@@ -1,0 +1,88 @@
+# Single Pod with TWO containers, each running 3 periodic tasks.
+# Both containers share the same node (the Raspberry Pi worker) and contend
+# on its CPUs. Mirrors ContendedAKS_experiment/k8s/workload-contended.yaml.
+#
+# We pin the pod to the Pi via nodeSelector on the standard label
+# `kubernetes.io/hostname`. Replace NODE_NAME with the actual hostname
+# (kubectl get nodes -o wide).
+#
+# We also pin the pod to 2 CPUs to mirror the 2-vCPU AKS node. This requires
+# either:
+#   (a) the static CPU manager policy on the kubelet, with Guaranteed QoS
+#       (cpu requests == limits, integer), OR
+#   (b) just trusting CFS load-balance across the Pi's 4 cores.
+# By default we go with (b) and set cpu limits to "2000m" so each container
+# can use up to 2 cores, exactly like AKS. If you want hard pinning, set
+# the kubelet's --cpu-manager-policy=static and uncomment the resource
+# block annotations described in README.md.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rt-contended
+  labels:
+    app: rt-contended
+    condition: contended-pi
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    kubernetes.io/hostname: NODE_NAME
+  # Tolerate the common "edge" / "pi" taints; harmless if no taint exists.
+  tolerations:
+    - key: "node-role.kubernetes.io/edge"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "arch"
+      operator: "Exists"
+      effect: "NoSchedule"
+  containers:
+    - name: rt-a
+      image: IMAGE
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: PREFIX
+          value: "cA"
+        - name: TASK_1
+          value: "20000:5000:1500"
+        - name: TASK_2
+          value: "50000:15000:600"
+        - name: TASK_3
+          value: "100000:25000:300"
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "64Mi"
+        limits:
+          cpu: "2000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+    - name: rt-b
+      image: IMAGE
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: PREFIX
+          value: "cB"
+        - name: TASK_1
+          value: "20000:5000:1500"
+        - name: TASK_2
+          value: "50000:15000:600"
+        - name: TASK_3
+          value: "100000:25000:300"
+        - name: OUT_DIR
+          value: "/out"
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "64Mi"
+        limits:
+          cpu: "2000m"
+          memory: "256Mi"
+      volumeMounts:
+        - name: out
+          mountPath: /out
+  volumes:
+    - name: out
+      emptyDir: {}
