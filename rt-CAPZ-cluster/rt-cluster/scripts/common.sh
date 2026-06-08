@@ -214,15 +214,16 @@ sed -i '/ swap / s/^/#/' /etc/fstab
 
 # Start kubeadm init
 echo "Starting kubeadm init..."
-systemctl daemon-reload
-systemctl restart containerd
 if [ ! -f /etc/kubernetes/admin.conf ]; then
     echo "Running kubeadm init..."
     kubeadm init --config=kubeadm-config.yaml
 else
     echo "kubeadm already initialized, skipping."
 fi
-systemctl restart kubelet
+sudo systemctl daemon-reload
+sudo systemctl restart containerd
+sudo systemctl restart kubelet
+
 
 
 
