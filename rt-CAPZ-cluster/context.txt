@@ -1,0 +1,115 @@
+I am setting up a Kubernetes cluster that uses a real‑time–enabled container runtime stack. The goal is to run workloads that require deterministic CPU behavior using a custom RT‑containerd, RT‑runc, and a Device Resource Assignment (DRA) driver that exposes real‑time CPU resources to Kubernetes through CDI (Container Device Interface).
+
+What I am trying to achieve
+Build and install a modified version of containerd (RT‑containerd) that supports real‑time CPU isolation and CDI.
+
+Build and install a modified runc (RT‑runc) that supports real‑time scheduling.
+
+Configure Kubernetes nodes to use this RT‑containerd runtime instead of the default containerd.
+
+Deploy a custom RT‑DRA driver that discovers real‑time CPU resources on each node and publishes them as NodeAllocationState (NAS) objects.
+
+Use these NAS objects to schedule real‑time workloads in Kubernetes.
+
+What I have done so far
+Created a Kubernetes cluster with a control‑plane node and a worker node.
+
+Removed Docker and default containerd from the nodes to avoid conflicts.
+
+Built RT‑containerd from source and installed it into /usr/local/bin.
+
+Built RT‑runc from source and installed it into /usr/local/sbin.
+
+Created a custom systemd unit so that the node runs /usr/local/bin/containerd instead of /usr/bin/containerd.
+
+Verified that containerd is running and that the system is using the correct binary.
+
+Deployed the RT‑DRA driver (controller + kubelet plugin) into the cluster.
+
+Installed Docker on a separate build VM using the official Docker repository (Docker 26.x), because Docker is required only for building the RT‑DRA driver image using Buildx.
+
+Built and pushed the RT‑DRA driver image to a container registry.
+
+Deployed the driver successfully — both controller and node plugin pods are running.
+
+The problem I am encountering
+The RT‑DRA driver is supposed to detect CDI devices on each node and create a NodeAllocationState (NAS) object named:
+
+Code
+dra-example-driver-<node-name>
+However, when I run:
+
+Code
+kubectl describe -n dra-rt-driver nas/dra-example-driver-<node>
+I get:
+
+Code
+Error from server (NotFound): nodeallocationstates.nas.rt.resource.example.com "<name>" not found
+This means the NAS object was never created.
+
+What I discovered
+The RT‑DRA driver is running correctly.
+
+The worker node is healthy and Ready.
+
+The node is labeled correctly.
+
+RT‑containerd is running from /usr/local/bin/containerd.
+
+But when I run:
+
+Code
+sudo ctr cdi list
+I get:
+
+Code
+No help topic for 'cdi'
+This indicates that CDI support is not available, even though I built containerd with the correct tags.
+
+What I suspect
+There is a mismatch between:
+
+the containerd binary that supports CDI
+and
+
+the ctr binary being used to inspect CDI.
+
+Or containerd was built without CDI due to environment issues (root not seeing Go, wrong build tags, etc.).
+
+Because CDI is not detected:
+
+The RT‑DRA driver cannot discover real‑time CPU devices.
+
+Therefore, it cannot generate CDI specs.
+
+Therefore, it cannot create NAS objects.
+
+Therefore, Kubernetes reports NAS as “NotFound”.
+
+What I need help with
+I need assistance determining why CDI is still unavailable even though:
+
+containerd was rebuilt with BUILDTAGS="cdi"
+
+containerd is running from the correct path
+
+the RT‑DRA driver is deployed correctly
+
+I need to identify:
+
+whether the wrong ctr binary is being used
+
+whether containerd was built incorrectly
+
+whether systemd is launching a stale binary
+
+whether CDI specs are missing
+
+or whether something else in the environment is preventing CDI from being recognized
+3m3s              default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+Normal   Scheduled                      3m1s              default-scheduler  Successfully assigned rt-test1/pod0 to rt-aks-cluster-worker-0
+Warning  FailedPrepareDynamicResources  3m1s              kubelet            Failed to prepare dynamic resources: NodePrepareResources failed for claim rt-test1/pod0-rtcpu2xsmb: error preparing resource: error allocating devices for claim '5b013469-4d79-486b-b74c-9f78b47ac5e5': unable to get CDI devices names: rtcdidevices is nil
+Normal   Pulled                         4s (x9 over 95s)  kubelet            Container image "ubuntu:22.04" already present on machine
+Warning  Failed                         4s (x9 over 95s)  kubelet            Error: failed to create containerd container: CDI device injection failed: unresolvable CDI devices runtime-100.period-1000/CPUSET=1-2
+
+During debugging of this failure we have determined that the cluster is running a self-managed Kubernetes setup on Azure VMs using a custom RT-containerd runtime built from containerd v1.7.19 with RT-runc and a custom RT-DRA driver intended to expose real-time CPU resources through Kubernetes Dynamic Resource Allocation and CDI integration. The system has a working Kubernetes control plane and kubelet, and containerd is running and successfully handling standard container lifecycle operations, but the dynamic resource allocation pipeline is failing at the device preparation stage. The RT-DRA driver is being invoked correctly by kubelet during NodePrepareResources, however it returns a nil CDI device list (rtcdidevices is nil), meaning no CDI device mappings are produced for the requested CPUSET allocation. At the same time, containerd logs show that CDI support is enabled in the runtime configuration and the CDI spec directories (/etc/cdi and /var/run/cdi) are present, but /etc/cdi is empty and no CDI device specifications are loaded into the registry, resulting in CDI:[]. Because of this, when the pod requests a CPUSET resource such as runtime-100.period-1000/CPUSET=1-2, containerd attempts CDI device injection but fails with an unresolvable CDI device error because no corresponding CDI device exists. The full failure chain begins when the pod is scheduled successfully to the node, followed by kubelet invoking the RT-DRA driver which fails to produce any CDI device entries, causing the dynamic resource preparation to fail with rtcdidevices being nil, and then container creation fails at the containerd level due to missing CDI mappings. The root cause of the issue is that the RT-DRA driver does not implement or is not correctly executing the translation layer from CPUSET-based allocations into CDI device specifications, and therefore no CDI devices are ever registered or returned to Kubernetes, breaking the entire dynamic resource allocation and container creation pipeline.
