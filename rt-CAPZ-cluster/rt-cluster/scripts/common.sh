@@ -140,6 +140,7 @@ EOF
 
 # Install rt-runc
 echo "Installing rt-runc..."
+apt install libseccomp-dev
 git clone -b rt https://github.com/nasim-samimi/runc.git tmp/runc
 cd tmp/runc
 make
