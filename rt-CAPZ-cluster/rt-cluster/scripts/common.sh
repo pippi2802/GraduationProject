@@ -24,27 +24,55 @@ apt-get install -y \
     jq
 
 # Setup disk for etcd
-echo "Partitioning and formatting disk for etcd..."
+echo "Setting up etcd disk..."
 DISK="/dev/sdc"
+PART="${DISK}1"
+MOUNTPOINT="/var/lib/etcddisk"
+LABEL="etcd_disk"
+
+# Only proceed if disk exists
 if [ -b "$DISK" ]; then
-    # Create partition
-    parted -s "$DISK" mklabel gpt mkpart primary 0% 100%
-    
-    # Wait for partition to appear
-    sleep 2
-    
-    # Format partition
-    mkfs.ext4 "${DISK}1" -F -L etcd_disk
-    
-    # Create mount directory
-    mkdir -p /var/lib/etcddisk
-    
-    # Add to fstab
-    echo "LABEL=etcd_disk /var/lib/etcddisk ext4 defaults 0 2" >> /etc/fstab
-    
-    # Mount
-    mount /var/lib/etcddisk
+
+    # 1. Create partition only if it doesn't exist
+    if ! lsblk -no NAME "$PART" >/dev/null 2>&1; then
+        echo "Creating partition on $DISK..."
+        parted -s "$DISK" mklabel gpt mkpart primary 0% 100%
+        sleep 2
+    else
+        echo "Partition already exists, skipping."
+    fi
+
+    # 2. Create filesystem only if not already formatted
+    if ! blkid | grep -q "$LABEL"; then
+        echo "Formatting $PART with ext4..."
+        mkfs.ext4 "$PART" -F -L "$LABEL"
+    else
+        echo "Filesystem already exists, skipping format."
+    fi
+
+    # 3. Create mountpoint if missing
+    mkdir -p "$MOUNTPOINT"
+
+    # 4. Add to fstab only if not already present
+    if ! grep -q "$LABEL" /etc/fstab; then
+        echo "Adding $LABEL to /etc/fstab..."
+        echo "LABEL=$LABEL $MOUNTPOINT ext4 defaults 0 2" >> /etc/fstab
+    else
+        echo "fstab entry already exists, skipping."
+    fi
+
+    # 5. Mount only if not already mounted
+    if ! mount | grep -q "$MOUNTPOINT"; then
+        echo "Mounting $MOUNTPOINT..."
+        mount "$MOUNTPOINT"
+    else
+        echo "Disk already mounted, skipping."
+    fi
+
+else
+    echo "Disk $DISK not found, skipping etcd disk setup."
 fi
+
 
 KUBEADM_VERSION="1.28.0"
 KUBELET_VERSION="1.28.0"
@@ -85,64 +113,94 @@ else
 fi
 
 # Install go
-echo "installing Go..."
-wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
-rm -rf /usr/local/go
-tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
-go version
+if go version 2>/dev/null | grep -q "1.22.5"; then
+    echo "Go 1.22.5 already installed, skipping."
+else
+    echo "Installing Go 1.22.5..."
+    wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
+    rm -rf /usr/local/go
+    tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
+    echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
+    source /etc/profile
+fi
+
 
 # Create tmp dir
 mkdir -p tmp
 
-# Retrive RT-DRA repo
-echo "Cloning RT-DRA repository..."
-git clone https://github.com/nasim-samimi/dra-rt-driver.git
+# Retrive RT-DRA repository
+if [ ! -d "dra-rt-driver" ]; then
+    echo "Cloning RT-DRA repository..."
+    git clone https://github.com/nasim-samimi/dra-rt-driver.git
+else
+    echo "dra-rt-driver already exists, skipping clone."
+fi
 
 
 # Install container runtime (RT-containerd)
-echo "Installing RT-containerd..."
-git clone -b rt https://github.com/nasim-samimi/containerd.git tmp/containerd
-cd tmp/containerd
-make
-make install
-echo "RT-containerd installed successfully."
-echo "Creating the config file for RT-containerd..."
-cd ..
-mkdir -p /etc/containerd
-# containerd config default > /etc/containerd/config.toml or
-containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
-echo "Config file created"
+if ! command -v containerd >/dev/null 2>&1; then
+    echo "Installing RT-containerd..."
+
+    if [ ! -d "tmp/containerd" ]; then
+        git clone -b rt https://github.com/nasim-samimi/containerd.git tmp/containerd
+    else
+        echo "RT-containerd repo already exists, skipping clone."
+    fi
+
+    cd tmp/containerd
+    make
+    make install
+    cd -
+
+    mkdir -p /etc/containerd
+    containerd config default | tee /etc/containerd/config.toml >/dev/null
+else
+    echo "RT-containerd already installed, skipping build."
+fi
+
+
 
 # Installing CNI
-echo "Installing CNI plugins..."
-mkdir -p /opt/cni/bin
-curl -LO https://github.com/containernetworking/plugins/releases/download/v1.4.1/cni-plugins-linux-amd64-v1.4.1.tgz
-tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-v1.4.1.tgz
-mkdir -p /etc/cni/net.d
-cat <<EOF | tee /etc/cni/net.d/10-containerd-bridge.conf > /dev/null
-{
-  "cniVersion": "0.4.0",
-  "name": "bridge",
-  "type": "bridge",
-  "bridge": "cni0",
-  "isGateway": true,
-  "ipMasq": true,
-  "ipam": {
-    "type": "host-local",
-    "ranges": [[{ "subnet": "10.244.0.0/16" }]],
-    "routes": [{ "dst": "0.0.0.0/0" }]
-  }
+if [ ! -f /opt/cni/bin/bridge ]; then
+    echo "Installing CNI plugins..."
+    mkdir -p /opt/cni/bin
+    curl -LO https://github.com/containernetworking/plugins/releases/download/v1.4.1/cni-plugins-linux-amd64-v1.4.1.tgz
+    tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-v1.4.1.tgz
+else
+    echo "CNI plugins already installed, skipping."
+fi
+
+if [ ! -f /etc/cni/net.d/10-containerd-bridge.conf ]; then
+    mkdir -p /etc/cni/net.d
+    cat <<EOF | tee /etc/cni/net.d/10-containerd-bridge.conf > /dev/null
+    {
+    "cniVersion": "0.4.0",
+    "name": "bridge",
+    "type": "bridge",
+    "bridge": "cni0",
+    "isGateway": true,
+    "ipMasq": true,
+    "ipam": {
+        "type": "host-local",
+        "ranges": [[{ "subnet": "10.244.0.0/16" }]],
+        "routes": [{ "dst": "0.0.0.0/0" }]
+    }
 }
 EOF
-
-
+else
+    echo "CNI config already exists, skipping."
+fi
 
 # Install rt-runc
-echo "Installing rt-runc..."
-apt install libseccomp-dev
-git clone -b rt https://github.com/nasim-samimi/runc.git tmp/runc
-cd tmp/runc
+if runc --version 2>/dev/null | grep -q "1.1"; then
+    apt install libseccomp-dev
+    echo "runc already installed, skipping."
+else
+    echo "Installing rt-runc..."
+    apt install libseccomp-dev
+    git clone -b rt https://github.com/nasim-samimi/runc.git tmp/runc
+    cd tmp/runc
+fi
 make
 install -D -m0755 runc /usr/local/sbin/runc
 cd ~/dra-rt-driver   # or wherever kubeadm-config.yaml is
@@ -156,7 +214,12 @@ sed -i '/ swap / s/^/#/' /etc/fstab
 echo "Starting kubeadm init..."
 systemctl daemon-reload
 systemctl restart containerd
-kubeadm init --config=kubeadm-config.yaml
+if [ ! -f /etc/kubernetes/admin.conf ]; then
+    echo "Running kubeadm init..."
+    kubeadm init --config=kubeadm-config.yaml
+else
+    echo "kubeadm already initialized, skipping."
+fi
 systemctl restart kubelet
 
 
