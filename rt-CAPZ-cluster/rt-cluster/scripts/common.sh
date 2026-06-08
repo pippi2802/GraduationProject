@@ -23,6 +23,9 @@ apt-get install -y \
     software-properties-common \
     jq
 
+apt-get install -y pkg-config libseccomp-dev build-essential
+
+
 # Setup disk for etcd
 echo "Setting up etcd disk..."
 DISK="/dev/sdc"
@@ -74,9 +77,9 @@ else
 fi
 
 
-KUBEADM_VERSION="1.28.0"
-KUBELET_VERSION="1.28.0"
-KUBECTL_VERSION="1.28.0"
+KUBEADM_VERSION="v1.28.0"
+KUBELET_VERSION="v1.28.0"
+KUBECTL_VERSION="v1.28.0"
 
 KUBEADM_CURRENT_VERSION=$(kubeadm version -o short 2>/dev/null || echo "none")
 
@@ -193,11 +196,10 @@ fi
 
 # Install rt-runc
 if runc --version 2>/dev/null | grep -q "1.1"; then
-    apt install libseccomp-dev
     echo "runc already installed, skipping."
+    cd tmp/runc
 else
     echo "Installing rt-runc..."
-    apt install libseccomp-dev
     git clone -b rt https://github.com/nasim-samimi/runc.git tmp/runc
     cd tmp/runc
 fi
