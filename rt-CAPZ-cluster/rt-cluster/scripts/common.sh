@@ -4,6 +4,11 @@ set -e
 echo "Starting control plane initialization..."
 
 # Update system
+# Wait for apt to be free
+while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
+    echo "Waiting for apt to be free..."
+    sleep 5
+done
 apt-get update
 apt-get upgrade -y
 
@@ -150,22 +155,23 @@ sed -i '/ swap / s/^/#/' /etc/fstab
 echo "Starting kubeadm init..."
 systemctl daemon-reload
 systemctl restart containerd
-systemctl restart kubelet
 kubeadm init --config=kubeadm-config.yaml
+systemctl restart kubelet
 
 
-# systemctl restart containerd
 
-# Installing RT-DRA
-echo "Installing RT-DRA..."
-cd ../../dra-rt-driver
-kubectl get pod -A
-helm upgrade -i \
-  --create-namespace \
-  --namespace dra-rt-driver \
-  dra-rt-driver \
-  deployments/helm/dra-rt-driver
-kubectl get pod -n dra-rt-driver
+# # systemctl restart containerd
+
+# # Installing RT-DRA
+# echo "Installing RT-DRA..."
+# cd ../../dra-rt-driver
+# kubectl get pod -A
+# helm upgrade -i \
+#   --create-namespace \
+#   --namespace dra-rt-driver \
+#   dra-rt-driver \
+#   deployments/helm/dra-rt-driver
+# kubectl get pod -n dra-rt-driver
 
 
 
