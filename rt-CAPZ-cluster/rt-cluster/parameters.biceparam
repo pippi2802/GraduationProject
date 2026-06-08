@@ -1,0 +1,20 @@
+using './main.bicep'
+
+// Cluster Configuration
+param location = 'swedencentral'
+param clusterName = 'rt-aks-cluster'
+param environment = 'test'
+
+// VM Configuration
+param controlPlaneCount = 1
+param workerNodeCount = 1
+param vmSize = 'Standard_D4ds_v5'
+param adminUsername = 'azureuser'
+param sshPublicKey = ''  // Set via command line if needed
+
+// Image Configuration
+param imageSubscriptionId = 'd06f8f89-f7d3-46b3-b7a8-649244fb54c6'
+param imageResourceGroup = 'rg-rtAKS'
+param imageGallery = 'rtUbuntu'
+param imageName = 'rtUbuntu24.04'
+param imageVersion = '1.0.2'

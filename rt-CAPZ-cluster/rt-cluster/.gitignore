@@ -1,0 +1,132 @@
+# Git ignore file for Bicep Kubernetes deployment
+
+# Sensitive files - NEVER commit these!
+*.secret
+*.key
+*.pem
+*.pfx
+*.p12
+.env
+.env.local
+.env.*.local
+secrets.json
+
+# SSH Keys
+*.rsa
+*.pub
+id_rsa*
+id_ecdsa*
+id_ed25519*
+id_dsa*
+
+# Azure credentials and config
+.azure/
+.azure/**
+azure_credentials.json
+azure_config.json
+
+# Kubeconfig files
+kubeconfig*
+admin.conf
+*.kubeconfig
+
+# Terraform/Bicep state files
+terraform.tfstate*
+*.tfstate*
+*.tfstate.*.backup
+
+# Bicep compiled files
+*.json.bicep
+*.json (compiled from bicep)
+
+# Build artifacts
+dist/
+build/
+*.zip
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+.AppleDouble
+
+# Deployment logs
+deployment-*.log
+bicep-*.log
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Parameter overrides (keep examples only)
+parameters.dev.json
+parameters.prod.json
+parameters.staging.json
+
+# Local testing
+test-output/
+test-results/
+
+# Node modules (if using npm for CI/CD)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python venv (if using Python scripts)
+venv/
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv
+env.bak
+venv.bak
+
+# Keep documented example files
+!EXAMPLES.md
+!QUICKSTART.md
+!README.md
+!TROUBLESHOOTING.md
+!INDEX.md
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Docker files (if added later)
+Dockerfile
+docker-compose.override.yml
+
+# Certificate files
+*.crt
+*.cert
+*.cer
+
+# Private SSH config
+~/.ssh/config
+
+# Deployment script outputs
+deploy-output.txt
+deploy-errors.txt
+
+# Azure artifacts
+*.csdef
+*.cscfg
+
+# Keep the template and parameter template files!
+!main.bicep
+!modules/*.bicep
+!parameters.biceparam
+!parameters.json
+!deploy.sh
+!scripts/*.sh

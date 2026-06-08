@@ -1,0 +1,226 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: capi-dev
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: capi-dev-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AzureCluster
+    name: capi-dev
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureCluster
+metadata:
+  name: capi-dev
+  namespace: default
+spec:
+  identityRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AzureClusterIdentity
+    name: cluster-identity
+  location: swedencentral
+  networkSpec:
+    subnets:
+    - name: control-plane-subnet
+      role: control-plane
+    - name: node-subnet
+      role: node
+    vnet:
+      name: capi-dev-vnet
+  resourceGroup: capi-dev
+  subscriptionID: d06f8f89-f7d3-46b3-b7a8-649244fb54c6
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: capi-dev-control-plane
+  namespace: default
+spec:
+  kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs: {}
+        timeoutForControlPlane: 20m
+      controllerManager:
+        extraArgs:
+          allocate-node-cidrs: "false"
+          cloud-provider: external
+          cluster-name: capi-dev
+      etcd:
+        local:
+          dataDir: /var/lib/etcddisk/etcd
+          extraArgs:
+            quota-backend-bytes: "8589934592"
+    diskSetup:
+      filesystems:
+      - device: /dev/disk/azure/scsi1/lun0
+        extraOpts:
+        - -E
+        - lazy_itable_init=1,lazy_journal_init=1
+        filesystem: ext4
+        label: etcd_disk
+      - device: ephemeral0.1
+        filesystem: ext4
+        label: ephemeral0
+        replaceFS: ntfs
+      partitions:
+      - device: /dev/disk/azure/scsi1/lun0
+        layout: true
+        overwrite: false
+        tableType: gpt
+    files:
+    - contentFrom:
+        secret:
+          key: control-plane-azure.json
+          name: capi-dev-control-plane-azure-json
+      owner: root:root
+      path: /etc/kubernetes/azure.json
+      permissions: "0644"
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data["local_hostname"] }}'
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+        name: '{{ ds.meta_data["local_hostname"] }}'
+    mounts:
+    - - LABEL=etcd_disk
+      - /var/lib/etcddisk
+    verbosity: 10
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: AzureMachineTemplate
+      name: capi-dev-control-plane
+  replicas: 1
+  version: v1.35.0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+metadata:
+  name: capi-dev-control-plane
+  namespace: default
+spec:
+  template:
+    spec:
+      vmSize: Standard_D4ds_v5
+      osDisk:
+        diskSizeGB: 128
+        osType: Linux
+      sshPublicKey: ""
+      image:
+        sharedGallery:
+          subscriptionID: d06f8f89-f7d3-46b3-b7a8-649244fb54c6
+          resourceGroup: rg-rtAKS
+          gallery: rtUbuntu
+          name: rtUbuntu24.04
+          version: "1.0.2"
+      securityProfile:
+        securityType: "TrustedLaunch"
+        uefiSettings:
+          vTpmEnabled: true
+          secureBootEnabled: false
+
+      # Removed identity: UserAssigned
+      # Removed userAssignedIdentities
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: capi-dev-md-0
+  namespace: default
+spec:
+  clusterName: capi-dev
+  replicas: 2
+  selector:
+    matchLabels: null
+  template:
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: capi-dev-md-0
+      clusterName: capi-dev
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureMachineTemplate
+        name: capi-dev-md-0
+      version: v1.35.0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+metadata:
+  name: capi-dev-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      vmSize: Standard_D4ds_v5
+      osDisk:
+        diskSizeGB: 128
+        osType: Linux
+      sshPublicKey: ""
+      image:
+        sharedGallery:
+          subscriptionID: d06f8f89-f7d3-46b3-b7a8-649244fb54c6
+          resourceGroup: rg-rtAKS
+          gallery: rtUbuntu
+          name: rtUbuntu24.04
+          version: "1.0.2"
+      securityProfile:
+        securityType: "TrustedLaunch"
+        uefiSettings:
+          vTpmEnabled: true
+          secureBootEnabled: false
+
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: capi-dev-md-0
+  namespace: default
+spec:
+  template:
+    spec:
+      files:
+      - contentFrom:
+          secret:
+            key: worker-node-azure.json
+            name: capi-dev-md-0-azure-json
+        owner: root:root
+        path: /etc/kubernetes/azure.json
+        permissions: "0644"
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cloud-provider: external
+          name: '{{ ds.meta_data["local_hostname"] }}'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureClusterIdentity
+metadata:
+  name: cluster-identity
+  namespace: default
+spec:
+  type: ServicePrincipal
+  tenantID: cb5b3c56-8331-4862-8e2c-369b8684fdc0
+  clientID: 5796b248-d3e7-45de-b98c-880aa403b2cb
+  clientSecret:
+    name: cluster-identity-secret
+    namespace: default
+  allowedNamespaces:
+    list:
+    - default

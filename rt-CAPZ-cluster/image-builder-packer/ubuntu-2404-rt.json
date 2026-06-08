@@ -1,0 +1,24 @@
+{
+  "community_gallery_image_id": "/subscriptions/d06f8f89-f7d3-46b3-b7a8-649244fb54c6/resourceGroups/rg-rtAKS/providers/Microsoft.Compute/galleries/rtUbuntu/images/rtUbuntu24.04/versions/1.0.0",
+
+  "image_offer": "",
+  "image_publisher": "",
+  "image_sku": "",
+  "image_version": "",
+
+  "azure_location": "swedencentral",
+  "sig_destination_location": "swedencentral",
+  "temp_resource_group_name": "rg-rtAKS",
+
+  "gallery_name": "rtUbuntu",
+  "resource_group_name": "rg-rtAKS",
+  "build_resource_group_name": "rg-rtAKS",
+
+  "use_azure_cli_auth": "true",
+
+  "sig_gallery_name": "rtUbuntu",
+  "sig_gallery_resource_group_name": "rg-rtAKS",
+  "sig_image_definition_name": "rtUbuntu24.04",
+  "sig_image_version": "1.0.1",
+  "sig_replication_regions": "swedencentral"
+}
