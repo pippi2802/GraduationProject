@@ -127,6 +127,10 @@ else
     source /etc/profile
 fi
 
+#Install Helm
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
+chmod 700 get_helm.sh
+./get_helm.sh
 
 # Create tmp dir
 mkdir -p tmp
@@ -205,77 +209,29 @@ else
 fi
 make
 install -D -m0755 runc /usr/local/sbin/runc
-cd ~/dra-rt-driver   # or wherever kubeadm-config.yaml is
+# cd ../dra-rt-driver   # or wherever kubeadm-config.yaml is
 
 
-# Disable swap
-swapoff -a
-sed -i '/ swap / s/^/#/' /etc/fstab
+# # Disable swap
+# swapoff -a
+# sed -i '/ swap / s/^/#/' /etc/fstab
 
-# Start kubeadm init
-echo "Starting kubeadm init..."
-if [ ! -f /etc/kubernetes/admin.conf ]; then
-    echo "Running kubeadm init..."
-    kubeadm init --config=kubeadm-config.yaml
-else
-    echo "kubeadm already initialized, skipping."
-fi
-sudo systemctl daemon-reload
-sudo systemctl restart containerd
-sudo systemctl restart kubelet
+# # # Start kubeadm init
+# # echo "Starting kubeadm init..."
+# # if [ ! -f /etc/kubernetes/admin.conf ]; then
+# #     echo "Running kubeadm init..."
+# #     kubeadm init --config=kubeadm-config.yaml
+# # else
+# #     echo "kubeadm already initialized, skipping."
+# # fi
+# # sudo systemctl daemon-reload
+# # sudo systemctl restart containerd
+# # sudo systemctl restart kubelet
 
+# # Important to run: create kubeconfig on the control-plane node
+# mkdir -p $HOME/.kube
+# sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
+# sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-
-
-# # systemctl restart containerd
-
-# # Installing RT-DRA
-# echo "Installing RT-DRA..."
-# cd ../../dra-rt-driver
-# kubectl get pod -A
-# helm upgrade -i \
-#   --create-namespace \
-#   --namespace dra-rt-driver \
-#   dra-rt-driver \
-#   deployments/helm/dra-rt-driver
-# kubectl get pod -n dra-rt-driver
-
-
-
-
-# # Configure kernel modules
-# cat << EOF > /etc/modules-load.d/k8s.conf
-# overlay
-# br_netfilter
-# EOF
-
-# modprobe overlay
-# modprobe br_netfilter
-
-# # Configure kernel parameters
-# cat << EOF > /etc/sysctl.d/k8s.conf
-# net.bridge.bridge-nf-call-iptables = 1
-# net.bridge.bridge-nf-call-ip6tables = 1
-# net.ipv4.ip_forward = 1
-# EOF
-
-# sysctl --system
-
-# # Install kubeadm, kubelet, kubectl
-# echo "Installing Kubernetes tools..."
-# curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
-
-# echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-
-# apt-get update
-# apt-get install -y kubelet kubeadm kubectl
-
-# # Hold versions to prevent auto-upgrade
-# apt-mark hold kubelet kubeadm kubectl
-
-# # Enable and start kubelet
-# systemctl daemon-reload
-# systemctl enable kubelet
-
-# echo "Control plane initialization completed successfully!"
-# echo "Ready for kubeadm init..."
+# # Checks
+# kubectl get nodes
