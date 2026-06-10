@@ -26,10 +26,10 @@
 #include <sys/stat.h>
 
 typedef struct {
-    int      idx;
-    int64_t  period_us;
-    int64_t  runtime_us;
-    int64_t  iters;
+    int      idx; // id task
+    int64_t  period_us; // period in microseconds
+    int64_t  runtime_us; // runtime in microseconds
+    int64_t  iters; // number of iterarions
     char     out_path[512];
     int64_t  start_release_ns; // shared aligned start
 } task_arg_t;

@@ -2,47 +2,28 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "value": "swedencentral"
-    },
-    "clusterName": {
-      "value": "rt-aks-cluster"
-    },
-    "environment": {
-      "value": "test"
-    },
-    "controlPlaneCount": {
-      "value": 1
-    },
-    "workerNodeCount": {
-      "value": 1
-    },
-    "vmSize": {
-      "value": "Standard_D4ds_v5"
-    },
-    "adminUsername": {
-      "value": "azureuser"
-    },
-    "adminPassword": {
-      "value": "Pippina2002!"
-    },
-    "sshPublicKey": {
-      "value": ""
-    },
-    "imageSubscriptionId": {
-      "value": "d06f8f89-f7d3-46b3-b7a8-649244fb54c6"
-    },
-    "imageResourceGroup": {
-      "value": "rg-rtAKS"
-    },
-    "imageGallery": {
-      "value": "rtUbuntu"
-    },
-    "imageName": {
-      "value": "rtUbuntu24.04"
-    },
-    "imageVersion": {
-      "value": "1.0.2"
-    }
+    "location":           { "value": "swedencentral" },
+    "clusterName":        { "value": "rt-cluster" },
+    "environment":        { "value": "dev" },
+
+    "controlPlaneCount":  { "value": 1 },
+    "workerNodeCount":    { "value": 2 },
+    "controlPlaneVmSize": { "value": "Standard_D4ds_v5" },
+    "workerVmSize":       { "value": "Standard_D4ds_v5" },
+    "zones":              { "value": [1, 2, 3] },
+
+    "adminUsername":      { "value": "azureuser" },
+    "sshPublicKey":       { "value": "" },
+
+    "imageType":          { "value": "custom" },
+    "imageSubscriptionId":{ "value": "d06f8f89-f7d3-46b3-b7a8-649244fb54c6" },
+    "imageResourceGroup": { "value": "rg-rtAKS" },
+    "imageGallery":       { "value": "rtUbuntu" },
+    "imageName":          { "value": "rtUbuntu22.04" },
+    "imageVersion":       { "value": "1.0.0" },
+
+    "vnetAddressPrefix":        { "value": "10.0.0.0/16" },
+    "controlPlaneSubnetPrefix": { "value": "10.0.1.0/24" },
+    "workerSubnetPrefix":       { "value": "10.0.2.0/24" }
   }
 }

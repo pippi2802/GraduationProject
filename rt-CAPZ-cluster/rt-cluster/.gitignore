@@ -126,7 +126,6 @@ deploy-errors.txt
 # Keep the template and parameter template files!
 !main.bicep
 !modules/*.bicep
-!parameters.biceparam
+!parameters.bicepparam
 !parameters.json
-!deploy.sh
 !scripts/*.sh
