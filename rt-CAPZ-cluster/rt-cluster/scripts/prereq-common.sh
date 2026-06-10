@@ -75,10 +75,9 @@ apt install -y kubeadm=1.28.0-1.1 kubelet=1.28.0-1.1 kubectl=1.28.0-1.1
 
 apt-mark hold kubeadm kubelet kubectl
 
-systemctl daemon-reload
+
 KUBEADM_CURRENT_VERSION=$(kubeadm version -o short)
 echo "Installed kubeadm version: $KUBEADM_CURRENT_VERSION" 
-apt-mark hold kubelet kubeadm kubectl
 systemctl daemon-reload
 systemctl enable kubelet
 echo "kubeadm kubectl and kubelet $KUBEADM_VERSION installed successfully. Kubelet not yet running"

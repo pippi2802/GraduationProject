@@ -235,3 +235,4 @@ install -D -m0755 runc /usr/local/sbin/runc
 
 # # Checks
 # kubectl get nodes
+
