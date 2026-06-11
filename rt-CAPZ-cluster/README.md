@@ -54,3 +54,21 @@ or force delete
 ```bash
 kubectl delete cluster rt-capi --force --grace-period=0
 ```
+
+To remove a cluster:
+```bash
+sudo kubeadm reset -f
+sudo rm -rf /etc/kubernetes
+sudo rm -rf /var/lib/kubelet
+sudo rm -rf /var/lib/etcd   # usually empty on worker, but safe
+
+sudo systemctl restart containerd
+sudo systemctl restart kubelet
+```
+
+Then rejoin or re-init
+```bash
+sudo kubeadm init --config=kubeadm-config.yaml
+
+sudo kubeadm join --config=worker-config.yaml
+```

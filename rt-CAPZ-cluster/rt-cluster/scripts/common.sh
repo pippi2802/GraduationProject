@@ -1,238 +1,177 @@
 #!/bin/bash
-set -e
+# -----------------------------------------------------------------------------
+# common.sh
+#
+# Phase 2:  build & install the RT container runtime stack on EVERY node.
+#
+#   RT-containerd ->  /usr/local/bin/containerd
+#   RT-runc       ->  /usr/local/sbin/runc
+#   systemd unit  ->  /etc/systemd/system/containerd.service
+#                     (ExecStart=/usr/local/bin/containerd, so no stale Docker
+#                     /usr/bin/containerd can ever shadow it)
+#   config.toml   ->  /etc/containerd/config.toml
+#                     with CDI enabled, SystemdCgroup=true, BinaryName pointing
+#                     at /usr/local/sbin/runc.
+#
+# Assumes prereq-common.sh has run (Go + build tools present).
+# Idempotent via /var/lib/rt-stack/markers/common.done.
+# -----------------------------------------------------------------------------
+set -Eeuo pipefail
 
-echo "Starting control plane initialization..."
+# shellcheck source=lib/common-functions.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common-functions.sh"
 
-# Update system
-# Wait for apt to be free
-while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
-    echo "Waiting for apt to be free..."
-    sleep 5
+rt_strict_mode
+rt_setup_logging common
+rt_skip_if_done   common
+
+# Hard requirement: phase 1 must have run.
+if ! rt_already_done prereq-common; then
+    echo "[error] prereq-common phase has not completed; run prereq-common.sh first" >&2
+    exit 1
+fi
+
+export PATH=/usr/local/go/bin:$PATH
+
+# -----------------------------------------------------------------------------
+# 1. Purge any stock Docker / containerd packages that would shadow the RT
+#    binaries via /usr/bin/containerd or /usr/sbin/runc. We want exactly one
+#    containerd and one runc on the system.
+# -----------------------------------------------------------------------------
+echo "[purge] removing stock docker/containerd/runc packages if present"
+systemctl stop containerd 2>/dev/null || true
+systemctl stop docker     2>/dev/null || true
+for pkg in containerd containerd.io docker.io docker-ce docker-ce-cli \
+           docker-buildx-plugin docker-compose-plugin runc; do
+    if dpkg -s "$pkg" >/dev/null 2>&1; then
+        apt-get remove -y --purge "$pkg" || true
+    fi
 done
-apt-get update
-apt-get upgrade -y
+apt-get autoremove -y || true
+# Belt & braces: drop stale binaries that may survive a partial purge.
+rm -f /usr/bin/containerd /usr/bin/containerd-shim* /usr/sbin/runc
 
-# Install required packages
-apt-get install -y \
-    curl \
-    wget \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    apt-transport-https \
-    software-properties-common \
-    jq
-
-apt-get install -y pkg-config libseccomp-dev build-essential
-
-
-# Setup disk for etcd
-echo "Setting up etcd disk..."
-DISK="/dev/sdc"
-PART="${DISK}1"
-MOUNTPOINT="/var/lib/etcddisk"
-LABEL="etcd_disk"
-
-# Only proceed if disk exists
-if [ -b "$DISK" ]; then
-
-    # 1. Create partition only if it doesn't exist
-    if ! lsblk -no NAME "$PART" >/dev/null 2>&1; then
-        echo "Creating partition on $DISK..."
-        parted -s "$DISK" mklabel gpt mkpart primary 0% 100%
-        sleep 2
-    else
-        echo "Partition already exists, skipping."
-    fi
-
-    # 2. Create filesystem only if not already formatted
-    if ! blkid | grep -q "$LABEL"; then
-        echo "Formatting $PART with ext4..."
-        mkfs.ext4 "$PART" -F -L "$LABEL"
-    else
-        echo "Filesystem already exists, skipping format."
-    fi
-
-    # 3. Create mountpoint if missing
-    mkdir -p "$MOUNTPOINT"
-
-    # 4. Add to fstab only if not already present
-    if ! grep -q "$LABEL" /etc/fstab; then
-        echo "Adding $LABEL to /etc/fstab..."
-        echo "LABEL=$LABEL $MOUNTPOINT ext4 defaults 0 2" >> /etc/fstab
-    else
-        echo "fstab entry already exists, skipping."
-    fi
-
-    # 5. Mount only if not already mounted
-    if ! mount | grep -q "$MOUNTPOINT"; then
-        echo "Mounting $MOUNTPOINT..."
-        mount "$MOUNTPOINT"
-    else
-        echo "Disk already mounted, skipping."
-    fi
-
-else
-    echo "Disk $DISK not found, skipping etcd disk setup."
-fi
-
-
-KUBEADM_VERSION="v1.28.0"
-KUBELET_VERSION="v1.28.0"
-KUBECTL_VERSION="v1.28.0"
-
-KUBEADM_CURRENT_VERSION=$(kubeadm version -o short 2>/dev/null || echo "none")
-
-if [ "$KUBEADM_CURRENT_VERSION" != "$KUBEADM_VERSION" ]; then
-    echo "Installing kubeadm $KUBEADM_VERSION..."
-    echo "Stopping Kubelet..."
-    systemctl stop kubelet
-    echo "Stopped Kubelet successfully."
-    echo "Unholding kubeadm kubelet and kubectl..."
-    apt-mark unhold kubeadm kubelet kubectl
-    echo "Removing existing kubeadm, kubelet, kubectl..."
-    apt remove -y kubeadm kubelet kubectl
-
-    echo "Installing kubeadm $KUBEADM_VERSION..."
-    apt install -y apt-transport-https ca-certificates curl
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-1-28.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-1-28.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes-1-28.list
-    apt update
-
-    apt install -y kubeadm=1.28.0-1.1 kubelet=1.28.0-1.1 kubectl=1.28.0-1.1
-
-    apt-mark hold kubeadm kubelet kubectl
-
-    systemctl daemon-reload
-    KUBEADM_CURRENT_VERSION=$(kubeadm version -o short)
-    echo "Installed kubeadm version: $KUBEADM_CURRENT_VERSION" 
-    apt-mark hold kubelet kubeadm kubectl
-    systemctl daemon-reload
-    systemctl enable kubelet
-    echo "kubeadm kubectl and kubelet $KUBEADM_VERSION installed successfully. Kubelet not yet running"
-
-else
-    echo "kubeadm is already at the desired version $KUBEADM_VERSION"
-fi
-
-# Install go
-if go version 2>/dev/null | grep -q "1.22.5"; then
-    echo "Go 1.22.5 already installed, skipping."
-else
-    echo "Installing Go 1.22.5..."
-    wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
-    rm -rf /usr/local/go
-    tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
-    source /etc/profile
-fi
-
-#Install Helm
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4
-chmod 700 get_helm.sh
-./get_helm.sh
-
-# Create tmp dir
-mkdir -p tmp
-
-# Retrive RT-DRA repository
-if [ ! -d "dra-rt-driver" ]; then
-    echo "Cloning RT-DRA repository..."
-    git clone https://github.com/nasim-samimi/dra-rt-driver.git
-else
-    echo "dra-rt-driver already exists, skipping clone."
-fi
-
-
-# Install container runtime (RT-containerd)
-if ! command -v containerd >/dev/null 2>&1; then
-    echo "Installing RT-containerd..."
-
-    if [ ! -d "tmp/containerd" ]; then
-        git clone -b rt https://github.com/nasim-samimi/containerd.git tmp/containerd
-    else
-        echo "RT-containerd repo already exists, skipping clone."
-    fi
-
-    cd tmp/containerd
+# -----------------------------------------------------------------------------
+# 2. Build & install RT-containerd
+# -----------------------------------------------------------------------------
+CONTAINERD_SRC="${RT_WORKDIR}/containerd"
+rt_git_clone https://github.com/nasim-samimi/containerd.git "$CONTAINERD_SRC" rt
+(
+    cd "$CONTAINERD_SRC"
+    echo "[build] containerd $(git rev-parse --short HEAD)"
     make
-    make install
-    cd -
+    make install                            # installs to /usr/local/bin
+)
+echo "[verify] containerd --version: $(/usr/local/bin/containerd --version)"
 
-    mkdir -p /etc/containerd
-    containerd config default | tee /etc/containerd/config.toml >/dev/null
-else
-    echo "RT-containerd already installed, skipping build."
-fi
+# -----------------------------------------------------------------------------
+# 3. Build & install RT-runc
+# -----------------------------------------------------------------------------
+RUNC_SRC="${RT_WORKDIR}/runc"
+rt_git_clone https://github.com/nasim-samimi/runc.git "$RUNC_SRC" rt
+(
+    cd "$RUNC_SRC"
+    echo "[build] runc $(git rev-parse --short HEAD)"
+    make
+    install -D -m 0755 runc /usr/local/sbin/runc
+)
+echo "[verify] runc --version: $(/usr/local/sbin/runc --version | head -n1)"
 
+# -----------------------------------------------------------------------------
+# 4. systemd unit for the RT containerd (upstream make install does NOT ship one)
+# -----------------------------------------------------------------------------
+cat >/etc/systemd/system/containerd.service <<'EOF'
+[Unit]
+Description=containerd container runtime (RT build)
+Documentation=https://containerd.io
+After=network.target local-fs.target
 
+[Service]
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/containerd
+Type=notify
+Delegate=yes
+KillMode=process
+Restart=always
+RestartSec=5
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=1048576
+TasksMax=infinity
+OOMScoreAdjust=-999
 
-# Installing CNI
-if [ ! -f /opt/cni/bin/bridge ]; then
-    echo "Installing CNI plugins..."
-    mkdir -p /opt/cni/bin
-    curl -LO https://github.com/containernetworking/plugins/releases/download/v1.4.1/cni-plugins-linux-amd64-v1.4.1.tgz
-    tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-v1.4.1.tgz
-else
-    echo "CNI plugins already installed, skipping."
-fi
-
-if [ ! -f /etc/cni/net.d/10-containerd-bridge.conf ]; then
-    mkdir -p /etc/cni/net.d
-    cat <<EOF | tee /etc/cni/net.d/10-containerd-bridge.conf > /dev/null
-    {
-    "cniVersion": "0.4.0",
-    "name": "bridge",
-    "type": "bridge",
-    "bridge": "cni0",
-    "isGateway": true,
-    "ipMasq": true,
-    "ipam": {
-        "type": "host-local",
-        "ranges": [[{ "subnet": "10.244.0.0/16" }]],
-        "routes": [{ "dst": "0.0.0.0/0" }]
-    }
-}
+[Install]
+WantedBy=multi-user.target
 EOF
-else
-    echo "CNI config already exists, skipping."
+
+# -----------------------------------------------------------------------------
+# 5. /etc/containerd/config.toml -- generated then patched for CDI + RT-runc.
+# -----------------------------------------------------------------------------
+install -d -m 0755 /etc/containerd
+/usr/local/bin/containerd config default >/etc/containerd/config.toml
+
+# 5a. cgroup driver -> systemd (required: kubelet defaults to systemd since 1.22)
+sed -i 's|SystemdCgroup = false|SystemdCgroup = true|' /etc/containerd/config.toml
+
+# 5b. force the runc binary to our RT build (don't trust $PATH)
+sed -i 's|BinaryName = ""|BinaryName = "/usr/local/sbin/runc"|' /etc/containerd/config.toml
+
+# 5c. Enable CDI under [plugins."io.containerd.grpc.v1.cri"] (required for DRA
+#     to inject RT parameters via CDI specs). Only inject the keys once.
+if ! grep -q 'enable_cdi' /etc/containerd/config.toml; then
+    python3 - <<'PY'
+import re, pathlib
+p = pathlib.Path("/etc/containerd/config.toml")
+text = p.read_text()
+hdr = '[plugins."io.containerd.grpc.v1.cri"]'
+ins = ('\n    enable_cdi = true'
+       '\n    cdi_spec_dirs = ["/etc/cdi", "/var/run/cdi"]')
+if hdr in text and "enable_cdi" not in text:
+    text = text.replace(hdr, hdr + ins, 1)
+    p.write_text(text)
+PY
 fi
 
-# Install rt-runc
-if runc --version 2>/dev/null | grep -q "1.1"; then
-    echo "runc already installed, skipping."
-    cd tmp/runc
-else
-    echo "Installing rt-runc..."
-    git clone -b rt https://github.com/nasim-samimi/runc.git tmp/runc
-    cd tmp/runc
+# 5d. crictl pointed at our containerd socket (handy for debugging).
+cat >/etc/crictl.yaml <<EOF
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 10
+EOF
+
+# -----------------------------------------------------------------------------
+# 6. CNI plugin binaries (the network plugin -- Calico -- is installed by the
+#    CP script; here we just need the CNI binary tree to exist for kubelet).
+# -----------------------------------------------------------------------------
+CNI_VERSION="v1.4.1"
+CNI_DIR="/opt/cni/bin"
+if [[ ! -x "${CNI_DIR}/bridge" ]]; then
+    echo "[cni] installing plugins ${CNI_VERSION}"
+    install -d -m 0755 "$CNI_DIR"
+    curl -fsSL -o /tmp/cni.tgz \
+        "https://github.com/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-linux-$(rt_arch)-${CNI_VERSION}.tgz"
+    tar -C "$CNI_DIR" -xzf /tmp/cni.tgz
+    rm -f /tmp/cni.tgz
 fi
-make
-install -D -m0755 runc /usr/local/sbin/runc
-# cd ../dra-rt-driver   # or wherever kubeadm-config.yaml is
 
+# IMPORTANT: do NOT drop a 10-containerd-bridge.conf in /etc/cni/net.d here.
+# Calico (installed by control-plane-init.sh) will own that directory, and any
+# pre-existing conf that sorts before Calico's will silently break pod
+# networking on this node.
+install -d -m 0755 /etc/cni/net.d
+rm -f /etc/cni/net.d/10-containerd-bridge.conf
 
-# # Disable swap
-# swapoff -a
-# sed -i '/ swap / s/^/#/' /etc/fstab
+# -----------------------------------------------------------------------------
+# 7. Bring containerd up
+# -----------------------------------------------------------------------------
+systemctl daemon-reload
+systemctl enable --now containerd
 
-# # # Start kubeadm init
-# # echo "Starting kubeadm init..."
-# # if [ ! -f /etc/kubernetes/admin.conf ]; then
-# #     echo "Running kubeadm init..."
-# #     kubeadm init --config=kubeadm-config.yaml
-# # else
-# #     echo "kubeadm already initialized, skipping."
-# # fi
-# # sudo systemctl daemon-reload
-# # sudo systemctl restart containerd
-# # sudo systemctl restart kubelet
+# Sanity check: are we actually talking to /usr/local/bin/containerd?
+sleep 2
+echo "[verify] running binary: $(readlink -f /proc/$(pidof -s containerd)/exe || echo unknown)"
+echo "[verify] containerd status:"
+systemctl is-active containerd
+crictl info --output go-template --template '{{.config.containerd.defaultRuntimeName}} / runc: {{(index .config.containerd.runtimes "runc").options.BinaryName}}' || true
 
-# # Important to run: create kubeconfig on the control-plane node
-# mkdir -p $HOME/.kube
-# sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
-# sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-# # Checks
-# kubectl get nodes
-
+rt_mark_done common

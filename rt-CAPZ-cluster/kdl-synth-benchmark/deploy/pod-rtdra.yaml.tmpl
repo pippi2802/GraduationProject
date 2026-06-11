@@ -1,0 +1,73 @@
+# RT-DRA mode: the periodic workload running INSIDE a (Q,P,m) reservation.
+# Placeholders substituted by experiments/run_all.sh:
+#   {{IMAGE}} {{TASKSET}} {{Q}} {{P}} {{M}} {{RUN_ID}} {{NODE}}
+#   {{JOBS}} {{WARMUP}} {{UTIL}} {{N_TASKS}} {{INTERFERENCE}} {{TASKSET_ID}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rt-workload-{{RUN_ID}}
+  namespace: kdl-bench
+  labels:
+    app: kdl-workload
+    mode: rtdra
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    kubernetes.io/hostname: {{NODE}}
+  # TODO: add tolerations here if your RT node pool is tainted.
+  tolerations:
+    - key: rt
+      operator: Exists
+      effect: NoSchedule
+  # Consume the (Q,P,m) reservation created from resourceclaim-rt.yaml.
+  resourceClaims:
+    - name: rt-reservation
+      resourceClaimName: rt-claim-{{RUN_ID}}
+  volumes:
+    - name: out
+      emptyDir: {}
+    - name: taskset
+      configMap:
+        name: taskset-{{RUN_ID}}
+  containers:
+    - name: workload
+      image: {{IMAGE}}
+      imagePullPolicy: IfNotPresent
+      args:
+        - "--taskset"
+        - "/tasksets/{{TASKSET}}"
+        - "--out"
+        - "/out/metrics.jsonl"
+        - "--jobs"
+        - "{{JOBS}}"
+        - "--warmup"
+        - "{{WARMUP}}"
+        - "--run-id"
+        - "{{RUN_ID}}"
+        - "--taskset-id"
+        - "{{TASKSET_ID}}"
+        - "--mode"
+        - "rtdra"
+        - "--budget-q-us"
+        - "{{Q}}"
+        - "--period-p-us"
+        - "{{P}}"
+        - "--cores-m"
+        - "{{M}}"
+        - "--util"
+        - "{{UTIL}}"
+        - "--interference"
+        - "{{INTERFERENCE}}"
+        - "--node"
+        - "{{NODE}}"
+        - "--kernel"
+        - "hcbs"
+      resources:
+        claims:
+          - name: rt-reservation
+      volumeMounts:
+        - name: out
+          mountPath: /out
+        - name: taskset
+          mountPath: /tasksets
+          readOnly: true

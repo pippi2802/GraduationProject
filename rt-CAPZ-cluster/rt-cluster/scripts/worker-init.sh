@@ -1,79 +1,66 @@
 #!/bin/bash
-set -e
+# -----------------------------------------------------------------------------
+# worker-init.sh
+#
+# Phase 4b (worker side).  By design the actual `kubeadm join` is performed
+# MANUALLY, because we want you to read the join script before it runs.
+#
+# What this script does:
+#   * sanity-checks that prereq-common.sh and common.sh have completed
+#     (so RT-containerd, RT-runc, kubelet, kernel modules and sysctl are ready)
+#   * verifies kubelet is not yet joined to a cluster
+#   * if /tmp/kubeadm-join.sh exists (you `scp`ed it from the CP) it runs it
+#   * otherwise it just prints the next manual step and exits 0
+#
+# Idempotent via /var/lib/rt-stack/markers/worker-init.done (marker is only
+# written after a successful join).
+# -----------------------------------------------------------------------------
+set -Eeuo pipefail
 
-echo "Starting worker node initialization..."
+# shellcheck source=lib/common-functions.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common-functions.sh"
 
-# Update system
-apt-get update
-apt-get upgrade -y
+rt_strict_mode
+rt_setup_logging worker-init
+rt_skip_if_done   worker-init
 
-# Install required packages
-apt-get install -y \
-    curl \
-    wget \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    apt-transport-https \
-    software-properties-common \
-    jq
+if ! rt_already_done prereq-common; then echo "[error] run prereq-common.sh first" >&2; exit 1; fi
+if ! rt_already_done common;         then echo "[error] run common.sh first"         >&2; exit 1; fi
 
-# Install container runtime (containerd)
-echo "Installing containerd..."
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Already joined?  /etc/kubernetes/kubelet.conf is written by kubeadm join.
+if [[ -f /etc/kubernetes/kubelet.conf ]]; then
+    echo "[join] /etc/kubernetes/kubelet.conf already present; node has joined"
+    systemctl is-active --quiet kubelet || systemctl start kubelet
+    rt_mark_done worker-init
+    exit 0
+fi
 
-apt-get update
-apt-get install -y containerd.io
+JOIN_SRC="${RT_JOIN_FILE:-/tmp/kubeadm-join.sh}"
+if [[ -f "$JOIN_SRC" ]]; then
+    echo "[join] $JOIN_SRC found, joining cluster"
+    chmod 0700 "$JOIN_SRC"
+    bash "$JOIN_SRC"
+    rt_mark_done worker-init
+    exit 0
+fi
 
-# Configure containerd
-mkdir -p /etc/containerd
-containerd config default > /etc/containerd/config.toml
+cat <<'EOF'
+============================================================================
+worker is provisioned (RT runtime + kubelet) but NOT yet joined.
 
-# Fix containerd configuration for Kubernetes
-sed -i 's/^disabled_plugins = \[\]/disabled_plugins = []/' /etc/containerd/config.toml
+To join this worker:
 
-systemctl restart containerd
+  1) On the control plane, the join command lives at:
+         /var/lib/kubeadm-join.sh
 
-# Disable swap
-swapoff -a
-sed -i '/ swap / s/^/#/' /etc/fstab
+  2) From your workstation (or via the CP), copy it onto this worker:
+         scp azureuser@<CP-IP>:/var/lib/kubeadm-join.sh /tmp/kubeadm-join.sh
+         # then on this worker, as root:
+         sudo bash /tmp/kubeadm-join.sh
 
-# Configure kernel modules
-cat << EOF > /etc/modules-load.d/k8s.conf
-overlay
-br_netfilter
+     (or re-run this script after placing the file at /tmp/kubeadm-join.sh
+      and it will execute it for you.)
+
+This script will write its done-marker the next time it successfully joins.
+============================================================================
 EOF
-
-modprobe overlay
-modprobe br_netfilter
-
-# Configure kernel parameters
-cat << EOF > /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.ipv4.ip_forward = 1
-EOF
-
-sysctl --system
-
-# Install kubeadm, kubelet, kubectl
-echo "Installing Kubernetes tools..."
-curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg
-
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-
-apt-get update
-apt-get install -y kubelet kubeadm kubectl
-
-# Hold versions to prevent auto-upgrade
-apt-mark hold kubelet kubeadm kubectl
-
-# Enable and start kubelet
-systemctl daemon-reload
-systemctl enable kubelet
-
-echo "Worker node initialization completed successfully!"
-echo "Ready to join cluster..."

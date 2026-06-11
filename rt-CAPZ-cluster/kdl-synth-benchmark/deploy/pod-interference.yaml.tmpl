@@ -1,0 +1,33 @@
+# Best-effort noisy-neighbour, co-located on the RT node to create contention.
+# No reservation, no cpu limits -> ordinary best-effort/burstable pod.
+# Placeholders substituted by experiments/run_all.sh:
+#   {{IMAGE_INTERF}} {{NODE}} {{RUN_ID}} {{CPU_WORKERS}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: interference-{{RUN_ID}}
+  namespace: kdl-bench
+  labels:
+    app: kdl-interference
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    kubernetes.io/hostname: {{NODE}}
+  tolerations:
+    - key: rt
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: stress
+      image: {{IMAGE_INTERF}}
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: CPU_WORKERS
+          value: "{{CPU_WORKERS}}"
+        - name: CPU_LOAD
+          value: "100"
+        - name: VM_WORKERS
+          value: "0"
+        - name: TIMEOUT
+          value: "0"
+      # Best-effort: no requests/limits set on purpose.

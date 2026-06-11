@@ -1,0 +1,40 @@
+# =============================================================================
+# RT-DRA reservation ResourceClaim — (Q, P, m) = ({{Q}} us, {{P}} us, {{M}} cores)
+# =============================================================================
+# TODO: paste working claim
+#
+# The exact apiVersion, kind, driver name, deviceClassName and parameter field
+# names depend on YOUR installed RT-DRA driver. DO NOT trust the schema below
+# verbatim — replace it with the ResourceClaim that already schedules a
+# (Q,P,m) reservation on this cluster.
+#
+# The run script (experiments/run_all.sh) substitutes these placeholders:
+#   {{Q}}      reservation budget (microseconds)
+#   {{P}}      reservation period (microseconds)
+#   {{M}}      reserved cores
+#   {{RUN_ID}} unique run identifier (used to name the claim)
+#
+# -----------------------------------------------------------------------------
+# PLACEHOLDER (Kubernetes DRA structured-parameters style) — EDIT TO MATCH DRIVER
+# -----------------------------------------------------------------------------
+apiVersion: resource.k8s.io/v1beta1
+kind: ResourceClaim
+metadata:
+  name: rt-claim-{{RUN_ID}}
+  namespace: kdl-bench
+spec:
+  devices:
+    requests:
+      - name: rt-reservation
+        # TODO: set to the deviceClassName exposed by your RT-DRA driver.
+        deviceClassName: REPLACE-WITH-RTDRA-DEVICE-CLASS
+        # TODO: replace with the real parameter mechanism of your driver
+        #       (e.g. an opaque config / CEL selectors carrying Q, P, m).
+        # The following 'config' block is illustrative only:
+        # config:
+        #   - opaque:
+        #       driver: REPLACE-WITH-RTDRA-DRIVER-NAME
+        #       parameters:
+        #         budgetMicroseconds: {{Q}}
+        #         periodMicroseconds: {{P}}
+        #         cores: {{M}}
