@@ -1,0 +1,1 @@
+# Process of encoding and decoding a video stream using a transformer-based model.  

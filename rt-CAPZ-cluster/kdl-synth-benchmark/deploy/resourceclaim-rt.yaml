@@ -1,40 +1,61 @@
 # =============================================================================
 # RT-DRA reservation ResourceClaim — (Q, P, m) = ({{Q}} us, {{P}} us, {{M}} cores)
 # =============================================================================
-# TODO: paste working claim
-#
-# The exact apiVersion, kind, driver name, deviceClassName and parameter field
-# names depend on YOUR installed RT-DRA driver. DO NOT trust the schema below
-# verbatim — replace it with the ResourceClaim that already schedules a
-# (Q,P,m) reservation on this cluster.
-#
-# The run script (experiments/run_all.sh) substitutes these placeholders:
-#   {{Q}}      reservation budget (microseconds)
-#   {{P}}      reservation period (microseconds)
+# Rendered + applied per run by experiments/run_all.sh (rtdra mode only).
+# The harness substitutes these placeholders before `kubectl apply`:
+#   {{Q}}      reservation budget   (microseconds)
+#   {{P}}      reservation period   (microseconds)
 #   {{M}}      reserved cores
-#   {{RUN_ID}} unique run identifier (used to name the claim)
+#   {{RUN_ID}} unique run identifier (used to name the claim + parameters)
 #
+# CONTRACT with deploy/pod-rtdra.yaml.tmpl:
+#   The workload pod references the reservation by name:
+#       resourceClaims:
+#         - name: rt-reservation
+#           resourceClaimName: rt-claim-{{RUN_ID}}
+#   So this file MUST create a ResourceClaim named exactly `rt-claim-{{RUN_ID}}`
+#   in namespace `kdl-bench`.
+#
+# IMPORTANT — verify against YOUR installed RT-DRA driver:
+#   The identifiers below are taken from the dra-example-driver fork
+#   (apiVersion resource.k8s.io/v1alpha2, group rt.resource.example.com,
+#   kind RtClaimParameters with count/runtime/period). They match the demo,
+#   but you MUST confirm they match the *working* claim that already schedules
+#   a (Q,P,m) reservation on this cluster:
+#     - the ResourceClaim API version (v1alpha2 vs v1beta1/v1),
+#     - spec.resourceClassName  (the ResourceClass your driver registers),
+#     - the parameters group/kind and its field names + UNITS.
+#   The demo Namespace and smoke-test pod were removed: the namespace is applied
+#   separately (deploy/namespace.yaml) and the workload pod comes from
+#   deploy/pod-rtdra.yaml.tmpl.
 # -----------------------------------------------------------------------------
-# PLACEHOLDER (Kubernetes DRA structured-parameters style) — EDIT TO MATCH DRIVER
-# -----------------------------------------------------------------------------
-apiVersion: resource.k8s.io/v1beta1
+
+# Per-run reservation parameters (Q, P, m). Field names come from the driver's
+# RtClaimParameters schema — adjust if your driver names them differently and
+# confirm whether runtime/period are microseconds (the harness passes us).
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  name: rt-params-{{RUN_ID}}
+  namespace: kdl-bench
+spec:
+  count: {{M}}
+  runtime: {{Q}}
+  period: {{P}}
+
+---
+# The ResourceClaim the workload pod consumes. Name MUST be rt-claim-{{RUN_ID}}.
+apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaim
 metadata:
   name: rt-claim-{{RUN_ID}}
   namespace: kdl-bench
 spec:
-  devices:
-    requests:
-      - name: rt-reservation
-        # TODO: set to the deviceClassName exposed by your RT-DRA driver.
-        deviceClassName: REPLACE-WITH-RTDRA-DEVICE-CLASS
-        # TODO: replace with the real parameter mechanism of your driver
-        #       (e.g. an opaque config / CEL selectors carrying Q, P, m).
-        # The following 'config' block is illustrative only:
-        # config:
-        #   - opaque:
-        #       driver: REPLACE-WITH-RTDRA-DRIVER-NAME
-        #       parameters:
-        #         budgetMicroseconds: {{Q}}
-        #         periodMicroseconds: {{P}}
-        #         cores: {{M}}
+  # ResourceClass registered by your RT-DRA driver (replace if different).
+  resourceClassName: rt.example.com
+  parametersRef:
+    apiGroup: rt.resource.example.com
+    kind: RtClaimParameters
+    name: rt-params-{{RUN_ID}}
+
