@@ -113,7 +113,10 @@ for ts_file in "${TASKSETS_DIR}"/*.json; do
 
     for MODE in ${MODES}; do
         RUN_ID="${MODE}-${TASKSET_ID}-U${UTIL}"
-        RUN_ID="$(echo "${RUN_ID}" | tr -c 'a-zA-Z0-9-' '-' | tr 'A-Z' 'a-z')"
+        # Sanitize into a valid RFC1123 name: lowercase, only [a-z0-9-],
+        # and no leading/trailing '-' (printf avoids a trailing newline that
+        # tr would otherwise turn into a trailing dash).
+        RUN_ID="$(printf '%s' "${RUN_ID}" | tr -c 'a-zA-Z0-9-' '-' | tr 'A-Z' 'a-z' | sed -e 's/^-*//' -e 's/-*$//')"
         mkdir -p "${RESULTS_DIR}/${MODE}"
         out_jsonl="${RESULTS_DIR}/${MODE}/${TASKSET_ID}.jsonl"
 
