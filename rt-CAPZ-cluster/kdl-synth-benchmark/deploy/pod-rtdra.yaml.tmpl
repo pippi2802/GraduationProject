@@ -22,7 +22,8 @@ spec:
   # Consume the (Q,P,m) reservation created from resourceclaim-rt.yaml.
   resourceClaims:
     - name: rt-reservation
-      resourceClaimName: rt-claim-{{RUN_ID}}
+      source:
+        resourceClaimName: rt-claim-{{RUN_ID}}
   volumes:
     - name: out
       emptyDir: {}
