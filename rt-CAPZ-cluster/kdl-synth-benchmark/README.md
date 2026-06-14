@@ -33,21 +33,25 @@ experiments/     run_all.sh — iterate tasksets x modes, collect JSONL
 analysis/        parse.py (JSONL -> pandas), compare.py (miss-ratio vs U)
 ```
 
-## 1. Build
+## 1. Build & push the images
+
+The workload image must be **rebuilt and pushed whenever the C source under
+`workload/src/` changes** (the node caches `:latest`; the workload pods use
+`imagePullPolicy: Always` so a fresh push is always pulled).
 
 ```bash
-# C workload
-cd workload && make                 # produces ./rt-workload
-docker build -t REGISTRY/kdl-workload:latest .
+# C workload  (rebuild + push after any workload/src change)
+cd workload
+docker build -t docker.io/pippina2/kdl-workload:latest .
+docker push  docker.io/pippina2/kdl-workload:latest
 
-# interference image
+# interference image  (rarely changes)
 cd ../interference
-docker build -t REGISTRY/kdl-interference:latest .
-
-# push both to your registry, then `docker push ...`
+docker build -t docker.io/pippina2/kdl-interference:latest .
+docker push  docker.io/pippina2/kdl-interference:latest
 ```
 
-Python tooling:
+Python tooling (analysis only, on your laptop):
 
 ```bash
 pip install -r requirements.txt
@@ -94,24 +98,78 @@ This should yield well-formed JSONL with sane `exec_time_us` / `response_time_us
 
 ## 4. Run on the cluster
 
-Provide the **real RT-DRA claim**: edit
-[deploy/resourceclaim-rt.yaml](deploy/resourceclaim-rt.yaml) and replace the
-placeholder schema with your working `(Q,P,m)` ResourceClaim
-(`TODO: paste working claim`). Then:
+The full pipeline spans three machines. Do them in order.
+
+### 4a. Build VM — rebuild & push the workload image
 
 ```bash
-NODE=<rt-worker-node> \
-IMAGE=REGISTRY/kdl-workload:latest \
-IMAGE_INTERF=REGISTRY/kdl-interference:latest \
-INTERFERENCE=on \
-bash experiments/run_all.sh
+cd ~/GraduationProject && git pull
+cd rt-CAPZ-cluster/kdl-synth-benchmark/workload
+docker build -t docker.io/pippina2/kdl-workload:latest .
+docker push  docker.io/pippina2/kdl-workload:latest
 ```
 
-`run_all.sh` iterates every taskset × `{rtdra, vanilla}`: it injects the
-taskset via a ConfigMap, applies the claim (rtdra only) + workload pod (+ a
-best-effort interference pod), waits for completion, copies
-`/out/metrics.jsonl` into `results/<mode>/<taskset>.jsonl`, then cleans up. It
-prints a per-run line: `mode, n, U, miss_ratio, p99_resp_us`.
+### 4b. Control-plane node — pull the latest scripts/templates
+
+```bash
+cd ~/GraduationProject && git pull
+cd rt-CAPZ-cluster/kdl-synth-benchmark
+```
+
+### 4c. Clean up any leftovers from a previous run
+
+```bash
+pkill -f run_all.sh 2>/dev/null
+kubectl -n kdl-bench delete pods --all --force 2>/dev/null
+```
+
+### 4d. Quick smoke test (~1-2 min, foreground)
+
+Verifies the whole path before committing to the long sweep. `MAX_SETS` caps the
+number of task sets; `JOBS` shortens each run.
+
+```bash
+# vanilla, 2 sets, short runs, no interference
+MAX_SETS=2 MODES="vanilla" JOBS=50 WARMUP=10 COOLDOWN=2 INTERFERENCE=off \
+  bash experiments/run_all.sh
+
+# rtdra smoke (verifies the ResourceClaim path)
+MAX_SETS=2 MODES="rtdra" JOBS=50 WARMUP=10 COOLDOWN=2 INTERFERENCE=off \
+  bash experiments/run_all.sh
+```
+
+Verify it worked (numbers, **not** `nan`; no `cp failed`):
+
+```bash
+ls -la results/vanilla/                 # non-empty .jsonl files
+tail -1 results/vanilla/set*.jsonl      # last line = {"record":"summary",...,"steal_pct":...}
+```
+
+The `summary` line is proof the **new** binary is running.
+
+### 4e. Full sweep
+
+```bash
+# all task sets x {rtdra, vanilla}, interference on; runs for hours -> nohup
+NODE=rt-cluster-worker-0 \
+IMAGE=docker.io/pippina2/kdl-workload:latest \
+IMAGE_INTERF=docker.io/pippina2/kdl-interference:latest \
+MODES="rtdra vanilla" INTERFERENCE=on \
+  nohup bash experiments/run_all.sh > /tmp/run.log 2>&1 &
+
+tail -f /tmp/run.log                    # watch progress
+kubectl -n kdl-bench get pods -w        # watch pods
+```
+
+**Tunable env knobs:** `MAX_SETS` (0 = all), `JOBS` (jobs per run, default 1000),
+`WARMUP`, `MODES` (`"rtdra vanilla"`), `INTERFERENCE` (`on|off`), `COOLDOWN`,
+`TIMEOUT`, `NODE`, `IMAGE`, `IMAGE_INTERF`.
+
+`run_all.sh` iterates every taskset × mode: it injects the taskset via a
+ConfigMap, applies the claim (rtdra only) + workload pod (+ a best-effort
+interference pod), waits for completion, captures `/out/metrics.jsonl` **from the
+pod logs** into `results/<mode>/<taskset>.jsonl`, then cleans up. It prints a
+per-run line: `mode, n, U, miss_ratio, p99_resp_us`.
 
 ## 5. Analyse
 
@@ -120,24 +178,33 @@ python analysis/compare.py results --out-dir analysis_out
 ```
 
 Produces:
-- `miss_ratio_vs_U.png` — headline: miss ratio vs `U`, rtdra vs vanilla
+- `miss_ratio_vs_U.png` — **G2** headline: miss ratio vs `U`, rtdra vs vanilla
+- `supply_delay_vs_U.png` — **G1**: p99 supply delay (ready-but-off-CPU) vs `U`
 - `schedulability.csv` — fraction of zero-miss task sets per mode per `U` bin
 - `response_dist.png` — response-time distributions
-- `per_taskset.csv` — per (mode, taskset) miss ratio + p99 response time
+- `per_taskset.csv` — per (mode, taskset): miss ratio, p99 response, p99 wait,
+  preempt, and run `steal_pct`
+
+stdout tables: G2 miss ratio, schedulability, G1 supply delay, host CPU steal %,
+and `corr(steal_pct, miss_ratio)`.
 
 **Expectation:** with interference on, RT-DRA stays ≈ 0 misses for
 CARTS-schedulable sets; vanilla's miss ratio rises with `U` / contention.
 
-## Per-job metrics schema (JSONL)
+## Metrics schema (JSONL)
 
-One line per job, stable across phases:
+Each run file has **one line per job** (`record:"job"`) plus **one trailing
+summary line** (`record:"summary"`).
+
+Per-job line:
 
 ```json
 {
-  "run_id": "rtdra-set017-u1.2", "mode": "rtdra", "taskset_id": "set017",
-  "task_id": 3, "job_index": 540,
+  "record": "job", "run_id": "rtdra-set017-u1.2", "mode": "rtdra",
+  "taskset_id": "set017", "task_id": 3, "job_index": 540,
   "release_ts_ns": 0, "start_ts_ns": 0, "completion_ts_ns": 0,
   "exec_time_us": 4188, "response_time_us": 4399,
+  "wait_time_us": 211, "preempt_us": 12,
   "target_c_us": 4200, "period_t_us": 33000, "deadline_us": 33000,
   "overrun": false, "deadline_miss": false, "tardiness_us": 0,
   "budget_q_us": 9000, "period_p_us": 33000, "cores_m": 2,
@@ -146,9 +213,28 @@ One line per job, stable across phases:
 }
 ```
 
-- `overrun` = `exec_time_us > target_c_us` (cloud-induced exec inflation).
+Run-level summary line:
+
+```json
+{
+  "record": "summary", "run_id": "rtdra-set017-u1.2", "mode": "rtdra",
+  "taskset_id": "set017", "steal_pct": 0.42, "steal_us": 12345,
+  "wall_us": 33000000, "iters_per_us": 277.9, "n_tasks": 8, ...
+}
+```
+
+**G2 (deadline guarantee):**
 - `deadline_miss` = `completion_ts > release_ts + deadline_us`.
 - `tardiness_us` = `max(0, completion_ts - (release_ts + deadline_us))`.
+- `overrun` = `exec_time_us > target_c_us` — **demand inflation** (cache/memory
+  contention makes the same work cost more CPU).
+
+**G1 (supply guarantee):**
+- `wait_time_us` = `response_time_us - exec_time_us` — time the job was **ready
+  but off-CPU** (supply not delivered).
+- `preempt_us` — off-CPU time **during** the burn (pure starvation).
+- `steal_pct` (summary) — % host-stolen CPU over the run, from `/proc/stat`; the
+  **cloud cause** of G1 breakage (hypervisor vCPU steal).
 
 ## Design notes / pitfalls handled
 
