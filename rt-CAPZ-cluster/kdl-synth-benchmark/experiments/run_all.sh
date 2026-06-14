@@ -28,7 +28,7 @@ TIMEOUT="${TIMEOUT:-600}"                        # per-pod completion timeout (s
 MAX_SETS="${MAX_SETS:-0}"                         # 0 = all task sets; N = first N only (smoke test)
 RETRIES="${RETRIES:-2}"                           # extra attempts if a run captures no metrics
 DRA_NS="${DRA_NS:-dra-rt-driver}"                 # namespace of the RT-DRA driver
-DRA_PLUGIN_LABEL="${DRA_PLUGIN_LABEL:-app=dra-rt-driver-kubeletplugin}"  # kubeletplugin selector
+DRA_PLUGIN_LABEL="${DRA_PLUGIN_LABEL:-app.kubernetes.io/name=dra-rt-driver}"  # kubeletplugin selector
 DRA_WAIT="${DRA_WAIT:-180}"                       # max seconds to wait for the plugin to be Ready
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

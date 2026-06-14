@@ -48,8 +48,12 @@ for pkg in containerd containerd.io docker.io docker-ce docker-ce-cli \
     fi
 done
 apt-get autoremove -y || true
-# Belt & braces: drop stale binaries that may survive a partial purge.
+# Belt & braces: drop stale binaries AND the stock systemd unit that may survive
+# a partial purge. The stock containerd.io package ships
+# /lib/systemd/system/containerd.service with ExecStart=/usr/bin/containerd,
+# which silently shadows our RT unit at /etc/systemd/system/containerd.service.
 rm -f /usr/bin/containerd /usr/bin/containerd-shim* /usr/sbin/runc
+rm -f /lib/systemd/system/containerd.service
 
 # -----------------------------------------------------------------------------
 # 2. Build & install RT-containerd
@@ -167,11 +171,32 @@ rm -f /etc/cni/net.d/10-containerd-bridge.conf
 systemctl daemon-reload
 systemctl enable --now containerd
 
-# Sanity check: are we actually talking to /usr/local/bin/containerd?
+# Hard assertion: the RUNNING containerd must be our RT build at
+# /usr/local/bin/containerd. If a stock /usr/bin/containerd (from a Docker /
+# containerd.io install) is shadowing it, the node would run without RT cgroup
+# support and stock containerd's SystemdCgroup=false default would fight the
+# kubelet's systemd cgroup driver -> all node pods crash-loop every ~74s.
+# Fail loudly here rather than ship a silently-broken worker.
+# See TROUBLESHOOTING-containerd.md.
 sleep 2
-echo "[verify] running binary: $(readlink -f /proc/$(pidof -s containerd)/exe || echo unknown)"
-echo "[verify] containerd status:"
-systemctl is-active containerd
+running_bin="$(readlink -f "/proc/$(pidof -s containerd)/exe" 2>/dev/null || echo unknown)"
+echo "[verify] running containerd binary: ${running_bin}"
+if [[ "$running_bin" != "/usr/local/bin/containerd" ]]; then
+    echo "[error] active containerd is '${running_bin}', expected /usr/local/bin/containerd." >&2
+    echo "[error] a stock Docker/containerd.io package is shadowing the RT build." >&2
+    echo "[error] purge it (apt-get purge containerd.io docker-ce*) and re-run; see TROUBLESHOOTING-containerd.md." >&2
+    exit 1
+fi
+if ! /usr/local/bin/containerd --version | grep -q 'github.com/containerd/containerd'; then
+    echo "[error] /usr/local/bin/containerd is not the expected RT source build." >&2
+    exit 1
+fi
+# cgroup driver must match the kubelet (systemd).
+if ! grep -q 'SystemdCgroup = true' /etc/containerd/config.toml; then
+    echo "[error] SystemdCgroup is not 'true' in /etc/containerd/config.toml; kubelet uses systemd." >&2
+    exit 1
+fi
+echo "[verify] containerd status: $(systemctl is-active containerd)"
 crictl info --output go-template --template '{{.config.containerd.defaultRuntimeName}} / runc: {{(index .config.containerd.runtimes "runc").options.BinaryName}}' || true
 
 rt_mark_done common
