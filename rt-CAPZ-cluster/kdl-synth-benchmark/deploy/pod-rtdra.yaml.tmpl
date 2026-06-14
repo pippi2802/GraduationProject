@@ -33,7 +33,7 @@ spec:
   containers:
     - name: workload
       image: {{IMAGE}}
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       # Run the workload, then print the metrics file to stdout between markers.
       # run_all.sh captures it via `kubectl logs` (works after the pod exits,
       # unlike `kubectl cp` which needs a live container).
