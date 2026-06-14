@@ -102,8 +102,14 @@ def write_carts_component(tasks: list[dict], scale: int) -> str:
 
 def parse_carts_interface(out_path: str, scale: int) -> tuple[int, int, int] | None:
     """Read CARTS output XML and return (q_us, p_us, m) for our component, or
-    None if the interface is absent. The component's <resource><model> carries
-    cpus -> m, period -> P, execution_time -> Q (P and Q rescaled to us).
+    None if the interface is absent/infeasible.
+
+    The component's <resource><model> carries cpus -> m', period -> P, and
+    execution_time -> Theta, where Theta is the TOTAL budget supplied across
+    all m' processors per period P. A uniform per-core HCBS reservation runs
+    the same (Q, P) on each of the m' cores, so the per-core budget is
+    Q = Theta / m' (which always satisfies Q <= P since Theta <= m'*P).
+    P and Q are rescaled back to microseconds.
     """
     root = ET.parse(out_path).getroot()
     # Output root is <component name="system">; our taskset is the nested one.
@@ -112,8 +118,14 @@ def parse_carts_interface(out_path: str, scale: int) -> tuple[int, int, int] | N
     if model is None:
         return None
     m = int(model.attrib["cpus"])
-    p_us = int(round(float(model.attrib["period"]) * scale))
-    q_us = int(round(float(model.attrib["execution_time"]) * scale))
+    period = float(model.attrib["period"])
+    theta = float(model.attrib["execution_time"])
+    # CARTS emits cpus=0 with an INT_MAX-ish execution_time when no feasible
+    # interface exists for the requested model; treat that as "no interface".
+    if m < 1 or period <= 0 or theta >= 2_000_000_000:
+        return None
+    p_us = int(round(period * scale))
+    q_us = int(round((theta / m) * scale))  # per-core budget
     return q_us, p_us, m
 
 
@@ -151,7 +163,14 @@ def run_carts(tasks: list[dict], cap_cores: int) -> dict | None:
     if parsed is None:
         return None
     q_us, p_us, m = parsed
-    m = max(1, min(cap_cores, m))  # node has cap_cores physical cores
+    # CARTS sizes the interface for m' cores. If that exceeds the node's core
+    # budget, the (gEDF-MPR) interface is not realisable here -- this happens
+    # for high-utilisation sets where MPR analysis is very pessimistic. Rather
+    # than emit a clamped, under-provisioned reservation, defer to the stub.
+    if m > cap_cores:
+        print(f"WARN: CARTS interface needs {m} cores > cap {cap_cores}; "
+              f"using stub", file=sys.stderr)
+        return None
     return {"q_us": q_us, "p_us": p_us, "m": m, "source": "carts"}
 
 

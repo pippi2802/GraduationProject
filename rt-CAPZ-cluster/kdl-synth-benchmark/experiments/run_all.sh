@@ -15,9 +15,9 @@ set -euo pipefail
 # Configuration (override via environment)
 # ---------------------------------------------------------------------------
 NS="${NS:-kdl-bench}"
-NODE="${NODE:-rt-pool-0}"                       # USER PROVIDES the RT worker node
-IMAGE="${IMAGE:-REGISTRY/kdl-workload:latest}"  # USER PROVIDES registry/image
-IMAGE_INTERF="${IMAGE_INTERF:-REGISTRY/kdl-interference:latest}"
+NODE="${NODE:-rt-cluster-worker-0}"                              # RT worker node
+IMAGE="${IMAGE:-docker.io/pippina2/kdl-workload:latest}"         # workload image
+IMAGE_INTERF="${IMAGE_INTERF:-docker.io/pippina2/kdl-interference:latest}"
 MODES="${MODES:-rtdra vanilla}"
 INTERFERENCE="${INTERFERENCE:-on}"              # on|none
 CPU_WORKERS="${CPU_WORKERS:-4}"

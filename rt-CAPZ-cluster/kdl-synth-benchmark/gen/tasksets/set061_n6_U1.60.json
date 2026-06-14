@@ -38,9 +38,9 @@
     }
   ],
   "reservation": {
-    "q_us": 10080,
+    "q_us": 12411,
     "p_us": 12600,
     "m": 2,
-    "source": "stub"
+    "source": "carts"
   }
 }
