@@ -26,6 +26,10 @@ WARMUP="${WARMUP:-20}"
 COOLDOWN="${COOLDOWN:-5}"                        # seconds between runs
 TIMEOUT="${TIMEOUT:-600}"                        # per-pod completion timeout (s)
 MAX_SETS="${MAX_SETS:-0}"                         # 0 = all task sets; N = first N only (smoke test)
+RETRIES="${RETRIES:-2}"                           # extra attempts if a run captures no metrics
+DRA_NS="${DRA_NS:-dra-rt-driver}"                 # namespace of the RT-DRA driver
+DRA_PLUGIN_LABEL="${DRA_PLUGIN_LABEL:-app=dra-rt-driver-kubeletplugin}"  # kubeletplugin selector
+DRA_WAIT="${DRA_WAIT:-180}"                       # max seconds to wait for the plugin to be Ready
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -99,6 +103,24 @@ cleanup_run() {
     kubectl -n "${NS}" delete configmap "taskset-${RUN_ID}" --ignore-not-found --wait=false >/dev/null 2>&1 || true
 }
 
+# The research RT-DRA kubeletplugin (nasimm/dra-rt-driver:v0.1.0) self-exits
+# after handling work and is restarted on a backoff cycle, so a claim landing
+# in a down-window fails NodePrepareResources. Block until at least one plugin
+# pod is Ready before attempting an rtdra run (best-effort; never hard-fails).
+wait_for_dra_plugin() {
+    local deadline=$((SECONDS + DRA_WAIT))
+    while [ "${SECONDS}" -lt "${deadline}" ]; do
+        if kubectl -n "${DRA_NS}" get pods -l "${DRA_PLUGIN_LABEL}" \
+                -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' 2>/dev/null \
+                | grep -q '^True$'; then
+            return 0
+        fi
+        sleep 3
+    done
+    echo "WARN: RT-DRA kubeletplugin not Ready within ${DRA_WAIT}s; attempting anyway" >&2
+    return 1
+}
+
 # ---------------------------------------------------------------------------
 # Setup
 # ---------------------------------------------------------------------------
@@ -131,55 +153,73 @@ for ts_file in "${TASKSETS_DIR}"/*.json; do
         mkdir -p "${RESULTS_DIR}/${MODE}"
         out_jsonl="${RESULTS_DIR}/${MODE}/${TASKSET_ID}.jsonl"
 
-        cleanup_run
+        attempt=0
+        max_attempts=$((RETRIES + 1))
+        while :; do
+            attempt=$((attempt + 1))
+            cleanup_run
 
-        # taskset ConfigMap (mounted at /tasksets)
-        kubectl -n "${NS}" create configmap "taskset-${RUN_ID}" \
-            --from-file="${TASKSET}=${ts_file}" >/dev/null
+            # rtdra depends on the flaky kubeletplugin: wait for an up-window.
+            if [ "${MODE}" = "rtdra" ]; then
+                wait_for_dra_plugin || true
+            fi
 
-        # optional interference
-        if [ "${INTERFERENCE}" = "on" ]; then
-            tmp_if="$(mktemp)"
-            render "${DEPLOY_DIR}/pod-interference.yaml.tmpl" "${tmp_if}"
-            kubectl apply -f "${tmp_if}" >/dev/null
-            rm -f "${tmp_if}"
-        fi
+            # taskset ConfigMap (mounted at /tasksets)
+            kubectl -n "${NS}" create configmap "taskset-${RUN_ID}" \
+                --from-file="${TASKSET}=${ts_file}" >/dev/null
 
-        if [ "${MODE}" = "rtdra" ]; then
-            tmp_claim="$(mktemp)"
-            render "${DEPLOY_DIR}/resourceclaim-rt.yaml" "${tmp_claim}"
-            kubectl apply -f "${tmp_claim}" >/dev/null
-            rm -f "${tmp_claim}"
-            pod_name="rt-workload-${RUN_ID}"
-            tmpl="${DEPLOY_DIR}/pod-rtdra.yaml.tmpl"
-        else
-            pod_name="vanilla-workload-${RUN_ID}"
-            tmpl="${DEPLOY_DIR}/pod-vanilla.yaml.tmpl"
-        fi
+            # optional interference
+            if [ "${INTERFERENCE}" = "on" ]; then
+                tmp_if="$(mktemp)"
+                render "${DEPLOY_DIR}/pod-interference.yaml.tmpl" "${tmp_if}"
+                kubectl apply -f "${tmp_if}" >/dev/null
+                rm -f "${tmp_if}"
+            fi
 
-        tmp_pod="$(mktemp)"
-        render "${tmpl}" "${tmp_pod}"
-        kubectl apply -f "${tmp_pod}" >/dev/null
-        rm -f "${tmp_pod}"
+            if [ "${MODE}" = "rtdra" ]; then
+                tmp_claim="$(mktemp)"
+                render "${DEPLOY_DIR}/resourceclaim-rt.yaml" "${tmp_claim}"
+                kubectl apply -f "${tmp_claim}" >/dev/null
+                rm -f "${tmp_claim}"
+                pod_name="rt-workload-${RUN_ID}"
+                tmpl="${DEPLOY_DIR}/pod-rtdra.yaml.tmpl"
+            else
+                pod_name="vanilla-workload-${RUN_ID}"
+                tmpl="${DEPLOY_DIR}/pod-vanilla.yaml.tmpl"
+            fi
 
-        # wait for completion
-        kubectl -n "${NS}" wait --for=condition=Ready "pod/${pod_name}" \
-            --timeout=120s >/dev/null 2>&1 || true
-        if ! kubectl -n "${NS}" wait --for=jsonpath='{.status.phase}'=Succeeded \
-                "pod/${pod_name}" --timeout="${TIMEOUT}s" >/dev/null 2>&1; then
-            echo "WARN: ${pod_name} did not Succeed within ${TIMEOUT}s" >&2
-        fi
+            tmp_pod="$(mktemp)"
+            render "${tmpl}" "${tmp_pod}"
+            kubectl apply -f "${tmp_pod}" >/dev/null
+            rm -f "${tmp_pod}"
 
-        # Capture metrics from the pod's logs. The container prints the JSONL
-        # to stdout between markers after writing the file, so this works even
-        # though the pod has already terminated (unlike `kubectl cp`, which
-        # needs a live container to exec tar).
-        kubectl -n "${NS}" logs "pod/${pod_name}" -c workload 2>/dev/null \
-            | sed -n '/__METRICS_BEGIN__/,/__METRICS_END__/p' \
-            | sed '1d;$d' > "${out_jsonl}"
-        if [ ! -s "${out_jsonl}" ]; then
-            echo "WARN: no metrics captured for ${pod_name}" >&2
-        fi
+            # wait for completion
+            kubectl -n "${NS}" wait --for=condition=Ready "pod/${pod_name}" \
+                --timeout=120s >/dev/null 2>&1 || true
+            if ! kubectl -n "${NS}" wait --for=jsonpath='{.status.phase}'=Succeeded \
+                    "pod/${pod_name}" --timeout="${TIMEOUT}s" >/dev/null 2>&1; then
+                echo "WARN: ${pod_name} did not Succeed within ${TIMEOUT}s (attempt ${attempt}/${max_attempts})" >&2
+            fi
+
+            # Capture metrics from the pod's logs. The container prints the JSONL
+            # to stdout between markers after writing the file, so this works even
+            # though the pod has already terminated (unlike `kubectl cp`, which
+            # needs a live container to exec tar).
+            kubectl -n "${NS}" logs "pod/${pod_name}" -c workload 2>/dev/null \
+                | sed -n '/__METRICS_BEGIN__/,/__METRICS_END__/p' \
+                | sed '1d;$d' > "${out_jsonl}"
+
+            if [ -s "${out_jsonl}" ]; then
+                break
+            fi
+            if [ "${attempt}" -ge "${max_attempts}" ]; then
+                echo "WARN: no metrics captured for ${pod_name} after ${max_attempts} attempts" >&2
+                break
+            fi
+            echo "WARN: no metrics for ${pod_name} (attempt ${attempt}/${max_attempts}); retrying" >&2
+            cleanup_run
+            sleep "${COOLDOWN}"
+        done
 
         read -r miss p99 <<<"$(summarize "${out_jsonl}")"
         echo "${MODE},${N_TASKS},${UTIL},${miss},${p99}"
