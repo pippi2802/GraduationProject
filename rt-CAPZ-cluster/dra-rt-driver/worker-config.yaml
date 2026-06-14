@@ -1,0 +1,17 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+nodeRegistration:
+  kubeletExtraArgs:
+    feature-gates: "DynamicResourceAllocation=true"
+discovery:
+  bootstrapToken:
+    token: "njzdui.sq5a0tvxc91qen03"
+    apiServerEndpoint: "192.168.122.148:6443"
+    caCertHashes:
+      - "sha256:9cb6b81a0eb69ae7255d75b4c3ec6d0c9eabfe1a1fe8d55c36035c7f827c92cf"
+
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+featureGates:
+  DynamicResourceAllocation: true

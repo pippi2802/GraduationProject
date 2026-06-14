@@ -1,0 +1,142 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: nodeallocationstates.nas.rt.resource.example.com
+spec:
+  group: nas.rt.resource.example.com
+  names:
+    kind: NodeAllocationState
+    listKind: NodeAllocationStateList
+    plural: nodeallocationstates
+    singular: nas
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: NodeAllocationState holds the state required for allocation on
+          a node.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: NodeAllocationStateSpec is the spec for the NodeAllocationState
+              CRD.
+            properties:
+              allocatableCpuset:
+                items:
+                  description: AllocatableDevice represents an allocatable device
+                    on a node.
+                  properties:
+                    rtcpu:
+                      description: AllocatableGpu represents an allocatable GPU on
+                        a node.
+                      properties:
+                        id:
+                          type: integer
+                        util:
+                          type: integer
+                      required:
+                      - id
+                      - util
+                      type: object
+                  type: object
+                type: array
+              allocatedClaims:
+                additionalProperties:
+                  description: AllocatedRtCpu represents a set of allocated CPUs.
+                  properties:
+                    rtcpu:
+                      description: AllocatedCpuset represents a set of allocated CPUs.
+                      properties:
+                        cgroupUID:
+                          type: string
+                        cpuset:
+                          items:
+                            description: AllocatedGpu represents an allocated GPU.
+                            properties:
+                              id:
+                                type: integer
+                              period:
+                                type: integer
+                              runtime:
+                                type: integer
+                            required:
+                            - id
+                            type: object
+                          type: array
+                      required:
+                      - cpuset
+                      type: object
+                  type: object
+                type: object
+              allocatedUtilToCpu:
+                description: AllocatedUtilset represents a set of allocated utilisations
+                  to CPUs.
+                properties:
+                  cpus:
+                    additionalProperties:
+                      description: AllocatedUtil represents an allocated utilisation
+                        to a CPU.
+                      properties:
+                        util:
+                          type: integer
+                      required:
+                      - util
+                      type: object
+                    description: MappedUtil represents a mapping of utilisation to
+                      CPUs.
+                    type: object
+                type: object
+              preparedClaims:
+                additionalProperties:
+                  description: PreparedDevices represents a set of prepared devices
+                    on a node.
+                  properties:
+                    rtcpu:
+                      description: PreparedGpus represents a set of prepared GPUs
+                        on a node.
+                      properties:
+                        cpuset:
+                          items:
+                            description: PreparedGpu represents a prepared GPU on
+                              a node.
+                            properties:
+                              id:
+                                type: integer
+                              util:
+                                type: integer
+                            required:
+                            - id
+                            - util
+                            type: object
+                          type: array
+                      required:
+                      - cpuset
+                      type: object
+                  type: object
+                type: object
+            type: object
+          status:
+            type: string
+        type: object
+    served: true
+    storage: true
