@@ -79,6 +79,10 @@ except FileNotFoundError:
     print("nan nan"); raise SystemExit
 if not jobs:
     print("nan nan"); raise SystemExit
+# Keep only per-job records (skip the run-level summary line).
+jobs = [j for j in jobs if j.get("record", "job") == "job"]
+if not jobs:
+    print("nan nan"); raise SystemExit
 miss = sum(1 for j in jobs if j.get("deadline_miss")) / len(jobs)
 resp = sorted(j["response_time_us"] for j in jobs)
 p99 = resp[min(len(resp) - 1, int(0.99 * len(resp)))]
@@ -159,9 +163,16 @@ for ts_file in "${TASKSETS_DIR}"/*.json; do
             echo "WARN: ${pod_name} did not Succeed within ${TIMEOUT}s" >&2
         fi
 
-        # copy metrics out of the (now terminated) pod's emptyDir via cp
-        kubectl -n "${NS}" cp "${pod_name}:/out/metrics.jsonl" "${out_jsonl}" \
-            -c workload >/dev/null 2>&1 || echo "WARN: cp failed for ${pod_name}" >&2
+        # Capture metrics from the pod's logs. The container prints the JSONL
+        # to stdout between markers after writing the file, so this works even
+        # though the pod has already terminated (unlike `kubectl cp`, which
+        # needs a live container to exec tar).
+        kubectl -n "${NS}" logs "pod/${pod_name}" -c workload 2>/dev/null \
+            | sed -n '/__METRICS_BEGIN__/,/__METRICS_END__/p' \
+            | sed '1d;$d' > "${out_jsonl}"
+        if [ ! -s "${out_jsonl}" ]; then
+            echo "WARN: no metrics captured for ${pod_name}" >&2
+        fi
 
         read -r miss p99 <<<"$(summarize "${out_jsonl}")"
         echo "${MODE},${N_TASKS},${UTIL},${miss},${p99}"

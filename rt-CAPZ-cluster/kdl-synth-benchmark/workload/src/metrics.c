@@ -24,10 +24,11 @@ void metrics_write(const job_record_t *r) {
     }
     pthread_mutex_lock(&g_lock);
     fprintf(g_fp,
-        "{\"run_id\":\"%s\",\"mode\":\"%s\",\"taskset_id\":\"%s\","
+        "{\"record\":\"job\",\"run_id\":\"%s\",\"mode\":\"%s\",\"taskset_id\":\"%s\","
         "\"task_id\":%d,\"job_index\":%llu,"
         "\"release_ts_ns\":%llu,\"start_ts_ns\":%llu,\"completion_ts_ns\":%llu,"
         "\"exec_time_us\":%llu,\"response_time_us\":%llu,"
+        "\"wait_time_us\":%llu,\"preempt_us\":%llu,"
         "\"target_c_us\":%llu,\"period_t_us\":%llu,\"deadline_us\":%llu,"
         "\"overrun\":%s,\"deadline_miss\":%s,\"tardiness_us\":%llu,"
         "\"budget_q_us\":%llu,\"period_p_us\":%llu,\"cores_m\":%d,"
@@ -40,6 +41,8 @@ void metrics_write(const job_record_t *r) {
         (unsigned long long)r->completion_ts_ns,
         (unsigned long long)r->exec_time_us,
         (unsigned long long)r->response_time_us,
+        (unsigned long long)r->wait_time_us,
+        (unsigned long long)r->preempt_us,
         (unsigned long long)r->target_c_us,
         (unsigned long long)r->period_t_us,
         (unsigned long long)r->deadline_us,
@@ -49,6 +52,28 @@ void metrics_write(const job_record_t *r) {
         (unsigned long long)g_labels.budget_q_us,
         (unsigned long long)g_labels.period_p_us,
         g_labels.cores_m, g_labels.util, g_labels.n_tasks,
+        g_labels.interference, g_labels.node, g_labels.kernel);
+    pthread_mutex_unlock(&g_lock);
+}
+
+void metrics_write_summary(const metrics_summary_t *s) {
+    if (!g_fp) {
+        return;
+    }
+    pthread_mutex_lock(&g_lock);
+    fprintf(g_fp,
+        "{\"record\":\"summary\",\"run_id\":\"%s\",\"mode\":\"%s\","
+        "\"taskset_id\":\"%s\",\"steal_pct\":%.6f,\"steal_us\":%llu,"
+        "\"wall_us\":%llu,\"iters_per_us\":%.6f,"
+        "\"budget_q_us\":%llu,\"period_p_us\":%llu,\"cores_m\":%d,"
+        "\"util\":%.6f,\"n_tasks\":%d,\"interference\":\"%s\","
+        "\"node\":\"%s\",\"kernel\":\"%s\"}\n",
+        g_labels.run_id, g_labels.mode, g_labels.taskset_id,
+        s->steal_pct, (unsigned long long)s->steal_us,
+        (unsigned long long)s->wall_us, s->iters_per_us,
+        (unsigned long long)g_labels.budget_q_us,
+        (unsigned long long)g_labels.period_p_us,
+        g_labels.cores_m, g_labels.util, s->n_tasks,
         g_labels.interference, g_labels.node, g_labels.kernel);
     pthread_mutex_unlock(&g_lock);
 }

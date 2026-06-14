@@ -22,7 +22,7 @@ import pandas as pd
 
 # parse.py lives next to this file.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from parse import load  # noqa: E402
+from parse import load, split  # noqa: E402
 
 try:
     import matplotlib
@@ -34,15 +34,25 @@ except Exception:  # pragma: no cover - plotting is optional
 
 
 def per_taskset(df: pd.DataFrame) -> pd.DataFrame:
-    """Per (mode, taskset_id) miss ratio, p99 response time, overrun count."""
+    """Per (mode, taskset_id): deadline outcome (G2) and supply delay (G1)."""
     g = df.groupby(["mode", "taskset_id"])
     out = g.agg(
         util=("util", "first"),
         n_tasks=("n_tasks", "first"),
         jobs=("deadline_miss", "size"),
+        # G2: deadline guarantee
         miss_ratio=("deadline_miss", "mean"),
         p99_resp_us=("response_time_us", lambda s: s.quantile(0.99)),
+        max_tard_us=("tardiness_us", "max"),
+        # G2 mechanism: demand inflation (exec > target C)
         overruns=("overrun", "sum"),
+        p99_exec_us=("exec_time_us", lambda s: s.quantile(0.99)),
+        # G1: supply delay (ready but off-CPU)
+        p99_wait_us=("wait_time_us", lambda s: s.quantile(0.99)),
+        mean_preempt_us=("preempt_us", "mean"),
+        p99_preempt_us=("preempt_us", lambda s: s.quantile(0.99)),
+        # G1 cloud cause: host-stolen CPU over the run
+        steal_pct=("steal_pct", "first"),
     ).reset_index()
     return out
 
@@ -94,6 +104,27 @@ def plot_resp_dist(df: pd.DataFrame, out_path: str):
     plt.close()
 
 
+def plot_supply_delay(per_set: pd.DataFrame, out_path: str, bin_width: float = 0.2):
+    """p99 supply delay (ready-but-off-CPU) vs U — the G1 signal, per mode."""
+    if not HAVE_MPL:
+        return
+    ps = per_set.copy()
+    ps["u_bin"] = (ps["util"] / bin_width).round().astype(int) * bin_width
+    agg = ps.groupby(["mode", "u_bin"])["p99_wait_us"].mean().reset_index()
+    plt.figure(figsize=(7, 4.5))
+    for mode, sub in agg.groupby("mode"):
+        sub = sub.sort_values("u_bin")
+        plt.plot(sub["u_bin"], sub["p99_wait_us"] / 1000.0, marker="o", label=mode)
+    plt.xlabel("Utilisation U")
+    plt.ylabel("p99 supply delay (ms)")
+    plt.title("Supply delay (ready but off-CPU) vs utilisation — G1")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+
+
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(description="RT-DRA vs vanilla comparison")
     p.add_argument("results", help="results directory or combined JSONL")
@@ -107,7 +138,12 @@ def main(argv: list[str]) -> int:
         print("no records found", file=sys.stderr)
         return 1
 
-    per_set = per_taskset(df)
+    jobs, summaries = split(df)
+    if jobs.empty:
+        print("no per-job records found", file=sys.stderr)
+        return 1
+
+    per_set = per_taskset(jobs)
     per_set.to_csv(os.path.join(args.out_dir, "per_taskset.csv"), index=False)
 
     sched = schedulability(per_set, args.bin_width)
@@ -115,10 +151,12 @@ def main(argv: list[str]) -> int:
 
     plot_miss_vs_u(per_set, os.path.join(args.out_dir, "miss_ratio_vs_U.png"),
                    args.bin_width)
-    plot_resp_dist(df, os.path.join(args.out_dir, "response_dist.png"))
+    plot_resp_dist(jobs, os.path.join(args.out_dir, "response_dist.png"))
+    plot_supply_delay(per_set, os.path.join(args.out_dir, "supply_delay_vs_U.png"),
+                      args.bin_width)
 
     # Headline table to stdout.
-    print("\n=== miss ratio by mode and U bin ===")
+    print("\n=== G2: deadline-miss ratio by mode and U bin ===")
     ps = per_set.copy()
     ps["u_bin"] = (ps["util"] / args.bin_width).round().astype(int) * args.bin_width
     table = ps.pivot_table(index="u_bin", columns="mode",
@@ -129,6 +167,24 @@ def main(argv: list[str]) -> int:
     stab = sched.pivot_table(index="u_bin", columns="mode",
                              values="success_rate")
     print(stab.to_string(float_format=lambda x: f"{x:.3f}"))
+
+    print("\n=== G1: p99 supply delay (ms, ready-but-off-CPU) by mode and U bin ===")
+    wtab = ps.assign(p99_wait_ms=ps["p99_wait_us"] / 1000.0).pivot_table(
+        index="u_bin", columns="mode", values="p99_wait_ms", aggfunc="mean")
+    print(wtab.to_string(float_format=lambda x: f"{x:.2f}"))
+
+    # Host steal (G1 cloud cause): summary covariate, and correlation with misses.
+    if not summaries.empty and summaries["steal_pct"].notna().any():
+        steal_by_mode = summaries.groupby("mode")["steal_pct"].agg(["mean", "max"])
+        print("\n=== G1 cause: host CPU steal (%) by mode ===")
+        print(steal_by_mode.to_string(float_format=lambda x: f"{x:.3f}"))
+        corr = (per_set.dropna(subset=["steal_pct"])
+                       .groupby("mode")[["steal_pct", "miss_ratio"]]
+                       .corr().iloc[0::2, -1].reset_index(name="corr"))
+        if not corr.empty:
+            print("\n=== correlation(steal_pct, miss_ratio) by mode ===")
+            print(corr[["mode", "corr"]].to_string(index=False,
+                  float_format=lambda x: f"{x:.3f}"))
 
     print(f"\noutputs written to {args.out_dir}/"
           + ("" if HAVE_MPL else "  (matplotlib missing: plots skipped)"))

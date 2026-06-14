@@ -39,9 +39,14 @@ void *task_thread(void *arg) {
 
         const uint64_t exec_us = (cpu1 - cpu0) / 1000ULL;
         const uint64_t resp_us = (t1 - release) / 1000ULL;
+        /* Wall time spent inside the burn (release-to-start + on/off CPU). */
+        const uint64_t burn_wall_us = (t1 - t0) / 1000ULL;
         const uint64_t deadline_abs = release + deadline_ns;
         const bool miss = t1 > deadline_abs;
         const uint64_t tard_us = miss ? (t1 - deadline_abs) / 1000ULL : 0;
+        /* Supply signals (G1): time ready but off-CPU. */
+        const uint64_t wait_us = resp_us > exec_us ? resp_us - exec_us : 0;
+        const uint64_t preempt_us = burn_wall_us > exec_us ? burn_wall_us - exec_us : 0;
 
         job_record_t rec = {
             .task_id = ta->id,
@@ -51,6 +56,8 @@ void *task_thread(void *arg) {
             .completion_ts_ns = t1 - ta->epoch_ns,
             .exec_time_us = exec_us,
             .response_time_us = resp_us,
+            .wait_time_us = wait_us,
+            .preempt_us = preempt_us,
             .target_c_us = ta->c_us,
             .period_t_us = ta->t_us,
             .deadline_us = ta->d_us,

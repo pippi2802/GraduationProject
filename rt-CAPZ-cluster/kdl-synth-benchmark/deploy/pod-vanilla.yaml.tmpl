@@ -30,35 +30,32 @@ spec:
     - name: workload
       image: {{IMAGE}}
       imagePullPolicy: IfNotPresent
+      # Run the workload, then print the metrics file to stdout between markers.
+      # run_all.sh captures it via `kubectl logs` (works after the pod exits,
+      # unlike `kubectl cp` which needs a live container).
+      command: ["/bin/sh", "-c"]
       args:
-        - "--taskset"
-        - "/tasksets/{{TASKSET}}"
-        - "--out"
-        - "/out/metrics.jsonl"
-        - "--jobs"
-        - "{{JOBS}}"
-        - "--warmup"
-        - "{{WARMUP}}"
-        - "--run-id"
-        - "{{RUN_ID}}"
-        - "--taskset-id"
-        - "{{TASKSET_ID}}"
-        - "--mode"
-        - "vanilla"
-        - "--budget-q-us"
-        - "{{Q}}"
-        - "--period-p-us"
-        - "{{P}}"
-        - "--cores-m"
-        - "{{M}}"
-        - "--util"
-        - "{{UTIL}}"
-        - "--interference"
-        - "{{INTERFERENCE}}"
-        - "--node"
-        - "{{NODE}}"
-        - "--kernel"
-        - "cfs"
+        - |
+          /usr/local/bin/rt-workload \
+            --taskset "/tasksets/{{TASKSET}}" \
+            --out /out/metrics.jsonl \
+            --jobs "{{JOBS}}" \
+            --warmup "{{WARMUP}}" \
+            --run-id "{{RUN_ID}}" \
+            --taskset-id "{{TASKSET_ID}}" \
+            --mode vanilla \
+            --budget-q-us "{{Q}}" \
+            --period-p-us "{{P}}" \
+            --cores-m "{{M}}" \
+            --util "{{UTIL}}" \
+            --interference "{{INTERFERENCE}}" \
+            --node "{{NODE}}" \
+            --kernel cfs
+          rc=$?
+          echo __METRICS_BEGIN__
+          cat /out/metrics.jsonl 2>/dev/null || true
+          echo __METRICS_END__
+          exit $rc
       # Same nominal CPU share as the reservation (m cores), but NO temporal
       # or budget isolation — the whole point of the comparison.
       resources:

@@ -4,6 +4,7 @@
 
 #include "calib.h"
 #include "metrics.h"
+#include "steal.h"
 #include "task.h"
 #include "timing.h"
 
@@ -226,6 +227,10 @@ int main(int argc, char **argv) {
     /* Start all tasks together, shortly in the future. */
     const uint64_t start_at = epoch + 100ULL * 1000000ULL; /* +100 ms */
 
+    /* Sample host-stolen CPU time across the whole measured run (G1 covariate). */
+    const steal_sample_t steal_before = steal_read();
+    const uint64_t run_wall_start = now_ns(CLOCK_MONOTONIC);
+
     pthread_t th[MAX_TASKS];
     for (int i = 0; i < n; i++) {
         tasks[i].jobs = jobs;
@@ -244,7 +249,18 @@ int main(int argc, char **argv) {
         pthread_join(th[i], NULL);
     }
 
+    const steal_sample_t steal_after = steal_read();
+    const uint64_t run_wall_end = now_ns(CLOCK_MONOTONIC);
+    metrics_summary_t summary = {
+        .steal_pct = steal_pct(steal_before, steal_after),
+        .steal_us = steal_us(steal_before, steal_after),
+        .wall_us = (run_wall_end - run_wall_start) / 1000ULL,
+        .iters_per_us = iters_per_us,
+        .n_tasks = n,
+    };
+    metrics_write_summary(&summary);
+
     metrics_close();
-    fprintf(stderr, "done: wrote %s\n", out_path);
+    fprintf(stderr, "done: wrote %s (steal %.2f%%)\n", out_path, summary.steal_pct);
     return 0;
 }

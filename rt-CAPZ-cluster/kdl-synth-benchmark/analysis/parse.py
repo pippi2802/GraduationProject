@@ -17,12 +17,15 @@ import sys
 import pandas as pd
 
 EXPECTED_COLUMNS = [
-    "run_id", "mode", "taskset_id", "task_id", "job_index",
+    "record", "run_id", "mode", "taskset_id", "task_id", "job_index",
     "release_ts_ns", "start_ts_ns", "completion_ts_ns",
-    "exec_time_us", "response_time_us", "target_c_us", "period_t_us",
+    "exec_time_us", "response_time_us", "wait_time_us", "preempt_us",
+    "target_c_us", "period_t_us",
     "deadline_us", "overrun", "deadline_miss", "tardiness_us",
     "budget_q_us", "period_p_us", "cores_m", "util", "n_tasks",
     "interference", "node", "kernel",
+    # run-level summary fields (present only on record=="summary" rows)
+    "steal_pct", "steal_us", "wall_us", "iters_per_us",
 ]
 
 
@@ -48,7 +51,26 @@ def load(path: str) -> pd.DataFrame:
     for col in EXPECTED_COLUMNS:
         if col not in df.columns:
             df[col] = pd.NA
+    # Records written before the "record" field existed are job rows.
+    df["record"] = df["record"].fillna("job")
     return df
+
+
+def split(df: pd.DataFrame):
+    """Separate per-job rows from run-level summary rows.
+
+    Returns (jobs_df, summary_df). The per-job frame is augmented with the
+    run's ``steal_pct`` (joined on run_id) so cloud-steal can be correlated
+    with deadline/supply outcomes at the job level.
+    """
+    jobs = df[df["record"] == "job"].copy()
+    summaries = df[df["record"] == "summary"].copy()
+    if not summaries.empty and not jobs.empty:
+        steal = summaries[["run_id", "steal_pct"]].drop_duplicates("run_id")
+        jobs = jobs.drop(columns=["steal_pct"], errors="ignore").merge(
+            steal, on="run_id", how="left")
+    return jobs, summaries
+
 
 
 def main(argv: list[str]) -> int:
