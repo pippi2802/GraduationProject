@@ -25,6 +25,7 @@ JOBS="${JOBS:-1000}"
 WARMUP="${WARMUP:-20}"
 COOLDOWN="${COOLDOWN:-5}"                        # seconds between runs
 TIMEOUT="${TIMEOUT:-600}"                        # per-pod completion timeout (s)
+MAX_SETS="${MAX_SETS:-0}"                         # 0 = all task sets; N = first N only (smoke test)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -106,7 +107,13 @@ kubectl apply -f "${DEPLOY_DIR}/namespace.yaml" >/dev/null
 echo "mode,n,U,miss_ratio,p99_resp_us"
 
 shopt -s nullglob
+set_count=0
 for ts_file in "${TASKSETS_DIR}"/*.json; do
+    if [ "${MAX_SETS}" -gt 0 ] && [ "${set_count}" -ge "${MAX_SETS}" ]; then
+        echo "# MAX_SETS=${MAX_SETS} reached, stopping early" >&2
+        break
+    fi
+    set_count=$((set_count + 1))
     TASKSET="$(basename "${ts_file}")"
     TASKSET_ID="$(json_get "${ts_file}" taskset_id)"
     N_TASKS="$(json_get "${ts_file}" n)"
