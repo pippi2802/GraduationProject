@@ -50,9 +50,9 @@ spec:
     - |
       echo "=== RT-DRA demo: pod0/ctr0 scheduler report ==="
       echo "injected env:"; export | grep -E 'RT_|CPUSET|RUNTIME|PERIOD' || true
-      apt-get update -qq && apt-get install -y -qq util-linux >/dev/null 2>&1 || true
-      echo "scheduler (chrt):"; chrt -p $$ || true
-      echo "affinity (taskset):"; taskset -cp $$ || true
+      echo "scheduler (chrt):"; chrt -p $$$$ || true
+      echo "affinity (taskset):"; taskset -cp $$$$ || true
+      echo "scheduler (/proc, policy field 41 of self/stat):"; awk '{print "policy="$$41" rt_priority="$$40}' /proc/self/stat || true
       echo "cgroup:"; cat /proc/self/cgroup || true
       echo "=== sleeping ==="; sleep 9999
     resources:
@@ -80,9 +80,9 @@ spec:
     - |
       echo "=== RT-DRA demo: pod1/ctr0 scheduler report ==="
       echo "injected env:"; export | grep -E 'RT_|CPUSET|RUNTIME|PERIOD' || true
-      apt-get update -qq && apt-get install -y -qq util-linux >/dev/null 2>&1 || true
-      echo "scheduler (chrt):"; chrt -p $$ || true
-      echo "affinity (taskset):"; taskset -cp $$ || true
+      echo "scheduler (chrt):"; chrt -p $$$$ || true
+      echo "affinity (taskset):"; taskset -cp $$$$ || true
+      echo "scheduler (/proc, policy field 41 of self/stat):"; awk '{print "policy="$$41" rt_priority="$$40}' /proc/self/stat || true
       echo "cgroup:"; cat /proc/self/cgroup || true
       echo "=== sleeping ==="; sleep 9999
     resources:
