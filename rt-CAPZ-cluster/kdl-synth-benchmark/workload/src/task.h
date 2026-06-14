@@ -19,4 +19,14 @@ typedef struct {
 /* pthread entry point: runs the absolute-time periodic loop. */
 void *task_thread(void *arg);
 
+/* Human-readable name for a sched_getscheduler() policy value. */
+const char *sched_policy_name(int policy);
+
+/*
+ * Print the calling thread's scheduling policy, priority and CPU affinity to
+ * stderr, prefixed with `who`. Used to verify whether the container/tasks run
+ * under CFS (SCHED_OTHER) or a real-time class (SCHED_FIFO/RR/DEADLINE).
+ */
+void print_sched_state(const char *who);
+
 #endif /* TASK_H */

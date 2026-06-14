@@ -46,7 +46,15 @@ spec:
   - name: ctr0
     image: ubuntu:22.04
     command: ["bash", "-c"]
-    args: ["export; sleep 9999"]
+    args:
+    - |
+      echo "=== RT-DRA demo: pod0/ctr0 scheduler report ==="
+      echo "injected env:"; export | grep -E 'RT_|CPUSET|RUNTIME|PERIOD' || true
+      apt-get update -qq && apt-get install -y -qq util-linux >/dev/null 2>&1 || true
+      echo "scheduler (chrt):"; chrt -p $$ || true
+      echo "affinity (taskset):"; taskset -cp $$ || true
+      echo "cgroup:"; cat /proc/self/cgroup || true
+      echo "=== sleeping ==="; sleep 9999
     resources:
       claims:
       - name: rtcpu
@@ -68,7 +76,15 @@ spec:
   - name: ctr0
     image: ubuntu:22.04
     command: ["bash", "-c"]
-    args: ["export; sleep 9999"]
+    args:
+    - |
+      echo "=== RT-DRA demo: pod1/ctr0 scheduler report ==="
+      echo "injected env:"; export | grep -E 'RT_|CPUSET|RUNTIME|PERIOD' || true
+      apt-get update -qq && apt-get install -y -qq util-linux >/dev/null 2>&1 || true
+      echo "scheduler (chrt):"; chrt -p $$ || true
+      echo "affinity (taskset):"; taskset -cp $$ || true
+      echo "cgroup:"; cat /proc/self/cgroup || true
+      echo "=== sleeping ==="; sleep 9999
     resources:
       claims:
       - name: rtcpu

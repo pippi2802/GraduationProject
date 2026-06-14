@@ -200,6 +200,9 @@ int main(int argc, char **argv) {
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
 
+    /* Report the container's (main process) scheduler before spawning tasks. */
+    print_sched_state("main/container");
+
     fprintf(stderr, "calibrating busy-loop...\n");
     double iters_per_us = calibrate_iters_per_us();
     fprintf(stderr, "calibration: %.2f iters/us, %d tasks, %llu+%llu jobs\n",

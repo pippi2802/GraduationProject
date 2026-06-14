@@ -5,13 +5,68 @@
 #include "periodic.h"
 #include "timing.h"
 
+#include <sched.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/syscall.h>
 #include <time.h>
+#include <unistd.h>
 
 /* Set by the main thread's signal handler to request a clean stop. */
 extern volatile int g_stop;
 
+const char *sched_policy_name(int policy) {
+    switch (policy) {
+    case SCHED_OTHER: return "SCHED_OTHER (CFS)";
+    case SCHED_FIFO:  return "SCHED_FIFO (RT)";
+    case SCHED_RR:    return "SCHED_RR (RT)";
+#ifdef SCHED_BATCH
+    case SCHED_BATCH: return "SCHED_BATCH";
+#endif
+#ifdef SCHED_IDLE
+    case SCHED_IDLE:  return "SCHED_IDLE";
+#endif
+#ifdef SCHED_DEADLINE
+    case SCHED_DEADLINE: return "SCHED_DEADLINE (EDF)";
+#endif
+    default: return "UNKNOWN";
+    }
+}
+
+void print_sched_state(const char *who) {
+    int policy = sched_getscheduler(0);
+
+    struct sched_param sp;
+    memset(&sp, 0, sizeof(sp));
+    sched_getparam(0, &sp);
+
+    char cpus[256];
+    cpus[0] = '\0';
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    if (sched_getaffinity(0, sizeof(set), &set) == 0) {
+        size_t off = 0;
+        for (int cpu = 0; cpu < CPU_SETSIZE && off < sizeof(cpus) - 8; cpu++) {
+            if (CPU_ISSET(cpu, &set)) {
+                off += (size_t)snprintf(cpus + off, sizeof(cpus) - off, "%d,", cpu);
+            }
+        }
+        if (off > 0) {
+            cpus[off - 1] = '\0'; /* trim trailing comma */
+        }
+    }
+
+    fprintf(stderr, "[sched] %-14s policy=%-20s priority=%d affinity=[%s] tid=%ld\n",
+            who, sched_policy_name(policy < 0 ? -1 : policy), sp.sched_priority,
+            cpus, (long)syscall(SYS_gettid));
+}
+
 void *task_thread(void *arg) {
     task_arg_t *ta = (task_arg_t *)arg;
+
+    char who[24];
+    snprintf(who, sizeof(who), "task %d", ta->id);
+    print_sched_state(who);
 
     const uint64_t period_ns = ta->t_us * 1000ULL;
     const uint64_t deadline_ns = ta->d_us * 1000ULL;
