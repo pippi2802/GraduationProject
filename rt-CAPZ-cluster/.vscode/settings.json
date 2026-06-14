@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"c:\\\\Users\\\\t-sbrighi\\\\OneDrive - Microsoft\\\\Documents\\\\GraduationProject\\\\rt-CAPZ-cluster\\\\carts\\\\carts-dev\"; java -version; ant -version$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

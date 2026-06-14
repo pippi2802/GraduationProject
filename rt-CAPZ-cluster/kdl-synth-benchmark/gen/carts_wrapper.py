@@ -21,45 +21,138 @@ import glob
 import json
 import math
 import os
+import shlex
+import subprocess
 import sys
+import tempfile
+import xml.etree.ElementTree as ET
 
 # ---------------------------------------------------------------------------
-# CARTS integration point
+# CARTS integration
 # ---------------------------------------------------------------------------
-# CARTS input format assumptions (component file), per the tool's docs:
-#   * one component with scheduling policy (EDF), and the leaf tasks as
-#     (period, wcet, deadline) triples;
-#   * CARTS emits the minimum-bandwidth MPR interface (Pi, Theta, m'):
-#       Pi    -> reservation period          (we map to p_us)
-#       Theta -> budget supplied each period (we map to q_us)
-#       m'    -> number of reserved cores    (we map to m)
+# CARTS is invoked as:  java -jar carts.jar <input.xml> MPR2 <output.xml>
+#   * input  : <system os_scheduler="gEDF"> with one <component> whose leaf
+#              <task p="period" d="deadline" e="wcet" .../> entries are the set;
+#   * output : each <component>'s <resource><model cpus period execution_time>
+#              is its MPR interface, which we map:
+#                period         -> p_us  (reservation period)
+#                execution_time -> q_us  (budget supplied each period)
+#                cpus           -> m     (reserved cores)
 #
-# To wire the real tool:
-#   1. write `tasks` to a CARTS component file (see CARTS examples),
-#   2. invoke the CARTS jar/binary via subprocess,
-#   3. parse the emitted interface and return (q_us, p_us, m).
-#
-# TODO: wire CARTS binary/path here.
-CARTS_BIN = os.environ.get("CARTS_BIN", "")  # e.g. "java -jar /opt/carts/carts.jar"
+# CARTS launch command, e.g. "java -jar /path/to/carts/carts-dev/carts.jar".
+# Prefer CARTS_JAR (path to carts.jar; safe with spaces) + optional CARTS_JAVA;
+# CARTS_BIN is a fallback for non-jar launch strings. When none are set,
+# run_carts() returns None and the analytic stub is used instead.
+CARTS_JAR = os.environ.get("CARTS_JAR", "")
+CARTS_JAVA = os.environ.get("CARTS_JAVA", "java")
+CARTS_BIN = os.environ.get("CARTS_BIN", "")
+# Resource model passed as CARTS argv[1]. MPR2 is the (gEDF) Multiprocessor
+# Periodic Resource model; plain "MPR" is not supported for the supply-bound
+# analysis by this CARTS build.
+CARTS_MODEL = os.environ.get("CARTS_MODEL", "MPR2")
+# CARTS' analysis time scales with the magnitude of the period/WCET integers,
+# so the microsecond task values are scaled down into the same ~100-1000 range
+# as CARTS' own examples (and scaled back afterwards). Target for the smallest
+# task period after scaling.
+CARTS_SCALE_TARGET = 100
+
+CARTS_COMPONENT_NAME = "C0"
+
+
+def _carts_command() -> list[str] | None:
+    """Base argv to launch CARTS, or None if not configured."""
+    if CARTS_JAR:
+        return [CARTS_JAVA, "-jar", CARTS_JAR]
+    if CARTS_BIN:
+        # posix=False on Windows so backslash path separators survive.
+        return shlex.split(CARTS_BIN, posix=(os.name != "nt"))
+    return None
+
+
+def _carts_scale(tasks: list[dict]) -> int:
+    """Divisor that maps the smallest task period to ~CARTS_SCALE_TARGET."""
+    min_t = min(t["t_us"] for t in tasks)
+    return max(1, round(min_t / CARTS_SCALE_TARGET))
+
+
+def write_carts_component(tasks: list[dict], scale: int) -> str:
+    """Write a CARTS system XML (one gEDF component with all tasks) to a temp
+    file and return its path. Times are scaled down by `scale`; deadlines are
+    implicit (d = period). Returns the path the caller must clean up.
+    """
+    pi = max(1, round(min(t["t_us"] for t in tasks) / scale))  # interface period
+    lines = [
+        f'<system os_scheduler="gEDF" period="{pi}">',
+        f'\t<component name="{CARTS_COMPONENT_NAME}" scheduler="gEDF" period="{pi}">',
+    ]
+    for t in tasks:
+        p = max(1, round(t["t_us"] / scale))
+        e = max(1, round(t["c_us"] / scale))
+        lines.append(
+            f'\t\t<task name="T{t["id"]}" p="{p}" d="{p}" e="{e}" '
+            f'delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0" > </task>'
+        )
+    lines.append("\t</component>")
+    lines.append("</system>")
+    fd, path = tempfile.mkstemp(prefix="carts-in-", suffix=".xml")
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    return path
+
+
+def parse_carts_interface(out_path: str, scale: int) -> tuple[int, int, int] | None:
+    """Read CARTS output XML and return (q_us, p_us, m) for our component, or
+    None if the interface is absent. The component's <resource><model> carries
+    cpus -> m, period -> P, execution_time -> Q (P and Q rescaled to us).
+    """
+    root = ET.parse(out_path).getroot()
+    # Output root is <component name="system">; our taskset is the nested one.
+    comp = root.find(f"./component[@name='{CARTS_COMPONENT_NAME}']")
+    model = comp.find("./resource/model") if comp is not None else None
+    if model is None:
+        return None
+    m = int(model.attrib["cpus"])
+    p_us = int(round(float(model.attrib["period"]) * scale))
+    q_us = int(round(float(model.attrib["execution_time"]) * scale))
+    return q_us, p_us, m
 
 
 def run_carts(tasks: list[dict], cap_cores: int) -> dict | None:
     """Invoke CARTS for `tasks`. Return reservation dict or None if unavailable.
 
-    Replace the body with the real CARTS subprocess call. Keep the return
-    contract: {"q_us": int, "p_us": int, "m": int, "source": "carts"}.
+    Return contract: {"q_us": int, "p_us": int, "m": int, "source": "carts"}.
+    Any failure (CARTS missing, crash, or no interface emitted) returns None so
+    the caller falls back to the analytic stub.
     """
-    if not CARTS_BIN:
+    cmd = _carts_command()
+    if cmd is None:
         return None
-    # ----------------------------------------------------------------------
-    # TODO: wire CARTS binary/path.
-    #   import subprocess, tempfile
-    #   comp = write_carts_component(tasks)          # build CARTS input file
-    #   out  = subprocess.check_output(CARTS_BIN.split() + [comp], text=True)
-    #   pi, theta, m = parse_carts_interface(out)    # parse emitted MPR
-    #   return {"q_us": int(theta), "p_us": int(pi), "m": int(m), "source": "carts"}
-    # ----------------------------------------------------------------------
-    raise NotImplementedError("CARTS_BIN set but run_carts() not yet wired")
+
+    scale = _carts_scale(tasks)
+    in_path = write_carts_component(tasks, scale)
+    out_fd, out_path = tempfile.mkstemp(prefix="carts-out-", suffix=".xml")
+    os.close(out_fd)
+    try:
+        subprocess.run(
+            cmd + [in_path, CARTS_MODEL, out_path],
+            check=True, capture_output=True, text=True,
+        )
+        parsed = parse_carts_interface(out_path, scale)
+    except (subprocess.CalledProcessError, ET.ParseError, OSError, KeyError) as exc:
+        print(f"WARN: CARTS failed ({exc}); using stub", file=sys.stderr)
+        return None
+    finally:
+        for p in (in_path, out_path):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+
+    if parsed is None:
+        return None
+    q_us, p_us, m = parsed
+    m = max(1, min(cap_cores, m))  # node has cap_cores physical cores
+    return {"q_us": q_us, "p_us": p_us, "m": m, "source": "carts"}
 
 
 def stub_interface(tasks: list[dict], cap_cores: int) -> dict:
@@ -121,8 +214,12 @@ def main(argv: list[str]) -> int:
     summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
     print(f"processed {len(files)} task sets ({summary})")
     if counts.get("stub"):
-        print("NOTE: CARTS not wired (CARTS_BIN unset) -> analytic stub used.",
-              file=sys.stderr)
+        if _carts_command() is None:
+            print("NOTE: CARTS not configured (set CARTS_JAR) -> analytic stub used.",
+                  file=sys.stderr)
+        else:
+            print("NOTE: CARTS configured but some sets fell back to the stub.",
+                  file=sys.stderr)
     return 0
 
 

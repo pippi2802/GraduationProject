@@ -59,14 +59,25 @@ pip install -r requirements.txt
 # RandFixedSum sets (defaults: 150 sets, n∈[4,12], U swept 0.6..1.8)
 python gen/randfixedsum.py --count 150 --u-max 1.8
 
-# attach (Q,P,m) via CARTS (falls back to analytic stub if CARTS not wired)
+# attach (Q,P,m) via CARTS (falls back to analytic stub if CARTS not configured)
 python gen/carts_wrapper.py --cap-cores 2
 ```
 
-To use the real **CARTS** tool, set `CARTS_BIN` and implement `run_carts()` in
-[gen/carts_wrapper.py](gen/carts_wrapper.py) (marked `TODO: wire CARTS binary/path`).
-Without it, a documented conservative analytic stub sizes the interface so the
-pipeline runs end-to-end.
+To use the real **CARTS** tool, build its jar and point the wrapper at it via
+`CARTS_JAR` (the wrapper runs `java -jar <CARTS_JAR> <in.xml> MPR2 <out.xml>`):
+
+```bash
+# build the jar (needs a JDK + Ant)
+cd ../carts/carts-dev && ant dist          # produces carts.jar
+
+# generate reservations with real MPR analysis
+export CARTS_JAR="$PWD/carts.jar"          # path may contain spaces
+python gen/carts_wrapper.py --cap-cores 2  # reservations tagged source=carts
+```
+
+Optional env: `CARTS_JAVA` (java launcher, default `java`), `CARTS_MODEL`
+(default `MPR2`). If `CARTS_JAR` is unset, a documented conservative analytic
+stub sizes the interface (tagged `source=stub`) so the pipeline runs end-to-end.
 
 ## 3. Local smoke test (no cluster)
 

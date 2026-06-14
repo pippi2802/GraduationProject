@@ -66,6 +66,14 @@ sudo systemctl restart containerd
 sudo systemctl restart kubelet
 ```
 
+Add kubectl to home directory:
+```bash
+mkdir -p $HOME/.kube
+bash experiments/run_all.sh > /tmp/run.log 2>&1 &
+kubectl -n kdl-bench get pods,resourceclaims -w
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
 Then rejoin or re-init
 ```bash
 sudo kubeadm init --config=kubeadm-config.yaml
