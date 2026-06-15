@@ -1,0 +1,86 @@
+# RT-DRA verification workload
+# -----------------------------
+# A single pod that requests an RT CPU reservation from the rt-DRA driver and
+# runs verify.sh (mounted from a ConfigMap) to report scheduler / parameters /
+# behaviour. No custom image: uses ubuntu:22.04 + the script.
+#
+# Apply with ./apply.sh (which builds the ConfigMap from verify.sh first),
+# or manually:
+#   kubectl create configmap rt-verify-script -n rt-verify \
+#       --from-file=verify.sh=verify.sh --dry-run=client -o yaml | kubectl apply -f -
+#   kubectl apply -f rt-verify.yaml
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rt-verify
+
+---
+# How much RT CPU the pod asks for. runtime/period mirror the KubeDeadline
+# (Q,P) reservation; here 100/1000 = 10% RT bandwidth on the allocated CPU.
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: rt-verify
+  name: rtclaims
+spec:
+  count: 1
+  runtime: 100
+  period: 1000
+
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: rt-verify
+  name: rt.example.com
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: rtclaims
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rt-verify
+  name: rt-verify
+  labels:
+    app: rt-verify
+spec:
+  restartPolicy: Never
+  containers:
+  - name: probe
+    image: ubuntu:22.04
+    command: ["bash", "/probe/verify.sh"]
+    env:
+    - name: RT_PROBE_PERIOD_MS
+      value: "100"
+    - name: RT_PROBE_ITERS
+      value: "50"
+    - name: RT_PROBE_PRIO
+      value: "90"
+    securityContext:
+      capabilities:
+        # SYS_NICE is required to call sched_setscheduler(SCHED_FIFO), exactly
+        # as the KubeDeadline pods do. Without it chrt -f is denied even when
+        # the cgroup has RT budget.
+        add: ["SYS_NICE"]
+    volumeMounts:
+    - name: probe-script
+      mountPath: /probe
+    resources:
+      claims:
+      - name: rtcpu
+  resourceClaims:
+  - name: rtcpu
+    source:
+      resourceClaimTemplateName: rt.example.com
+  volumes:
+  - name: probe-script
+    configMap:
+      name: rt-verify-script
