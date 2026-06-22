@@ -106,10 +106,12 @@ func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices *PreparedCpu
 	specName := cdiapi.GenerateTransientSpecName(cdiVendor, cdiClass, claimUID)
 
 	fmt.Println("rtcdidevices:", rtCDIDevices)
+	rtlog("CreateClaimSpecFile claim=%s specName=%s rtCDIDevices=%v", claimUID, specName, rtCDIDevices)
 
 	switch devices.Type() {
 	case nascrd.RtCpuType:
 		if rtCDIDevices == nil || len(rtCDIDevices) < 2 {
+			rtlog("CreateClaimSpecFile claim=%s GUARD TRIPPED (rtCDIDevices nil/len<2) -> per-claim spec NOT written", claimUID)
 			return fmt.Errorf("rtCDIDevices is nil or incomplete: %v", rtCDIDevices)
 		}
 	default:
@@ -146,10 +148,13 @@ func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices *PreparedCpu
 		return fmt.Errorf("failed to get minimum required CDI spec version: %v", err)
 	}
 	spec.Version = minVersion
-	return cdi.registry.SpecDB().WriteSpec(spec, specName)
+	if werr := cdi.registry.SpecDB().WriteSpec(spec, specName); werr != nil {
+		rtlog("CreateClaimSpecFile claim=%s WriteSpec FAILED specName=%s: %v", claimUID, specName, werr)
+		return werr
+	}
+	rtlog("CreateClaimSpecFile claim=%s WriteSpec OK -> per-claim spec WRITTEN to CDI root (kind=%s device=%s)", claimUID, kind, deviceName)
+	return nil
 }
-
-func (cdi *CDIHandler) DeleteClaimSpecFile(claimUID string) error {
 	specName := cdiapi.GenerateTransientSpecName(cdiVendor, cdiClass, claimUID)
 	return cdi.registry.SpecDB().RemoveSpec(specName)
 }
@@ -184,13 +189,16 @@ func (cdi *CDIHandler) GetClaimDevices(claimUID string, devices *PreparedCpuset,
 func (cdi *CDIHandler) WriteCgroupToCDI(claim *drapbv1.Claim, crd nascrd.NodeAllocationStateSpec) ([]string, error) {
 	if _, ok := crd.AllocatedClaims[claim.Uid]; ok {
 		if crd.AllocatedClaims[claim.Uid].RtCpu == nil {
+			rtlog("WriteCgroupToCDI claim=%s present in cached NAS but RtCpu==nil", claim.Uid)
 			return nil, fmt.Errorf("claim %v does not have rtcpu", claim.Uid)
 		} else {
 			if crd.AllocatedClaims[claim.Uid].RtCpu.CgroupUID == "" {
+				rtlog("WriteCgroupToCDI claim=%s present in cached NAS but CgroupUID empty", claim.Uid)
 				return nil, fmt.Errorf("claim %v does not have cgroupuid", claim.Uid)
 			}
 		}
 	} else {
+		rtlog("WriteCgroupToCDI claim=%s NOT in cached NAS AllocatedClaims (stale cache / race) -> returning empty", claim.Uid)
 		return nil, fmt.Errorf("claim %v does not exist", claim.Uid)
 	}
 	// allocatedCgroups := crd.AllocatedPodCgroups[cgroupUID]

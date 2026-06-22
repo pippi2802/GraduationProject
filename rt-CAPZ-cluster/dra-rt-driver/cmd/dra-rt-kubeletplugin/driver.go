@@ -114,15 +114,43 @@ func (d *driver) nodePrepareResource(ctx context.Context, claim *drapbv1.Claim) 
 	logger := klog.FromContext(ctx)
 	var err error
 	var prepared []string
+	attempt := 0
+	rtlog("PREPARE begin   claim=%s name=%s ns=%s", claim.Uid, claim.Name, claim.Namespace)
 	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		attempt++
+
+		// Solution 1 (prepare-race fix): refresh the NodeAllocationState from the
+		// apiserver FIRST, so both WriteCgroupToCDI and state.Prepare build from the
+		// same fresh AllocatedClaims snapshot. The DRA protocol guarantees the
+		// controller committed this claim's allocation to NAS before the claim was
+		// marked allocated (hence before kubelet calls NodePrepareResources), so a
+		// synchronous Get here cannot miss it. This also makes RetryOnConflict
+		// re-read fresh state on an Update conflict.
+		if err := d.nasclient.Get(ctx); err != nil {
+			rtlog("PREPARE attempt=%d claim=%s NAS refresh FAILED: %v", attempt, claim.Uid, err)
+			return err
+		}
+
+		// Guard: if the allocation is still absent after a fresh read, do NOT write
+		// a half-prepared claim. Return an error so kubelet retries the whole call.
+		// Given the happens-before guarantee above this should essentially never fire.
+		if _, ok := d.nascrd.Spec.AllocatedClaims[claim.Uid]; !ok {
+			rtlog("PREPARE attempt=%d claim=%s NOT in AllocatedClaims after refresh -> retry", attempt, claim.Uid)
+			return fmt.Errorf("claim %q not yet present in NodeAllocationState", claim.Uid)
+		}
 
 		rtCDIDevices, err := d.state.cdi.WriteCgroupToCDI(claim, d.nascrd.Spec)
-		// if err != nil {
-		// 	return fmt.Errorf("error writing cgroup to CDI: %v", err)
-		// }
+		if err != nil {
+			// Honor the error: an empty/incomplete device list must never reach
+			// CreateClaimSpecFile, or the per-claim CDI spec is silently skipped.
+			rtlog("PREPARE attempt=%d claim=%s WriteCgroupToCDI FAILED: %v -> rtCDIDevices=%v", attempt, claim.Uid, err, rtCDIDevices)
+			return fmt.Errorf("error writing cgroup to CDI: %v", err)
+		}
+		rtlog("PREPARE attempt=%d claim=%s WriteCgroupToCDI ok rtCDIDevices=%v", attempt, claim.Uid, rtCDIDevices)
 		// UpdateParentCgroup(claim, d.nascrd.Spec)
 		prepared, err = d.prepare(ctx, claim.Uid, rtCDIDevices)
 		if err != nil {
+			rtlog("PREPARE attempt=%d claim=%s prepare FAILED: %v", attempt, claim.Uid, err)
 			return fmt.Errorf("error allocating devices for claim '%v': %v", claim.Uid, err)
 		}
 		// for _, t := range claim.ResourceHandle {
@@ -146,11 +174,13 @@ func (d *driver) nodePrepareResource(ctx context.Context, claim *drapbv1.Claim) 
 	})
 
 	if err != nil {
+		rtlog("PREPARE done    claim=%s RESULT=ERROR attempts=%d err=%v", claim.Uid, attempt, err)
 		return &drapbv1.NodePrepareResourceResponse{
 			Error: fmt.Sprintf("error preparing resource: %v", err),
 		}
 	}
 	fmt.Println("prepared CDI devices:", prepared)
+	rtlog("PREPARE done    claim=%s RESULT=OK attempts=%d cdiDevices=%v", claim.Uid, attempt, prepared)
 	klog.FromContext(ctx).Info("Prepared devices", "claim", claim.Uid)
 	return &drapbv1.NodePrepareResourceResponse{CDIDevices: prepared}
 }
@@ -173,6 +203,7 @@ func (d *driver) NodeUnprepareResources(ctx context.Context, req *drapbv1.NodeUn
 }
 
 func (d *driver) nodeUnprepareResource(ctx context.Context, claim *drapbv1.Claim) *drapbv1.NodeUnprepareResourceResponse {
+	rtlog("UNPREPARE begin claim=%s", claim.Uid)
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		err := d.unprepare(ctx, claim.Uid)
 		if err != nil {
@@ -192,20 +223,25 @@ func (d *driver) nodeUnprepareResource(ctx context.Context, claim *drapbv1.Claim
 		return nil
 	})
 	if err != nil {
+		rtlog("UNPREPARE done  claim=%s RESULT=ERROR err=%v", claim.Uid, err)
 		return &drapbv1.NodeUnprepareResourceResponse{
 			Error: fmt.Sprintf("error unpreparing resource: %v", err),
 		}
 	}
 
+	rtlog("UNPREPARE done  claim=%s RESULT=OK", claim.Uid)
 	klog.FromContext(ctx).Info("Unprepared devices", "claim", claim.Uid)
 	return &drapbv1.NodeUnprepareResourceResponse{}
 }
 
 func (d *driver) prepare(ctx context.Context, claimUID string, rtCDIDevices []string) ([]string, error) {
-	err := d.nasclient.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// NAS was already refreshed by the caller (nodePrepareResource) before
+	// WriteCgroupToCDI, so the CDI device list and state.Prepare both use the same
+	// fresh AllocatedClaims snapshot. No second Get here (it could otherwise fetch
+	// a newer revision than the one WriteCgroupToCDI used).
+	_ = ctx
+	_, inNAS := d.nascrd.Spec.AllocatedClaims[claimUID]
+	rtlog("prepare claim=%s inAllocatedClaims=%v rtCDIDevices=%v", claimUID, inNAS, rtCDIDevices)
 	prepared, err := d.state.Prepare(claimUID, d.nascrd.Spec.AllocatedClaims[claimUID], rtCDIDevices)
 	if err != nil {
 		return nil, err

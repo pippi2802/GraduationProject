@@ -121,8 +121,14 @@ sed -i 's|SystemdCgroup = false|SystemdCgroup = true|' /etc/containerd/config.to
 sed -i 's|BinaryName = ""|BinaryName = "/usr/local/sbin/runc"|' /etc/containerd/config.toml
 
 # 5c. Enable CDI under [plugins."io.containerd.grpc.v1.cri"] (required for DRA
-#     to inject RT parameters via CDI specs). Only inject the keys once.
-if ! grep -q 'enable_cdi' /etc/containerd/config.toml; then
+#     to inject RT parameters via CDI specs). Some containerd versions omit the
+#     key, others emit `enable_cdi = false` by default -- handle both so we
+#     ALWAYS end up with enable_cdi = true (otherwise containerd silently
+#     ignores every CDI spec and no RT_* env is injected).
+if grep -q 'enable_cdi' /etc/containerd/config.toml; then
+    # key already present (typically as `enable_cdi = false`): force it true.
+    sed -i 's|enable_cdi *= *false|enable_cdi = true|' /etc/containerd/config.toml
+else
     python3 - <<'PY'
 import re, pathlib
 p = pathlib.Path("/etc/containerd/config.toml")
@@ -134,6 +140,25 @@ if hdr in text and "enable_cdi" not in text:
     text = text.replace(hdr, hdr + ins, 1)
     p.write_text(text)
 PY
+fi
+
+# 5c-bis. Ensure cdi_spec_dirs exists (the default may ship enable_cdi without it).
+if ! grep -q 'cdi_spec_dirs' /etc/containerd/config.toml; then
+    python3 - <<'PY'
+import pathlib
+p = pathlib.Path("/etc/containerd/config.toml")
+text = p.read_text()
+hdr = '[plugins."io.containerd.grpc.v1.cri"]'
+if hdr in text and "cdi_spec_dirs" not in text:
+    text = text.replace(hdr, hdr + '\n    cdi_spec_dirs = ["/etc/cdi", "/var/run/cdi"]', 1)
+    p.write_text(text)
+PY
+fi
+
+# 5c-check. Fail loudly if CDI did not end up enabled -- without it DRA cannot
+#           inject RT parameters and RT enforcement silently never happens.
+if ! grep -Eq 'enable_cdi *= *true' /etc/containerd/config.toml; then
+    echo "[error] enable_cdi is not 'true' in /etc/containerd/config.toml; DRA/CDI env injection will not work." >&2
 fi
 
 # 5d. crictl pointed at our containerd socket (handy for debugging).

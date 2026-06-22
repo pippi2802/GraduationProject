@@ -108,6 +108,15 @@ func (s *DeviceState) Prepare(claimUID string, allocation nascrd.AllocatedCpuset
 	fmt.Println("s.allocatable from state.go prepare function:", s.allocatable)
 
 	if s.prepared[claimUID] != nil {
+		// Idempotency: the on-disk CDI spec lives in tmpfs (/var/run/cdi) and is
+		// lost on node reboot / plugin restart, while s.prepared can be repopulated
+		// from NAS PreparedClaims at startup. Re-write the per-claim spec on a cache
+		// hit so containerd is never left without a backing spec. WriteSpec overwrites,
+		// so this is safe to call repeatedly.
+		rtlog("state.Prepare claim=%s CACHE HIT -> ensuring per-claim CDI spec exists (idempotent rewrite), rtCDIDevices=%v", claimUID, rtCDIDevices)
+		if err := s.cdi.CreateClaimSpecFile(claimUID, s.prepared[claimUID], rtCDIDevices); err != nil {
+			return nil, fmt.Errorf("unable to (re)create CDI spec file for claim on cache hit: %v", err)
+		}
 		cdiDevices, err := s.cdi.GetClaimDevices(claimUID, s.prepared[claimUID], rtCDIDevices)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get CDI devices names: %v", err)
@@ -115,6 +124,7 @@ func (s *DeviceState) Prepare(claimUID string, allocation nascrd.AllocatedCpuset
 		return cdiDevices, nil
 	}
 
+	rtlog("state.Prepare claim=%s CACHE MISS -> will write per-claim CDI spec, rtCDIDevices=%v", claimUID, rtCDIDevices)
 	prepared := &PreparedCpuset{}
 
 	var err error
@@ -129,8 +139,10 @@ func (s *DeviceState) Prepare(claimUID string, allocation nascrd.AllocatedCpuset
 	}
 	err = s.cdi.CreateClaimSpecFile(claimUID, prepared, rtCDIDevices)
 	if err != nil {
+		rtlog("state.Prepare claim=%s CreateClaimSpecFile FAILED -> NO spec on disk, claim NOT cached: %v", claimUID, err)
 		return nil, fmt.Errorf("unable to create CDI spec file for claim: %v", err)
 	}
+	rtlog("state.Prepare claim=%s CreateClaimSpecFile OK -> claim now cached in s.prepared", claimUID)
 
 	s.prepared[claimUID] = prepared
 
