@@ -1,0 +1,24 @@
+# ServiceMonitor for kube-prometheus-stack (Prometheus Operator).
+# Apply this ONLY if you installed Prometheus via the operator (CRDs present).
+# The `release` label must match your kube-prometheus-stack Helm release name
+# so the operator selects this monitor (default below: "monitoring").
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rtdra-nas-exporter
+  namespace: dra-rt-driver
+  labels:
+    app: rtdra-nas-exporter
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: rtdra-nas-exporter
+  namespaceSelector:
+    matchNames:
+      - dra-rt-driver
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s

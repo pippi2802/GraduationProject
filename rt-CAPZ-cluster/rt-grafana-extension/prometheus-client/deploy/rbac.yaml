@@ -1,0 +1,35 @@
+# RBAC for the rt-DRA NAS exporter: read-only access to NodeAllocationState CRDs.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rtdra-nas-exporter
+  namespace: dra-rt-driver
+  labels:
+    app: rtdra-nas-exporter
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: rtdra-nas-exporter
+  labels:
+    app: rtdra-nas-exporter
+rules:
+  - apiGroups: ["nas.rt.resource.example.com"]
+    resources: ["nodeallocationstates"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rtdra-nas-exporter
+  labels:
+    app: rtdra-nas-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rtdra-nas-exporter
+subjects:
+  - kind: ServiceAccount
+    name: rtdra-nas-exporter
+    namespace: dra-rt-driver

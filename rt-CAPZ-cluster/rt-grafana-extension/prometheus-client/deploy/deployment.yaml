@@ -1,0 +1,88 @@
+# Deployment + Service for the rt-DRA NAS exporter.
+# The control plane is the convenient place to run it (kubectl/API local), but
+# it can run anywhere in the cluster — it only talks to the API server.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rtdra-nas-exporter
+  namespace: dra-rt-driver
+  labels:
+    app: rtdra-nas-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rtdra-nas-exporter
+  template:
+    metadata:
+      labels:
+        app: rtdra-nas-exporter
+      annotations:
+        # Fallback scrape config for a plain (non-operator) Prometheus.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9101"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: rtdra-nas-exporter
+      # Run on the control plane (kubeadm taints it); harmless if untainted.
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      containers:
+        - name: exporter
+          image: pippina2/rtdra-nas-exporter:v0.1.0
+          imagePullPolicy: Always
+          ports:
+            - name: metrics
+              containerPort: 9101
+          env:
+            - name: NAS_NAMESPACE
+              value: "dra-rt-driver"
+            - name: EXPORTER_PORT
+              value: "9101"
+            - name: LOG_LEVEL
+              value: "INFO"
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rtdra-nas-exporter
+  namespace: dra-rt-driver
+  labels:
+    app: rtdra-nas-exporter
+spec:
+  selector:
+    app: rtdra-nas-exporter
+  ports:
+    - name: metrics
+      port: 9101
+      targetPort: metrics

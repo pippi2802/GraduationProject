@@ -66,8 +66,42 @@ scheduler available : SCHED_OTHER only [RT NOT enforced]    <- budget/SYS_NICE m
 | `RT_PROBE_PRIO` | 90 | SCHED_FIFO priority requested |
 | `RT_PROBE_KEEPALIVE` | 86400 | seconds to sleep after the report (0 = exit immediately) |
 
+## Proof to send to the authors (two parts)
+
+The in-pod probe shows what the *container* sees. To prove the **driver/kernel
+interface mismatch** to the KubeDeadline/HCBS authors you also need the
+**node-side** view (the budget chain leaf→root and the fact that the file the
+driver writes does not exist). `collect-evidence.sh` gathers that, read-only.
+
+```bash
+# 1) in-cluster pod report (container's view)
+./apply.sh
+kubectl -n rt-verify logs rt-verify  > pod-report.txt
+
+# 2) node-side evidence (run ON THE WORKER, where the pod cgroups live)
+#    copy collect-evidence.sh to the worker first, then:
+sudo bash collect-evidence.sh                      # auto-detects the RT pod scope
+#    add the kernel-source proof if a checkout is present:
+HCBS_SRC=/opt/rt-stack/HCBS-patch sudo -E bash collect-evidence.sh
+```
+
+`collect-evidence.sh` emits a timestamped `rt-dra-evidence-<node>-<ts>.txt`
+containing:
+
+| Proof | Shows |
+|-------|-------|
+| **A** | `cpu.rt_multi_runtime_us` (the file the driver writes) is **absent** everywhere in `/sys/fs/cgroup` |
+| **B** | `cpu.rt_runtime_us` / `cpu.rt_period_us` **do** exist under cgroup2fs (so it is *not* a v1/v2 problem) — they are just `0` |
+| **C** | the RT pod's budget chain is **all-zeros leaf→root** while `cpuset.cpus` is correctly **pinned** (allocation works, enforcement doesn't) |
+| **D** | the container's tasks run **`SCHED_OTHER` (CFS)**, not `SCHED_FIFO/RR` |
+| **E** | the driver source/logs target the **absent** `cpu.rt_multi_runtime_us` |
+| **F** | (optional) the kernel branch registers only `rt_runtime_us`/`rt_period_us`, folding "multi" into a per-CPU vector |
+
+Attach both `pod-report.txt` and the `rt-dra-evidence-*.txt` to the email.
+
 ## Files
 
-- `verify.sh` — the probe (single source of truth; tested standalone)
+- `verify.sh` — the in-pod probe (single source of truth; tested standalone)
 - `rt-verify.yaml` — namespace, `RtClaimParameters`, `ResourceClaimTemplate`, pod
 - `apply.sh` — builds the ConfigMap from `verify.sh` and applies everything
+- `collect-evidence.sh` — node-side, read-only evidence collector (run on the worker)

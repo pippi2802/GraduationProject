@@ -43,8 +43,8 @@ param imageType            = 'custom'
 param imageSubscriptionId  = 'd06f8f89-f7d3-46b3-b7a8-649244fb54c6'
 param imageResourceGroup   = 'rg-rtAKS'
 param imageGallery         = 'rtUbuntu'
-param imageName            = 'rtUbuntu24.04'
-param imageVersion         = '1.0.2'
+param imageName            = 'rtUbuntu22.04'
+param imageVersion         = '2.0.0'
 
 // ---------------------------------------------------------------------------
 // Networking (only override if the defaults conflict with peered networks)

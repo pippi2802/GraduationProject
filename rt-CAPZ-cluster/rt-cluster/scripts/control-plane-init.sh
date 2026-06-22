@@ -17,7 +17,6 @@
 # Idempotent via /var/lib/rt-stack/markers/control-plane-init.done.
 #
 # Tunables (via env vars):
-#   RT_API_ENDPOINT   override controlPlaneEndpoint (default: <node-ip>:6443)
 #   RT_POD_CIDR       pod subnet (default: 192.168.0.0/16 -- Calico's default)
 #   RT_UNTAINT_CP     "true" to allow pods on the CP (single-node testing)
 #   RT_SKIP_DRA       "true" to skip Helm-installing dra-rt-driver
@@ -56,59 +55,26 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 2. Clone dra-rt-driver (needed for the Helm chart and the kubeadm-config.yaml
-#    that some forks ship). Best-effort -- we generate our own kubeadm-config.
+# 2. Clone dra-rt-driver. The repo ships the validated kubeadm-config.yaml
+#    (and worker-config.yaml) that enable DRA on every component -- we use the
+#    shipped file verbatim, exactly as documented in the repo README, instead
+#    of generating our own.
 # -----------------------------------------------------------------------------
 DRA_SRC="${RT_WORKDIR}/dra-rt-driver"
 rt_git_clone https://github.com/nasim-samimi/dra-rt-driver.git "$DRA_SRC"
 
 # -----------------------------------------------------------------------------
-# 3. Generate a kubeadm config that enables DRA on every component.
+# 3. Use the kubeadm-config.yaml shipped in the dra-rt-driver repo.
 # -----------------------------------------------------------------------------
-NODE_IP="$(ip -4 -o route get 1 | awk '{print $7; exit}')"
-APISERVER_ENDPOINT="${RT_API_ENDPOINT:-${NODE_IP}:6443}"
 POD_CIDR="${RT_POD_CIDR:-192.168.0.0/16}"
-KUBEADM_CFG="${RT_WORKDIR}/kubeadm-config.yaml"
+KUBEADM_CFG="${DRA_SRC}/kubeadm-config.yaml"
 
-cat >"$KUBEADM_CFG" <<EOF
-apiVersion: kubeadm.k8s.io/v1beta3
-kind: InitConfiguration
-localAPIEndpoint:
-  advertiseAddress: "${NODE_IP}"
-  bindPort: 6443
-nodeRegistration:
-  criSocket: unix:///run/containerd/containerd.sock
-  kubeletExtraArgs:
-    feature-gates: "DynamicResourceAllocation=true"
----
-apiVersion: kubeadm.k8s.io/v1beta3
-kind: ClusterConfiguration
-kubernetesVersion: v1.28.0
-controlPlaneEndpoint: "${APISERVER_ENDPOINT}"
-networking:
-  podSubnet: "${POD_CIDR}"
-  serviceSubnet: "10.96.0.0/12"
-featureGates:
-  DynamicResourceAllocation: true
-apiServer:
-  extraArgs:
-    feature-gates: "DynamicResourceAllocation=true"
-    runtime-config: "resource.k8s.io/v1alpha2=true"
-controllerManager:
-  extraArgs:
-    feature-gates: "DynamicResourceAllocation=true"
-scheduler:
-  extraArgs:
-    feature-gates: "DynamicResourceAllocation=true"
----
-apiVersion: kubelet.config.k8s.io/v1beta1
-kind: KubeletConfiguration
-cgroupDriver: systemd
-featureGates:
-  DynamicResourceAllocation: true
-EOF
+if [[ ! -f "$KUBEADM_CFG" ]]; then
+    echo "[error] expected kubeadm config not found at $KUBEADM_CFG" >&2
+    exit 1
+fi
 
-echo "[kubeadm] config:"
+echo "[kubeadm] using repo-shipped config: $KUBEADM_CFG"
 cat "$KUBEADM_CFG"
 
 # -----------------------------------------------------------------------------
@@ -153,11 +119,15 @@ if ! kubectl get ns tigera-operator >/dev/null 2>&1; then
     kubectl create -f "https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/tigera-operator.yaml"
 fi
 
-# Wait for the operator CRDs to exist before applying the Installation resource.
-for _ in $(seq 1 60); do
-    kubectl get crd installations.operator.tigera.io >/dev/null 2>&1 && break
-    sleep 5
-done
+# Wait for the operator CRDs to be Established before applying the Installation
+# resource. Fail loudly if they never register (otherwise the apply below fails
+# with a confusing "no resource type installation" error).
+if ! kubectl wait --for=condition=Established --timeout=180s \
+        crd/installations.operator.tigera.io crd/apiservers.operator.tigera.io; then
+    echo "[error] Calico operator CRDs did not register; operator install failed" >&2
+    kubectl -n tigera-operator get pods -o wide || true
+    exit 1
+fi
 
 cat <<EOF | kubectl apply -f -
 apiVersion: operator.tigera.io/v1
@@ -207,8 +177,24 @@ echo "       scp $JOIN_FILE worker:/tmp/kubeadm-join.sh && ssh worker 'sudo bash
 # 9. Wait for Calico to come up, then install dra-rt-driver
 # -----------------------------------------------------------------------------
 echo "[wait] Calico apiserver/operator"
-kubectl -n calico-system   rollout status ds/calico-node --timeout=10m || true
-kubectl -n calico-system   rollout status deploy/calico-kube-controllers --timeout=10m || true
+# Do NOT mask these with `|| true`: if Calico never comes up the node stays
+# NotReady and DRA install below is pointless. Fail loudly instead.
+if ! kubectl -n calico-system rollout status ds/calico-node --timeout=10m; then
+    echo "[error] calico-node DaemonSet did not become ready" >&2
+    kubectl -n calico-system get pods -o wide || true
+    kubectl get tigerastatus || true
+    exit 1
+fi
+kubectl -n calico-system rollout status deploy/calico-kube-controllers --timeout=10m || true
+
+# CNI is up -> nodes should report Ready. Gate on it so we never mark this phase
+# "done" with a broken network.
+echo "[wait] all nodes Ready"
+if ! kubectl wait --for=condition=Ready nodes --all --timeout=5m; then
+    echo "[error] not all nodes reached Ready after Calico install" >&2
+    kubectl get nodes -o wide || true
+    exit 1
+fi
 
 if [[ "${RT_SKIP_DRA:-false}" != "true" ]]; then
     CHART_DIR="$(find "$DRA_SRC" -type f -name Chart.yaml -path '*dra-rt-driver*' 2>/dev/null | head -n1 | xargs -r dirname)"

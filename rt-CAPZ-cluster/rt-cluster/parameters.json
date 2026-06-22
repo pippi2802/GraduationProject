@@ -20,7 +20,7 @@
     "imageResourceGroup": { "value": "rg-rtAKS" },
     "imageGallery":       { "value": "rtUbuntu" },
     "imageName":          { "value": "rtUbuntu22.04" },
-    "imageVersion":       { "value": "1.0.0" },
+    "imageVersion":       { "value": "2.0.0" },
 
     "vnetAddressPrefix":        { "value": "10.0.0.0/16" },
     "controlPlaneSubnetPrefix": { "value": "10.0.1.0/24" },
