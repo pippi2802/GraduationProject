@@ -155,6 +155,8 @@ func (cdi *CDIHandler) CreateClaimSpecFile(claimUID string, devices *PreparedCpu
 	rtlog("CreateClaimSpecFile claim=%s WriteSpec OK -> per-claim spec WRITTEN to CDI root (kind=%s device=%s)", claimUID, kind, deviceName)
 	return nil
 }
+
+func (cdi *CDIHandler) DeleteClaimSpecFile(claimUID string) error {
 	specName := cdiapi.GenerateTransientSpecName(cdiVendor, cdiClass, claimUID)
 	return cdi.registry.SpecDB().RemoveSpec(specName)
 }
