@@ -194,7 +194,12 @@ rm -f /etc/cni/net.d/10-containerd-bridge.conf
 # 7. Bring containerd up
 # -----------------------------------------------------------------------------
 systemctl daemon-reload
-systemctl enable --now containerd
+systemctl enable containerd
+# Use restart (not just `enable --now`): if containerd was already running, a
+# plain start is a no-op and the freshly written config.toml (enable_cdi = true,
+# SystemdCgroup, RT runc BinaryName) would NOT be reloaded. restart guarantees
+# the running daemon picks up the new config.
+systemctl restart containerd
 
 # Hard assertion: the RUNNING containerd must be our RT build at
 # /usr/local/bin/containerd. If a stock /usr/bin/containerd (from a Docker /

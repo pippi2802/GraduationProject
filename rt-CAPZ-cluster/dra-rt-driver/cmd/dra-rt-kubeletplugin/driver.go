@@ -147,7 +147,13 @@ func (d *driver) nodePrepareResource(ctx context.Context, claim *drapbv1.Claim) 
 			return fmt.Errorf("error writing cgroup to CDI: %v", err)
 		}
 		rtlog("PREPARE attempt=%d claim=%s WriteCgroupToCDI ok rtCDIDevices=%v", attempt, claim.Uid, rtCDIDevices)
-		// UpdateParentCgroup(claim, d.nascrd.Spec)
+		// Seed RT bandwidth down the cgroup-v2 slice tree (period-before-runtime,
+		// top-down) so the kernel admits the container leaf budget. A failure here
+		// is logged but not fatal: the pod can still start (without RT), and the
+		// pod slice may simply not exist yet at this point.
+		if cerr := UpdateParentCgroup(claim, d.nascrd.Spec); cerr != nil {
+			rtlog("PREPARE attempt=%d claim=%s UpdateParentCgroup WARN: %v", attempt, claim.Uid, cerr)
+		}
 		prepared, err = d.prepare(ctx, claim.Uid, rtCDIDevices)
 		if err != nil {
 			rtlog("PREPARE attempt=%d claim=%s prepare FAILED: %v", attempt, claim.Uid, err)
