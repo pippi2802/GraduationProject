@@ -1,0 +1,14 @@
+# @(#)J2TextPrinter_fr.properties
+#
+# French resource strings for J2TextPrinter
+
+# print preview dialog button labels
+print="Copie..."
+prevpage="Page Précédente"
+nextpage="Prochaine Page"
+pagesetup="Installation de Page"
+done="Fait"
+
+# progress report label (including spaces): Page 1 of 3
+page="Page "
+of=" de "

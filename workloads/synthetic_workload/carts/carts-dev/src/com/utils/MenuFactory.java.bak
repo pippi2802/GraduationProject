@@ -1,0 +1,100 @@
+/* This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+//MenuFactory.MenuFactory - contains convenience methods to create menuitems
+//(C)2000-2001 Mark Beynon
+//mark@jpedit.co.uk
+//http://www.jpedit.co.uk
+package com.utils;
+
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import com.jpe.jpe;
+import com.jpe.Constants;
+
+public class MenuFactory implements Constants {
+
+//	public static JMenu createMenu(String label, int key, int mnemonic,	Icon icon, jpe win) {
+	public static JMenu createMenu(String label, int key, int mnemonic,	String iconFilename, jpe win) {
+		JMenu menu = new JMenu(label);
+
+		if (iconFilename != null) {
+			menu.setIcon(new ImageIcon(MenuFactory.class.getResource("/images").getFile() + fileSep + iconFilename));
+		}
+
+		if (mnemonic != 0) {
+			menu.setMnemonic(mnemonic);
+		}
+
+		menu.setFont(SYSTEM_FONT);
+
+		return menu;
+	}
+
+	// ****************************************************************************************
+	//public static JMenuItem createMenuItem(String label, String tooltip, Icon icon, int key, int mnemonic, jpe win) {
+	public static JMenuItem createMenuItem(String label, String tooltip, String iconFilename, int key, int mnemonic, jpe win) {
+		JMenuItem menuitem = new JMenuItem(label);
+		menuitem.addActionListener(win);
+		if (iconFilename != null) {
+			menuitem.setIcon(new ImageIcon(MenuFactory.class.getResource("/images").getFile() + fileSep + iconFilename));
+	//		menuitem.setIcon(icon);
+		}
+
+		if (tooltip != null) {
+			menuitem.setToolTipText(tooltip);
+		}
+
+		if (key != 0) {
+			if (key == 'c') {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke('C',
+						ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK));
+			} else if (key == 'x') {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke('X',
+						ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK));
+			}
+			if (key == 'a') {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke('A',
+						ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
+			} else if (key == 'd') {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke('D',
+						ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
+			}
+
+			else if (key == '|') {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke('J',
+						ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK));
+			}
+
+			else {
+				menuitem.setAccelerator(KeyStroke.getKeyStroke(key,
+						ActionEvent.CTRL_MASK));
+			}
+
+		}
+
+		if (mnemonic != 0) {
+			menuitem.setMnemonic(mnemonic);
+		}
+
+		menuitem.setFont(SYSTEM_FONT);
+
+		return menuitem;
+	}
+
+}

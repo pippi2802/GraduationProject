@@ -1,0 +1,8 @@
+package edu.penn.rtg.schedulingapp.basic;
+
+public interface ResModel {
+	public int getSupply(int t);
+	public double getUtil();
+	public void display();
+	public PTask getTask();
+}

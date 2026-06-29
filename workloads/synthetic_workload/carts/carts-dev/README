@@ -1,0 +1,3 @@
+#How to create a project in Eclipse
+After you import the carts-dev folder in Eclipse, it will report error "J2TextPrinter class cannot be found". You need to add src as the external class folder using Eclipse's "Project/Properties/add external class folder". 
+--It is a little weird to use "src" as a library folder. This will be fixed in the futher version

@@ -1,0 +1,177 @@
+package edu.penn.rtg.schedulingapp.input.treeGUI;
+
+import java.awt.GridLayout;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JFrame;
+import javax.swing.tree.DefaultTreeModel;
+
+import com.jpe.jpe;
+import edu.penn.rtg.schedulingapp.output.OutputI;
+import edu.penn.rtg.schedulingapp.*;
+
+/**
+ * ComponentUI represents the Tree View of Scheduling Tree. This class handles
+ * all GUI related functionality of the Tree View, e.g., adding new/removing
+ * components/tasks, applying various algorithms.
+ */
+public class ComponentTreeUI extends JPanel implements CartsI {
+	protected CartsTree tree;
+
+
+
+
+	private jpe main;
+	private SchedulingTree scTree;
+	/**
+	 * Constructor for the class. Builds the JTree object with the given tree
+	 * 
+	 * @param scTree
+	 *            Tree which the GUI will render
+	 * @param out
+	 *            The output object to which the analysis result will be passed
+	 */
+	public ComponentTreeUI(SchedulingTree scTree, OutputI out,JFrame editor) {
+		super(new GridLayout(1, 0));
+		DefaultTreeModel treeModel = new DefaultTreeModel(scTree.getRoot());
+		this.tree = new CartsTree(treeModel,scTree,out,this);
+		this.scTree=scTree;
+		JScrollPane scrollPane = new JScrollPane(tree);
+		add(scrollPane);
+		main=(jpe)editor;
+	}
+
+
+
+	/**
+	 * Calls on Scheduling Tree to write the details to the given file
+	 * 
+	 * @param fileName
+	 */
+	public void convertToXML()
+	{
+		main.convertToXml();		
+	}
+	public void convertToXML(String fileName) {
+		scTree.convertToXML(fileName);
+	}
+
+
+	///////////////////////////////////////////////////////////////////
+	//
+	// Menu Handler
+	//
+	////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Handler for 'Add Component' clicked in the pop up menu
+	 */
+	public void addCompClicked() {
+		tree.addCompClicked();
+	}
+
+	/**
+	 * Handler for 'Edit Component' clicked in the pop up menu
+	 */
+	public void editCompClicked() {
+		tree.editCompClicked();
+	}
+
+
+	/**
+	 * Handler for 'Remove Component' clicked in the pop up menu
+	 */
+	public void removeCompClicked() {
+		tree.removeCompClicked();
+	}
+
+	/**
+	 * Handler for 'Add Task' clicked in the pop up menu
+	 */
+	public void addTaskClicked() {
+		tree.addTaskClicked();
+	}
+
+	/**
+	 * Handler for 'Edit Task' clicked in the pop up menu
+	 */
+	public void editTaskClicked() {
+		tree.editTaskClicked();
+	}
+
+	/**
+	 * Handler for 'Remove Task' clicked in the pop up menu
+	 */
+	public void removeTaskClicked() {
+		tree.removeTaskClicked();
+	}
+
+
+	///////////////////////////////////////////////////////////////////
+	//
+	// Algorithm Handler
+	//
+	////////////////////////////////////////////////////////////////////
+
+
+	/**
+	 * Handlers when the user chooses to run Periodic Algorithms on the tree
+	 */
+	public void processPeriodic(){
+		tree.processAlgo("PRM");
+	}
+	/**
+	 * Handlers when the user chooses to run EDP Algorithms on the tree
+	 */
+	public void processEDP() {
+		tree.processAlgo("EDP");
+	}
+
+	/**
+	 * Handlers when the user chooses to run EQV Algorithms on the tree
+	 */
+	public void processEQV(){
+		tree.processAlgo("EQV");
+	}
+
+	
+	/**
+	 * Handlers when the user chooses to run DMPR Algorithms on the tree
+	 */	
+	public void processDMPR(){
+		
+		tree.processAlgo2("DMPR");
+	}
+	/**
+	 * Handlers when the user chooses to run MPR Algorithms on the tree
+	 */
+	public void processMPR(){
+		tree.processAlgo2("MPR");
+	}
+
+	/**
+	 * Handlers when the user chooses to run CADPRM_TASKCENTRIC Algorithms on the tree
+	 */	
+	public void processCADMPR_TASKCENTRIC(){
+		
+		tree.processAlgo2("CADDPR_TASKCENTRIC");
+	}
+	/**
+	 * Handlers when the user chooses to run CADPRM_MODELCENTRIC Algorithms on the tree
+	 */	
+	public void processCADMPR_MODELCENTRIC(){
+		tree.processAlgo2("CADMPR_MODELCENTRIC");
+	}
+	
+	/**
+	 * Handlers when the user chooses to run CADPRM_HYBRID Algorithms on the tree
+	 */	
+	public void processCADMPR_HYBRID(){
+		tree.processAlgo2("CADMPR_HYBRID");
+	}
+	
+
+
+
+}

@@ -1,0 +1,24 @@
+Completed by Meng Xu on April 16th, 2013
+Version 1.0
+
+Tested! Satisfy the following requirement:
+MPR2 is the MPR resource model proposed in Insik's MPR paper.
+It support the following situations: 
+	a) multi layer components, i.e., nested components;
+	b) component with empty taskset;
+	c) component with task whose utilization is larger than 1; it will return infeasible interface in this situation. 
+
+All components should use "global EDF" scheduling policy.
+
+There is no improvement for the transformation of interface to interface tasks. 
+When the interface is transfered to a full utilization interface task, the parent component is hard to get a feasible interface.
+This MPR2 implementation doesn't handle/improve this situation.
+
+The MPR2_hEDF handle the full utilization interface task problem by directly pin the task to a core.
+This task won't be scheduled by the scheduler any more when it has full utilization. 
+
+
+    UPDATE:
+    We can configure the program to use the fast schedulability test(Bertogna's approach) to check the DEM < SBF
+    We can set the isFastCalculation = true in MPR2Analysis.java to use the fast calculation approach. 
+    The drawback of Bertogna's approach is that the LHS of the feasibility test, i.e., DEM is larger than that in Arvind's schedulability test.

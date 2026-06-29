@@ -1,0 +1,79 @@
+package edu.penn.rtg.schedulingapp.basic;
+// Comment 
+
+public class DualPRM implements ResModel {
+	int period1;
+	int period2;
+	int exec1;
+	int exec2;
+	
+	public DualPRM(int period1,  int exec1,int period2, int exec2) {
+		this.period1 = period1;
+		this.period2 = period2;
+		this.exec1 = exec1;
+		this.exec2 = exec2;
+	}
+
+	public DualPRM(PeriodicRM res) {
+		this.period1=res.period;
+		this.exec1=(int) Math.floor(res.exec);
+	}
+	public void setMinorRes(IntPRM res) {
+		// TODO Auto-generated method stub
+		this.period2 = res.period;
+		this.exec2 = res.exec;
+	}
+	public IntPRM getMajorRes()	{
+		return new IntPRM(period1,exec1);
+	}
+	
+	@Override
+	public int getSupply(int t) {
+		return getSupply(t,period1,exec1)+getSupply(t,period2,exec2);
+	}
+
+	private int getSupply(int t, int period, int exec) {
+		if(period==0) return 0;
+		int y=(int) Math.floor((t-(period-exec))/period);
+		int x= (int) (2*(period-exec));
+		int rem=Math.max(0,t-x-y*period);
+		int s=(int) (Math.floor(y*exec)+rem);
+		s=Math.max(0,s);
+
+		return s;
+	}
+
+	public void display() {
+		System.out.println("Res1:"+period1+","+exec1);
+		System.out.println("Res2:"+period2+","+exec2);
+		
+	}
+
+	@Override
+	public double getUtil() {
+		return  (double)exec1/period1+ (double)exec2/period2;
+	}
+
+	public int getPeriod1() {
+		return period1;
+	}
+
+	public int getPeriod2() {
+		return period2;
+	}
+
+	public int getExec1() {
+		return exec1;
+	}
+
+	public int getExec2() {
+		return exec2;
+	}
+
+	@Override
+	public PTask getTask() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

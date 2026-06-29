@@ -1,0 +1,252 @@
+package edu.penn.rtg.schedulingapp;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.text.DecimalFormat;
+
+/**
+ * Task class represents the tasks present in a Scheduling Component. The class
+ * contains fields for Task Period, Execution Period, Task Deadline.
+ */
+@SuppressWarnings("serial")
+public class Task extends DefaultMutableTreeNode {
+	/**
+	 * Jitter and Non Interrupt Function have been commented out as they are
+	 * presently used for analysis
+	 */
+	private DecimalFormat df=new DecimalFormat("#.####");
+	private String name;
+	private double period;
+	private double execution;
+	private double deadline;
+	private double criticalSection; // Critical Section Length
+	private double jitter;
+	private double offset;
+	private double m_nonIntFunc;
+
+	public Task(String name)
+	{
+		super(name);
+		this.name=name;
+	}
+	public Task(Task task)
+	{
+		update(task);
+	}
+	public Task(double period, double execution, double deadline)
+	{
+		this.period=period;
+		this.execution=execution;
+		this.deadline=deadline;
+	}
+	public boolean update(Task task)
+	{
+		boolean isUpdated=false;
+		if(task.name!=null) setTaskName(task.name);
+		if(this.period!=task.period) {
+			this.period=task.period;
+			isUpdated=true;
+		}
+		if(this.execution!=task.execution) {
+			this.execution=task.execution;
+			isUpdated=true;
+		}
+		if(this.deadline!=task.deadline) {
+			this.deadline=task.deadline;
+			isUpdated=true;
+		}
+		if(this.criticalSection!=task.criticalSection) {
+			this.criticalSection=task.criticalSection;
+			isUpdated=true;
+		}
+		if(this.jitter!=task.jitter) {
+			this.jitter=task.jitter;
+			isUpdated=true;
+		}
+		if(this.offset!=task.offset) {
+			this.offset=task.offset;
+			isUpdated=true;
+		}
+		return isUpdated;
+	}
+
+	/**
+	 * Writes the Task fields into the given buffer
+	 */
+	public void convertToXML(StringBuffer buffer) {
+		buffer.append("<task");
+		buffer.append(" name=\"" + name + "\"");
+		buffer.append(" p=\"" + (int) period + "\"");
+		buffer.append(" d=\"" + (int) deadline + "\"");
+		buffer.append(" e=\"" + (int) execution + "\"");
+		if(criticalSection!=0)
+		{
+			buffer.append(" cs=\"" + (int) criticalSection + "\"");
+		}
+		if(jitter!=0)
+		{
+			buffer.append(" jitter=\"" + (int)jitter + "\"");
+		}
+		if(offset!=0)
+		{
+			buffer.append(" offset=\"" + (int)offset + "\"");
+		}
+		if(m_nonIntFunc!=0)
+		{
+			buffer.append(" noninterrupt_fraction=\"" + (int) m_nonIntFunc + "\"");
+		}
+		buffer.append("></task>\n");
+	}
+
+	public void printDebug()
+	{
+		System.out.println(name);
+		System.out.println(period);
+		System.out.println(execution);
+		System.out.println(deadline);
+		System.out.println(criticalSection);
+		System.out.println(jitter);
+		System.out.println(offset);
+		System.out.println(m_nonIntFunc);
+	}
+	public void print()
+	{
+		System.out.println(period+" "+execution);
+	}
+
+	/**
+	 * Returns the result of the Algorithm Analysis in a String
+	 * 
+	 * @return
+	 */
+	public String getResult() {
+		String  retString = new String();
+
+		retString += "Period: ";
+		retString+=df.format(period);
+
+		retString += ", Execution Time: ";
+		retString+=df.format(execution);
+
+		retString += ", Deadline: ";
+		retString+=df.format(deadline);
+
+		return retString;
+	}
+
+	/**
+	 * Returns the name of the Task
+	 * 
+	 * @return
+	 */
+	public String getTaskName() {
+		return name;
+	}
+
+	/**
+	 * Sets the name of the Task
+	 * 
+	 * @param name
+	 */
+	public void setTaskName(String name) {
+		setUserObject(name);
+		this.name = new String(name);
+	}
+
+	/**
+	 * Returns the period of the Task
+	 * 
+	 * @return
+	 */
+	public double getPeriod() {
+		return period;
+	}
+
+	/**
+	 * Sets the period of the Task
+	 * 
+	 * @param period
+	 */
+	public void setPeriod(double period) {
+		this.period = period;
+	}
+
+	/**
+	 * Returns the execution time of the Task
+	 * 
+	 * @return
+	 */
+	public double getExecution() {
+		return execution;
+	}
+
+	/**
+	 * Sets the execution time of the task
+	 * 
+	 * @param executionTime
+	 */
+	public void setExecution(double execution) {
+		this.execution = execution;
+	}
+
+	/**
+	 * Returns the deadline of the Task
+	 * 
+	 * @return
+	 */
+	public double getDeadline() {
+		return deadline;
+	}
+
+	/**
+	 * Sets the deadline of the Task
+	 * 
+	 * @param deadline
+	 */
+	public void setDeadline(double deadline) {
+		this.deadline = deadline;
+	}
+
+	/**
+	 * Returns the length of critical section
+	 * 
+	 * @return
+	 */
+	public double getCriticalSection() {
+		return criticalSection;
+	}
+
+	/**
+	 * Sets the length of critical section
+	 * 
+	 * @param critical_section
+	 */
+	public void setCriticalSection(double criticalSection) {
+		this.criticalSection = criticalSection;
+	}
+
+
+	public void setJitter(double j) {
+		jitter = j;
+	}
+	
+	public double getJitter() {
+		return jitter;
+	}
+
+	public void setOffset(double o) {
+		offset = o;
+	}
+	
+	public double getOffset() {
+		return offset;
+	}
+	
+	public void setNonIntFunc(double nonIntFunc) {
+		m_nonIntFunc = nonIntFunc;
+	}
+	
+	public double getNonIntFunc() {
+		return m_nonIntFunc;
+	}
+
+}

@@ -1,0 +1,29 @@
+<component name="system" resource_model="CADMPR_MODELCENTRIC" >
+<resource>
+<model cpus="4" period="20" execution_time="74"> </model> 
+</resource> 
+<processed_task> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="14" deadline="20" > </model> 
+</processed_task> 
+<component name="C0" resource_model="CADMPR_MODELCENTRIC" >
+<resource>
+<model cpus="2" period="80" execution_time="128"> </model> 
+</resource> 
+<processed_task> 
+<model period="80" execution_time="80" deadline="80" > </model> 
+<model period="80" execution_time="48" deadline="80" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="CADMPR_MODELCENTRIC" >
+<resource>
+<model cpus="2" period="40" execution_time="60"> </model> 
+</resource> 
+<processed_task> 
+<model period="40" execution_time="40" deadline="40" > </model> 
+<model period="40" execution_time="20" deadline="40" > </model> 
+</processed_task> 
+</component>
+</component>

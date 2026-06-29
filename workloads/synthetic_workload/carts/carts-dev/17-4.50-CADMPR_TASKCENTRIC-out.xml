@@ -1,0 +1,50 @@
+<component name="system" resource_model="CADMPR_TASKCENTRIC" >
+<resource>
+<model cpus="7" period="16" execution_time="110"> </model> 
+</resource> 
+<processed_task> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="16" deadline="16" > </model> 
+<model period="16" execution_time="14" deadline="16" > </model> 
+</processed_task> 
+<component name="C0" resource_model="CADMPR_TASKCENTRIC" >
+<resource>
+<model cpus="2" period="256" execution_time="420"> </model> 
+</resource> 
+<processed_task> 
+<model period="256" execution_time="256" deadline="256" > </model> 
+<model period="256" execution_time="164" deadline="256" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="CADMPR_TASKCENTRIC" >
+<resource>
+<model cpus="2" period="128" execution_time="161"> </model> 
+</resource> 
+<processed_task> 
+<model period="128" execution_time="128" deadline="128" > </model> 
+<model period="128" execution_time="33" deadline="128" > </model> 
+</processed_task> 
+</component>
+<component name="C2" resource_model="CADMPR_TASKCENTRIC" >
+<resource>
+<model cpus="2" period="64" execution_time="85"> </model> 
+</resource> 
+<processed_task> 
+<model period="64" execution_time="64" deadline="64" > </model> 
+<model period="64" execution_time="21" deadline="64" > </model> 
+</processed_task> 
+</component>
+<component name="C3" resource_model="CADMPR_TASKCENTRIC" >
+<resource>
+<model cpus="2" period="32" execution_time="43"> </model> 
+</resource> 
+<processed_task> 
+<model period="32" execution_time="32" deadline="32" > </model> 
+<model period="32" execution_time="11" deadline="32" > </model> 
+</processed_task> 
+</component>
+</component>

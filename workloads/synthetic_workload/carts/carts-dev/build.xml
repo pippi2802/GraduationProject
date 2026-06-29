@@ -1,0 +1,57 @@
+<project name="CARTS" default="dist" basedir=".">
+    <description>
+        CARTS build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src" />
+  <property name="build" location="build" />
+  <property name="manifest" value="MANIFEST.MF" />
+  <property name="classpath" value="" />
+  
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+    
+  <target name="copybeforecompile" depends="init">
+    <copy todir="${build}">
+      <fileset dir="${src}">
+        <patternset>
+          <include name="com/wildcrest/j2textprinter/*.*" />
+        </patternset>
+      </fileset>
+    </copy>
+    <copy todir="${build}/prefs">
+      <fileset dir="prefs"/>
+    </copy> 
+    <copy todir="${build}/images">
+      <fileset dir="images"/>
+    </copy>
+  </target>
+  
+  <target name="compile" depends="init,copybeforecompile"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac includeantruntime="false" srcdir="${src}" destdir="${build}" classpath="${classpath}">
+	 <!--compilerarg value="-Xlint:unchecked"/-->
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+
+	  <jar jarfile="carts.jar" 
+         basedir="${build}" 
+         manifest="${manifest}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>

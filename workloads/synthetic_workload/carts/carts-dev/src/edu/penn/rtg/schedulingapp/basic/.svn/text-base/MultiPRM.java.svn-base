@@ -1,0 +1,65 @@
+package edu.penn.rtg.schedulingapp.basic;
+
+public class MultiPRM implements ResModel {
+	int m;
+	int period;
+	int exec;
+	
+	public MultiPRM(int m, int period, int exec) {
+		this.m = m;
+		this.period = period;
+		this.exec = exec;
+	}
+
+	@Override
+	public int getSupply(int t) {
+		int t_prime=t-(period-(int)(Math.ceil((double)exec/m)));  // ceil
+		//System.out.println(t_prime);
+		if(t_prime<=0) return 0;
+		int t_prime_period=(int)(Math.floor(t_prime/period));  //floor
+		int x=t_prime-period*t_prime_period;
+		int y=period-(int)(Math.floor(exec/m)); // floor
+		int alpha=(int)(Math.floor(exec/m)); // floor 
+		int beta=exec-m*alpha;
+		int s=t_prime_period*exec+Math.max(0,m*x-(m*period-exec));
+		if(x>=1 && x<=y) {
+			return s;
+		} else {
+			s-=(m-beta);
+			return s;
+		}
+	}
+
+	@Override
+	public double getUtil() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void display() {
+		System.out.println(m+" "+period+" "+exec);
+	}
+
+	public int getM() {
+		return m;
+	}
+	public int getExec() {
+		return exec;
+	}
+
+	public double getLowerSupply(int t) {
+		double temp=(double)exec/m;
+		double temp2=t-(2*(period-temp)+2);
+		double s=(double)exec/period*temp2;
+		s=Math.max(0, s);
+		return s;
+	}
+
+	@Override
+	public PTask getTask() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

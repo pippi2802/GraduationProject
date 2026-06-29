@@ -1,0 +1,44 @@
+Completed by Meng Xu on April 18th, 2013
+Version 1.0
+
+
+Modified by Meng Xu on May 28th, 2013
+Version 1.1
+Modification: Change "CAMPR2hEDF" to "CADMPR". CADMPR is the term used in Meng's paper submitted to RTSS13. It was used as CAMPR2hEDF in the experiment.
+
+
+CADMPR is the cache aware DMPR resource model, it uses the interface transformation of DMPR. 
+The CADMPR_TASKCENTRIC uses the same SBF of DMPR, while the CADMPR_MODELCENTRIC uses the effective resource SBF which reduces the cache overhead from the SBF of DMPR. 
+Because of the DMPR interface transformation and DMPR's SBF is better than that of MPR model.
+The CAMPR interface is based on the following DMPR model and then incorporate the overhead into the analysis with two methods: task centric approach and model centric approach.
+Step 1) It firstly calculates the DMPR interface of leaf component based on gEDF schedulability test used in Arvind's Journal Paper in 2009 about MPR.
+Step 2) It transfers the leaf component's interface to (m'-1) full utilization tasks and one partial utilization task, which is DMPR's interface transformation.
+Step 3) The parent component allocate a core to the full utilization interface tasks, which won't be abstract into DMPR interface any more. 
+        The partial utilization interface tasks are abstracted to parent component's DMPR interface.
+Step 4) Calculate each component's interface from bottom to top and get all component's interface.
+
+The cache overhead is caused by the following three events:
+a) The higher priority task release event;
+b) The VCPU budget finish event;
+c) The VCPU preemption event.
+
+The task centric cache overhead accounting technique:
+It inflates the cache overhead caused by the three events into each task's WCET. 
+Then it does the overhead free scheduling analysis for DMPR.
+
+The model centric cache overhead accounting technique:
+Step a) Inflate each task's WCET with the cache overhead caused by higher priority task release event;
+Step b) It reduces the overhead-free DMPR model's SBF by the cache overhead caused by VCPU stop event;
+Step c) Do the schedulability test: The LHS is the inflated WCET's DBF, the RHS is the remaining SBF of the DMPR model.
+ 
+ 
+=======================
+Testing Satisfy the following requirement:	
+It support the following situations: 
+	a) multi layer components, i.e., nested components;
+	b) component with empty taskset;
+	c) component with task(not interface task) whose utilization is larger than 1; it will return infeasible interface in this situation.
+	d) when the interface task has full utilization, the parent component can still have feasible interface. 
+
+All non-leaf components should use "hybrid EDF" scheduling policy. The leaf component uses "global EDF" scheduling policy.
+This is because the O.S. in guest domain only supports partitioned/global EDF.

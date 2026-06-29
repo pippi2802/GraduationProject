@@ -1,0 +1,271 @@
+package edu.penn.rtg.experiment.tasksetgenerator;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Vector;
+
+
+import edu.penn.rtg.common.Tool;
+
+/**
+ * Class SchedulableTasksetCounter
+ * This class is to count the interface's paramter of the calculated schedulable system. 
+ * It can parse all xml file to get the top component's interface and uses this to get the average bandwdith v.s. taskset utilization, 
+ * each taskset's utilization v.s. taskset index, e.g., 0.10-0
+ * 
+ * @version 1.0
+ * @author Meng Xu
+ * @since 4/19/2013
+ *
+ */
+public class SchedulableTasksetCounter {
+	
+//	private double tasksetUtil_min;
+//	private double tasksetUtil_step;
+//	private double tasksetUtil_max; //include
+	Vector<Vector<MPRInterface>> mPRInterfaces;
+	int whichApproach;
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		double tasksetUtil_min = 0.1;
+		double tasksetUtil_step = 0.1;
+		double tasksetUtil_max = 6;
+		int tasksetNum_perUtil = 25;
+		SchedulableTasksetCounter.countAverageBandwidth(tasksetUtil_min, tasksetUtil_step,
+				tasksetUtil_max, tasksetNum_perUtil);
+		SchedulableTasksetCounter.countEachTaskBandwidth(tasksetUtil_min, tasksetUtil_step,
+				tasksetUtil_max, tasksetNum_perUtil);
+		
+	}
+	
+	/**
+	 * Function countAverageBandwidth
+	 * Count the average bandwdith for each task set utilization for each approach.
+	 * Draw each line for each model: the x-axis is the taskset utilizaiton,
+	 * the y-axis is the average bandwidth of the tasksets with such utilization
+	 */
+	public static void countAverageBandwidth(double tasksetUtil_min, double tasksetUtil_step,
+			double tasksetUtil_max, int tasksetNum_perUtil){
+		
+		//When we add more calculation approach, we can just add it to the whichApproaches array, add the approch to the swtich(), and done!
+		int[] whichApproaches = {GlobalVariable.MPR2, GlobalVariable.MPR2hEDF, GlobalVariable.CAMPR2hEDF_TASK_CENTRIC};
+		
+		for(int i=0; i<whichApproaches.length; i++){
+			int whichApproach = whichApproaches[i];
+			SchedulableTasksetCounter counter = new SchedulableTasksetCounter(whichApproach);
+			counter.parseInterfaces(tasksetUtil_min,tasksetUtil_step,tasksetUtil_max,tasksetNum_perUtil);
+			counter.writeAverageBandwidthPerUtil(tasksetUtil_min, tasksetUtil_step, tasksetUtil_max, tasksetNum_perUtil);
+		}
+		
+	}
+	
+	/**
+	 * Function countEachTaskBandwidth
+	 * Count the interface's bandwidth for each task in each task set utilization.
+	 * The x-axis is the taskset's index, e.g. 0.10-0
+	 * The y-axis is the system's bandwidth of this taskset.
+	 */
+	public static void countEachTaskBandwidth(double tasksetUtil_min, double tasksetUtil_step,
+			double tasksetUtil_max, int tasksetNum_perUtil){
+		//When we add more calculation approach, we can just add it to the whichApproaches array, add the approch to the swtich(), and done!
+		int[] whichApproaches = {GlobalVariable.MPR2, GlobalVariable.MPR2hEDF, GlobalVariable.CAMPR2hEDF_TASK_CENTRIC};
+		
+		for(int i=0; i<whichApproaches.length; i++){
+			int whichApproach = whichApproaches[i];
+			SchedulableTasksetCounter counter = new SchedulableTasksetCounter(whichApproach);
+			counter.parseInterfaces(tasksetUtil_min,tasksetUtil_step,tasksetUtil_max,tasksetNum_perUtil);
+			counter.writeEachTasksetBandwidth(tasksetUtil_min, tasksetUtil_step, tasksetUtil_max, tasksetNum_perUtil);
+		}
+	}
+	
+	public void writeEachTasksetBandwidth(double tasksetUtil_min,double tasksetUtil_step, double tasksetUtil_max, int tasksetNum_perUtil){
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setMinimumFractionDigits(2);
+		df.setMaximumFractionDigits(2);
+		String outputFilename = "" + df.format(tasksetUtil_min) + "-" + df.format(tasksetUtil_step) + "-" 
+				+df.format(tasksetUtil_max) + "-" + tasksetNum_perUtil + "/" 
+				+ df.format(tasksetUtil_min) + "-" + df.format(tasksetUtil_step) + "-" 
+				+df.format(tasksetUtil_max) + "-" + tasksetNum_perUtil + "-";
+		switch(this.whichApproach){
+		case GlobalVariable.CAMPR2hEDF_TASK_CENTRIC: outputFilename += "CAMPR2hEDF_TASKCENTRIC-EachTasksetBandwidth.stat"; break;
+		case GlobalVariable.CAMPR2hEDF_MODEL_CENTRIC: outputFilename += "CAMPR2hEDF_MODELCENTRIC-EachTasksetBandwidth.stat"; break;
+		case GlobalVariable.MPR2: outputFilename += "MPR2-EachTasksetBandwidth.stat"; break;
+		case GlobalVariable.MPR2hEDF: outputFilename += "MPR2hEDF-EachTasksetBandwidth.stat"; break;
+		default: System.err.println("SchedulableTasksetCounter: No such computation approach! exit"); System.exit(1);
+		}
+		
+		try{
+			BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputFilename));
+			String str = "";
+			int arrayUtilIndex = 0;
+			for(double util = tasksetUtil_min; util<tasksetUtil_max; util += tasksetUtil_step){
+				for(int index = 0; index<tasksetNum_perUtil; index++){
+					MPRInterface currentInterface = this.mPRInterfaces.get(arrayUtilIndex).get(index);
+					if(currentInterface.getTheta() <= currentInterface.getM_prime() * currentInterface.getPi()){//only count the feasible ones. Because infeasible one's bandwidth has no meaning
+						//tasksetindex(0.10-0) averageBandwidth
+						str += df.format(util) + "-" + index + "\t" + df.format(currentInterface.getTheta()/currentInterface.getPi()) + "\r\n";
+					}
+				}
+				arrayUtilIndex++;
+			}
+			System.out.println("write averate bandwidth of each taskset utilization to the file "+outputFilename);
+			System.out.println("========="+ outputFilename + "===============");
+			outputFile.write(str);
+			outputFile.close();
+			
+		}catch (Exception e){
+			System.err.println("Exception in writerAverageBandwidthPerUtil: " + e.getMessage() + "\texit.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Function writeAverageBandwidthPerUtil
+	 * Write the average bandwidth of a taskset utilization v.s. taskset utilization into the file.
+	 * The taskset utilization is given by the function's parameter.
+	 * @param tasksetUtil_min is the minimum taskset utilization
+	 * @param tasksetUtil_step is the step by which the taskset utilization increases
+	 * @param tasksetUtil_max is the maximum taskset utilization
+	 * @param tasksetNum_perUtil is the number of tasksets for each taskset utilization
+	 */
+	public void writeAverageBandwidthPerUtil(double tasksetUtil_min, double tasksetUtil_step, double tasksetUtil_max, int tasksetNum_perUtil){
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setMinimumFractionDigits(2);
+		df.setMaximumFractionDigits(2);
+		String outputFilename = "" + df.format(tasksetUtil_min) + "-" + df.format(tasksetUtil_step) + "-" 
+				+df.format(tasksetUtil_max) + "-" + (int)tasksetNum_perUtil + "/" 
+				+ df.format(tasksetUtil_min) + "-" + df.format(tasksetUtil_step) + "-" 
+				+df.format(tasksetUtil_max) + "-" + (int)tasksetNum_perUtil + "-";
+		switch(this.whichApproach){
+		case GlobalVariable.CAMPR2hEDF_TASK_CENTRIC: outputFilename += "CAMPR2hEDF_TASKCENTRIC-AverageBandwidth.stat"; break;
+		case GlobalVariable.CAMPR2hEDF_MODEL_CENTRIC: outputFilename += "CAMPR2hEDF_MODELCENTRIC-AverageBandwidth.stat"; break;
+		case GlobalVariable.MPR2: outputFilename += "MPR2-AverageBandwidth.stat"; break;
+		case GlobalVariable.MPR2hEDF: outputFilename += "MPR2hEDF-AverageBandwidth.stat"; break;
+		default: System.err.println("SchedulableTasksetCounter: No such computation approach! exit"); System.exit(1);
+		}
+		
+		try{
+			BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputFilename));
+			String str = "";
+			int arrayUtilIndex = 0;
+			for(double util = tasksetUtil_min; util<tasksetUtil_max; util += tasksetUtil_step){
+				double bandwidthTotal_perUtil = 0;
+				double tasksetTotal_perUtil = 0;
+				for(int index = 0; index<tasksetNum_perUtil; index++){
+					MPRInterface currentInterface = this.mPRInterfaces.get(arrayUtilIndex).get(index);
+					if(currentInterface.getTheta() <= currentInterface.getM_prime() * currentInterface.getPi()){//only count the feasible ones. Because infeasible one's bandwidth has no meaning
+						bandwidthTotal_perUtil += currentInterface.getTheta() / currentInterface.getPi();
+						tasksetTotal_perUtil++;
+					}
+				}
+				//tasksetUtil averageBandwidth
+				str += df.format(util) + "\t" + df.format(bandwidthTotal_perUtil/tasksetTotal_perUtil) + "\r\n";
+				arrayUtilIndex++;
+			}
+			System.out.println("write averate bandwidth of each taskset utilization to the file "+outputFilename);
+			outputFile.write(str);
+			System.out.println("========="+ outputFilename + "===============");
+			System.out.println(str);
+			outputFile.close();
+			
+		}catch (Exception e){
+			System.err.println("Exception in writerAverageBandwidthPerUtil: " + e.getMessage() + "\texit.");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Function parseInterface
+	 * It parse each output xml file, which has the calculated interface, and get the MPR interface for each xml file.
+	 * Save the interfaces into the vector as the object's property
+	 */
+	public void parseInterfaces(double tasksetUtil_min, double tasksetUtil_step, double tasksetUtil_max, int tasksetNum_perUtil){
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setMinimumFractionDigits(2);
+		df.setMaximumFractionDigits(2);
+		int arrayUtilIndex = 0;
+		for(double util = tasksetUtil_min; util<tasksetUtil_max; util+=tasksetUtil_step){
+			Vector<MPRInterface> mPRInterfaces_util = new Vector<MPRInterface>();
+			for(int tasksetIndex =0; tasksetIndex < tasksetNum_perUtil; tasksetIndex++){
+				String inputFilename = "" + df.format(tasksetUtil_min) + "-" + df.format(tasksetUtil_step) + "-" 
+						+df.format(tasksetUtil_max) + "-" + tasksetNum_perUtil + "/" 
+						+ df.format(util) + "/"
+						+ tasksetIndex + "-" +  df.format(util) + "-";
+				switch(this.whichApproach){
+				case GlobalVariable.CAMPR2hEDF_TASK_CENTRIC: inputFilename += "CAMPR2hEDF_TASKCENTRIC-out.xml"; break;
+				case GlobalVariable.CAMPR2hEDF_MODEL_CENTRIC: inputFilename += "CAMPR2hEDF_MODELCENTRIC-out.xml"; break;
+				case GlobalVariable.MPR2: inputFilename += "MPR2-out.xml"; break;
+				case GlobalVariable.MPR2hEDF: inputFilename += "MPR2hEDF-out.xml"; break;
+				default: System.err.println("SchedulableTasksetCounter: No such computation approach! exit"); System.exit(1);
+				}
+				MPRInterface mPRInterface = this.getRootComponentInterface(inputFilename);
+				mPRInterfaces_util.add(mPRInterface);
+			}
+			
+			if(this.mPRInterfaces == null){
+				this.mPRInterfaces = new Vector<Vector<MPRInterface>>();
+			}else{
+				this.mPRInterfaces.add(mPRInterfaces_util);
+			}
+			arrayUtilIndex++;
+		}
+		
+		if(arrayUtilIndex != this.mPRInterfaces.size()){
+			System.err.println("The interfaces vector has incorrect dimension in parser. exit(1)");
+			System.exit(1);
+		}
+		
+	}
+	
+	/**
+	 * Function SchedulableTasksetCounter
+	 * Construct function
+	 * @param whichApproach is defined in the GlobalVariable class in the same package
+	 */
+	public SchedulableTasksetCounter(int whichApproach){
+		this.whichApproach = whichApproach;
+		this.mPRInterfaces = new Vector<Vector<MPRInterface>>();
+	}
+
+	public MPRInterface getRootComponentInterface(String inputFilename){
+		try{
+			BufferedReader inputFile = new BufferedReader(new FileReader(inputFilename));
+			String currentLine = "";
+	
+			
+			while( (currentLine = inputFile.readLine()) != null){
+				
+				if(currentLine.indexOf("<model") != -1){
+					String[] subStrs = currentLine.split("\"");
+					int m_prime = Integer.parseInt(subStrs[1]);
+					double Pi = Double.parseDouble(subStrs[3]);
+					double Theta = Double.parseDouble(subStrs[5]);
+					Tool.debug("m'=" + m_prime + ", Pi=" + Pi + ", Theta=" + Theta + "\r\n");
+					MPRInterface mPRInterface = new MPRInterface(Pi, Theta, m_prime);
+					inputFile.close();
+					return mPRInterface;
+					
+				}
+			}
+			inputFile.close();
+			
+		}catch (Exception e){
+			System.err.println("isSchedulableTaskset() excetion:" + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return new MPRInterface(-1,-1,-1);
+		
+	}
+	
+}

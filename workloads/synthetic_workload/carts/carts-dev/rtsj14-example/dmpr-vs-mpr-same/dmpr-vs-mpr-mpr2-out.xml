@@ -1,0 +1,27 @@
+<component name="system" resource_model="MPR2 model" >
+<resource>
+<model cpus="3" period="20" execution_time="60"> </model> 
+</resource> 
+<processed_task> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+</processed_task> 
+<component name="C0" resource_model="MPR2 model" >
+<resource>
+<model cpus="2" period="50" execution_time="97"> </model> 
+</resource> 
+<processed_task> 
+<model period="50" execution_time="49" deadline="50" > </model> 
+<model period="50" execution_time="48" deadline="50" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="MPR2 model" >
+<resource>
+<model cpus="1" period="50" execution_time="33"> </model> 
+</resource> 
+<processed_task> 
+<model period="50" execution_time="33" deadline="50" > </model> 
+</processed_task> 
+</component>
+</component>

@@ -1,0 +1,95 @@
+<component name="system" resource_model="DMPR model" >
+<resource>
+<model cpus="16" period="20" execution_time="317"> </model> 
+</resource> 
+<processed_task> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="17" deadline="20" > </model> 
+</processed_task> 
+<component name="C0" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="80" execution_time="135"> </model> 
+</resource> 
+<processed_task> 
+<model period="80" execution_time="80" deadline="80" > </model> 
+<model period="80" execution_time="55" deadline="80" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="40" execution_time="65"> </model> 
+</resource> 
+<processed_task> 
+<model period="40" execution_time="40" deadline="40" > </model> 
+<model period="40" execution_time="25" deadline="40" > </model> 
+</processed_task> 
+</component>
+<component name="C0" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="80" execution_time="135"> </model> 
+</resource> 
+<processed_task> 
+<model period="80" execution_time="80" deadline="80" > </model> 
+<model period="80" execution_time="55" deadline="80" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="40" execution_time="65"> </model> 
+</resource> 
+<processed_task> 
+<model period="40" execution_time="40" deadline="40" > </model> 
+<model period="40" execution_time="25" deadline="40" > </model> 
+</processed_task> 
+</component>
+<component name="C0" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="80" execution_time="135"> </model> 
+</resource> 
+<processed_task> 
+<model period="80" execution_time="80" deadline="80" > </model> 
+<model period="80" execution_time="55" deadline="80" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="40" execution_time="65"> </model> 
+</resource> 
+<processed_task> 
+<model period="40" execution_time="40" deadline="40" > </model> 
+<model period="40" execution_time="25" deadline="40" > </model> 
+</processed_task> 
+</component>
+<component name="C0" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="80" execution_time="135"> </model> 
+</resource> 
+<processed_task> 
+<model period="80" execution_time="80" deadline="80" > </model> 
+<model period="80" execution_time="55" deadline="80" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="40" execution_time="65"> </model> 
+</resource> 
+<processed_task> 
+<model period="40" execution_time="40" deadline="40" > </model> 
+<model period="40" execution_time="25" deadline="40" > </model> 
+</processed_task> 
+</component>
+</component>

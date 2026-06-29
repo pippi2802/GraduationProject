@@ -1,0 +1,18 @@
+<system os_scheduler="EDF" period="10">
+<component name="C1" scheduler="EDF"	period="10.0">
+<task name="T1" p="20" d="20" e="1.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T2" p="40" d="40" e="3.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T3" p="40" d="40" e="2.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T4" p="40" d="40" e="17.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T5" p="40" d="40" e="27.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T6" p="50" d="50" e="20.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+</component>
+<component name="C2" scheduler="EDF"	period="10.0">
+<task name="T1" p="20" d="20" e="1.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T2" p="40" d="40" e="3.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T3" p="40" d="40" e="2.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T4" p="40" d="40" e="20.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T5" p="40" d="40" e="20.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+<task name="T6" p="50" d="50" e="20.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+</component>
+</system>

@@ -1,0 +1,51 @@
+Completed by Meng Xu on April 16th, 2013
+Version 1.0
+
+Modified by Meng Xu on May 28th, 2013
+Version 1.1
+Modification: Change "MPR2hEDF" to "DMPR". DMPR is the term used in Meng's paper submitted to RTSS13. It was used as MPR2hEDF in the experiment.
+
+Important notice:
+1) Because Ak_max can be very larger (maybe infinite), we set a largest value for the Ak_max in the edu.penn.rtg.common.GlobalVariable.
+	If Ak_max is too large and Arvind_Test is used, the program will exit and get no result;
+	If Arvind_Test_Fast is used, the program will mark that possible interface infeasible and check the next possible interface.
+2) The same infinite problem happens for m_max, which is the upper bound of the number of cores for the interface.
+	We set m_max as 10*N_tasks, where N_tasks is the number of tasks in the component.
+	If no interface with 10 times number of tasks of the component is feasible, we conclude there is no feasible interface for the component. 
+	This assumption is reasonable, because if so many cores cannot schedule the tasks of the component, it will hardly be schedulable. 
+	(Even it is schedulable, the resource bandwidth loss is very large.)
+3) The above two notices are applicalbe to CADMPR model with task centric acocunting, model centric accounting, and hybrid accounting approach.
+
+
+DMPR (i.e., MPR2hEDF) is the improved resource model based on Insik's MPR model.
+The changes compared with MPR model:
+	a) The interface transformation is fixed. (Pi, Theta, m') is transfered to (m'-1) full utilization interface task, and one partial interface task;
+	b) The SBF is changed to Arvind's definition, i.e., Eq. 9 in Arvind's 09 journal paper
+	c) The hypervisor, i.e., non-leaf component uses hybrid gEDF scheduling policy; 
+	The hybrid gEDF scheduling has the following rules:
+		i) The full utlization interface tasks of its child components' interfaces are directly allocated to a dedicated core and will not be scheduled any more;
+			This avoid the infeasibility of full utilization interface task in gEDF. 
+		ii) It uses the gEDF to schedule all partial utilization interface tasks.
+	
+Tested! Satisfy the following requirement:	
+It support the following situations: 
+	a) multi layer components, i.e., nested components;
+	b) component with empty taskset;
+	c) component with task(not interface task) whose utilization is larger than 1; it will return infeasible interface in this situation.
+	d) when the interface task has full utilization, the parent component can still have feasible interface. 
+
+All non-leaf components should use "hybrid EDF" scheduling policy. The leaf component uses "global EDF" scheduling policy.
+This is because the O.S. in guest domain only supports partitioned/global EDF.
+
+
+The DMPR is better than MPR2 for the following reasons:
+1) It can save more bandwidth than the MPR2. We can show this by comparing top component's bandwidth of the same system calculated by both approaches.
+2) The system which is not schedulable under MPR2, can be schedulable under DMPR. 
+    When a component's taskset's utilization is near integer, it will have full capacity interface task. Then the MPR2 cannot find a feasible interface for its parent component.
+    
+    
+    UPDATE:
+    We can configure the program to use the fast schedulability test(Bertogna's approach) to check the DEM < SBF
+    We can set the isFastCalculation = true in DMPRAnalysis.java to use the fast calculation approach. 
+    The reason why the Arvind's approach is slow is because Ak_max can be very large when the denominator Theta/Pi - U_sum -> 0.
+        The drawback of Bertogna's approach is that the LHS of the feasibility test, i.e., DEM is larger than that in Arvind's schedulability test.

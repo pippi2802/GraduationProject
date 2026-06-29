@@ -1,0 +1,31 @@
+<system os_scheduler="gEDF" period="16.0"> 
+	<component name="C0" scheduler="gEDF" period="256"> 
+		 <task name="T0" p="474" d="474" e="32" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T4" p="489" d="489" e="42" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T8" p="651" d="651" e="26" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T12" p="412" d="412" e="24" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T16" p="461" d="461" e="42" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T20" p="780" d="780" e="50" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C1" scheduler="gEDF" period="128"> 
+		 <task name="T1" p="401" d="401" e="2" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T5" p="648" d="648" e="48" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T9" p="829" d="829" e="23" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T13" p="525" d="525" e="18" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T17" p="584" d="584" e="19" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C2" scheduler="gEDF" period="64"> 
+		 <task name="T2" p="558" d="558" e="41" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T6" p="419" d="419" e="15" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T10" p="647" d="647" e="21" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T14" p="818" d="818" e="12" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T18" p="821" d="821" e="64" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C3" scheduler="gEDF" period="32"> 
+		 <task name="T3" p="731" d="731" e="17" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T7" p="605" d="605" e="32" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T11" p="483" d="483" e="33" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T15" p="725" d="725" e="61" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T19" p="656" d="656" e="37" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+</system>

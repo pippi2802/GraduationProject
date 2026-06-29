@@ -1,1 +1,0 @@
-az acr manifest list-metadata --registry baselineaks --name rt-periodic

@@ -1,0 +1,396 @@
+package edu.penn.rtg.schedulingapp;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+
+
+@SuppressWarnings("serial")
+public class TreeComponent extends DefaultMutableTreeNode{
+	protected String compName = "";   // component name
+	private SchedulingComponent schCom;
+
+	// internal info
+	protected boolean processed = false;
+	protected TreeComponent parentComp;	// parent component
+	
+	// internal complicated tree-related info
+	protected Vector<TreeComponent> children;  // Child Component list;
+	protected TaskList taskList, processedTaskList; 	// Child task list
+	protected ResourceModelList resourceList;	// Resource Model List;
+	protected Map<TreeComponent, TaskList> childrenToTasks = new HashMap<TreeComponent, TaskList>();
+
+	protected String resourceModel;
+
+	/**
+	 * The first SchedulingComponent to be added
+	 */
+	public TreeComponent() {
+		children = new Vector<TreeComponent>();
+		parentComp = null;
+		taskList = new TaskList();
+		schCom=new SchedulingComponent(this);
+		schCom.setAlgorithm("DM");
+	}
+	public TreeComponent(String name)
+	{
+		this();
+		setCompName(name);
+	}
+	public TreeComponent(String name, TreeComponent parentComp) {
+		this(name);
+		if (this.parentComp != null) {
+			setParentComp(parentComp);
+		}
+	}
+	
+	/**
+	 * It write debug message to string
+	 * 
+	 */
+
+	@Override
+	public String toString() {
+		return compName;
+	}
+
+	/**
+	 * Return name of this component
+	 * 
+	 * @return component name
+	 */
+
+	public String getCompName() {
+		return compName;
+	}
+
+	/**
+	 * Set name of this component
+	 * 
+	 * @param component name
+	 */
+
+	public void setCompName(String name) {
+		this.compName = name;
+	}
+
+	public boolean checkNameRecursive(String name)
+	{
+		for (TreeComponent child : children) {
+			if(!child.checkNameRecursive(name)) return false;
+		}
+		//System.out.println(getCompName());
+		if(name.equals(getCompName())) 
+			return false;
+		else
+			return true;
+		
+	}
+	
+	public SchComponent getSchCom() {
+		return schCom;
+	}
+//	public void setSchCom(SchComponent schCom) {
+//		this.schCom = schCom;
+//	}
+	
+	// parent component
+	/**
+	 * Set parent component of this component
+	 * 
+	 * @param newParent
+	 *            parent component
+	 */
+	public void setParentComp(TreeComponent parentComp) {
+		this.parentComp = parentComp;
+	}
+	/**
+	 * Return parent component
+	 * 
+	 * @return parent component
+	 */
+
+	public TreeComponent getParentComp() {
+		return this.parentComp;
+	}
+
+	/**
+	 * Return whether component has parent
+	 * 
+	 * @return boolean
+	 */
+
+	public boolean hasParentComp() {
+		if (parentComp != null) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Set whether component is processed by CART tool
+	 * @param b whether component is processed by CART tool
+	 */
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public void setProcessed(boolean b) {
+		processed = b;
+		if (parentComp != null && b==false) {
+			parentComp.setProcessed(false);
+		}
+	}
+	public void setProcessedRecursive(boolean b)
+	{
+		for (TreeComponent c : children) {
+			c.setProcessedRecursive(b);
+		}
+		setProcessed(b);
+	}
+
+	/**
+	 * Return all child components
+	 * 
+	 * @return child components
+	 */
+
+	
+	public Vector<TreeComponent> getAllChildren() {
+		return children;
+	}
+	
+	/**
+	 * Add child componet
+	 * 
+	 * @param child
+	 *            child component to be added 
+	 */
+	public void addChild(TreeComponent child) {
+		children.add( child);
+		setProcessed(false);
+	}
+
+
+
+	public Vector<TreeComponent> getChildren() {
+		return children;
+	}
+	
+	public void setChildren(Vector<TreeComponent> children) {
+		this.children = children;
+	}
+	/**
+	 * Return whether component has child
+	 * 
+	 * @return boolean
+	 */
+
+	public boolean hasChildren() {
+		if (children.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+
+
+	/**
+	 * Remove child component
+	 * 
+	 * @param myName name of child target component 
+	 */
+
+	public void removeChild(TreeComponent child) {
+		children.remove(child);
+		setProcessed(false);
+	}
+
+	public Vector<Task> getUnsortedTask(int resPeriod) {
+		Vector<Task> processedTasks = new Vector<Task>();
+		processedTasks.addAll(getTaskList().getTaskArray());
+		ArrayList<Task> al;
+
+		for (TaskList T : getChildrenToTaskTable().values()) {
+			al = T.getTaskArray();
+			for (int i = 0; i < al.size(); i++) {
+				if (al.size() == 1)
+					processedTasks.add(al.get(i));
+				else if (al.get(i).getPeriod() == resPeriod) {
+					processedTasks.add(al.get(i));
+				}
+			}
+		}
+
+		//Collections.sort(processedTasks, Comparators.DeadlineAscending());
+		return processedTasks;
+	}
+
+	/**
+	 * Get task list.<P>
+	 * task list is a set of task in this component 
+	 * @return task list inside scheduling component
+	 */
+
+	public TaskList getTaskList() {
+		return taskList;
+	}
+
+	/**
+	 * Set task list.<P>
+	 * task list is a set of task in this component 
+	 * @param t task list of tasks
+	 */
+
+	public void setTaskList(TaskList t) {
+		taskList = t;
+	}
+	/**
+	 * Get resource model list
+	 * @return list of resource model 
+	 */
+	public ResourceModelList getResourceModelList() {
+		return resourceList;
+	}
+
+
+	/**
+	 * Set resource model list
+	 * @param l list of resource model 
+	 */
+
+	public void setResourceModelList(ResourceModelList l) {
+		resourceList = l;
+	}
+
+
+	/**
+	 * Get processed task list.<P>
+	 * processed task list is data structure which store 
+	 * workload of component after abstract interface 
+	 * function 
+	 * @return processed task list
+	 */
+
+	public TaskList getProcessedTaskList() {
+		return processedTaskList;
+	}
+
+	/**
+	 * Set processed task list.<P>
+	 * processed task list is data structure which store 
+	 * workload of component after abstract interface 
+	 * function 
+	 * @param l processed task list
+	 */
+
+	public void setProcessedTaskList(TaskList l) {
+		processedTaskList = l;
+	}
+
+	/**
+	 * Get child scheduling component to task table mappping
+	 * @return child scheduling component to task table mappping
+	 */
+
+	public Map<TreeComponent, TaskList> getChildrenToTaskTable() {
+		return childrenToTasks;
+	}
+
+	/**
+	 * Set child scheduling component to task table mappping
+	 * @param m child scheduling component to task table mappping
+	 */
+
+	void setChildrenToTaskTable(Map<TreeComponent, TaskList> m) {
+		childrenToTasks = m;
+	}
+
+
+
+
+
+
+	public String getResourceModel() {
+		return resourceModel;
+	}
+	public void setResourceModel(String resourceModel) {
+		this.resourceModel = resourceModel;
+	}
+	/**
+	 * Return all desecdant components
+	 * 
+	 * @return desecdant components
+	 */
+
+	public Collection<TreeComponent> getAllDescendants() {
+		ArrayList<TreeComponent> list = new ArrayList<TreeComponent>();
+		for (TreeComponent c : children) {
+			list.add(c);
+			list.addAll(c.getAllDescendants());
+		}
+
+		return list;
+	}
+	public int getChildSize() {
+		int size=0;
+		for (TreeComponent c : children) {
+			size+=c.getChildSize();
+		}
+		return size+children.size();
+	}
+	public boolean hasCriticalSection(){
+		boolean bCS=false;
+		if(hasChildren())
+		{
+			for(TreeComponent c:children){
+				if(c.hasCriticalSection())
+					bCS=true;
+			}
+		}
+		for(Task t:taskList.getTasks()){
+			if(t.getCriticalSection()!=0)
+				bCS=true;
+		}
+		return bCS;
+	}
+
+	public boolean isArincTask(){
+		boolean bJT=false;
+		if(hasChildren())
+		{
+			for(TreeComponent c:children){
+				if(c.isArincTask())
+					bJT=true;
+			}
+		}
+		for(Task t:taskList.getTasks()){
+			//System.out.println(t.getJitter());
+			if(t.getJitter()!=0||t.getOffset()!=0){
+				bJT=true;
+			}
+		}
+		return bJT;
+	}
+	public boolean update(TreeComponent c) {
+		setCompName(c.getCompName());
+		return schCom.update(c.getSchCom());
+	}
+	
+	public TreeComponent findChildComponentByName(String childName){
+		
+		for(TreeComponent child : this.children){
+			if(child.getCompName().equals(childName)){
+				return child;
+			}
+		}
+		return null;
+	}
+	
+	
+	
+}

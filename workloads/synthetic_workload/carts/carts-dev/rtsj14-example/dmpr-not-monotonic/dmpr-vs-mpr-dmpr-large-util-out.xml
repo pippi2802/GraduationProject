@@ -1,0 +1,27 @@
+<component name="system" resource_model="DMPR model" >
+<resource>
+<model cpus="3" period="20" execution_time="56"> </model> 
+</resource> 
+<processed_task> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="20" deadline="20" > </model> 
+<model period="20" execution_time="16" deadline="20" > </model> 
+</processed_task> 
+<component name="C0" resource_model="DMPR model" >
+<resource>
+<model cpus="2" period="50" execution_time="100"> </model> 
+</resource> 
+<processed_task> 
+<model period="50" execution_time="50" deadline="50" > </model> 
+<model period="50" execution_time="50" deadline="50" > </model> 
+</processed_task> 
+</component>
+<component name="C1" resource_model="DMPR model" >
+<resource>
+<model cpus="1" period="50" execution_time="32"> </model> 
+</resource> 
+<processed_task> 
+<model period="50" execution_time="32" deadline="50" > </model> 
+</processed_task> 
+</component>
+</component>

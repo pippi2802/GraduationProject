@@ -1,0 +1,44 @@
+package edu.penn.rtg.schedulingapp.input.treeGUI.dialog;
+
+import edu.penn.rtg.schedulingapp.Task;
+import edu.penn.rtg.schedulingapp.input.treeGUI.CartsTree;
+
+/**
+ * EditTaskDialog handles the dialog to edit Task in the Scheduling Tree
+ */
+@SuppressWarnings("serial")
+public class EditTaskDialog extends AddTaskDialog {
+
+	private void setFieldValue(Task task)
+	{
+		nameField.setText(task.getTaskName());
+		periodField.setText(Integer.toString((int)task.getPeriod()));
+		executionField.setText(Integer.toString((int)task.getExecution()));
+		deadlineField.setText(Integer.toString((int)task.getDeadline()));
+		int cs=(int)task.getCriticalSection();
+		if(cs!=0)
+		{
+			csField.setText(Integer.toString(cs));
+		}
+		int jitter=(int)task.getJitter();
+		if(jitter!=0)
+		{
+			jitterField.setText(Integer.toString(jitter));
+		}
+		int offset=(int)task.getOffset();
+		if(offset!=0)
+		{
+			offsetField.setText(Integer.toString(offset));
+		}
+	}
+
+	public EditTaskDialog(CartsTree parent, Task task) {
+		super(parent);
+		mode="EDIT";
+		setFieldValue(task);
+		setTitle("Update Task");
+		this.repaint();
+	}
+
+
+}

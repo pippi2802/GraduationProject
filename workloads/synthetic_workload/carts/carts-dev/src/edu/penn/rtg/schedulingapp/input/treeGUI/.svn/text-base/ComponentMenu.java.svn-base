@@ -1,0 +1,109 @@
+package edu.penn.rtg.schedulingapp.input.treeGUI;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
+import edu.penn.rtg.schedulingapp.SchedulingComponent;
+import edu.penn.rtg.schedulingapp.TreeComponent;
+
+/**
+ * ComponentMenu handles the pop up menu when the user clicks on a Scheduling
+ * Component in the Tree UI
+ */
+@SuppressWarnings("serial")
+public class ComponentMenu extends JPopupMenu implements ActionListener {
+	private final String addCom="Add Component";
+	private final String addTask="Add Task";
+	private final String delCom="Remove Component";
+	private final String edtCom="Edit Component Data";
+	private final String comPRM="Compute PRM interface";
+	private final String comEDP="Compute EDP interface";
+	private final String comDPR="Compute DPRM interface";
+	private final String comMPR="Compute MPR interface";
+	private final String comEQV="Compute EQV interface";
+	private final String drawGraph="SBF/DBF";
+	CartsTree m_treeRef;
+	JMenuItem menuGraph;
+	public ComponentMenu(CartsTree tree) {
+		m_treeRef = tree;
+		JMenuItem menuItem;
+		menuItem = new JMenuItem(addCom);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(addTask);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(delCom);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(edtCom);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(comPRM);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(comEDP);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(comDPR);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(comMPR);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuItem = new JMenuItem(comEQV);
+		menuItem.addActionListener(this);
+		add(menuItem);
+		menuGraph = new JMenuItem(drawGraph);
+		menuGraph.addActionListener(this);
+		add(menuGraph);
+
+
+	}
+	public void setCom(TreeComponent comp)
+	{
+		/**
+		 * Display the graph option only when the selected component has been
+		 * processed
+		 */
+		if (comp.isProcessed()) {
+			if(!(comp.getSchCom().getProcessedAlgo().equals("EQV")||
+					comp.getSchCom().getProcessedAlgo().equals("MPR"))) { //
+				menuGraph.setEnabled(true);
+			}
+		}
+		else{
+			menuGraph.setEnabled(false);
+			
+		}
+		
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JMenuItem source = (JMenuItem) (e.getSource());
+		if (source.getText().equals(addCom)) {
+			m_treeRef.addCompClicked();
+		} else if (source.getText().equals(delCom)) {
+			m_treeRef.removeCompClicked();
+		} else if (source.getText().equals(addTask)) {
+			m_treeRef.addTaskClicked();
+		} else if (source.getText().equals(edtCom)) {
+			m_treeRef.editCompClicked();
+		} else if (source.getText().equals(comPRM)) {
+			m_treeRef.processAlgo("PRM");
+		} else if (source.getText().equals(comEDP)) {
+			m_treeRef.processAlgo("EDP");
+		} else if (source.getText().equals(comDPR)) {
+			m_treeRef.processAlgo("DPRM");
+		} else if (source.getText().equals(comMPR)) {
+			m_treeRef.processAlgo("MPR");
+		} else if (source.getText().equals(comEQV)) {
+			m_treeRef.processAlgo("EQV");
+		} else if (source.getText().equals(drawGraph)) {
+			m_treeRef.drawGraph();
+		}
+	}
+}

@@ -1,0 +1,6 @@
+<system os_scheduler="gEDF" period="2">
+<component name="C1" scheduler="gEDF"	period="4.0">
+<task name="T1" p="16" d="16" e="4.0" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0"/>
+
+</component>
+</system>

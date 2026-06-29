@@ -1,0 +1,63 @@
+package edu.penn.rtg.schedulingapp.input.treeGUI;
+
+import edu.penn.rtg.schedulingapp.Analysis;
+import edu.penn.rtg.schedulingapp.SchedulingComponent;
+import edu.penn.rtg.schedulingapp.TreeComponent;
+import edu.penn.rtg.schedulingapp.output.OutputI;
+import edu.penn.rtg.schedulingapp.output.graph.GenGraph;
+
+public class CartsAnalysisThread extends Thread{
+	String algo;
+	TreeComponent root;
+	TreeComponent comp;
+	OutputI output;
+	CartsTree cartsTree;
+	boolean isCompute;
+	public CartsAnalysisThread(TreeComponent comp) {
+		super();
+		this.comp = comp;
+		isCompute=false;
+	}
+	public CartsAnalysisThread(String algo, TreeComponent comp,TreeComponent root,
+			OutputI output, CartsTree cartsTree) {
+		super();
+		this.algo = algo;
+		this.comp = comp;
+		this.root =root;
+		this.output = output;
+		this.cartsTree = cartsTree;
+		isCompute=true;
+	}
+	public void run()
+	{
+		try {
+			if(isCompute)
+				compute();
+			else
+				draw();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	private void draw() throws Exception {
+		GenGraph.drawGraph(comp);
+	}
+	private void compute() throws Exception {
+		comp.getSchCom().setRevised(false);
+		String str = Analysis.preProcess(algo,comp);
+		if(comp.getSchCom().isRevised()) {
+			if(!comp.isProcessed()) {
+				root.setProcessedRecursive(false);
+				output.displayEmpty();
+				cartsTree.updateUI();
+				return;
+			}
+			root.setProcessedRecursive(false);
+			comp.setProcessedRecursive(true);
+			output.displayOutput(comp, str);
+			cartsTree.updateUI();
+		}
+		
+	}
+}

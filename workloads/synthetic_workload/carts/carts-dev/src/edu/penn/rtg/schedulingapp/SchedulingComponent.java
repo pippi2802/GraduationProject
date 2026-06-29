@@ -1,0 +1,329 @@
+package edu.penn.rtg.schedulingapp;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Vector;
+
+import javax.swing.JOptionPane;
+
+import edu.penn.rtg.common.GlobalVariable;
+import edu.penn.rtg.schedulingapp.SchedulingComponent;
+
+/**
+ * Composable Scheduling Element.
+ * It is building block of scheduling tree.
+ * Scheduling Component can contain Scheduling Component itself or Task as a
+ * child. This class provides methods to add them or remove them.
+ * 
+ * The class also contains fields for period, algorithm.
+ */
+@SuppressWarnings("serial")
+public class SchedulingComponent extends SchComponent {
+
+
+	
+
+	public SchedulingComponent(TreeComponent tree_com) {
+		super(tree_com);
+	}
+
+	/////////////////////////////////////
+	// Compute DBF/RBF/LCM
+	/////////////////////////////////////
+
+	/**
+	 * It compute demand in demand bound function at specific time and specific period
+	 * 
+	 * @param time
+	 * @param resPeriod
+	 * @return demand
+	 */
+	public double computeDBF(double time, int resPeriod) {
+		double dbf = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			if (T.getPeriod() == 0||T.getExecution()==0)
+				continue;
+			else
+				dbf = dbf
+						+ Math.floor((time + T.getPeriod() - T.getDeadline())
+								/ T.getPeriod()) * T.getExecution();
+		}
+		if(dbf<0) dbf=0;
+		return dbf;
+	}
+
+	public int computeDBF_DPRM(double time)
+	{
+		int dbf = 0;
+		Vector<Task> tasks = this.getDPRMTasks();
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			if (T.getPeriod() == 0||T.getExecution()==0)
+				continue;
+			else
+				dbf = dbf
+						+ (int)(Math.floor((time + T.getPeriod() - T.getDeadline())
+								/ T.getPeriod()) * T.getExecution());
+		}
+		if(dbf<0) dbf=0;
+		return dbf;
+	}
+	public int computeDBF_DPRM(int t,ResourceModel rm)
+	{
+		int dbf=computeDBF_DPRM(t);
+		int sbf=(int)rm.computeSBF(t);
+		
+		return Math.max(0,dbf-sbf);
+	}
+	/**
+	 * It compute demand in resource bound function at specific time and specific period
+	 * 
+	 * @param time
+	 * @param resPeriod
+	 * @return demand
+	 */
+
+	public double computeRBF(double time, int index, int resPeriod) {
+
+		double rbf = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		for (int i = 0; i < index; i++) {
+
+			Task task = new Task((Task) (tasks.get(i)));
+			if (task.getPeriod() == 0)
+				continue;
+			else
+				rbf = rbf + Math.ceil(time / task.getPeriod())
+						* task.getExecution();
+		}
+		if (tasks.get(index).getPeriod() != 0)
+			rbf = rbf + ((Task) (tasks.get(index))).getExecution();
+
+		return rbf;
+	}
+
+	public double computeRBF_arinc(double t1,double t2,int index, int resPeriod) {
+		double dbf = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		for (int i = 0; i < index; i++) {
+			Task T = tasks.get(i);
+			if (T.getPeriod() == 0)
+				continue;
+			else
+			{
+				int count1 = (int)Math.ceil((t2-T.getOffset())/T.getPeriod());
+				int count2 = (int)Math.ceil((t1-T.getOffset() - T.getJitter())/T.getPeriod());
+				dbf = dbf + (count1-count2)*(T.getExecution());
+				dbf = dbf + getBlockingOverhead(t1,t2,i,index,resPeriod);
+			}
+		}
+		if(dbf<0) dbf=0;
+		return dbf;
+	}
+	public double getBlockingOverhead(double t1, double t2, int i, int index, int resPeriod){
+
+		double blockingOverhead = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		Task task = tasks.get(i);
+		double t = Math.ceil((t1 - task.getOffset())/task.getPeriod())*task.getPeriod() + task.getOffset();
+		while(t < t2){
+
+			double processOverhead = 0;
+			for(int j = index+1; j < tasks.size(); j++){
+
+				Task T = tasks.get(j);
+				double interference = 0;
+				if((t > Math.floor(t/T.getPeriod())*T.getPeriod()+T.getOffset()) && (t < Math.floor(t/T.getPeriod())*T.getPeriod()+T.getDeadline()))
+					interference = Math.floor(t/T.getPeriod())*T.getPeriod()+T.getDeadline()-t;
+
+				double overhead = Math.max(0, Math.min(interference, T.getExecution()));
+				processOverhead = Math.max(overhead, processOverhead);
+			}
+			t = t + task.getPeriod();
+			blockingOverhead = blockingOverhead + processOverhead;
+		}
+		return blockingOverhead;
+	}	
+	public double computeRBF_SIRAP(double time,int index,int period)
+	{
+		Vector<?> taskV=this.getTasks(period);
+		double rbf=0;
+		for(int i=0;i<=index;i++)
+		{
+			Task task=(Task)taskV.get(i);
+			if(task.getPeriod()==0) continue;
+			rbf+= Math.ceil(time / task.getPeriod())
+						* (task.getExecution()+task.getCriticalSection());
+
+		}
+		double max_block=0;
+		for(int i=index+1;i<taskV.size();i++)
+		{
+			Task task=(Task)taskV.get(i);
+			if(max_block<task.getCriticalSection()) max_block=task.getCriticalSection();
+		}
+		//System.out.println(max_block);
+		return rbf+2*max_block;
+	}
+
+	/**
+	 * It compute LCM(Least Common Multiplier) of given period
+	 * 
+	 * @param time
+	 * @param resPeriod
+	 * @return LCM
+	 */
+
+	public double computeLCM(int resPeriod) {
+		double lcm = 0;
+		Vector<java.lang.Double> Periods = new Vector<java.lang.Double>();
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		//System.out.println(tasks.size());
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			//System.out.println(T.getPeriod());
+			if (T.getPeriod() == 0||T.getExecution() == 0)
+				continue;
+			else
+				Periods.addElement(T.getPeriod());
+		}
+		lcm = LCM.generateLCM(Periods);
+		if(lcm >= GlobalVariable.MAX_NUMBER || lcm < 0){ //lcm = 0 means no taskset in this component, it should return interface with bw=0
+			System.err.println("LCM is out of range. When calculate LCM of double periods, it can lead to infinite number. Set this taskset as unschedulable because it's uncomputable!\n");
+			//JOptionPane.showMessageDialog(null, "Least Common Multiplier is out of range! Period should be int", "LCM Out of Range", JOptionPane.ERROR_MESSAGE);
+			//System.exit(-1);
+			lcm = GlobalVariable.MAX_NUMBER;
+		}
+			
+		return lcm;
+	}
+	/**
+	 * It compute utilization of component of given period
+	 * 
+	 * @param time
+	 * @param resPeriod
+	 * @return Utilization
+	 */
+
+	public double computeUtil(int resPeriod) {
+		double util = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			if (T.getPeriod() == 0)
+				continue;
+			else
+				util = util + T.getExecution() / T.getPeriod();
+		}
+		return util;
+	}
+
+	/**
+	 * It compute maximum deadline of component of given period
+	 * 
+	 * @param time
+	 * @param resPeriod
+	 * @return maximum deadline
+	 */
+
+	public double computeMaxDeadline(int resPeriod) {
+		double maxDeadline = 0;
+		Vector<Task> tasks = this.getTasks(resPeriod);
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			maxDeadline = Math.max(maxDeadline, T.getDeadline());
+		}
+		return maxDeadline;
+	}
+	/////////////////////////////////////
+	// Task Manage
+	/////////////////////////////////////
+
+
+
+	/**
+	 * Emulates the original getTasks method located in Component
+	 * 
+	 * @return a Vector that points to each object that is within the taskList,
+	 *         however, modifying the vector will NOT modify the taskList
+	 */
+	public Vector<Task> getTasks(int resPeriod) {
+		Vector<Task> processedTasks =tree_com.getUnsortedTask(resPeriod);
+		Collections.sort(processedTasks, Comparators.DeadlineAscending());
+		return processedTasks;
+	}
+
+	public Vector<Task> getTasksUnsort(int resPeriod) {
+		Vector<Task> processedTasks =tree_com.getUnsortedTask(resPeriod);
+		return processedTasks;
+	}
+	
+
+	/**
+	 * Emulates the original getSize method located in Component
+	 * 
+	 * @return is accurate for any Vector that getTasks returns, however, it
+	 *         will not be consistent if you modify the vector that gets
+	 *         returned by getTasks
+	 */
+	public int getSize(int resPeriod) {
+		Vector<Task> processedTasks =tree_com.getUnsortedTask(resPeriod);
+		return processedTasks.size();
+	}
+	public Vector<Task> getDPRMTasks() {
+		Vector<Task> processedTasks = new Vector<Task>();
+		processedTasks.addAll(tree_com.getTaskList().getTaskArray());
+		ArrayList<Task> al;
+		for (TaskList T : tree_com.getChildrenToTaskTable().values()) {
+			al = T.getTaskArray();
+			for (int i = 0; i < al.size(); i++) {
+				processedTasks.add(al.get(i));
+			}
+		}
+
+
+		return processedTasks;
+	}
+	public Vector<Task> getMPRTasks() {
+		Vector<Task> processedTasks = new Vector<Task>();
+		processedTasks.addAll(tree_com.getTaskList().getTaskArray());
+		ArrayList<Task> al;
+		for (TaskList T :tree_com.getChildrenToTaskTable().values()) {
+			al = T.getTaskArray();
+			for (int i = 0; i < al.size(); i++) {
+				processedTasks.add(al.get(i));
+			}
+		}
+		return processedTasks;
+
+	}
+	public void showPeriods()
+	{
+		Vector<Task> tasks = this.getDPRMTasks();
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			System.out.println(T.getPeriod());
+		}
+		
+	}
+	public int computeLCM_DPRM() {
+		int lcm = 0;
+		Vector<java.lang.Double> Periods = new Vector<java.lang.Double>();
+		Vector<Task> tasks = this.getDPRMTasks();
+		//System.out.println(tasks.size());
+		for (int i = 0; i < tasks.size(); i++) {
+			Task T = tasks.get(i);
+			//System.out.println(T.getPeriod());
+			if (T.getPeriod() == 0||T.getExecution() == 0)
+				continue;
+			else
+				Periods.addElement(T.getPeriod());
+		}
+		lcm = (int)LCM.generateLCM(Periods);
+		return lcm;
+	}
+
+
+}

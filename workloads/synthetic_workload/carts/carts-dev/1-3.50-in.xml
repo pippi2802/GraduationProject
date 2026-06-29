@@ -1,0 +1,80 @@
+<system os_scheduler="gEDF" period="16.0"> 
+	<component name="C0" scheduler="gEDF" period="256"> 
+		 <task name="T0" p="600" d="600" e="53" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T4" p="564" d="564" e="16" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T8" p="376" d="376" e="16" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T12" p="839" d="839" e="16" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T16" p="579" d="579" e="43" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T20" p="470" d="470" e="44" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T24" p="779" d="779" e="19" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T28" p="352" d="352" e="21" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T32" p="758" d="758" e="58" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T36" p="457" d="457" e="3" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T40" p="673" d="673" e="14" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T44" p="770" d="770" e="44" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T48" p="576" d="576" e="35" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T52" p="699" d="699" e="2" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T56" p="529" d="529" e="10" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T60" p="717" d="717" e="26" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T64" p="581" d="581" e="41" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T68" p="479" d="479" e="32" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C1" scheduler="gEDF" period="128"> 
+		 <task name="T1" p="638" d="638" e="30" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T5" p="554" d="554" e="40" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T9" p="723" d="723" e="71" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T13" p="712" d="712" e="5" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T17" p="500" d="500" e="10" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T21" p="428" d="428" e="14" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T25" p="830" d="830" e="77" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T29" p="560" d="560" e="14" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T33" p="750" d="750" e="13" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T37" p="762" d="762" e="73" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T41" p="431" d="431" e="32" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T45" p="795" d="795" e="36" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T49" p="664" d="664" e="21" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T53" p="484" d="484" e="29" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T57" p="588" d="588" e="54" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T61" p="545" d="545" e="8" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T65" p="442" d="442" e="3" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T69" p="430" d="430" e="40" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C2" scheduler="gEDF" period="64"> 
+		 <task name="T2" p="526" d="526" e="41" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T6" p="649" d="649" e="47" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T10" p="534" d="534" e="23" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T14" p="556" d="556" e="52" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T18" p="375" d="375" e="9" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T22" p="407" d="407" e="10" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T26" p="599" d="599" e="9" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T30" p="629" d="629" e="5" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T34" p="763" d="763" e="43" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T38" p="752" d="752" e="59" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T42" p="754" d="754" e="8" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T46" p="403" d="403" e="22" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T50" p="774" d="774" e="33" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T54" p="599" d="599" e="44" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T58" p="747" d="747" e="47" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T62" p="574" d="574" e="51" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T66" p="387" d="387" e="28" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+	<component name="C3" scheduler="gEDF" period="32"> 
+		 <task name="T3" p="655" d="655" e="33" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T7" p="564" d="564" e="3" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T11" p="519" d="519" e="2" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T15" p="564" d="564" e="35" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T19" p="710" d="710" e="60" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T23" p="479" d="479" e="25" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T27" p="673" d="673" e="44" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T31" p="372" d="372" e="14" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T35" p="816" d="816" e="73" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T39" p="456" d="456" e="35" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T43" p="554" d="554" e="15" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T47" p="386" d="386" e="1" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T51" p="668" d="668" e="6" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T55" p="502" d="502" e="44" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T59" p="738" d="738" e="3" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T63" p="766" d="766" e="66" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+		 <task name="T67" p="405" d="405" e="34" delta_rel="0" delta_sch="0" delta_cxs="0" delta_crpmd="0.09" > </task>
+	</component>
+</system>

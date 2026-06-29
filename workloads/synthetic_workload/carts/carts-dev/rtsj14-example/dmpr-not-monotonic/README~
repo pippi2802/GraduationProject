@@ -1,0 +1,5 @@
+Observation:
+When taskset's utilization increases, the system's interface is reduced! 
+This is because we transform the partial VCPU to full VCPU; the full VCPU is pinned and is not considered in the gEDF and interface abstraction. Because pinning VCPU has no abstraction overhead, we avoids the abstraction overhead in the abstraction at system's  level, although we lose more bandwidth in the abstraction at domain level. 
+This observation suggests us that we can inflate the tasks' wcet in a domain to derive a better interface at system level! 
+
