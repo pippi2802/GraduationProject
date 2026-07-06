@@ -61,7 +61,7 @@ fi
 #    of generating our own.
 # -----------------------------------------------------------------------------
 DRA_SRC="${RT_WORKDIR}/dra-rt-driver"
-rt_git_clone https://github.com/nasim-samimi/dra-rt-driver.git "$DRA_SRC"
+rt_git_clone https://github.com/pippi2802/dra-rt-driver.git "$DRA_SRC" rt-v0.1.1
 
 # -----------------------------------------------------------------------------
 # 3. Use the kubeadm-config.yaml shipped in the dra-rt-driver repo.

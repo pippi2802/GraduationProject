@@ -20,12 +20,13 @@ EXPECTED_COLUMNS = [
     "record", "run_id", "mode", "taskset_id", "task_id", "job_index",
     "release_ts_ns", "start_ts_ns", "completion_ts_ns",
     "exec_time_us", "response_time_us", "wait_time_us", "preempt_us",
+    "steal_us", "throttled_us", "cpu_id",
     "target_c_us", "period_t_us",
     "deadline_us", "overrun", "deadline_miss", "tardiness_us",
     "budget_q_us", "period_p_us", "cores_m", "util", "n_tasks",
     "interference", "node", "kernel",
     # run-level summary fields (present only on record=="summary" rows)
-    "steal_pct", "steal_us", "wall_us", "iters_per_us",
+    "steal_pct", "wall_us", "iters_per_us", "nr_throttled",
 ]
 
 

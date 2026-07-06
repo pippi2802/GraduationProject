@@ -59,7 +59,7 @@ rm -f /lib/systemd/system/containerd.service
 # 2. Build & install RT-containerd
 # -----------------------------------------------------------------------------
 CONTAINERD_SRC="${RT_WORKDIR}/containerd"
-rt_git_clone https://github.com/nasim-samimi/containerd.git "$CONTAINERD_SRC" rt
+rt_git_clone https://github.com/pippi2802/containerd.git "$CONTAINERD_SRC" rt-v
 (
     cd "$CONTAINERD_SRC"
     echo "[build] containerd $(git rev-parse --short HEAD)"
@@ -72,7 +72,7 @@ echo "[verify] containerd --version: $(/usr/local/bin/containerd --version)"
 # 3. Build & install RT-runc
 # -----------------------------------------------------------------------------
 RUNC_SRC="${RT_WORKDIR}/runc"
-rt_git_clone https://github.com/nasim-samimi/runc.git "$RUNC_SRC" rt
+rt_git_clone https://github.com/pippi2802/runc.git "$RUNC_SRC" rt-v1.1.14
 (
     cd "$RUNC_SRC"
     echo "[build] runc $(git rev-parse --short HEAD)"

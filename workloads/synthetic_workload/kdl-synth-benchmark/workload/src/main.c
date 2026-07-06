@@ -6,6 +6,7 @@
 #include "metrics.h"
 #include "steal.h"
 #include "task.h"
+#include "throttle.h"
 #include "timing.h"
 
 #include <getopt.h>
@@ -115,7 +116,8 @@ static void usage(const char *prog) {
         "  --util F             utilisation label\n"
         "  --interference S     none|on (label)\n"
         "  --node S             node label\n"
-        "  --kernel S           kernel label\n",
+        "  --kernel S           kernel label\n"
+        "  --per-job-attr       log per-job steal/throttle (attribution runs)\n",
         prog);
 }
 
@@ -132,6 +134,7 @@ int main(int argc, char **argv) {
     uint64_t budget_q_us = 0, period_p_us = 0;
     int cores_m = 0;
     double util = 0.0;
+    int per_job_attr = 0;
 
     static struct option opts[] = {
         {"taskset", required_argument, 0, 't'},
@@ -148,6 +151,7 @@ int main(int argc, char **argv) {
         {"interference", required_argument, 0, 'i'},
         {"node", required_argument, 0, 'n'},
         {"kernel", required_argument, 0, 'k'},
+        {"per-job-attr", no_argument, 0, 'A'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}};
 
@@ -168,6 +172,7 @@ int main(int argc, char **argv) {
         case 'i': interference = optarg; break;
         case 'n': node = optarg; break;
         case 'k': kernel = optarg; break;
+        case 'A': per_job_attr = 1; break;
         case 'h': usage(argv[0]); return 0;
         default: usage(argv[0]); return 2;
         }
@@ -232,6 +237,7 @@ int main(int argc, char **argv) {
 
     /* Sample host-stolen CPU time across the whole measured run (G1 covariate). */
     const steal_sample_t steal_before = steal_read();
+    const throttle_sample_t thr_before = throttle_read();
     const uint64_t run_wall_start = now_ns(CLOCK_MONOTONIC);
 
     pthread_t th[MAX_TASKS];
@@ -241,6 +247,7 @@ int main(int argc, char **argv) {
         tasks[i].iters_per_us = iters_per_us;
         tasks[i].epoch_ns = epoch;
         tasks[i].start_at_ns = start_at;
+        tasks[i].attr = per_job_attr;
         if (pthread_create(&th[i], NULL, task_thread, &tasks[i]) != 0) {
             fprintf(stderr, "error: pthread_create failed for task %d\n", i);
             g_stop = 1;
@@ -253,10 +260,16 @@ int main(int argc, char **argv) {
     }
 
     const steal_sample_t steal_after = steal_read();
+    const throttle_sample_t thr_after = throttle_read();
     const uint64_t run_wall_end = now_ns(CLOCK_MONOTONIC);
     metrics_summary_t summary = {
         .steal_pct = steal_pct(steal_before, steal_after),
         .steal_us = steal_us(steal_before, steal_after),
+        .throttled_us = throttle_us(thr_before, thr_after),
+        .nr_throttled = (thr_before.ok && thr_after.ok &&
+                         thr_after.nr_throttled >= thr_before.nr_throttled)
+                            ? thr_after.nr_throttled - thr_before.nr_throttled
+                            : 0,
         .wall_us = (run_wall_end - run_wall_start) / 1000ULL,
         .iters_per_us = iters_per_us,
         .n_tasks = n,

@@ -1,0 +1,90 @@
+# =============================================================================
+# Model 1 RT-cell TEMPLATE (envsubst). Renders one CELL from (scale, U) via
+# manifests/render.sh, which sources cell_env.py so config.yaml stays the single
+# source of truth (Q = round(U*P), units, images, host paths — nothing hardcoded
+# here). One RT-container-under-test at a time (see EXECUTION ORDERING).
+#
+# >>> KUBEDEADLINE RESERVATION SPEC (CONFIRMED: DRA / RtClaimParameters) <<<
+#     runtime -> Q, period -> P, count -> m. Units per config
+#     (kubedeadline_reservation_spec.units, default microseconds). KubeDeadline
+#     performs the CPU pinning/affinity for this reserved container.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-params
+spec:
+  count: ${RES_COUNT}       # m (cores) = 1 for Model 1
+  runtime: ${RES_RUNTIME}   # Q
+  period: ${RES_PERIOD}     # P
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${CELL_ID}-params
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}
+  labels:
+    app: model1-rt
+    cell: "${CELL_ID}"
+    scale: "${SCALE}"
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    model1/rt-node: "true"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: rtapp
+      image: ${BASE_IMAGE}
+      imagePullPolicy: ${PULL_POLICY}
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          export DEBIAN_FRONTEND=noninteractive
+          command -v rt-app >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ${RTAPP_PKG}; }
+          # pin to the REAL physical core chosen by node-prep (portable across nodes)
+          CPU=$(grep -o '"'"${CPU_KEY}"'": *[0-9]\+' /host-map/cpu-map.json | grep -o '[0-9]\+' | head -n1)
+          CPU=${CPU:-0}
+          cp /config/rtapp.json /tmp/rtapp.json
+          sed -i "s/\"cpus\": *\[[0-9]*\]/\"cpus\": [$CPU]/" /tmp/rtapp.json
+          sed -i "s/\"calibration\": *\"CPU[0-9]*\"/\"calibration\": \"CPU$CPU\"/" /tmp/rtapp.json
+          mkdir -p /results
+          echo "[rtapp] cell=${CELL_ID} pinned cpu=$CPU"
+          exec rt-app /tmp/rtapp.json
+      securityContext:
+        capabilities:
+          add: ["SYS_NICE", "IPC_LOCK"]   # FIFO scheduling + lock_pages
+      volumeMounts:
+        - { name: results,  mountPath: /results }
+        - { name: rtapp-config, mountPath: /config }
+        - { name: cpu-map,  mountPath: /host-map, readOnly: true }
+      resources:
+        claims:
+          - name: rtcpu
+  resourceClaims:
+    - name: rtcpu
+      source:
+        resourceClaimTemplateName: ${CELL_ID}-claim
+  volumes:
+    - name: results
+      hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }
+    - name: rtapp-config
+      configMap: { name: ${CELL_ID}-rtapp }
+    - name: cpu-map
+      hostPath: { path: /var/lib/model1, type: DirectoryOrCreate }

@@ -14,6 +14,7 @@ typedef struct {
     double iters_per_us;    /* busy-loop calibration */
     uint64_t epoch_ns;      /* shared run epoch (CLOCK_MONOTONIC) */
     uint64_t start_at_ns;   /* absolute monotonic time of first release */
+    int attr;               /* 1 = sample per-job steal/throttle (attribution) */
 } task_arg_t;
 
 /* pthread entry point: runs the absolute-time periodic loop. */

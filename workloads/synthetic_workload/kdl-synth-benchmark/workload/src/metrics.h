@@ -30,6 +30,9 @@ typedef struct {
     uint64_t response_time_us;  /* completion - release (wall) */
     uint64_t wait_time_us;      /* response - exec: ready-but-off-CPU (supply/G1) */
     uint64_t preempt_us;        /* off-CPU time during the burn (pure starvation) */
+    uint64_t steal_us;          /* host CPU stolen during this job window (G1/A) */
+    uint64_t throttled_us;      /* cgroup CFS throttling during this job (in-guest/B) */
+    int cpu_id;                 /* CPU the job finished on (SMT/migration correlate) */
     uint64_t target_c_us;
     uint64_t period_t_us;
     uint64_t deadline_us;
@@ -42,6 +45,8 @@ typedef struct {
 typedef struct {
     double steal_pct;       /* % of CPU stolen by the host over the run (G1) */
     uint64_t steal_us;      /* stolen CPU time over the run (us) */
+    uint64_t throttled_us;  /* cgroup CFS throttled time over the run (us) */
+    uint64_t nr_throttled;  /* cgroup CFS throttling events over the run */
     uint64_t wall_us;       /* run wall duration (us) */
     double iters_per_us;    /* busy-loop calibration */
     int n_tasks;

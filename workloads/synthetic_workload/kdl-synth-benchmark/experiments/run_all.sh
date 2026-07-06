@@ -21,6 +21,8 @@ IMAGE_INTERF="${IMAGE_INTERF:-docker.io/pippina2/kdl-interference:latest}"
 MODES="${MODES:-rtdra vanilla}"
 INTERFERENCE="${INTERFERENCE:-on}"              # on|none
 CPU_WORKERS="${CPU_WORKERS:-4}"
+PER_JOB_ATTR="${PER_JOB_ATTR:-0}"               # 1 = log per-job steal/throttle/cpu_id
+CPUSET="${CPUSET:-}"                             # e.g. "2,3" -> taskset -c 2,3 (pinning models)
 JOBS="${JOBS:-1000}"
 WARMUP="${WARMUP:-20}"
 COOLDOWN="${COOLDOWN:-5}"                        # seconds between runs
@@ -51,6 +53,11 @@ json_res() { # json_res <file> <q_us|p_us|m>
 
 render() { # render <template> <out>  -- substitutes {{VAR}} from exported env
     local tmpl="$1" out="$2"
+    # Attribution flag + optional CPU pinning prefix for the workload command.
+    local attr_flag=""
+    [ "${PER_JOB_ATTR}" = "1" ] && attr_flag="--per-job-attr"
+    local cpuset_prefix=""
+    [ -n "${CPUSET}" ] && cpuset_prefix="taskset -c ${CPUSET} "
     sed \
         -e "s|{{IMAGE}}|${IMAGE}|g" \
         -e "s|{{IMAGE_INTERF}}|${IMAGE_INTERF}|g" \
@@ -67,6 +74,8 @@ render() { # render <template> <out>  -- substitutes {{VAR}} from exported env
         -e "s|{{N_TASKS}}|${N_TASKS}|g" \
         -e "s|{{INTERFERENCE}}|${INTERFERENCE}|g" \
         -e "s|{{CPU_WORKERS}}|${CPU_WORKERS}|g" \
+        -e "s|{{ATTR_FLAG}}|${attr_flag}|g" \
+        -e "s|{{CPUSET_PREFIX}}|${cpuset_prefix}|g" \
         "${tmpl}" > "${out}"
 }
 

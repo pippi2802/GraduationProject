@@ -3,6 +3,8 @@
 #include "calib.h"
 #include "metrics.h"
 #include "periodic.h"
+#include "steal.h"
+#include "throttle.h"
 #include "timing.h"
 
 #include <sched.h>
@@ -77,6 +79,16 @@ void *task_thread(void *arg) {
     for (uint64_t j = 0; j < total && !g_stop; j++) {
         sleep_until_ns(next);
 
+        /*
+         * Attribution samples bracket the whole active phase of the job. They
+         * are read outside the cpu0..cpu1 / t0..t1 window so their overhead does
+         * not pollute exec_time / response_time. Zero-cost when attr is off.
+         */
+        const steal_sample_t js0 =
+            ta->attr ? steal_read() : (steal_sample_t){0, 0, false};
+        const throttle_sample_t jt0 =
+            ta->attr ? throttle_read() : (throttle_sample_t){0, 0, false};
+
         const uint64_t release = next;
         const uint64_t cpu0 = now_ns(CLOCK_THREAD_CPUTIME_ID);
         const uint64_t t0 = now_ns(CLOCK_MONOTONIC);
@@ -85,6 +97,12 @@ void *task_thread(void *arg) {
 
         const uint64_t cpu1 = now_ns(CLOCK_THREAD_CPUTIME_ID);
         const uint64_t t1 = now_ns(CLOCK_MONOTONIC);
+
+        const steal_sample_t js1 =
+            ta->attr ? steal_read() : (steal_sample_t){0, 0, false};
+        const throttle_sample_t jt1 =
+            ta->attr ? throttle_read() : (throttle_sample_t){0, 0, false};
+        const int cpu_id = sched_getcpu();
 
         next += period_ns; /* absolute, no drift */
 
@@ -102,6 +120,9 @@ void *task_thread(void *arg) {
         /* Supply signals (G1): time ready but off-CPU. */
         const uint64_t wait_us = resp_us > exec_us ? resp_us - exec_us : 0;
         const uint64_t preempt_us = burn_wall_us > exec_us ? burn_wall_us - exec_us : 0;
+        /* Cause covariates: host steal (A) vs in-guest CFS throttle (B). */
+        const uint64_t job_steal_us = ta->attr ? steal_us(js0, js1) : 0;
+        const uint64_t job_throttled_us = ta->attr ? throttle_us(jt0, jt1) : 0;
 
         job_record_t rec = {
             .task_id = ta->id,
@@ -113,6 +134,9 @@ void *task_thread(void *arg) {
             .response_time_us = resp_us,
             .wait_time_us = wait_us,
             .preempt_us = preempt_us,
+            .steal_us = job_steal_us,
+            .throttled_us = job_throttled_us,
+            .cpu_id = cpu_id,
             .target_c_us = ta->c_us,
             .period_t_us = ta->t_us,
             .deadline_us = ta->d_us,

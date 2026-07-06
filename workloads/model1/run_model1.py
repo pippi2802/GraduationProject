@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+"""
+Model 1 orchestrator.
+
+For a given --timeblock LABEL, sweep both scales and their U grids SEQUENTIALLY
+(exactly one RT-container-under-test alive at a time), keeping the canary up the
+whole time. Per cell:
+
+  render manifest -> kubectl apply -> collect jobs until the per-cell stopping
+  rule fires (convergence within [N_min, N_max], or the 3 h guard) -> collect
+  CSVs into results/<timeblock>/<scale-dir>/U<U>/ -> kubectl delete -> record a
+  cell metadata JSON. Idempotent & re-runnable; delete+recreate between cells.
+
+This driver runs on your workstation and talks to the cluster via kubectl. It
+reads node-side files (continuous sampler stream, rt-app logs after pod delete,
+node facts) by exec-ing into the long-lived sampler DaemonSet pod, which mounts
+the host /var/lib/model1 and has hostPID.
+
+Prerequisites (see README): node labelled model1/rt-node=true; node-prep and
+sampler DaemonSets applied; KubeDeadline (rt-DRA) driver installed.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import model1lib as m1  # noqa: E402
+sys.path.insert(0, str(HERE / "parse"))
+import convergence as conv_mod  # noqa: E402
+import parse_rtapp  # noqa: E402
+
+
+NS = "model1"
+
+
+# --------------------------------------------------------------------------- #
+# shell helpers
+# --------------------------------------------------------------------------- #
+def run(cmd: list[str], check=True, capture=True, input_text=None):
+    return subprocess.run(
+        cmd, check=check,
+        stdout=subprocess.PIPE if capture else None,
+        stderr=subprocess.PIPE if capture else None,
+        text=True, input=input_text,
+    )
+
+
+def kubectl(*args, check=True, capture=True, input_text=None):
+    return run(["kubectl", *args], check=check, capture=capture, input_text=input_text)
+
+
+def log(msg: str):
+    print(f"[model1] {msg}", flush=True)
+
+
+# --------------------------------------------------------------------------- #
+# node access via the sampler DaemonSet pod
+# --------------------------------------------------------------------------- #
+def sampler_pod(node: str | None) -> str | None:
+    sel = "app=model1-sampler"
+    args = ["get", "pods", "-n", NS, "-l", sel, "-o",
+            "jsonpath={range .items[*]}{.metadata.name}{\" \"}{.spec.nodeName}{\"\\n\"}{end}"]
+    r = kubectl(*args, check=False)
+    for line in (r.stdout or "").splitlines():
+        parts = line.split()
+        if not parts:
+            continue
+        name = parts[0]
+        pod_node = parts[1] if len(parts) > 1 else ""
+        if node is None or pod_node == node:
+            return name
+    return None
+
+
+def node_cat(spod: str, path: str) -> str | None:
+    r = kubectl("exec", "-n", NS, spod, "--", "cat", path, check=False)
+    return r.stdout if r.returncode == 0 else None
+
+
+def node_exec(spod: str, *cmd, check=False) -> str:
+    r = kubectl("exec", "-n", NS, spod, "--", *cmd, check=check)
+    return r.stdout or ""
+
+
+# --------------------------------------------------------------------------- #
+# manifest render/apply/delete
+# --------------------------------------------------------------------------- #
+def render(scale: str, u: float, timeblock: str) -> str:
+    r = run(["bash", str(HERE / "manifests" / "render.sh"), scale, m1.u_label(u), timeblock])
+    return r.stdout
+
+
+def render_canary(timeblock: str) -> str:
+    r = run(["bash", str(HERE / "manifests" / "render.sh"), "--canary", timeblock])
+    return r.stdout
+
+
+def apply_yaml(yaml_text: str, dry_run: bool):
+    if dry_run:
+        log("DRY-RUN apply:\n" + yaml_text[:400] + ("...\n" if len(yaml_text) > 400 else ""))
+        return
+    kubectl("apply", "-f", "-", input_text=yaml_text)
+
+
+def delete_cell(name: str, dry_run: bool):
+    objs = [
+        f"pod/{name}",
+        f"resourceclaimtemplate/{name}-claim",
+        f"rtclaimparameters/{name}-params",
+        f"configmap/{name}-rtapp",
+    ]
+    if dry_run:
+        log(f"DRY-RUN delete: {objs}")
+        return
+    for o in objs:
+        kubectl("delete", "-n", NS, o, "--ignore-not-found", "--wait=true", check=False)
+
+
+# --------------------------------------------------------------------------- #
+# per-cell collection
+# --------------------------------------------------------------------------- #
+def wait_running(name: str, timeout_s: int = 300) -> bool:
+    r = kubectl("wait", "-n", NS, f"pod/{name}",
+                "--for=condition=Ready", f"--timeout={timeout_s}s", check=False)
+    return r.returncode == 0
+
+
+def fetch_rtapp_log(name: str) -> str | None:
+    """Read the rt-app per-loop log from inside the (running) cell pod."""
+    ls = kubectl("exec", "-n", NS, name, "--",
+                 "bash", "-c", "ls /results/*.log 2>/dev/null | head -n1", check=False)
+    path = (ls.stdout or "").strip()
+    if not path:
+        return None
+    r = kubectl("exec", "-n", NS, name, "--", "cat", path, check=False)
+    return r.stdout if r.returncode == 0 else None
+
+
+def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: bool):
+    sr = cfg["stopping_rule"]
+    convc = sr["convergence"]
+    n_min, n_max = cell["n_min"], cell["n_max"]
+    guard_s = sr["max_duration_seconds"]
+    warmup = sr["warmup_jobs"]
+    # check cadence: a few times the mean inter-arrival, floored at 15 s
+    period_s = cell["period_us"] / 1e6
+    check_interval = max(15.0, min(60.0, 200 * period_s))
+
+    start_wall_ns = time.time_ns()
+    start_mono = time.monotonic()
+    stop_reason = "unknown"
+    last = {"n": 0, "p99_9": float("nan"), "rel_change": float("nan"),
+            "running_max": float("nan"), "tail_index": None}
+
+    if dry_run:
+        log(f"DRY-RUN collect: cell={cell['cell_id']} n_min={n_min} n_max={n_max} guard={guard_s}s")
+        return {"start_wall_ns": start_wall_ns, "end_wall_ns": time.time_ns(),
+                "n_collected": 0, "stop_reason": "dry-run", **last}
+
+    tmp_log = outdir / "rt-app.log"
+    while True:
+        elapsed = time.monotonic() - start_mono
+        text = fetch_rtapp_log(name)
+        n = 0
+        if text:
+            tmp_log.write_text(text, encoding="utf-8")
+            jobs = parse_rtapp.parse_log(str(tmp_log), warmup)
+            r_vals = [j["R_us"] for j in jobs]
+            n = len(r_vals)
+            res = conv_mod.check_convergence(
+                r_vals, n_min=n_min,
+                rel_change_threshold=convc["rel_change_threshold"],
+                window_fraction=convc["window_fraction"],
+                min_window_jobs=convc["min_window_jobs"],
+            )
+            last = res
+            log(f"cell={cell['cell_id']} N={n} p99.9={res['p99_9']:.1f}us "
+                f"rel={res['rel_change']:.4f} max={res['running_max']:.1f}us "
+                f"t={elapsed:.0f}s")
+
+        if last["n"] >= n_max:
+            stop_reason = "n_max"
+            break
+        if last.get("converged") and last["n"] >= n_min:
+            stop_reason = "convergence"
+            break
+        if elapsed >= guard_s:
+            stop_reason = "guard_3h"
+            break
+        time.sleep(check_interval)
+
+    end_wall_ns = time.time_ns()
+    return {"start_wall_ns": start_wall_ns, "end_wall_ns": end_wall_ns,
+            "n_collected": last["n"], "stop_reason": stop_reason,
+            "p99_9_us": last["p99_9"], "running_max_us": last["running_max"],
+            "rel_change": last["rel_change"], "tail_index": last["tail_index"]}
+
+
+def collect_covariates(spod: str | None, cell: dict, outdir: Path,
+                       start_wall_ns: int, end_wall_ns: int):
+    """Slice the continuous sampler stream into this cell's window."""
+    if not spod:
+        log("WARN: no sampler pod; skipping covariate slice")
+        return
+    samples_dir = "/host/var/lib/model1/samples"
+    tmp = outdir / "_stream"
+    tmp.mkdir(parents=True, exist_ok=True)
+    for name in ("server.csv", "covariates.csv"):
+        content = node_cat(spod, f"{samples_dir}/{name}")
+        if content is None:
+            log(f"WARN: sampler stream {name} unavailable")
+            continue
+        (tmp / name).write_text(content, encoding="utf-8")
+    run(["python3", str(HERE / "parse" / "slice_covariates.py"),
+         "--samples-dir", str(tmp), "--out-dir", str(outdir),
+         "--start-wall-ns", str(start_wall_ns), "--end-wall-ns", str(end_wall_ns)],
+        check=False)
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
+def node_facts(spod: str | None, node: str | None) -> dict:
+    facts = {"node": node, "kernel": None, "lscpu": None,
+             "sched_rt_runtime_us": None, "sched_rt_period_us": None, "cpu_map": None}
+    if node:
+        r = kubectl("get", "node", node, "-o",
+                    "jsonpath={.status.nodeInfo.kernelVersion}", check=False)
+        facts["kernel"] = (r.stdout or "").strip() or None
+    if spod:
+        facts["lscpu"] = node_exec(spod, "bash", "-c",
+                                   "lscpu -e 2>/dev/null || lscpu").strip() or None
+        facts["sched_rt_runtime_us"] = node_cat(spod, "/proc/sys/kernel/sched_rt_runtime_us")
+        facts["sched_rt_period_us"] = node_cat(spod, "/proc/sys/kernel/sched_rt_period_us")
+        cm = node_cat(spod, "/host/var/lib/model1/cpu-map.json")
+        if cm:
+            try:
+                facts["cpu_map"] = json.loads(cm)
+            except json.JSONDecodeError:
+                facts["cpu_map"] = cm
+    for k in ("sched_rt_runtime_us", "sched_rt_period_us"):
+        if isinstance(facts[k], str):
+            facts[k] = facts[k].strip()
+    return facts
+
+
+# --------------------------------------------------------------------------- #
+# main sweep
+# --------------------------------------------------------------------------- #
+def ensure_canary(timeblock: str, dry_run: bool, skip: bool):
+    if skip:
+        log("skipping canary (per flag)")
+        return
+    r = kubectl("get", "deploy", "-n", NS, "model1-canary", check=False)
+    if r.returncode == 0:
+        log("canary already running")
+        return
+    log("starting continuous canary")
+    apply_yaml(render_canary(timeblock), dry_run)
+    if not dry_run:
+        kubectl("rollout", "status", "-n", NS, "deploy/model1-canary",
+                "--timeout=300s", check=False)
+
+
+def resolve_node() -> str | None:
+    r = kubectl("get", "nodes", "-l", "model1/rt-node=true",
+                "-o", "jsonpath={.items[0].metadata.name}", check=False)
+    n = (r.stdout or "").strip()
+    return n or None
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Model 1 sweep orchestrator")
+    ap.add_argument("--timeblock", required=True, help="time-block label, e.g. tb-20260706-1200")
+    ap.add_argument("--config", default=None)
+    ap.add_argument("--scales", nargs="*", default=["tight", "soft"],
+                    choices=["tight", "soft"])
+    ap.add_argument("--only-u", nargs="*", type=float, default=None,
+                    help="restrict to these U values (debug)")
+    ap.add_argument("--results-root", default=None,
+                    help="client-side results root (default: model1/results)")
+    ap.add_argument("--skip-canary", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    cfg = m1.load_config(args.config)
+    results_root = Path(args.results_root) if args.results_root else HERE / cfg["results"]["root"]
+
+    node = resolve_node()
+    if not node:
+        log("WARN: no node labelled model1/rt-node=true found via kubectl")
+    spod = sampler_pod(node)
+    facts = node_facts(spod, node) if not args.dry_run else {"node": node}
+    log(f"node={node} sampler_pod={spod} kernel={facts.get('kernel')}")
+
+    ensure_canary(args.timeblock, args.dry_run, args.skip_canary)
+
+    settle = cfg["execution"]["inter_cell_settle_seconds"]
+    summary = []
+    for cell in m1.iter_cells(cfg):
+        if cell["scale"] not in args.scales:
+            continue
+        if args.only_u is not None and cell["u"] not in args.only_u:
+            continue
+
+        name = cell["cell_name"]
+        outdir = results_root / args.timeblock / cell["scale_dir"] / f"U{m1.u_label(cell['u'])}"
+        outdir.mkdir(parents=True, exist_ok=True)
+        log(f"=== CELL {cell['cell_id']}  P={cell['period_us']}us Q={cell['q_us']}us "
+            f"U={cell['u']} N_min={cell['n_min']} N_max={cell['n_max']} ===")
+
+        # idempotent clean start (delete+recreate, never in-place patch)
+        delete_cell(name, args.dry_run)
+        apply_yaml(render(cell["scale"], cell["u"], args.timeblock), args.dry_run)
+        if not args.dry_run and not wait_running(name):
+            log(f"ERROR: cell {name} did not become Ready; skipping")
+            delete_cell(name, args.dry_run)
+            summary.append({"cell": cell["cell_id"], "stop_reason": "not_ready"})
+            continue
+
+        run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run)
+
+        # final rt-app log + per-job CSV
+        if not args.dry_run:
+            text = fetch_rtapp_log(name)
+            if text:
+                (outdir / "rt-app.log").write_text(text, encoding="utf-8")
+                jobs = parse_rtapp.parse_log(str(outdir / "rt-app.log"),
+                                             cfg["stopping_rule"]["warmup_jobs"])
+                import csv as _csv
+                with open(outdir / cfg["results"]["per_job_csv"], "w", newline="",
+                          encoding="utf-8") as fh:
+                    w = _csv.DictWriter(fh, fieldnames=parse_rtapp.OUT_HEADER)
+                    w.writeheader(); w.writerows(jobs)
+
+        delete_cell(name, args.dry_run)
+
+        if not args.dry_run:
+            collect_covariates(spod, cell, outdir,
+                               run_info["start_wall_ns"], run_info["end_wall_ns"])
+
+        # cell metadata
+        cpu_used = None
+        if isinstance(facts.get("cpu_map"), dict):
+            cpu_used = facts["cpu_map"].get("rt_cpu")
+        meta = {
+            "cell_id": cell["cell_id"], "scale": cell["scale"],
+            "P_us": cell["period_us"], "Q_us": cell["q_us"], "U": cell["u"],
+            "m": cell["m"], "reservation_units": cfg["kubedeadline_reservation_spec"]["units"],
+            "reservation": {"runtime": cell["reservation_runtime"],
+                            "period": cell["reservation_period"],
+                            "count": cell["reservation_count"]},
+            "cpu_used": cpu_used,
+            "n_min": cell["n_min"], "n_max": cell["n_max"],
+            "timeblock": args.timeblock,
+            **run_info,
+            "node": facts.get("node"), "kernel": facts.get("kernel"),
+            "sched_rt_runtime_us": facts.get("sched_rt_runtime_us"),
+            "sched_rt_period_us": facts.get("sched_rt_period_us"),
+            "cpu_map": facts.get("cpu_map"),
+            "lscpu": facts.get("lscpu"),
+        }
+        (outdir / cfg["results"]["cell_metadata_json"]).write_text(
+            json.dumps(meta, indent=2), encoding="utf-8")
+        summary.append({"cell": cell["cell_id"], "N": run_info["n_collected"],
+                        "stop_reason": run_info["stop_reason"],
+                        "p99_9_us": run_info.get("p99_9_us")})
+        log(f"cell {cell['cell_id']} done: {summary[-1]}")
+
+        if not args.dry_run and settle > 0:
+            time.sleep(settle)
+
+    log("=== SWEEP SUMMARY (timeblock=%s) ===" % args.timeblock)
+    for s in summary:
+        log(json.dumps(s))
+    (results_root / args.timeblock).mkdir(parents=True, exist_ok=True)
+    (results_root / args.timeblock / "summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

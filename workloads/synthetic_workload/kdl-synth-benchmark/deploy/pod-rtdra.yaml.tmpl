@@ -40,7 +40,7 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
         - |
-          /usr/local/bin/rt-workload \
+          {{CPUSET_PREFIX}}/usr/local/bin/rt-workload \
             --taskset "/tasksets/{{TASKSET}}" \
             --out /out/metrics.jsonl \
             --jobs "{{JOBS}}" \
@@ -54,7 +54,7 @@ spec:
             --util "{{UTIL}}" \
             --interference "{{INTERFERENCE}}" \
             --node "{{NODE}}" \
-            --kernel hcbs
+            --kernel hcbs {{ATTR_FLAG}}
           rc=$?
           echo __METRICS_BEGIN__
           cat /out/metrics.jsonl 2>/dev/null || true

@@ -264,6 +264,17 @@ hr
 
 # Keep the pod alive so it can be inspected with `kubectl exec`.
 if [ "${KEEPALIVE}" != "0" ]; then
+  # Spawn a LONG-LIVED SCHED_FIFO task so node-side tooling
+  # (collect-evidence.sh PROOF D, or `ps -eLo pid,cls,rtprio`) can observe a
+  # real RT task living in THIS pod's cgroup for the pod's whole lifetime.
+  # A sleeping task keeps its FIFO policy, so this proves the assignment
+  # without burning any CPU.
+  if [ "$RT_OK" = 1 ] && command -v chrt >/dev/null 2>&1; then
+    chrt -f "$FIFO_PRIO" sleep "${KEEPALIVE}" &
+    fifo_keepalive_pid=$!
+    report_sched "persistent FIFO task" "$fifo_keepalive_pid"
+    log "  ^ stays SCHED_FIFO for the pod's lifetime -- inspect it from the node"
+  fi
   log "probe complete; sleeping ${KEEPALIVE}s (override with RT_PROBE_KEEPALIVE=0)"
   sleep "${KEEPALIVE}"
 fi
