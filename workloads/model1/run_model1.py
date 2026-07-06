@@ -61,6 +61,24 @@ def log(msg: str):
     print(f"[model1] {msg}", flush=True)
 
 
+def parse_cpuset(cpuset: str) -> set:
+    """Parse a cpuset string like '1', '0,2', '0-1' into a set of ints."""
+    out = set()
+    for part in (cpuset or "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            a, b = part.split("-", 1)
+            try:
+                out.update(range(int(a), int(b) + 1))
+            except ValueError:
+                pass
+        elif part.isdigit():
+            out.add(int(part))
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # node access via the sampler DaemonSet pod
 # --------------------------------------------------------------------------- #
@@ -340,6 +358,28 @@ def main() -> int:
         if rt_env.get("RT_CPUSET"):
             log(f"cell {cell['cell_id']} RT_CPUSET={rt_env['RT_CPUSET']} "
                 f"RT_RUNTIME_PERIOD={rt_env.get('RT_RUNTIME_PERIOD')}")
+
+        # GUARD: the rt-DRA driver must place the cell on an ONLINE RT core, never
+        # on an offlined sibling. If it does, the driver CPU pool has reverted to
+        # include offline CPUs -> every cell will fail -> abort loudly NOW instead
+        # of grinding for hours on a crashing pod.
+        if not args.dry_run:
+            cpuset = rt_env.get("RT_CPUSET", "")
+            offline = set()
+            if isinstance(facts.get("cpu_map"), dict):
+                offline = set(facts["cpu_map"].get("offline_siblings", []) or [])
+            got = parse_cpuset(cpuset)
+            if not got or (got & offline):
+                log("FATAL: cell %s got RT_CPUSET='%s' (offline siblings=%s). The "
+                    "dra-rt-driver CPU pool reverted to include OFFLINE CPUs. "
+                    "Aborting the sweep. Fix: re-offline the siblings + "
+                    "`kubectl -n dra-rt-driver rollout restart daemonset "
+                    "dra-rt-driver-kubeletplugin`, verify allocatableCpuset={0,2}, "
+                    "then resume with --only-u for the remaining cells."
+                    % (name, cpuset, sorted(offline)))
+                delete_cell(name, args.dry_run)
+                summary.append({"cell": cell["cell_id"], "stop_reason": "bad_cpuset"})
+                break
 
         run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run)
 
