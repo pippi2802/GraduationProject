@@ -80,6 +80,10 @@ def check_convergence(
         "rel_change": float("nan"),
         "converged": False,
     }
+    # be robust to non-numeric entries (e.g. torn log lines parsed as "")
+    r_values = [v for v in r_values if isinstance(v, (int, float)) and v == v]
+    n = len(r_values)
+    result["n"] = n
     if n == 0:
         return result
 

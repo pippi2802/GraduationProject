@@ -184,7 +184,7 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
         if text:
             tmp_log.write_text(text, encoding="utf-8")
             jobs = parse_rtapp.parse_log(str(tmp_log), warmup)
-            r_vals = [j["R_us"] for j in jobs]
+            r_vals = [j["R_us"] for j in jobs if isinstance(j["R_us"], (int, float))]
             n = len(r_vals)
             res = conv_mod.check_convergence(
                 r_vals, n_min=n_min,

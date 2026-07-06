@@ -131,9 +131,12 @@ def parse_log(path: str, warmup: int):
             R = float("nan")
 
         release = start
-        finish = release + R if R == R else (end if end is not None else start)
-        exec_start = release + wu           # actual compute start ~ activation + wakeup
-        C = run_actual if run_actual is not None else (R if R == R else float("nan"))
+        if R != R:
+            # unparseable / torn line (e.g. read mid-write) -> skip the job
+            continue
+        finish = release + R
+        exec_start = release + wu
+        C = run_actual if run_actual is not None else R
         miss = 1 if (slack is not None and slack == slack and slack < 0) else 0
         tard = max(0.0, -slack) if (slack is not None and slack == slack) else 0.0
 
@@ -141,9 +144,9 @@ def parse_log(path: str, warmup: int):
             "job_index": int(idx) if idx is not None else len(jobs),
             "release_us": round(release, 3),
             "start_us": round(exec_start, 3),
-            "finish_us": round(finish, 3) if finish == finish else "",
+            "finish_us": round(finish, 3),
             "C_us": round(C, 3) if C == C else "",
-            "R_us": round(R, 3) if R == R else "",
+            "R_us": round(R, 3),
             "slack_us": round(slack, 3) if (slack is not None and slack == slack) else "",
             "deadline_miss": miss,
             "tardiness_us": round(tard, 3),
