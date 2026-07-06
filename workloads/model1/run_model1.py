@@ -144,6 +144,17 @@ def fetch_rtapp_log(name: str) -> str | None:
     return r.stdout if r.returncode == 0 else None
 
 
+def pod_rt_env(name: str) -> dict:
+    """Read the DRA-injected reservation env (RT_CPUSET, RT_RUNTIME_PERIOD)."""
+    out = {}
+    for var in ("RT_CPUSET", "RT_RUNTIME_PERIOD"):
+        r = kubectl("exec", "-n", NS, name, "--", "printenv", var, check=False)
+        v = (r.stdout or "").strip()
+        if v:
+            out[var] = v
+    return out
+
+
 def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: bool):
     sr = cfg["stopping_rule"]
     convc = sr["convergence"]
@@ -324,6 +335,12 @@ def main() -> int:
             summary.append({"cell": cell["cell_id"], "stop_reason": "not_ready"})
             continue
 
+        # capture the driver-assigned reservation (which CPU it actually pinned)
+        rt_env = {} if args.dry_run else pod_rt_env(name)
+        if rt_env.get("RT_CPUSET"):
+            log(f"cell {cell['cell_id']} RT_CPUSET={rt_env['RT_CPUSET']} "
+                f"RT_RUNTIME_PERIOD={rt_env.get('RT_RUNTIME_PERIOD')}")
+
         run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run)
 
         # final rt-app log + per-job CSV
@@ -346,8 +363,8 @@ def main() -> int:
                                run_info["start_wall_ns"], run_info["end_wall_ns"])
 
         # cell metadata
-        cpu_used = None
-        if isinstance(facts.get("cpu_map"), dict):
+        cpu_used = rt_env.get("RT_CPUSET")
+        if cpu_used is None and isinstance(facts.get("cpu_map"), dict):
             cpu_used = facts["cpu_map"].get("rt_cpu")
         meta = {
             "cell_id": cell["cell_id"], "scale": cell["scale"],
@@ -357,6 +374,8 @@ def main() -> int:
                             "period": cell["reservation_period"],
                             "count": cell["reservation_count"]},
             "cpu_used": cpu_used,
+            "rt_cpuset": rt_env.get("RT_CPUSET"),
+            "rt_runtime_period": rt_env.get("RT_RUNTIME_PERIOD"),
             "n_min": cell["n_min"], "n_max": cell["n_max"],
             "timeblock": args.timeblock,
             **run_info,

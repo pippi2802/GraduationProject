@@ -56,21 +56,21 @@ spec:
               set -e
               export DEBIAN_FRONTEND=noninteractive
               command -v rt-app >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ${RTAPP_PKG}; }
-              CPU=$(grep -o '"'"${CPU_KEY}"'": *[0-9]\+' /host-map/cpu-map.json | grep -o '[0-9]\+' | head -n1)
-              CPU=${CPU:-2}
-              cp /config/rtapp.json /tmp/rtapp.json
-              sed -i "s/\"cpus\": *\[[0-9]*\]/\"cpus\": [$CPU]/" /tmp/rtapp.json
-              sed -i "s/\"calibration\": *\"CPU[0-9]*\"/\"calibration\": \"CPU$CPU\"/" /tmp/rtapp.json
               mkdir -p /results
-              echo "[canary] pinned cpu=$CPU"
-              exec rt-app /tmp/rtapp.json
+              # rt-DRA pins the canary to its own allocated core (RT_CPUSET).
+              if [ -n "$RT_CPUSET" ]; then
+                echo "[canary] RT_CPUSET=$RT_CPUSET"
+                exec taskset -c "$RT_CPUSET" rt-app /config/rtapp.json
+              else
+                echo "[canary] no RT_CPUSET; inheriting cpuset"
+                exec rt-app /config/rtapp.json
+              fi
           securityContext:
             capabilities:
               add: ["SYS_NICE", "IPC_LOCK"]
           volumeMounts:
             - { name: results,  mountPath: /results }
             - { name: rtapp-config, mountPath: /config }
-            - { name: cpu-map,  mountPath: /host-map, readOnly: true }
           resources:
             claims:
               - name: rtcpu
@@ -83,5 +83,3 @@ spec:
           hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }
         - name: rtapp-config
           configMap: { name: ${CELL_ID}-rtapp }
-        - name: cpu-map
-          hostPath: { path: /var/lib/model1, type: DirectoryOrCreate }

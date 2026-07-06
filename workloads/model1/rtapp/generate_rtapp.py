@@ -26,17 +26,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import model1lib as m1  # noqa: E402
 
 
-def build(cfg: dict, scale: str, u: float, cpu: int, logdir: str) -> dict:
+def build(cfg: dict, scale: str, u: float, cpu, logdir: str) -> dict:
     sc = cfg["scales"][scale]
     period_us = sc["period_us"]
     q_us = m1.derive_q_us(u, period_us)
     r = cfg["rtapp"]
 
+    # NOTE: the rt-DRA driver pins the container to its allocated core and
+    # exposes it via the RT_CPUSET env var; the pod entrypoint runs rt-app under
+    # `taskset -c $RT_CPUSET`. So by default we do NOT set task `cpus` here (the
+    # thread inherits the driver-pinned cpuset). `cpu` is only set for standalone
+    # manual runs outside Kubernetes.
     task = {
         "policy": r["policy"],
         "priority": r["priority"],
-        "cpus": [cpu],
-        "lock_pages": r["lock_pages"],
         "loop": -1,                     # run forever; orchestrator stops the cell
         "run": q_us,                    # busy-compute Q microseconds each period
         "timer": {
@@ -45,29 +48,31 @@ def build(cfg: dict, scale: str, u: float, cpu: int, logdir: str) -> dict:
             "mode": "absolute",
         },
     }
+    if cpu is not None:
+        task["cpus"] = [cpu]
 
-    conf = {
-        "tasks": {"rt": task},
-        "global": {
-            "duration": -1,             # unbounded; controlled externally
-            "default_policy": r["policy"],
-            "lock_pages": r["lock_pages"],
-            "calibration": f"CPU{cpu}",  # calibrate the busy loop on the RT core
-            "logdir": logdir,
-            "log_basename": "rt-app",
-            "gnuplot": False,
-            "pi_enabled": False,
-        },
+    glob = {
+        "duration": -1,                 # unbounded; controlled externally
+        "default_policy": r["policy"],
+        "lock_pages": r["lock_pages"],   # global lock_pages (task-level is rejected)
+        "logdir": logdir,
+        "log_basename": "rt-app",
+        "gnuplot": False,
+        "pi_enabled": False,
     }
-    return conf
+    if cpu is not None:
+        glob["calibration"] = f"CPU{cpu}"  # otherwise rt-app auto-calibrates
+
+    return {"tasks": {"rt": task}, "global": glob}
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Render rt-app JSON for one cell")
     ap.add_argument("--scale", required=True, choices=["tight", "soft"])
     ap.add_argument("--u", required=True, type=float)
-    ap.add_argument("--cpu", required=True, type=int,
-                    help="logical CPU the RT task is pinned to")
+    ap.add_argument("--cpu", type=int, default=None,
+                    help="pin rt-app to this logical CPU (standalone use only; "
+                         "in-cluster the driver pins via RT_CPUSET)")
     ap.add_argument("--logdir", required=True,
                     help="in-container dir where rt-app writes its per-loop log")
     ap.add_argument("--config", default=None)

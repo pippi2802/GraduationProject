@@ -26,16 +26,20 @@ else
   TEMPLATE=rt-cell.template.yaml
 fi
 
-# 1) rt-app JSON for this cell (cpus/calibration are rewritten in-pod to the
-#    real node CPU; here we emit cpu 0 as a placeholder).
+# 1) rt-app JSON for this cell. No `cpus` is set: the rt-DRA driver pins the
+#    container to its allocated core and the entrypoint runs rt-app under
+#    `taskset -c $RT_CPUSET`, so the thread inherits the driver-pinned CPU.
 TMP_JSON="$(mktemp)"
-python3 ../rtapp/generate_rtapp.py "${SCALE_ARG[@]}" --cpu 0 \
+python3 ../rtapp/generate_rtapp.py "${SCALE_ARG[@]}" \
         --logdir /results --out "$TMP_JSON" 2>/dev/null
 
-# 2) Pod + DRA claim (envsubst over the template)
+# 2) Pod + DRA claim (envsubst over the template). Restrict substitution to OUR
+#    placeholders so runtime shell vars in the entrypoint (e.g. $RT_CPUSET) are
+#    left intact.
 export NAMESPACE RES_RUNTIME RES_PERIOD RES_COUNT RES_CLASS SCALE CELL_ID \
-       BASE_IMAGE RTAPP_PKG PULL_POLICY HOST_RESULTS_PATH CPU_KEY
-envsubst < "$TEMPLATE"
+       BASE_IMAGE RTAPP_PKG PULL_POLICY HOST_RESULTS_PATH
+SUBST='${NAMESPACE} ${RES_RUNTIME} ${RES_PERIOD} ${RES_COUNT} ${RES_CLASS} ${SCALE} ${CELL_ID} ${BASE_IMAGE} ${RTAPP_PKG} ${PULL_POLICY} ${HOST_RESULTS_PATH}'
+envsubst "$SUBST" < "$TEMPLATE"
 
 # 3) rt-app ConfigMap for this cell
 echo "---"
