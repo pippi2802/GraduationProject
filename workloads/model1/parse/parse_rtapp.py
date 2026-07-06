@@ -9,15 +9,20 @@ versions differ) and emit the canonical Model 1 per-job schema:
   job_index, release_us, start_us, finish_us, C_us, R_us, slack_us,
   deadline_miss, tardiness_us
 
-Definitions (implicit deadline = period = P):
-  release_us   = programmed activation      = start - wu_lat
-  start_us     = actual work start          = 'start'
-  finish_us    = actual work end            = 'end'
-  C_us         = actual computation duration = 'c_duration' (fallback end-start)
-  R_us         = response time              = finish - release = (end-start)+wu_lat
-  slack_us     = deadline - finish          = 'slack'
+Definitions (implicit deadline = period = P; rt-app columns:
+idx perf run period start end rel_st slack c_duration c_period wu_lat):
+  release_us   = activation                 = 'start' (absolute activation timeline)
+  start_us     = actual compute start        = start + wu_lat
+  finish_us    = actual compute finish       = release + R
+  C_us         = actual computation duration = 'run'   (NOT 'c_duration', which is configured)
+  R_us         = response time               = deadline - slack = c_period - slack
+  slack_us     = deadline - finish           = 'slack'
   deadline_miss= 1 if slack < 0 else 0
   tardiness_us = max(0, -slack)
+
+NOTE: rt-app's 'run' is the measured compute time and 'slack' = deadline - finish,
+so R = P - slack correctly grows when steal/preemption delays a job (unlike
+end - start, which in this rt-app build spans the whole period).
 
 Warm-up: the first `warmup_jobs` completed jobs are discarded (config default).
 """
@@ -101,32 +106,45 @@ def parse_log(path: str, warmup: int):
 
     jobs = []
     for f in rows:
-        start = g(f, "start")
-        end = g(f, "end")
-        if start is None or end is None:
+        start = g(f, "start")               # absolute activation timeline (us)
+        if start is None:
             continue
+        run_actual = g(f, "run")            # ACTUAL compute duration = C
+        c_period = g(f, "c_period")         # configured period P (= relative deadline)
+        period_meas = g(f, "period")        # measured inter-activation
+        slack = g(f, "slack")               # rt-app slack = deadline - finish_of_run
         wu = g(f, "wu_lat") or 0.0
-        c_dur = g(f, "c_duration")
-        if c_dur is None:
-            c_dur = end - start
-        slack = g(f, "slack")
+        end = g(f, "end")
         idx = g(f, "idx")
-        release = start - wu
-        R = end - release
-        if slack is None:
-            # deadline = release + period; slack = deadline - end
-            period = g(f, "period")
-            slack = (release + period - end) if period is not None else float("nan")
-        miss = 1 if (slack == slack and slack < 0) else 0  # NaN-safe
-        tard = max(0.0, -slack) if slack == slack else 0.0
+
+        # relative deadline (P). Prefer configured c_period; fall back to measured.
+        deadline_rel = c_period if c_period is not None else period_meas
+
+        # Response time R = finish - release. rt-app gives slack = deadline - finish,
+        # so R = deadline - slack. Fall back to (end - start) only if slack absent
+        # (older formats where end == finish-of-compute).
+        if slack is not None and deadline_rel is not None:
+            R = deadline_rel - slack
+        elif end is not None:
+            R = end - start
+        else:
+            R = float("nan")
+
+        release = start
+        finish = release + R if R == R else (end if end is not None else start)
+        exec_start = release + wu           # actual compute start ~ activation + wakeup
+        C = run_actual if run_actual is not None else (R if R == R else float("nan"))
+        miss = 1 if (slack is not None and slack == slack and slack < 0) else 0
+        tard = max(0.0, -slack) if (slack is not None and slack == slack) else 0.0
+
         jobs.append({
             "job_index": int(idx) if idx is not None else len(jobs),
             "release_us": round(release, 3),
-            "start_us": round(start, 3),
-            "finish_us": round(end, 3),
-            "C_us": round(c_dur, 3),
-            "R_us": round(R, 3),
-            "slack_us": round(slack, 3) if slack == slack else "",
+            "start_us": round(exec_start, 3),
+            "finish_us": round(finish, 3) if finish == finish else "",
+            "C_us": round(C, 3) if C == C else "",
+            "R_us": round(R, 3) if R == R else "",
+            "slack_us": round(slack, 3) if (slack is not None and slack == slack) else "",
             "deadline_miss": miss,
             "tardiness_us": round(tard, 3),
         })

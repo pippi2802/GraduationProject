@@ -7,7 +7,7 @@ metadata:
   namespace: model1
   name: soft-u40-params
 spec:
-  count: 1
+  count: 1            # m (cores); driver's admission test selects the CPU
   runtime: 40000      # Q (microseconds)
   period: 100000      # P (microseconds)
 ---

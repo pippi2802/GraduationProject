@@ -16,7 +16,8 @@ metadata:
   namespace: ${NAMESPACE}
   name: ${CELL_ID}-params
 spec:
-  count: ${RES_COUNT}       # m (cores) = 1 for Model 1
+  count: ${RES_COUNT}       # m (cores). Paper: RtClaimParameters.count = number
+                            # of cores; the driver's admission test picks WHICH CPU.
   runtime: ${RES_RUNTIME}   # Q
   period: ${RES_PERIOD}     # P
 ---

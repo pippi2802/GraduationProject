@@ -11,7 +11,7 @@ metadata:
   namespace: ${NAMESPACE}
   name: ${CELL_ID}-params
 spec:
-  count: ${RES_COUNT}
+  count: ${RES_COUNT}       # m (cores) = 1; driver auto-selects the CPU
   runtime: ${RES_RUNTIME}   # Q = 0.1 * P
   period: ${RES_PERIOD}     # P (soft scale)
 ---

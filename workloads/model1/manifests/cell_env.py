@@ -74,6 +74,7 @@ def main() -> int:
         "scale": scale, "scale_dir": sc["dir"],
         "period_us": sc["period_us"], "u": u, "q_us": q_us,
         "reservation_runtime": runtime, "reservation_period": period,
+        # 'count' = number of cores m; driver auto-selects the CPU.
         "reservation_count": cfg["cores_per_container"],
     }
     emit(cell, cfg, timeblock, cpu_key="rt_cpu")

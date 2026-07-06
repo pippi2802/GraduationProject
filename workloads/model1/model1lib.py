@@ -110,6 +110,8 @@ def iter_cells(cfg: dict):
                 "n_max": n_max_for(cfg, scale, u),
                 "reservation_runtime": runtime,
                 "reservation_period": period,
+                # 'count' = number of cores m (paper: RtClaimParameters.count);
+                # the driver's admission test auto-selects WHICH CPU(s).
                 "reservation_count": cfg["cores_per_container"],
                 "cell_id": cell_id(scale, u),
                 "cell_name": k8s_name(scale, u),
@@ -133,6 +135,7 @@ def canary_cell(cfg: dict) -> dict:
         "m": c["cores"],
         "reservation_runtime": runtime,
         "reservation_period": period,
+        # 'count' = number of cores m; driver auto-selects the CPU.
         "reservation_count": c["cores"],
         "cell_id": "canary",
         "cell_name": "model1-canary",
