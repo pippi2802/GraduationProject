@@ -32,6 +32,13 @@ def build(cfg: dict, scale: str, u: float, cpu, logdir: str) -> dict:
     q_us = m1.derive_q_us(u, period_us)
     r = cfg["rtapp"]
 
+    # Busy-loop size = Q minus rt-app's fixed per-job overhead so the task's
+    # TOTAL CPU footprint (compute + overhead) stays within the Q budget. With
+    # overhead_us=0 this is just Q (original behaviour).
+    overhead_us = int(r.get("overhead_us", 0) or 0)
+    min_run_us = int(r.get("min_run_us", 100) or 100)
+    run_us = max(min_run_us, q_us - overhead_us)
+
     # NOTE: the rt-DRA driver pins the container to its allocated core and
     # exposes it via the RT_CPUSET env var; the pod entrypoint runs rt-app under
     # `taskset -c $RT_CPUSET`. So by default we do NOT set task `cpus` here (the
@@ -41,7 +48,7 @@ def build(cfg: dict, scale: str, u: float, cpu, logdir: str) -> dict:
         "policy": r["policy"],
         "priority": r["priority"],
         "loop": -1,                     # run forever; orchestrator stops the cell
-        "run": q_us,                    # busy-compute Q microseconds each period
+        "run": run_us,                  # busy-compute (Q - overhead) us each period
         "timer": {
             "ref": "rt",
             "period": period_us,        # P

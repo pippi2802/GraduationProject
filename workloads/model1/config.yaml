@@ -138,6 +138,15 @@ rtapp:
   threads: 1
   per_job_logging: true
   lock_pages: true
+  # rt-app has a FIXED per-job overhead (timer arm, clock_gettime, per-loop log
+  # write) that also consumes the CBS budget. With "task run = Q" the reservation
+  # is loaded to ~100%, so at tight scale (small Q) this overhead exceeds the
+  # margin and the reservation overloads -> response time diverges (observed
+  # ~500 us/job at P=10ms). Subtract it so the busy loop = Q - overhead_us and the
+  # task's TOTAL footprint (compute + overhead) ~= Q (delivered util ~= U).
+  # 0 = disabled (busy loop = Q exactly). Measure per node (see README) and set.
+  overhead_us: 0
+  min_run_us: 500          # never size the busy loop below this many us
   # run/period/deadline/timer are derived per cell from (P, Q); see rtapp/generator.
 
 # -----------------------------------------------------------------------------
