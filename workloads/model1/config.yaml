@@ -83,14 +83,15 @@ stopping_rule:
     min_window_jobs: 5000      # don't evaluate convergence on tiny windows
 
   # Floor / ceiling on collected job count N (AFTER warm-up).
-  n_min: 100000               # applies to ALL cells
-  n_max_default: 100000       # every cell unless overridden below
+  n_min: 10000                # applies to ALL cells (reduced from 100000 for speed)
+  n_max_default: 10000        # every cell unless overridden below
 
-  # High-U TIGHT-scale cells: the tail is the story; 1e6 jobs ~= 2.8 h @ 100 j/s.
+  # High-U TIGHT-scale cells: the tail is the story; raise the ceiling a bit so
+  # convergence can collect more if the tail is still moving.
   n_max_overrides:
     - scale: tight
       utilizations: [0.9, 0.95]
-      n_max: 1000000
+      n_max: 10000
   # NOTE: soft-scale high-U is intentionally NOT overridden (1e6 @ 10 j/s ~= 28 h);
   # rely on time-block replication instead.
 
