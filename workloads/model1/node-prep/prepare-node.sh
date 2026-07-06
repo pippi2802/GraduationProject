@@ -111,7 +111,13 @@ mkdir -p "$(dirname "$MAP_OUT")"
   printf '  "kernel": "%s",\n' "$(uname -r)"
   printf '  "rt_cpu": %s,\n' "$rt_cpu"
   printf '  "canary_cpu": %s,\n' "$canary_cpu"
-  printf '  "offline_siblings": [%s],\n' "$(IFS=,; echo "${offline[*]:-}")"
+  # In detect-only mode (DRY_RUN=1) nothing was offlined, so record an EMPTY
+  # offline set -> the orchestrator guard then accepts any online CPU.
+  if [[ "$DRY_RUN" == "1" ]]; then
+    printf '  "offline_siblings": [],\n'
+  else
+    printf '  "offline_siblings": [%s],\n' "$(IFS=,; echo "${offline[*]:-}")"
+  fi
   printf '  "physical_cores": %s,\n' "${#core_keys[@]}"
   printf '  "dry_run": %s\n' "$DRY_RUN"
   printf '}\n'

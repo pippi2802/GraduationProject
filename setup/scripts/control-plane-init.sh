@@ -63,6 +63,12 @@ fi
 DRA_SRC="${RT_WORKDIR}/dra-rt-driver"
 rt_git_clone https://github.com/pippi2802/dra-rt-driver.git "$DRA_SRC" rt-v0.1.1
 
+# Container image the Helm chart deploys. Pinned here (not left to the chart's
+# values.yaml default) so provisions are reproducible and don't silently pull a
+# stale tag. Override with DRA_IMAGE_TAG / DRA_IMAGE_REPO.
+DRA_IMAGE_REPO="${DRA_IMAGE_REPO:-pippina2/dra-rt-driver}"
+DRA_IMAGE_TAG="${DRA_IMAGE_TAG:-v0.1.3}"
+
 # -----------------------------------------------------------------------------
 # 3. Use the kubeadm-config.yaml shipped in the dra-rt-driver repo.
 # -----------------------------------------------------------------------------
@@ -199,9 +205,12 @@ fi
 if [[ "${RT_SKIP_DRA:-false}" != "true" ]]; then
     CHART_DIR="$(find "$DRA_SRC" -type f -name Chart.yaml -path '*dra-rt-driver*' 2>/dev/null | head -n1 | xargs -r dirname)"
     if [[ -n "$CHART_DIR" && -d "$CHART_DIR" ]]; then
-        echo "[dra] installing chart from $CHART_DIR"
+        echo "[dra] installing chart from $CHART_DIR (image ${DRA_IMAGE_REPO}:${DRA_IMAGE_TAG})"
         helm upgrade --install dra-rt-driver "$CHART_DIR" \
-            --namespace dra-rt-driver --create-namespace
+            --namespace dra-rt-driver --create-namespace \
+            --set image.repository="$DRA_IMAGE_REPO" \
+            --set image.tag="$DRA_IMAGE_TAG" \
+            --set image.pullPolicy=Always
     else
         echo "[dra] WARNING: no Helm chart found under $DRA_SRC; install dra-rt-driver manually"
     fi

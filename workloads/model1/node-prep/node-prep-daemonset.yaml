@@ -42,16 +42,14 @@ spec:
               set -e
               cp /scripts/prepare-node.sh /scripts/restore-node.sh /tmp/
               chmod +x /tmp/prepare-node.sh /tmp/restore-node.sh
-              MAP_OUT=/host/var/lib/model1/cpu-map.json /tmp/prepare-node.sh
-              echo "[node-prep] initial offline done; entering enforcement loop"
-              # Re-assert the offline state continuously. If anything re-onlines a
-              # sibling (kernel/cloud CPU hotplug), it is taken back offline within
-              # RT_ENFORCE_INTERVAL s, so a dra-rt-driver-kubeletplugin restart always
-              # re-enumerates the online-only {0,2} pool.
-              while true; do
-                sleep "${RT_ENFORCE_INTERVAL:-30}"
-                MAP_OUT=/host/var/lib/model1/cpu-map.json /tmp/prepare-node.sh >/dev/null 2>&1 || true
-              done
+              # DETECTION-ONLY on this cluster: offlining vCPUs wedges the Azure
+              # VM (offline is irreversible without reboot and destabilises
+              # kubelet). DRY_RUN=1 detects topology + writes cpu-map.json with an
+              # EMPTY offline set, but changes NOTHING. The HT sibling stays
+              # online (idle, node is dedicated) -> documented methodology caveat.
+              DRY_RUN=1 MAP_OUT=/host/var/lib/model1/cpu-map.json /tmp/prepare-node.sh
+              echo "[node-prep] detect-only done; idling (no CPUs offlined)."
+              sleep infinity
           env:
             - name: RT_ENFORCE_INTERVAL
               value: "30"
