@@ -121,7 +121,13 @@ execution:
   sequential: true           # exactly one RT container-under-test alive at a time
   parallel_u_levels: false   # NEVER parallelize U (would create contention)
   recreate_between_cells: true  # delete + recreate (NOT in-place patch) per cell
-  inter_cell_settle_seconds: 5  # brief idle so CBS fully de-admits before next cell
+  inter_cell_settle_seconds: 12 # idle so the driver fully releases the claim (CDI/
+                                # finalizer cleanup races) before the next attempt
+  # The rt-DRA driver is SMT-UNAWARE and occasionally (a) hits a CDI-prepare race
+  # so the pod never becomes Ready, or (b) places the RT task on the CANARY's SMT
+  # sibling. The orchestrator retries delete+recreate until the pod is Ready AND on
+  # a core other than the canary's, up to this many attempts.
+  placement_max_attempts: 8
 
 # -----------------------------------------------------------------------------
 # WORKLOAD GENERATOR (rt-app)

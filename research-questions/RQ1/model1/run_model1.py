@@ -342,6 +342,19 @@ def main() -> int:
     facts = node_facts(spod, node) if not args.dry_run else {"node": node}
     log(f"node={node} sampler_pod={spod} kernel={facts.get('kernel')}")
 
+    # Canary's physical core = its SMT sibling set. The rt-DRA driver is SMT-blind
+    # (worst-fit over logical CPUs), so it may place the RT cell on the canary's
+    # sibling. We keep the RT cell OFF these CPUs (retry until a clean core).
+    canary_cpu = int(cfg["cpu_assignment"]["canary_core_logical"])
+    canary_core = {canary_cpu}
+    if spod and not args.dry_run:
+        sl = node_exec(spod, "cat",
+                       f"/sys/devices/system/cpu/cpu{canary_cpu}/topology/thread_siblings_list")
+        sib = parse_cpuset((sl or "").strip())
+        if sib:
+            canary_core = sib
+    log(f"canary core CPUs (RT kept off) = {sorted(canary_core)}")
+
     ensure_canary(args.timeblock, args.dry_run, args.skip_canary)
 
     settle = cfg["execution"]["inter_cell_settle_seconds"]
@@ -358,42 +371,48 @@ def main() -> int:
         log(f"=== CELL {cell['cell_id']}  P={cell['period_us']}us Q={cell['q_us']}us "
             f"U={cell['u']} N_min={cell['n_min']} N_max={cell['n_max']} ===")
 
-        # idempotent clean start (delete+recreate, never in-place patch)
-        delete_cell(name, args.dry_run)
-        apply_yaml(render(cell["scale"], cell["u"], args.timeblock), args.dry_run)
-        if not args.dry_run and not wait_running(name):
-            log(f"ERROR: cell {name} did not become Ready; skipping")
-            delete_cell(name, args.dry_run)
-            summary.append({"cell": cell["cell_id"], "stop_reason": "not_ready"})
-            continue
-
-        # capture the driver-assigned reservation (which CPU it actually pinned)
-        rt_env = {} if args.dry_run else pod_rt_env(name)
-        if rt_env.get("RT_CPUSET"):
-            log(f"cell {cell['cell_id']} RT_CPUSET={rt_env['RT_CPUSET']} "
-                f"RT_RUNTIME_PERIOD={rt_env.get('RT_RUNTIME_PERIOD')}")
-
-        # GUARD: the rt-DRA driver must place the cell on an ONLINE RT core, never
-        # on an offlined sibling. If it does, the driver CPU pool has reverted to
-        # include offline CPUs -> every cell will fail -> abort loudly NOW instead
-        # of grinding for hours on a crashing pod.
-        if not args.dry_run:
-            cpuset = rt_env.get("RT_CPUSET", "")
-            offline = set()
-            if isinstance(facts.get("cpu_map"), dict):
-                offline = set(facts["cpu_map"].get("offline_siblings", []) or [])
-            got = parse_cpuset(cpuset)
-            if not got or (got & offline):
-                log("FATAL: cell %s got RT_CPUSET='%s' (offline siblings=%s). The "
-                    "dra-rt-driver CPU pool reverted to include OFFLINE CPUs. "
-                    "Aborting the sweep. Fix: re-offline the siblings + "
-                    "`kubectl -n dra-rt-driver rollout restart daemonset "
-                    "dra-rt-driver-kubeletplugin`, verify allocatableCpuset={0,2}, "
-                    "then resume with --only-u for the remaining cells."
-                    % (name, cpuset, sorted(offline)))
+        # Robust cell start. The rt-DRA driver is SMT-UNAWARE (worst-fit over
+        # logical CPUs) and can (a) hit a transient CDI-prepare race
+        # ("rtCDIDevices is nil") so the pod never becomes Ready, or (b) place the
+        # RT task on the CANARY's physical core (its SMT sibling), destroying
+        # isolation. Retry delete+recreate until the pod is Ready AND on a core
+        # OTHER than the canary's; give up after placement_max_attempts.
+        rt_env = {}
+        placement_ok = args.dry_run
+        attempts = int(cfg["execution"].get("placement_max_attempts", 6))
+        if args.dry_run:
+            apply_yaml(render(cell["scale"], cell["u"], args.timeblock), True)
+        else:
+            for attempt in range(1, attempts + 1):
                 delete_cell(name, args.dry_run)
-                summary.append({"cell": cell["cell_id"], "stop_reason": "bad_cpuset"})
+                time.sleep(settle)                     # let the driver release the claim
+                apply_yaml(render(cell["scale"], cell["u"], args.timeblock), args.dry_run)
+                if not wait_running(name, timeout_s=120):
+                    log(f"cell {name}: attempt {attempt}/{attempts} not Ready "
+                        f"(CDI-prepare race?); retrying")
+                    continue
+                rt_env = pod_rt_env(name)
+                got = parse_cpuset(rt_env.get("RT_CPUSET", ""))
+                if not got:
+                    log(f"cell {name}: attempt {attempt}/{attempts} no RT_CPUSET; retrying")
+                    continue
+                if got & canary_core:
+                    log(f"cell {name}: attempt {attempt}/{attempts} RT_CPUSET="
+                        f"{rt_env.get('RT_CPUSET')} shares canary core "
+                        f"{sorted(canary_core)}; retrying for a clean core")
+                    continue
+                log(f"cell {cell['cell_id']} RT_CPUSET={rt_env.get('RT_CPUSET')} "
+                    f"RT_RUNTIME_PERIOD={rt_env.get('RT_RUNTIME_PERIOD')} "
+                    f"(clean core, off {sorted(canary_core)})")
+                placement_ok = True
                 break
+
+        if not placement_ok:
+            log(f"ERROR: cell {name} never Ready on a clean core after {attempts} "
+                f"attempts; skipping")
+            delete_cell(name, args.dry_run)
+            summary.append({"cell": cell["cell_id"], "stop_reason": "no_clean_placement"})
+            continue
 
         run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run)
 
