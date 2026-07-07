@@ -248,24 +248,25 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
             "rel_change": last["rel_change"], "tail_index": last["tail_index"]}
 
 
-def collect_covariates(spod: str | None, cell: dict, outdir: Path,
-                       start_wall_ns: int, end_wall_ns: int):
-    """Slice the continuous sampler stream into this cell's window."""
+def save_sampler_stream(spod: str | None, tb_dir: Path):
+    """Copy the FULL continuous sampler stream ONCE at the end of the sweep.
+
+    Per-cell covariate slicing is DEFERRED to analyze.py (offline), using each
+    cell.json's [start_wall_ns, end_wall_ns] window. This replaces the old
+    per-cell copy+slice that re-fetched and re-scanned the (continuously growing)
+    stream for EVERY cell -> O(n_cells * stream). Now it is one copy total and no
+    derived work runs on the sweep's critical path."""
     if not spod:
-        log("WARN: no sampler pod; skipping covariate slice")
+        log("WARN: no sampler pod; cannot save sampler stream")
         return
     samples_dir = "/host/var/lib/model1/samples"
-    tmp = outdir / "_stream"
-    tmp.mkdir(parents=True, exist_ok=True)
+    dest = tb_dir / "samples"
+    dest.mkdir(parents=True, exist_ok=True)
     for name in ("server.csv", "covariates.csv"):
-        if not node_cat_to_file(spod, f"{samples_dir}/{name}", tmp / name):
+        if node_cat_to_file(spod, f"{samples_dir}/{name}", dest / name):
+            log(f"saved sampler stream {name} -> {dest / name}")
+        else:
             log(f"WARN: sampler stream {name} unavailable")
-            continue
-    run(["python3", str(HERE / "parse" / "slice_covariates.py"),
-         "--samples-dir", str(tmp), "--out-dir", str(outdir),
-         "--start-wall-ns", str(start_wall_ns), "--end-wall-ns", str(end_wall_ns)],
-        check=False)
-    shutil.rmtree(tmp, ignore_errors=True)
 
 
 def node_facts(spod: str | None, node: str | None) -> dict:
@@ -411,9 +412,10 @@ def main() -> int:
 
         delete_cell(name, args.dry_run)
 
-        if not args.dry_run:
-            collect_covariates(spod, cell, outdir,
-                               run_info["start_wall_ns"], run_info["end_wall_ns"])
+        # NOTE: covariate slicing is DEFERRED to analyze.py (offline). The sweep
+        # only records this cell's [start,end] window in cell.json below; the
+        # shared sampler stream is copied ONCE after the loop (save_sampler_stream)
+        # instead of re-copying+rescanning the growing stream every cell.
 
         # cell metadata
         cpu_used = rt_env.get("RT_CPUSET")
@@ -447,6 +449,11 @@ def main() -> int:
 
         if not args.dry_run and settle > 0:
             time.sleep(settle)
+
+    # ONE-SHOT: copy the whole continuous sampler stream after the sweep, so no
+    # per-cell copy/slice ran on the critical path. Slicing happens in analyze.py.
+    if not args.dry_run:
+        save_sampler_stream(spod, results_root / args.timeblock)
 
     log("=== SWEEP SUMMARY (timeblock=%s) ===" % args.timeblock)
     for s in summary:
