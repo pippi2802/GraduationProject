@@ -1,0 +1,58 @@
+# =============================================================================
+# Model 1 sampler DaemonSet (privileged, hostPID; NO custom image).
+# Mounts sampler.py from a ConfigMap (built by apply.sh), installs python3 at
+# start, then samples continuously to hostPath /var/lib/model1/samples.
+# Long-lived across the whole sweep (like the canary).
+#
+# Apply with: ./apply.sh   (builds the ConfigMap from sampler.py first)
+# =============================================================================
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: model1-sampler
+  namespace: model1
+  labels: { app: model1-sampler }
+spec:
+  selector:
+    matchLabels: { app: model1-sampler }
+  template:
+    metadata:
+      labels: { app: model1-sampler }
+    spec:
+      hostPID: true                 # see host PIDs -> rt-app worker schedstat
+      nodeSelector:
+        model1/rt-node: "true"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: sampler
+          image: ubuntu:24.04       # no custom image; python3 installed at runtime
+          securityContext:
+            privileged: true        # read host /proc + container cgroups
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              export DEBIAN_FRONTEND=noninteractive
+              (command -v python3 >/dev/null 2>&1) || (apt-get update -qq && apt-get install -y -qq python3)
+              exec python3 /scripts/sampler.py \
+                --outdir /host/var/lib/model1/samples \
+                --map /host/var/lib/model1/cpu-map.json \
+                --cgroot /host/sys/fs/cgroup \
+                --procroot /proc \
+                --rate-hz "${SAMPLE_RATE_HZ:-1000}"
+          env:
+            - name: SAMPLE_RATE_HZ
+              value: "1000"         # oversamples soft scale; fine for a baseline
+          volumeMounts:
+            - { name: hostvar, mountPath: /host/var/lib/model1 }
+            - { name: cgroup,  mountPath: /host/sys/fs/cgroup, readOnly: true }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: hostvar
+          hostPath: { path: /var/lib/model1, type: DirectoryOrCreate }
+        - name: cgroup
+          hostPath: { path: /sys/fs/cgroup, type: Directory }
+        - name: scripts
+          configMap: { name: model1-sampler-script, defaultMode: 0755 }

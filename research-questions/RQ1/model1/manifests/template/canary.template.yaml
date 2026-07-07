@@ -1,0 +1,86 @@
+# =============================================================================
+# Model 1 CANARY TEMPLATE. A CONTINUOUS single-FIFO-task container at fixed
+# U = 0.1 on its OWN dedicated physical core (canary_cpu). Never torn down
+# between cells - measures ambient contention alongside every RT cell.
+# Rendered by manifests/template/render.py --canary (${VAR} substitution;
+# config.yaml is the single source of truth). Deployment so it self-heals.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-params
+spec:
+  count: ${RES_COUNT}       # m (cores) = 1; driver auto-selects the CPU
+  runtime: ${RES_RUNTIME}   # Q = 0.1 * P
+  period: ${RES_PERIOD}     # P (soft scale)
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${CELL_ID}-params
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}
+  labels: { app: model1-canary }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: model1-canary }
+  template:
+    metadata:
+      labels: { app: model1-canary, cell: "${CELL_ID}", scale: "${SCALE}" }
+    spec:
+      nodeSelector:
+        model1/rt-node: "true"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: rtapp
+          image: ${BASE_IMAGE}
+          imagePullPolicy: ${PULL_POLICY}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              export DEBIAN_FRONTEND=noninteractive
+              command -v rt-app >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ${RTAPP_PKG}; }
+              mkdir -p /results
+              # rt-DRA pins the canary to its own allocated core (RT_CPUSET).
+              if [ -n "$RT_CPUSET" ]; then
+                echo "[canary] RT_CPUSET=$RT_CPUSET"
+                exec taskset -c "$RT_CPUSET" rt-app /config/rtapp.json
+              else
+                echo "[canary] no RT_CPUSET; inheriting cpuset"
+                exec rt-app /config/rtapp.json
+              fi
+          securityContext:
+            capabilities:
+              add: ["SYS_NICE", "IPC_LOCK"]
+          volumeMounts:
+            - { name: results,  mountPath: /results }
+            - { name: rtapp-config, mountPath: /config }
+          resources:
+            claims:
+              - name: rtcpu
+      resourceClaims:
+        - name: rtcpu
+          source:
+            resourceClaimTemplateName: ${CELL_ID}-claim
+      volumes:
+        - name: results
+          hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }
+        - name: rtapp-config
+          configMap: { name: ${CELL_ID}-rtapp }
