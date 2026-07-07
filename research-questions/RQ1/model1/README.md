@@ -4,12 +4,22 @@ Runnable experiment harness for the **clean baseline / reference** cell of the
 KubeDeadline RQ1 study on AKS.
 
 A single `SCHED_FIFO` task runs **inside** a KubeDeadline `(Q, P, m=1)`
-CBS-reserved container, pinned to a genuine **physical core** whose hyper-thread
-**sibling is offlined**, with **no co-located workload**. Two purposes:
+CBS-reserved container, pinned to a genuine **physical core**, with **no
+co-located workload**. Two purposes:
 
 1. Confirm the reservation holds when "1 vCPU = 1 dedicated core" is *true*.
 2. Measure the irreducible **hypervisor steal-time noise floor** (a HOST-level
    effect that shows up even with a single task).
+
+> **SMT caveat (Azure).** The design intends each physical core's hyper-thread
+> **sibling to be offline** for zero sibling interference. On Azure this is **not
+> done**: offlining a vCPU is effectively one-way (the vCPU cannot be reliably
+> re-onlined and it wedges the VM). Node-prep therefore runs **detect-only** —
+> the RT task and canary are placed one-per-physical-core (`cpu0` / `cpu2`), but
+> the siblings (`cpu1`/`cpu3`) stay **online**, so residual SMT/system
+> interference is possible. That residual noise is precisely what the canary +
+> covariates quantify. For true isolation without offlining, boot the worker with
+> `isolcpus=1,3` (kernel cmdline, needs a reboot).
 
 ## Two-level hierarchy
 
@@ -32,13 +42,22 @@ container.
 `Q` is **derived**: `Q_us = round(U * P_us)` (never hardcoded). Each `(scale, U)`
 pair is one experiment **cell**.
 
+> **rt-app overhead (tight scale).** rt-app has a fixed per-job overhead (timer
+> arm, `clock_gettime`, per-loop log write) that also consumes CBS budget. With
+> `run = Q` this tips small-`Q` tight cells over 100% load and response time
+> **diverges**. `config.yaml \u2192 rtapp.overhead_us` (validated **700** on this
+> node) sizes the busy loop as `run = Q \u2212 overhead_us` so the container footprint
+> \u2248 `Q` while the DRA reservation stays `Q`. **Required for the tight scale** \u2014
+> see `docs/FINDING-rtapp-overhead-tight-scale.md`.
+
 ## Directory layout
 
 ```
 model1/
   config.yaml            # SINGLE SOURCE OF TRUTH — all parameters
   model1lib.py           # shared derivations (Q from U/P, N-map, paths, cell grid)
-  run_model1.py          # orchestrator: sequential sweep per --timeblock
+  run_model1.py          # orchestrator: sequential sweep (ACQUISITION ONLY)
+  analyze.py             # OFFLINE post-processing: slice covariates + ensure jobs.csv
   manifests/
     namespace.yaml       # the model1 namespace (rendered)
     tight-10ms/          # rendered per-U cells: U0.2.yaml … U0.95.yaml
@@ -50,15 +69,15 @@ model1/
       render.py               # pure-Python renderer (no envsubst); also `--all`
   rtapp/                 # rt-app JSON generator + reference template
     generate_rtapp.py  template.json
-  node-prep/             # HT-sibling detection + offline (script + DaemonSet)
+  node-prep/             # HT-sibling DETECTION only (detect-only on Azure; see SMT caveat)
     prepare-node.sh  restore-node.sh  node-prep-daemonset.yaml  apply.sh  README.md
   sampler/               # covariate + cgroup sampler (DaemonSet; no custom image)
     sampler.py  sampler-daemonset.yaml  apply.sh  Dockerfile
   parse/                 # analysis primitives
     parse_rtapp.py       # rt-app log -> per-job CSV
-    convergence.py       # running-p99.9 stopping-rule checker (used by orchestrator)
+    convergence.py       # running-p99.9 checker (optional; fixed-N is the default stop now)
     supply.py            # alpha_eff / Delta_eff / empirical supply-bound function
-    slice_covariates.py  # cut the continuous sampler stream into a cell window
+    slice_covariates.py  # cut the sampler stream into a cell window (used by analyze.py)
   plots/                 # one script per figure + shared common.py + plot_all.py
   results/               # results/<timeblock>/<scale-dir>/U<U>/…  (git-ignored)
 ```
@@ -101,6 +120,16 @@ DaemonSet likewise installs `python3` at runtime. See `image:` in config.
 - `kubectl` context pointing at the cluster; on the RT node the kernel should
   allow RT bandwidth (`kernel.sched_rt_runtime_us` ≠ 0, or `-1`). The orchestrator
   records these per cell.
+- **RT-cgroup budget chain must be non-zero.** With `CONFIG_RT_GROUP_SCHED`, the
+  kernel enforces Σ(children) ≤ parent per core, so `root → kubepods.slice →
+  kubepods-besteffort.slice` must all hold RT runtime or **every** RT pod fails
+  its `cpu.rt_runtime_us` write with `EINVAL`. If RT pods stop admitting:
+  `sudo sysctl -w kernel.sched_rt_runtime_us=-1` (persist in
+  `/etc/sysctl.d/99-rt-hcbs.conf`), and if needed re-seed the chain **top-down**
+  using the kernel's per-core `<runtime> <cpu>` pair format (a bare scalar is
+  rejected). `workloads/rt-dra-verify` is the known-good baseline probe.
+- **Do NOT offline Azure vCPUs** (one-way hotplug wedges the VM). Node-prep is
+  detect-only for this reason.
 - Python 3.9+ with **PyYAML** (harness + rendering). Analysis/plots additionally
   need **numpy** and **matplotlib**. Rendering and plotting are pure-Python and
   cross-platform (Windows/macOS/Linux); the cluster-facing steps need `kubectl`
@@ -134,41 +163,71 @@ fly with the real time-block label.)
 
 ## Run one time-block
 
+> **Long runs:** start the sweep under `tmux`/`screen` (or `nohup`) so a dropped
+> SSH session does not kill it.
+
 ```bash
-# 0) label the RT node and (optionally) taint it for exclusivity
+# 0) label the RT node
 kubectl label node <NODE> model1/rt-node=true
 
-# 1) node prep: detect HT siblings + take them offline (privileged DaemonSet)
+# 1) node prep: DETECT the HT topology only (does NOT offline anything — see SMT caveat)
 cd node-prep && ./apply.sh && cd ..
-kubectl -n model1 logs ds/model1-node-prep     # verify the CPU map
+kubectl -n model1 logs ds/model1-node-prep     # verify the CPU map (offline_siblings: [])
 
 # 2) start the continuous covariate/cgroup sampler
 cd sampler && ./apply.sh && cd ..
 
-# 3) run the full sequential sweep as a labelled time-block
-python3 run_model1.py --timeblock tb-$(date +%Y%m%d-%H%M)
+# 3) run the sequential sweep (ACQUISITION ONLY) as a labelled time-block
+python3 run_model1.py --timeblock tb-$(date +%Y%m%d-%H%M) --scales tight
+
+# 4) OFFLINE post-processing (slice covariates per cell + ensure jobs.csv)
+python3 analyze.py --timeblock <that-timeblock>
 ```
 
-The orchestrator:
+The orchestrator (`run_model1.py`) is **data-acquisition only** — no derived
+metrics or covariate slicing run on the critical path:
 - starts the **canary** (fixed `U=0.1`, its own physical core) and **keeps it up**;
 - runs cells **strictly sequentially** (one RT container-under-test at a time),
   **delete+recreate** between cells;
-- collects jobs until the **per-cell stopping rule** fires: convergence of the
-  running **p99.9** of response time within `[N_min, N_max]`, or the **3 h guard**;
-- writes per-cell `rt-app.log`, `jobs.csv`, sliced `server.csv`/`covariates.csv`,
-  and `cell.json` metadata under `results/<timeblock>/<scale-dir>/U<U>/`;
+- collects jobs until it reaches **`N_max`** (fixed-N) or the **3 h guard**;
+- writes per-cell `rt-app.log`, `jobs.csv`, and `cell.json` (with the cell's
+  `[start_wall_ns, end_wall_ns]` window) under
+  `results/<timeblock>/<scale-dir>/U<U>/`;
+- copies the full sampler stream **once** at the end to
+  `results/<timeblock>/samples/` (no per-cell copy/slice);
 - writes `results/<timeblock>/summary.json`.
+
+`analyze.py` then does the deferred work offline: it slices each cell's covariate
+window out of the shared stream and regenerates `jobs.csv` if missing. This is
+what keeps per-cell save time cheap (the old per-cell copy+slice re-scanned the
+growing stream every cell).
 
 Useful flags: `--dry-run`, `--scales tight`, `--only-u 0.9 0.95`,
 `--skip-canary`, `--results-root <dir>`.
 
 ### Stopping rule (from config)
 
-- Warm-up: discard the first **1000** jobs.
-- Convergence: p99.9 over all `N` vs. over the first 80% differs by **< 1%**.
-- Floors/ceilings: `N_min = 100000` all cells; `N_max = 1e6` for tight
-  `U∈{0.9,0.95}` (tail is the story); `N_max = 100000` otherwise.
-- Hard guard: **3 h** per cell (recorded if it fires).
+Fixed **N** per cell (convergence lives in `parse/convergence.py` but is **not**
+the default stop anymore):
+- Warm-up: discard the first **`warmup_jobs`** jobs (real: 1000).
+- Collect until **`N_max`** jobs (real: **10000** for every cell); the **3 h**
+  per-cell guard is recorded if it ever fires.
+- At tight scale the ~15 s poll interval means a cell typically **overshoots**
+  `N_max` by a few hundred jobs — harmless.
+
+### Smoke test vs. real experiment
+
+`config.yaml` currently ships **smoke-test** values so you can verify the whole
+pipeline in a couple of minutes:
+
+| | `warmup_jobs` | `n_min` / `n_max_default` |
+|--|--|--|
+| **Smoke** (pipeline check) | 10 | 100 |
+| **Real** (meaningful tails) | 1000 | 10000 |
+
+Flip `stopping_rule.warmup_jobs`, `n_min`, and `n_max_default` in
+[config.yaml](config.yaml) to the **real** column before the actual run. The
+code changes (deferred covariates, `analyze.py`, streaming reads) apply to both.
 
 ## Add more time-blocks
 
@@ -212,6 +271,9 @@ Figures land in `results/<timeblock or 'aggregate'>/figures/` (PNG + PDF):
 ## Offline analysis primitives
 
 ```bash
+# deferred per-cell covariate slicing + jobs.csv (run once after the sweep)
+python3 analyze.py --timeblock <tb>
+
 # effective bandwidth, service delay, empirical supply-bound function (per cell)
 python3 parse/supply.py results/<tb>/tight-10ms/U0.95/server.csv --period-us 10000
 
@@ -231,8 +293,7 @@ slack_us, deadline_miss, tardiness_us`.
 kubectl -n model1 delete pod -l app=model1-rt --ignore-not-found
 kubectl -n model1 delete deploy model1-canary --ignore-not-found
 kubectl -n model1 delete ds model1-sampler model1-node-prep --ignore-not-found
-# bring the offlined hyper-thread siblings back online:
-sudo MAP_OUT=/var/lib/model1/cpu-map.json node-prep/restore-node.sh   # (or reboot)
+# node-prep is detect-only (nothing was offlined), so no CPU restore is needed.
 ```
 
 ## Extending to Models 2/3/4
