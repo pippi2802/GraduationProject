@@ -73,7 +73,7 @@ cores_per_container: 1
 # PER-CELL STOPPING RULE (convergence-based, per-U floor/ceiling)
 # -----------------------------------------------------------------------------
 stopping_rule:
-  warmup_jobs: 10             # SMOKE TEST: tiny warm-up (was 1000) so 100 rounds is quick
+  warmup_jobs: 1000           # discard the first N completed jobs before stats
 
   convergence:
     metric: p99_9              # running p99.9 of response time R
@@ -83,10 +83,10 @@ stopping_rule:
     min_window_jobs: 5000      # don't evaluate convergence on tiny windows
 
   # Floor / ceiling on collected job count N (AFTER warm-up).
-  # SMOKE TEST: 100 rounds per U just to confirm the pipeline works.
-  # Restore to 10000 (and warmup_jobs: 1000) for the real sweep.
-  n_min: 100                  # applies to ALL cells
-  n_max_default: 100          # every cell (no per-U override; see below)
+  # REAL EXPERIMENT: 10000 jobs per U (fixed-N stop). Use the smoke values
+  # (warmup_jobs: 10, n_min/n_max_default: 100) only for pipeline checks.
+  n_min: 10000                # applies to ALL cells
+  n_max_default: 10000        # every cell (no per-U override; see below)
 
   # No overrides: every U collects the same 10000 jobs (after warm-up).
   n_max_overrides: []
