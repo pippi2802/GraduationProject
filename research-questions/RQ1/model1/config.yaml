@@ -73,7 +73,7 @@ cores_per_container: 1
 # PER-CELL STOPPING RULE (convergence-based, per-U floor/ceiling)
 # -----------------------------------------------------------------------------
 stopping_rule:
-  warmup_jobs: 1000            # discard the first N completed jobs before stats
+  warmup_jobs: 10             # SMOKE TEST: tiny warm-up (was 1000) so 100 rounds is quick
 
   convergence:
     metric: p99_9              # running p99.9 of response time R
@@ -83,9 +83,10 @@ stopping_rule:
     min_window_jobs: 5000      # don't evaluate convergence on tiny windows
 
   # Floor / ceiling on collected job count N (AFTER warm-up).
-  # Reduced to 10000 for ALL cells (user request) to keep every U short.
-  n_min: 10000                # applies to ALL cells
-  n_max_default: 10000        # every cell (no per-U override; see below)
+  # SMOKE TEST: 100 rounds per U just to confirm the pipeline works.
+  # Restore to 10000 (and warmup_jobs: 1000) for the real sweep.
+  n_min: 100                  # applies to ALL cells
+  n_max_default: 100          # every cell (no per-U override; see below)
 
   # No overrides: every U collects the same 10000 jobs (after warm-up).
   n_max_overrides: []
@@ -139,7 +140,9 @@ rtapp:
   # is loaded to ~100%, so at tight scale (small Q) this overhead can exceed the
   # margin. Measure per node (see README) and subtract so the busy loop =
   # Q - overhead_us and the task footprint ~= Q. 0 = disabled (busy loop = Q).
-  overhead_us: 0
+  # Validated on tight-U0.2 (see docs/FINDING-rtapp-overhead-tight-scale.md):
+  # 700 flips tight cells from divergent to bounded. Required for tight scale.
+  overhead_us: 700
   min_run_us: 500          # never size the busy loop below this many us
   # run/period/deadline/timer are derived per cell from (P, Q); see rtapp/generator.
 

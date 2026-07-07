@@ -146,7 +146,9 @@ rtapp:
   # ~500 us/job at P=10ms). Subtract it so the busy loop = Q - overhead_us and the
   # task's TOTAL footprint (compute + overhead) ~= Q (delivered util ~= U).
   # 0 = disabled (busy loop = Q exactly). Measure per node (see README) and set.
-  overhead_us: 0
+  # Validated on tight-U0.2 (see docs/FINDING-rtapp-overhead-tight-scale.md):
+  # 700 flips tight cells from divergent to bounded. Required for tight scale.
+  overhead_us: 700
   min_run_us: 500          # never size the busy loop below this many us
   # run/period/deadline/timer are derived per cell from (P, Q); see rtapp/generator.
 
