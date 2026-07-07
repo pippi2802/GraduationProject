@@ -103,6 +103,16 @@ def node_cat(spod: str, path: str) -> str | None:
     return r.stdout if r.returncode == 0 else None
 
 
+def node_cat_to_file(spod: str, path: str, dest) -> bool:
+    """Stream a node file directly to `dest` on disk, WITHOUT buffering the whole
+    file in memory. The continuous sampler streams grow unboundedly (rate_hz for
+    the whole sweep), so slurping them into a Python string OOM-kills the CP."""
+    with open(dest, "wb") as fh:
+        p = subprocess.run(["kubectl", "exec", "-n", NS, spod, "--", "cat", path],
+                           stdout=fh, stderr=subprocess.DEVNULL, check=False)
+    return p.returncode == 0
+
+
 def node_exec(spod: str, *cmd, check=False) -> str:
     r = kubectl("exec", "-n", NS, spod, "--", *cmd, check=check)
     return r.stdout or ""
@@ -248,11 +258,9 @@ def collect_covariates(spod: str | None, cell: dict, outdir: Path,
     tmp = outdir / "_stream"
     tmp.mkdir(parents=True, exist_ok=True)
     for name in ("server.csv", "covariates.csv"):
-        content = node_cat(spod, f"{samples_dir}/{name}")
-        if content is None:
+        if not node_cat_to_file(spod, f"{samples_dir}/{name}", tmp / name):
             log(f"WARN: sampler stream {name} unavailable")
             continue
-        (tmp / name).write_text(content, encoding="utf-8")
     run(["python3", str(HERE / "parse" / "slice_covariates.py"),
          "--samples-dir", str(tmp), "--out-dir", str(outdir),
          "--start-wall-ns", str(start_wall_ns), "--end-wall-ns", str(end_wall_ns)],
