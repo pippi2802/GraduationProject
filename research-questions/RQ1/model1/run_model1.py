@@ -177,6 +177,23 @@ def fetch_rtapp_log(name: str) -> str | None:
     return r.stdout if r.returncode == 0 else None
 
 
+def count_jobs(name: str) -> int:
+    """CHEAP job count for the fixed-N stop: count data rows of the rt-app log
+    ON THE NODE (one `grep -c`) instead of transferring + parsing the whole
+    (continuously growing) log every poll. Data rows begin with the job index
+    digit; the header/comment rows start with '#'. Returns 0 if the log is not
+    present yet or nothing has been written. NO derived computation (p99.9/tail)
+    runs here — that is all deferred to analyze.py (offline)."""
+    r = kubectl("exec", "-n", NS, name, "--", "bash", "-c",
+                "cat /results/*.log 2>/dev/null | grep -cE '^[[:space:]]*[0-9]'",
+                check=False)
+    out = (r.stdout or "").strip()
+    try:
+        return int(out.split()[0]) if out else 0
+    except (ValueError, IndexError):
+        return 0
+
+
 def pod_rt_env(name: str) -> dict:
     """Read the DRA-injected reservation env (RT_CPUSET, RT_RUNTIME_PERIOD)."""
     out = {}
@@ -198,15 +215,31 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
     # 3 h guard. Generous enough to cover the apt-install + rt-app startup.
     no_jobs_timeout = sr.get("no_jobs_timeout_seconds", 300)
     warmup = sr["warmup_jobs"]
-    # check cadence: a few times the mean inter-arrival, floored at 15 s
     period_s = cell["period_us"] / 1e6
-    check_interval = max(15.0, min(60.0, 200 * period_s))
+
+    # Pure fixed-N stop? With n_min >= n_max (and no per-U convergence override)
+    # the cell ALWAYS stops on N_max, so the running p99.9/POT convergence check
+    # can never fire first — computing it every poll is dead weight ON THE
+    # CRITICAL PATH (it also re-transfers + re-parses the whole growing log each
+    # time). In that case poll a CHEAP node-side job COUNT and defer ALL derived
+    # metrics to analyze.py (offline). The log is fetched + parsed ONCE at the
+    # end of the cell. The convergence path is kept for the (currently unused)
+    # n_min < n_max configuration.
+    fixed_n = n_min >= n_max
+    if fixed_n:
+        # counting is cheap -> poll more often so the cell stops promptly once it
+        # reaches N_max (less dead tail-wait, which matters most at tight scale).
+        check_interval = max(5.0, min(30.0, 100 * period_s))
+    else:
+        # a few times the mean inter-arrival, floored at 15 s
+        check_interval = max(15.0, min(60.0, 200 * period_s))
 
     start_wall_ns = time.time_ns()
     start_mono = time.monotonic()
     stop_reason = "unknown"
-    last = {"n": 0, "p99_9": float("nan"), "rel_change": float("nan"),
-            "running_max": float("nan"), "tail_index": None}
+    # p99.9/tail are recorded as None on the fixed-N fast path (derived offline).
+    last = {"n": 0, "p99_9": None, "rel_change": None,
+            "running_max": None, "tail_index": None, "converged": False}
 
     if dry_run:
         log(f"DRY-RUN collect: cell={cell['cell_id']} n_min={n_min} n_max={n_max} guard={guard_s}s")
@@ -216,23 +249,29 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
     tmp_log = outdir / "rt-app.log"
     while True:
         elapsed = time.monotonic() - start_mono
-        text = fetch_rtapp_log(name)
-        n = 0
-        if text:
-            tmp_log.write_text(text, encoding="utf-8")
-            jobs = parse_rtapp.parse_log(str(tmp_log), warmup)
-            r_vals = [j["R_us"] for j in jobs if isinstance(j["R_us"], (int, float))]
-            n = len(r_vals)
-            res = conv_mod.check_convergence(
-                r_vals, n_min=n_min,
-                rel_change_threshold=convc["rel_change_threshold"],
-                window_fraction=convc["window_fraction"],
-                min_window_jobs=convc["min_window_jobs"],
-            )
-            last = res
-            log(f"cell={cell['cell_id']} N={n} p99.9={res['p99_9']:.1f}us "
-                f"rel={res['rel_change']:.4f} max={res['running_max']:.1f}us "
-                f"t={elapsed:.0f}s")
+        if fixed_n:
+            # cheap: count data rows on the node, no transfer/parse/convergence.
+            n = max(0, count_jobs(name) - warmup)
+            last["n"] = n
+            log(f"cell={cell['cell_id']} N={n} t={elapsed:.0f}s")
+        else:
+            text = fetch_rtapp_log(name)
+            n = 0
+            if text:
+                tmp_log.write_text(text, encoding="utf-8")
+                jobs = parse_rtapp.parse_log(str(tmp_log), warmup)
+                r_vals = [j["R_us"] for j in jobs if isinstance(j["R_us"], (int, float))]
+                n = len(r_vals)
+                res = conv_mod.check_convergence(
+                    r_vals, n_min=n_min,
+                    rel_change_threshold=convc["rel_change_threshold"],
+                    window_fraction=convc["window_fraction"],
+                    min_window_jobs=convc["min_window_jobs"],
+                )
+                last = res
+                log(f"cell={cell['cell_id']} N={n} p99.9={res['p99_9']:.1f}us "
+                    f"rel={res['rel_change']:.4f} max={res['running_max']:.1f}us "
+                    f"t={elapsed:.0f}s")
 
         if last["n"] >= n_max:
             stop_reason = "n_max"
@@ -242,7 +281,7 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
                 f"(rt-app not running? RT budget?); aborting cell")
             stop_reason = "no_jobs"
             break
-        if last.get("converged") and last["n"] >= n_min:
+        if not fixed_n and last.get("converged") and last["n"] >= n_min:
             stop_reason = "convergence"
             break
         if elapsed >= guard_s:

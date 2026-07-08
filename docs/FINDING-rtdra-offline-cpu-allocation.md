@@ -11,6 +11,58 @@ rebuilt from the *online* CPU set.
 
 ---
 
+> ## ⚠️ SUPERSEDED — do NOT offline CPUs on this platform
+>
+> The "offline the siblings first, then restart the plugin" fix below **works in
+> principle but is NOT usable on Azure** and is retained only as background. The
+> current, operative conclusion is:
+>
+> **We cannot use CPU offlining to isolate physical from logical cores — doing so
+> breaks both the RT-DRA driver and the kernel RT machinery.** Specifically:
+>
+> 1. **Azure vCPU hotplug is effectively one-way.** Setting
+>    `/sys/devices/system/cpu/cpuN/online = 0` cannot be reliably reversed on the
+>    `D4s_v5` guest; the vCPU does not come back and the VM ends up **wedged**,
+>    requiring a redeploy. Offlining is not a reversible experiment knob here.
+> 2. **It zeroes the RT cgroup budget chain.** An offline/re-online (or the reboot
+>    used to recover a wedged VM) resets `root → kubepods.slice →
+>    kubepods-besteffort.slice` `cpu.rt_runtime_us` to 0 and resets
+>    `kernel.sched_rt_runtime_us`. With `CONFIG_RT_GROUP_SCHED` the kernel enforces
+>    Σ(children) ≤ parent per core, so **every** subsequent RT pod fails its
+>    `cpu.rt_runtime_us` write with `EINVAL` and never admits — the driver looks
+>    "broken" but the real cause is the zeroed chain (see
+>    `docs/FINDING-cgroupv2-no-rt-enforcement.md` and the reseed service
+>    `setup/scripts/rt-budget-reseed.*`).
+> 3. **The RT-DRA pool desyncs from reality.** `NAS.allocatableCpuset` is
+>    enumerated at plugin startup; offlining/re-onlining out from under it makes
+>    the SMT-blind worst-fit allocator hand out CPUs that are offline (or double-
+>    book a physical core), which is the very symptom this document was written
+>    for. The offline/re-enumerate dance is fragile and must be redone on **every**
+>    reboot.
+>
+> ### What we do instead (operative approach)
+>
+> - **Node-prep is DETECT-ONLY** (`DRY_RUN=1`): it reads the sibling topology from
+>   `/sys/devices/system/cpu/cpuN/topology/thread_siblings_list`, writes
+>   `cpu-map.json`, and **offlines nothing**. Siblings (`cpu1`/`cpu3`) stay online.
+> - The RT cell and canary are placed **one-per-physical-core** (`cpu0` / `cpu2`);
+>   the harness **retries delete+recreate** until the pod is Ready AND its
+>   `RT_CPUSET` is disjoint from the canary's `thread_siblings_list`
+>   (`run_model1.py`, `execution.placement_max_attempts`). This avoids the RT cell
+>   landing on the canary's SMT sibling **without** offlining anything.
+> - Residual SMT / system interference from the still-online siblings is **not**
+>   eliminated but is **quantified**: the continuous canary + the covariate
+>   sampler (steal, run-delay, IRQ) measure it per cell. Cells whose `RT_CPUSET`
+>   landed on a contaminated pair are flagged in `cell.json` and discarded/redone.
+> - For *true* hardware isolation without runtime offlining, boot the worker with
+>   **`isolcpus=1,3`** on the kernel cmdline (one reboot; keeps the vCPUs online so
+>   nothing wedges and the RT budget chain / driver pool stay intact).
+>
+> The section below is the original (superseded) investigation.
+
+---
+
+
 ## Symptom
 
 With the two hyper-thread siblings offlined by node-prep (cpu1, cpu3 → online=0,

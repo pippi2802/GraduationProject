@@ -42,13 +42,21 @@ container.
 `Q` is **derived**: `Q_us = round(U * P_us)` (never hardcoded). Each `(scale, U)`
 pair is one experiment **cell**.
 
-> **rt-app overhead (tight scale).** rt-app has a fixed per-job overhead (timer
-> arm, `clock_gettime`, per-loop log write) that also consumes CBS budget. With
-> `run = Q` this tips small-`Q` tight cells over 100% load and response time
-> **diverges**. `config.yaml \u2192 rtapp.overhead_us` (validated **700** on this
-> node) sizes the busy loop as `run = Q \u2212 overhead_us` so the container footprint
-> \u2248 `Q` while the DRA reservation stays `Q`. **Required for the tight scale** \u2014
-> see `docs/FINDING-rtapp-overhead-tight-scale.md`.
+> **rt-app overhead (tight scale) — MEASURED, not compensated.** rt-app has a
+> fixed per-job overhead (timer arm, `clock_gettime`, per-loop log write) that
+> also consumes CBS budget. We treat that overhead as a **quantity to measure,
+> not a parameter to tune**: `config.yaml → rtapp.overhead_us` is set to **0**
+> (no compensation), so the busy loop stays `run = Q` and the harness overhead is
+> left *in* the reservation. Its per-`U` magnitude is then recovered **offline**
+> as `o_hat = usage_usec/N − Q` (from `server.csv` `usage_usec`, the job count
+> `N`, and `Q` from `cell.json`). At the tight scale this tips small-`Q` cells
+> over 100 % load so response time **diverges** — and that divergence is exactly
+> the phenomenon being reported, not a bug. Cells still terminate on the fixed-`N`
+> stop (`N_max` jobs), not the 3 h guard. (A compensated value of `overhead_us =
+> 700` was what previously flipped tight cells from divergent to bounded; it is
+> recorded for reference but intentionally **not** used.) See
+> `docs/FINDING-rtapp-overhead-tight-scale.md`.
+
 
 ## Directory layout
 
