@@ -1,0 +1,26 @@
+[
+  {
+    "cell": "tight-U0.2",
+    "stop_reason": "not_ready"
+  },
+  {
+    "cell": "tight-U0.4",
+    "stop_reason": "not_ready"
+  },
+  {
+    "cell": "tight-U0.6",
+    "stop_reason": "not_ready"
+  },
+  {
+    "cell": "tight-U0.8",
+    "stop_reason": "not_ready"
+  },
+  {
+    "cell": "tight-U0.9",
+    "stop_reason": "not_ready"
+  },
+  {
+    "cell": "tight-U0.95",
+    "stop_reason": "not_ready"
+  }
+]
