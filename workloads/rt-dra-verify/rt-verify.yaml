@@ -53,6 +53,11 @@ metadata:
     app: rt-verify
 spec:
   restartPolicy: Never
+  # Pin to worker-0: this is the node whose RT-cgroup budget chain is prepared.
+  # nodeSelector (not nodeName) keeps the scheduler in the loop so the DRA
+  # resource claim is still allocated normally.
+  nodeSelector:
+    kubernetes.io/hostname: rt-cluster-worker-0
   containers:
   - name: probe
     image: ubuntu:22.04

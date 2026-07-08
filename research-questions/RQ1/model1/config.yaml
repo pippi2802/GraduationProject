@@ -144,11 +144,17 @@ rtapp:
   # rt-app has a FIXED per-job overhead (timer arm, clock_gettime, per-loop log
   # write) that also consumes the CBS budget. With "task run = Q" the reservation
   # is loaded to ~100%, so at tight scale (small Q) this overhead can exceed the
-  # margin. Measure per node (see README) and subtract so the busy loop =
-  # Q - overhead_us and the task footprint ~= Q. 0 = disabled (busy loop = Q).
-  # Validated on tight-U0.2 (see docs/FINDING-rtapp-overhead-tight-scale.md):
-  # 700 flips tight cells from divergent to bounded. Required for tight scale.
-  overhead_us: 700
+  # margin. Setting overhead_us > 0 subtracts it so the busy loop = Q - overhead_us
+  # and the task footprint ~= Q (compensation). Setting overhead_us = 0 leaves the
+  # busy loop = Q (NO compensation) so the harness overhead is left IN the run and
+  # its per-U impact can be MEASURED offline as o_hat = usage_usec/N - Q (from
+  # server.csv usage_usec, jobs.csv N, cell.json Q over the cell window).
+  # NOTE: at the tight scale, overhead_us=0 makes small-Q cells DIVERGE (response
+  # time grows without bound) -- that divergence is exactly the phenomenon being
+  # measured. Cells still terminate on the fixed-N stop (N_max jobs), not the 3 h
+  # guard. See docs/FINDING-rtapp-overhead-tight-scale.md (700 was the compensated
+  # value that flipped tight cells from divergent to bounded).
+  overhead_us: 0
   min_run_us: 500          # never size the busy loop below this many us
   # run/period/deadline/timer are derived per cell from (P, Q); see rtapp/generator.
 
