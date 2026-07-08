@@ -44,17 +44,18 @@ NS = "model1"
 # --------------------------------------------------------------------------- #
 # shell helpers
 # --------------------------------------------------------------------------- #
-def run(cmd: list[str], check=True, capture=True, input_text=None):
+def run(cmd: list[str], check=True, capture=True, input_text=None, timeout=None):
     return subprocess.run(
         cmd, check=check,
         stdout=subprocess.PIPE if capture else None,
         stderr=subprocess.PIPE if capture else None,
-        text=True, input=input_text,
+        text=True, input=input_text, timeout=timeout,
     )
 
 
-def kubectl(*args, check=True, capture=True, input_text=None):
-    return run(["kubectl", *args], check=check, capture=capture, input_text=input_text)
+def kubectl(*args, check=True, capture=True, input_text=None, timeout=None):
+    return run(["kubectl", *args], check=check, capture=capture,
+               input_text=input_text, timeout=timeout)
 
 
 def log(msg: str):
@@ -194,6 +195,43 @@ def count_jobs(name: str) -> int:
         return 0
 
 
+def node_log_dir(cfg: dict, timeblock: str, cell: dict) -> str:
+    """Path to a cell's rt-app log dir AS SEEN BY THE SAMPLER POD (host mount).
+    The RT container writes /results -> hostPath
+    {results.host_path}/{tb}/{scale_dir}/U{u}; the sampler mounts host
+    /var/lib/model1 at /host/var/lib/model1, so it sees the same files here."""
+    hp = cfg["results"]["host_path"]
+    return f"/host{hp}/{timeblock}/{cell['scale_dir']}/U{m1.u_label(cell['u'])}"
+
+
+def node_count_jobs(spod: str, samp_dir: str, timeout: float = 20.0):
+    """CHEAP job count read via the SAMPLER pod (NOT the RT pod). At high U the
+    SCHED_FIFO task saturates its core and starves any `kubectl exec` into the RT
+    pod (that shell is CFS on the same pinned CPU) -> the read hangs for hours.
+    The sampler runs on the node's general cpuset, so it is never starved. Reads
+    the same hostPath log the RT container writes. Returns None if the read TIMES
+    OUT (so the caller keeps the last known count and the loop keeps progressing
+    to its wall-clock cap instead of blocking)."""
+    try:
+        r = kubectl("exec", "-n", NS, spod, "--", "bash", "-c",
+                    f"cat {samp_dir}/*.log 2>/dev/null | grep -cE '^[[:space:]]*[0-9]'",
+                    check=False, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return None
+    out = (r.stdout or "").strip()
+    try:
+        return int(out.split()[0]) if out else 0
+    except (ValueError, IndexError):
+        return 0
+
+
+def node_first_log(spod: str, samp_dir: str) -> str | None:
+    """Resolve the cell's rt-app log path inside the sampler pod (host mount)."""
+    r = kubectl("exec", "-n", NS, spod, "--", "bash", "-c",
+                f"ls {samp_dir}/*.log 2>/dev/null | head -n1", check=False)
+    return (r.stdout or "").strip() or None
+
+
 def pod_rt_env(name: str) -> dict:
     """Read the DRA-injected reservation env (RT_CPUSET, RT_RUNTIME_PERIOD)."""
     out = {}
@@ -205,7 +243,9 @@ def pod_rt_env(name: str) -> dict:
     return out
 
 
-def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: bool):
+def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: bool,
+                       spod: str | None = None, samp_dir: str | None = None,
+                       max_cell_seconds: float | None = None):
     sr = cfg["stopping_rule"]
     convc = sr["convergence"]
     n_min, n_max = cell["n_min"], cell["n_max"]
@@ -216,6 +256,20 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
     no_jobs_timeout = sr.get("no_jobs_timeout_seconds", 300)
     warmup = sr["warmup_jobs"]
     period_s = cell["period_us"] / 1e6
+
+    # Per-cell WALL-CLOCK cap. A DIVERGING cell (U -> 1) saturates its core, so it
+    # never stops on N_max via the counter (and at 100% load the count read may
+    # keep timing out) -> without a cap it overshoots for HOURS. The cap is
+    # generous enough that a HEALTHY cell reaches N_max first (~n_max*period),
+    # but bounds a diverging cell. Override per run with --max-cell-seconds.
+    if max_cell_seconds is None:
+        factor = float(sr.get("max_wall_seconds_factor", 3.0))
+        max_cell_seconds = 120.0 + factor * n_max * period_s
+    max_cell_seconds = min(max_cell_seconds, guard_s)
+    # Read the counter via the SAMPLER pod (host mount) when available -> never
+    # starved by the RT FIFO task. Fall back to exec-into-RT-pod only if no
+    # sampler / no host dir (with a timeout so it cannot hang indefinitely).
+    use_node = bool(spod and samp_dir)
 
     # Pure fixed-N stop? With n_min >= n_max (and no per-U convergence override)
     # the cell ALWAYS stops on N_max, so the running p99.9/POT convergence check
@@ -250,10 +304,14 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
     while True:
         elapsed = time.monotonic() - start_mono
         if fixed_n:
-            # cheap: count data rows on the node, no transfer/parse/convergence.
-            n = max(0, count_jobs(name) - warmup)
-            last["n"] = n
-            log(f"cell={cell['cell_id']} N={n} t={elapsed:.0f}s")
+            # cheap node-side count (via sampler; never starved). None = the read
+            # timed out (core saturated) -> keep the last known N and let the
+            # wall-clock cap stop the cell.
+            c = node_count_jobs(spod, samp_dir) if use_node else count_jobs(name)
+            if c is not None:
+                last["n"] = max(0, c - warmup)
+            note = "" if c is not None else " (count read timed out)"
+            log(f"cell={cell['cell_id']} N={last['n']}{note} t={elapsed:.0f}s")
         else:
             text = fetch_rtapp_log(name)
             n = 0
@@ -283,6 +341,11 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
             break
         if not fixed_n and last.get("converged") and last["n"] >= n_min:
             stop_reason = "convergence"
+            break
+        if elapsed >= max_cell_seconds:
+            log(f"cell={cell['cell_id']} hit wall-clock cap {max_cell_seconds:.0f}s "
+                f"(diverging / core saturated); stopping with N={last['n']}")
+            stop_reason = "wall_cap"
             break
         if elapsed >= guard_s:
             stop_reason = "guard_3h"
@@ -386,6 +449,10 @@ def main() -> int:
                     help="client-side results root (default: model1/results)")
     ap.add_argument("--skip-canary", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--max-cell-seconds", type=float, default=None,
+                    help="hard wall-clock cap per cell (s). A diverging cell that "
+                         "saturates its core is stopped at this time instead of "
+                         "overshooting. Default: 120 + 3*n_max*period.")
     args = ap.parse_args()
 
     cfg = m1.load_config(args.config)
@@ -485,13 +552,27 @@ def main() -> int:
             summary.append({"cell": cell["cell_id"], "stop_reason": "no_clean_placement"})
             continue
 
-        run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run)
+        run_info = collect_until_stop(cell, name, cfg, outdir, args.dry_run,
+                                      spod=spod,
+                                      samp_dir=node_log_dir(cfg, args.timeblock, cell),
+                                      max_cell_seconds=args.max_cell_seconds)
 
-        # final rt-app log + per-job CSV
+        # final rt-app log + per-job CSV. Read the log via the SAMPLER pod (host
+        # mount) when available -> a saturated RT core can't hang this (exec-ing
+        # the RT pod would). Fall back to exec-into-RT-pod only if no sampler.
         if not args.dry_run:
-            text = fetch_rtapp_log(name)
-            if text:
-                (outdir / "rt-app.log").write_text(text, encoding="utf-8")
+            saved = False
+            if spod:
+                samp_dir = node_log_dir(cfg, args.timeblock, cell)
+                logp = node_first_log(spod, samp_dir)
+                if logp and node_cat_to_file(spod, logp, outdir / "rt-app.log"):
+                    saved = (outdir / "rt-app.log").stat().st_size > 0
+            if not saved:
+                text = fetch_rtapp_log(name)
+                if text:
+                    (outdir / "rt-app.log").write_text(text, encoding="utf-8")
+                    saved = True
+            if saved:
                 jobs = parse_rtapp.parse_log(str(outdir / "rt-app.log"),
                                              cfg["stopping_rule"]["warmup_jobs"])
                 import csv as _csv
