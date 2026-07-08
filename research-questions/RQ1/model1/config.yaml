@@ -58,13 +58,16 @@ scales:
     dir: tight-10ms          # manifests/results split directory name
     period_ms: 10
     period_us: 10000
-    utilizations: [0.2, 0.4, 0.6, 0.8, 0.9, 0.95]
-    # tight floor is 0.2: below it Q < 2 ms hits the VM measurement noise floor
+    utilizations: [0.2, 0.4, 0.6, 0.8, 0.9, 0.94]
+    # tight floor is 0.2: below it Q < 2 ms hits the VM measurement noise floor.
+    # ceiling is 0.94, NOT 0.95: the rt-DRA driver admits a core only when
+    # reqUtil (= U*1000 per-mille) is STRICTLY < 950, so U=0.95 -> 950 is refused
+    # admission (pod never schedules). 0.94 -> 940 is the highest admissible point.
   soft:
     dir: soft-100ms          # manifests/results split directory name
     period_ms: 100
     period_us: 100000
-    utilizations: [0.1, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95]
+    utilizations: [0.1, 0.2, 0.4, 0.6, 0.8, 0.9, 0.94]
 
 # m (cores) is fixed to 1 for Model 1 (mandatory simplification).
 cores_per_container: 1
@@ -85,8 +88,11 @@ stopping_rule:
   # Floor / ceiling on collected job count N (AFTER warm-up).
   # REAL EXPERIMENT: 10000 jobs per U (fixed-N stop). Use the smoke values
   # (warmup_jobs: 10, n_min/n_max_default: 100) only for pipeline checks.
-  n_min: 10000                # applies to ALL cells
-  n_max_default: 10000        # every cell (no per-U override; see below)
+  n_min: 5000                 # applies to ALL cells. Reduced 10000 -> 5000 for the
+  n_max_default: 5000         # TIME-BOXED preliminary run: soft at 10000*100ms is
+                              # ~17 min/cell (>2.5 h for the soft grid). 5000 keeps
+                              # p99 solid (p99.9 rougher) and fits tight+soft in the
+                              # available window. Restore 10000 for the final run.
 
   # No overrides: every U collects the same 10000 jobs (after warm-up).
   n_max_overrides: []
