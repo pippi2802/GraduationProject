@@ -59,7 +59,7 @@ rm -f /lib/systemd/system/containerd.service
 # 2. Build & install RT-containerd
 # -----------------------------------------------------------------------------
 CONTAINERD_SRC="${RT_WORKDIR}/containerd"
-rt_git_clone https://github.com/pippi2802/containerd.git "$CONTAINERD_SRC" rt-v
+rt_git_clone https://github.com/pippi2802/containerd.git "$CONTAINERD_SRC" rt
 (
     cd "$CONTAINERD_SRC"
     echo "[build] containerd $(git rev-parse --short HEAD)"

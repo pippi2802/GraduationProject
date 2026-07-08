@@ -1,0 +1,36 @@
+# =============================================================================
+# rt-budget-reseed.service - re-seed the H-CBS RT-cgroup budget chain at boot.
+#
+# A worker reboot zeroes root/kubepods/besteffort cpu.rt_runtime_us, after which
+# no RT (KubeDeadline / SCHED_FIFO) pod can start. This oneshot restores the chain
+# once kubelet has created the kube cgroup slices.
+#
+# Install (on the worker):
+#   sudo install -m0755 rt-budget-reseed.sh /usr/local/sbin/rt-budget-reseed.sh
+#   sudo install -m0644 rt-budget-reseed.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now rt-budget-reseed.service
+#   systemctl status rt-budget-reseed.service   # verify it seeded
+#
+# Re-run manually any time with:  sudo systemctl restart rt-budget-reseed.service
+# =============================================================================
+[Unit]
+Description=Re-seed H-CBS RT-cgroup budget chain (root/kubepods/besteffort)
+After=containerd.service kubelet.service
+Wants=kubelet.service
+# Only meaningful on a node whose cgroup tree kubelet manages.
+ConditionPathExists=/sys/fs/cgroup/kubepods.slice
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Give kubelet a moment to create kubepods.slice on a cold boot, then seed.
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 30); do [ -d /sys/fs/cgroup/kubepods.slice/kubepods-besteffort.slice ] && exit 0; sleep 2; done; exit 0'
+ExecStart=/usr/local/sbin/rt-budget-reseed.sh
+# Re-run if it races kubelet on the very first boot.
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

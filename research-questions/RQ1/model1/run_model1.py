@@ -193,6 +193,10 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
     convc = sr["convergence"]
     n_min, n_max = cell["n_min"], cell["n_max"]
     guard_s = sr["max_duration_seconds"]
+    # Abort a cell that becomes Ready but produces ZERO jobs within this long
+    # (e.g. rt-app can't get its RT budget) instead of polling silently until the
+    # 3 h guard. Generous enough to cover the apt-install + rt-app startup.
+    no_jobs_timeout = sr.get("no_jobs_timeout_seconds", 300)
     warmup = sr["warmup_jobs"]
     # check cadence: a few times the mean inter-arrival, floored at 15 s
     period_s = cell["period_us"] / 1e6
@@ -232,6 +236,11 @@ def collect_until_stop(cell: dict, name: str, cfg: dict, outdir: Path, dry_run: 
 
         if last["n"] >= n_max:
             stop_reason = "n_max"
+            break
+        if last["n"] == 0 and elapsed >= no_jobs_timeout:
+            log(f"cell={cell['cell_id']} produced ZERO jobs after {elapsed:.0f}s "
+                f"(rt-app not running? RT budget?); aborting cell")
+            stop_reason = "no_jobs"
             break
         if last.get("converged") and last["n"] >= n_min:
             stop_reason = "convergence"
