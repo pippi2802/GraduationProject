@@ -58,9 +58,14 @@ spec:
       args:
         - |
           set -e
+          mkdir -p /results
+          # Clear any STALE rt-app log left in this cell's hostPath by a PRIOR run
+          # into the same timeblock (hostPath persists across pods). Do it FIRST,
+          # before apt/rt-app, so the harness's node-side counter can't read the
+          # old log during startup and false-stop on N_max.
+          rm -f /results/rt-app*.log 2>/dev/null || true
           export DEBIAN_FRONTEND=noninteractive
           command -v rt-app >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ${RTAPP_PKG}; }
-          mkdir -p /results
           # KubeDeadline (rt-DRA) pins this container to its allocated core and
           # exposes it via the RT_CPUSET env var. Pin rt-app to it; if absent,
           # inherit the driver-set cpuset.
