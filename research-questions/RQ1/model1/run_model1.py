@@ -366,6 +366,14 @@ def resolve_node() -> str | None:
     return n or None
 
 
+def canary_pod() -> str | None:
+    """Name of the running canary pod (Deployment app=model1-canary)."""
+    r = kubectl("get", "pods", "-n", NS, "-l", "app=model1-canary",
+                "-o", "jsonpath={.items[0].metadata.name}", check=False)
+    n = (r.stdout or "").strip()
+    return n or None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Model 1 sweep orchestrator")
     ap.add_argument("--timeblock", required=True, help="time-block label, e.g. tb-20260706-1200")
@@ -390,10 +398,27 @@ def main() -> int:
     facts = node_facts(spod, node) if not args.dry_run else {"node": node}
     log(f"node={node} sampler_pod={spod} kernel={facts.get('kernel')}")
 
-    # Canary's physical core = its SMT sibling set. The rt-DRA driver is SMT-blind
-    # (worst-fit over logical CPUs), so it may place the RT cell on the canary's
-    # sibling. We keep the RT cell OFF these CPUs (retry until a clean core).
+    ensure_canary(args.timeblock, args.dry_run, args.skip_canary)
+
+    # Canary's physical core = its SMT sibling set; keep every RT cell OFF it so
+    # the clean-baseline RT task never shares a physical core with the canary.
+    # CRITICAL: the rt-DRA driver (worst-fit, SMT-blind) chooses the canary's CPU
+    # ITSELF and does NOT honour cpu_assignment.canary_core_logical. So we MUST
+    # read the canary's ACTUAL RT_CPUSET here -- trusting the config value led to
+    # keeping RT off the WRONG core and steering every cell onto the canary's
+    # sibling (SMT-contaminated run). Fall back to the config hint only if the
+    # live canary can't be read (e.g. --skip-canary).
     canary_cpu = int(cfg["cpu_assignment"]["canary_core_logical"])
+    if not args.dry_run and not args.skip_canary:
+        cpod = canary_pod()
+        cenv = pod_rt_env(cpod) if cpod else {}
+        cset = parse_cpuset(cenv.get("RT_CPUSET", ""))
+        if cset:
+            canary_cpu = sorted(cset)[0]
+            log(f"canary actual RT_CPUSET={cenv.get('RT_CPUSET')} -> cpu{canary_cpu}")
+        else:
+            log(f"WARN: canary RT_CPUSET unreadable (pod={cpod}); falling back to "
+                f"config canary_core_logical={canary_cpu}")
     canary_core = {canary_cpu}
     if spod and not args.dry_run:
         sl = node_exec(spod, "cat",
@@ -402,8 +427,6 @@ def main() -> int:
         if sib:
             canary_core = sib
     log(f"canary core CPUs (RT kept off) = {sorted(canary_core)}")
-
-    ensure_canary(args.timeblock, args.dry_run, args.skip_canary)
 
     settle = cfg["execution"]["inter_cell_settle_seconds"]
     summary = []
@@ -498,6 +521,10 @@ def main() -> int:
             "cpu_used": cpu_used,
             "rt_cpuset": rt_env.get("RT_CPUSET"),
             "rt_runtime_period": rt_env.get("RT_RUNTIME_PERIOD"),
+            # canary's ACTUAL physical core (RT was kept off it) -> lets analysis
+            # verify the cell was truly isolated (rt_cpuset disjoint from this).
+            "canary_core": sorted(canary_core),
+            "canary_cpu": canary_cpu,
             "n_min": cell["n_min"], "n_max": cell["n_max"],
             "timeblock": args.timeblock,
             **run_info,
