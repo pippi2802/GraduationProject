@@ -5,6 +5,10 @@
 # no RT (KubeDeadline / SCHED_FIFO) pod can start. This oneshot restores the chain
 # once kubelet has created the kube cgroup slices.
 #
+# AUTO-INSTALLED by setup/scripts/run-worker.sh during provisioning (alongside the
+# /etc/sysctl.d/60-rt-throttle.conf global default). The manual steps below are for
+# retrofitting an EXISTING node that was provisioned before that wiring existed.
+#
 # Install (on the worker):
 #   sudo install -m0755 rt-budget-reseed.sh /usr/local/sbin/rt-budget-reseed.sh
 #   sudo install -m0644 rt-budget-reseed.service /etc/systemd/system/

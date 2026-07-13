@@ -47,22 +47,49 @@ pairs=""
 for ((c = 0; c < ncpu; c++)); do pairs+="$RUNTIME_US $c "; done
 pairs="${pairs% }"
 
-# 1) Global RT bandwidth: runtime STRICTLY BELOW period (never -1, never == period).
-#    == period leaves no slack -> writing the root RT budget while migration/* etc.
-#    run returns EBUSY. Period first.
-sysctl -w "kernel.sched_rt_period_us=$PERIOD_US"   >/dev/null
-sysctl -w "kernel.sched_rt_runtime_us=$GLOBAL_US"  >/dev/null
-log "global sched_rt = $(cat /proc/sys/kernel/sched_rt_runtime_us)/$(cat /proc/sys/kernel/sched_rt_period_us)"
-
-# 2) Demote SCHED_FIFO/RR DRM/display kthreads out of RT so the ROOT cgroup RT
-#    bandwidth can be reconfigured (they otherwise block it with EBUSY). Headless
-#    node: display timing is irrelevant.
+# 1) Demote SCHED_FIFO/RR DRM/display kthreads out of RT *FIRST*, so the global RT
+#    bandwidth (step 2) and later the ROOT cgroup can be reconfigured -- they
+#    otherwise block the write with EBUSY. Headless node: display timing is
+#    irrelevant. ORDER MATTERS: if the sysctl below runs before this, the global
+#    write loses to EBUSY on every boot and RT throttling silently stays at -1.
+demote_stray_rt() {
+  # $1 = awk name filter (regex of comms to EXCLUDE from demotion)
+  local exclude="$1" pid
+  while read -r pid; do
+    [ -n "$pid" ] || continue
+    if chrt -o -p 0 "$pid" 2>/dev/null; then
+      log "demoted RT task pid=$pid ($(cat "/proc/$pid/comm" 2>/dev/null))"
+    fi
+  done < <(ps -eLo pid,cls,comm |
+    awk -v ex="$exclude" '($2=="FF"||$2=="RR") && $3 !~ ex {print $1}')
+}
+# Boot case: only the DRM/display kthreads need moving (invert the DRM match by
+# excluding everything that is NOT display).
 mapfile -t rt_kthreads < <(ps -eLo pid,cls,comm |
   awk '($2=="FF"||$2=="RR") && $3 ~ /crtc|drm|card|vkms|vblank/ {print $1}')
 for pid in "${rt_kthreads[@]:-}"; do
   [ -n "$pid" ] || continue
   if chrt -o -p 0 "$pid" 2>/dev/null; then log "demoted RT display kthread pid=$pid"; fi
 done
+
+# 2) Global RT bandwidth: runtime STRICTLY BELOW period (never -1, never == period).
+#    -1 DISABLES RT group bandwidth -> every cgroup rt_runtime write reads 0 AND
+#    FIFO tasks run unthrottled (a probe pins its core and wedges the node). Period
+#    first, then retry the runtime write: a stray RT task (e.g. an orphaned SCHED_FIFO
+#    probe from a force-deleted pod) also causes EBUSY, so demote non-essential RT
+#    tasks between attempts. HARD-FAIL if it still won't hold (fail loud, not silent).
+sysctl -w "kernel.sched_rt_period_us=$PERIOD_US" >/dev/null
+ESSENTIAL='migration|watchdog|rcu|ksoftirqd|idle_inject|irq/|kworker'
+for attempt in 1 2 3 4 5; do
+  if sysctl -w "kernel.sched_rt_runtime_us=$GLOBAL_US" >/dev/null 2>&1; then break; fi
+  log "global sched_rt write busy (attempt $attempt/5); demoting stray RT tasks and retrying"
+  demote_stray_rt "$ESSENTIAL"
+  sleep 1
+done
+cur="$(cat /proc/sys/kernel/sched_rt_runtime_us)"
+log "global sched_rt = $cur/$(cat /proc/sys/kernel/sched_rt_period_us)"
+{ [ "$cur" != "-1" ] && [ "$cur" -gt 0 ]; } || die \
+  "global kernel.sched_rt_runtime_us is still '$cur' (RT throttling DISABLED); RT pods will wedge the node. Find the blocking RT task: ps -eLo pid,cls,rtprio,comm | awk '\$2==\"FF\"||\$2==\"RR\"||\$2==\"DLN\"'"
 
 # 3) Seed each level: PERIOD first, then RUNTIME (pairs), TOP-DOWN.
 seed_level() {
