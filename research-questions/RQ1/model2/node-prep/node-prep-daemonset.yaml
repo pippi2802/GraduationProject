@@ -1,0 +1,57 @@
+# =============================================================================
+# Model 2 node-prep DaemonSet (privileged; no custom image). Mounts the scripts
+# from a ConfigMap (built by apply.sh), runs offline-siblings.sh in DETECT-ONLY
+# mode (DRY_RUN=1 -> offlines NOTHING; writes cpu-map.json), then idles. Re-runs
+# on reboot. Targets the experiment-model=model2 node.
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: model2
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: model2-node-prep
+  namespace: model2
+  labels: { app: model2-node-prep }
+spec:
+  selector:
+    matchLabels: { app: model2-node-prep }
+  template:
+    metadata:
+      labels: { app: model2-node-prep }
+    spec:
+      hostPID: true
+      nodeSelector:
+        experiment-model: "model2"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: node-prep
+          image: ubuntu:24.04
+          securityContext:
+            privileged: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              cp /scripts/offline-siblings.sh /scripts/online-siblings.sh /tmp/
+              chmod +x /tmp/offline-siblings.sh /tmp/online-siblings.sh
+              # DETECT-ONLY: offlining vCPUs wedges the Azure VM. DRY_RUN=1 writes
+              # cpu-map.json with an EMPTY offline set and changes NOTHING.
+              DRY_RUN=1 MAP_OUT=/host/var/lib/model2/cpu-map.json /tmp/offline-siblings.sh
+              echo "[node-prep] detect-only done; idling (no CPUs offlined)."
+              sleep infinity
+          volumeMounts:
+            - { name: sys, mountPath: /sys }
+            - { name: hostvar, mountPath: /host/var/lib/model2 }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: sys
+          hostPath: { path: /sys, type: Directory }
+        - name: hostvar
+          hostPath: { path: /var/lib/model2, type: DirectoryOrCreate }
+        - name: scripts
+          configMap: { name: model2-node-prep-scripts, defaultMode: 0755 }

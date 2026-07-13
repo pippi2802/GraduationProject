@@ -1,0 +1,308 @@
+# =============================================================================
+# Model 1_1 — Clean-baseline real-time experiment for KubeDeadline on AKS  (RQ1)
+# DETERMINISTIC matrix-multiply probe + two-clock (C, R) delay decomposition.
+# =============================================================================
+# Single source of truth for ALL parameters. Every script/manifest generator
+# reads THIS file; nothing below is duplicated (DRY). Models 2/3/4 extend this
+# file (add neighbours / HT pinning / IRQ steering) without rewriting the harness.
+#
+# Two-level hierarchy recap:
+#   outer = container = CBS server (Q, P, m)  -> bandwidth alpha = Q/P,
+#                                                bounded service delay Delta ~= 2*(P-Q)
+#   inner = ONE SCHED_FIFO task running a FIXED matrix multiply, K reps per job.
+# Model 1_1: exactly one FIFO task per container, m = 1, task period = P, and the
+# per-job compute demand C is TUNED by the repetition count K (calibrated per
+# cell) so median C ~= Q. The workload is DETERMINISTIC (fixed A,B, fixed K), so
+# any variance in C or R is the CLOUD ENVIRONMENT's signature, not workload noise.
+# =============================================================================
+
+model: "1_1"
+description: >-
+  Clean baseline / reference with a DETERMINISTIC constant-work probe (fixed
+  dense double-precision matrix multiply, fixed data, K reps/job). Confirms the
+  reservation holds under "1 vCPU = 1 dedicated core" and measures the
+  irreducible virtualization noise floor. VARIANCE IS THE MEASUREMENT: two clocks
+  partition it by layer -- C (CLOCK_THREAD_CPUTIME_ID) = execution layer,
+  R-C (CLOCK_MONOTONIC_RAW minus C) = delay layer (steal / IRQ / preemption).
+
+# -----------------------------------------------------------------------------
+# NODE / HARDWARE
+# -----------------------------------------------------------------------------
+node:
+  instance_type: Standard_D4s_v5
+  vcpus: 4                 # logical CPUs the guest sees
+  physical_cores: 2        # true cores (hyper-threaded -> 2 siblings each)
+  smt: true                # hyper-threading on
+  # KubeDeadline performs CPU pinning/affinity for the reserved container.
+  # Do NOT enable the Kubernetes CPU Manager.
+  use_k8s_cpu_manager: false
+  # This harness targets ONLY the node carrying this label (models run in
+  # parallel, one per node). See node_label below.
+  node_label: "experiment-model=model1"
+
+# -----------------------------------------------------------------------------
+# CPU ASSIGNMENT (validated at runtime by node-prep from real topology)
+# -----------------------------------------------------------------------------
+# node-prep detects sibling pairs from
+#   /sys/devices/system/cpu/cpuN/topology/thread_siblings_list  (or `lscpu -e`)
+# and picks ONE logical CPU per physical core for RT + canary.
+#
+# >>> AZURE CAVEAT (hard-won): offlining a vCPU on D4s_v5 is effectively ONE-WAY
+#     and WEDGES the VM; it also zeroes the RT cgroup budget chain and desyncs
+#     the rt-DRA driver pool. So node-prep DEFAULTS to DETECT-ONLY (offlines
+#     NOTHING). True HW isolation without offlining = boot with isolcpus (reboot).
+#     The harness instead GUARANTEES isolation by placement-retry: it keeps the
+#     RT cell OFF the canary's real SMT-sibling core and records rt_cpuset +
+#     canary_core per cell so isolation is auditable offline.
+cpu_assignment:
+  rt_core_logical: 0        # RT-container-under-test (physical core A) -- intention
+  canary_core_logical: 2    # continuous canary (physical core B)      -- intention
+  offline_siblings: false   # DETECT-ONLY on Azure (see caveat). true only on
+                            # hardware where vCPU hotplug is reversible.
+  fail_if_topology_unknown: true
+
+# -----------------------------------------------------------------------------
+# TIMESCALES / SCALES
+# -----------------------------------------------------------------------------
+# Q is DERIVED, never hardcoded:  Q_us = round(U * P_us)
+scales:
+  tight:
+    dir: tight-10ms
+    period_ms: 10
+    period_us: 10000
+  soft:
+    dir: soft-100ms
+    period_ms: 100
+    period_us: 100000
+
+# Utilisation grid, BOTH scales. Q = round(U*P). m = 1.
+# tight U=0.1 -> Q=1 ms is near the VM timing noise floor; kept but flagged noisy.
+# ceiling is 0.94 (NOT 0.95/1.0): the rt-DRA driver admits a core only when
+# reqUtil (= U*1000 per-mille) is STRICTLY < 950, so U>=0.95 is refused admission.
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+
+cores_per_container: 1      # m fixed to 1 for Model 1
+
+# -----------------------------------------------------------------------------
+# WORKLOAD KERNEL  (deterministic constant-work probe)
+# -----------------------------------------------------------------------------
+# A REAL but DETERMINISTIC compute kernel: fixed dense C[MxM] = A x B in double
+# precision, A,B generated ONCE from a fixed seed and REUSED every job. Data-
+# independent control flow + tiny in-cache working set -> low intrinsic variance
+# (target CV < ~2% on an isolated core). NO allocations / syscalls / I/O in the
+# hot loop. C is tuned by K (reps/job), NOT by the data.
+kernel:
+  type: matrix_multiply
+  matrix_M: 48              # A,B,C are MxM doubles; 48*48*8 B ~= 18 KiB each -> fits L1/L2
+  dtype: double             # IEEE double precision
+  seed: 20260713            # fixed RNG seed for A,B (reused every job, every cell)
+  reps_per_job: calibrated  # K comes from the calibration table (see below)
+  cv_threshold: 0.02        # FAIL/WARN if isolated-core C coefficient-of-variation > 2%
+  min_reps: 1               # never calibrate K below this
+  fifo_priority: 90         # SCHED_FIFO priority the inner task requests
+
+# -----------------------------------------------------------------------------
+# CALIBRATION  (tune K so median C ~= Q, on an ISOLATED physical core)
+# -----------------------------------------------------------------------------
+# Per (scale, U): binary-search the repetition count K so the MEDIAN per-job
+# execution time C (CLOCK_THREAD_CPUTIME_ID) ~= target Q = round(U*P). Store K +
+# matrix_M per cell and REUSE it for the measured run. Also record C's coefficient
+# of variation (CV) and FAIL LOUDLY if CV > kernel.cv_threshold (a clean C is a
+# precondition for delay attribution). Record the K-vs-median-C curve.
+calibration:
+  metric: median_C_cputime_us   # tune to median thread-CPU-time per job
+  target: Q                     # median C ~= Q_us
+  tolerance_frac: 0.03          # accept K when |median_C - Q| <= 3% of Q
+  search: binary                # binary-search on K
+  k_min: 1
+  k_max: 100000000              # upper guard for the search
+  probe_jobs: 500               # jobs per K probe during calibration
+  warmup_jobs: 100              # discard before measuring median/CV in a probe
+  isolated_core_required: true  # calibrate on a clean, unshared physical core
+  table_file: calibration/k_table.json   # stored K per (scale,U); reused by the run
+  cv_report_file: calibration/cv_report.json
+  curve_file: calibration/k_curve.csv     # K vs median C (for the calibration figure)
+
+# -----------------------------------------------------------------------------
+# CLOCKS  (the two-clock delay decomposition)
+# -----------------------------------------------------------------------------
+clocks:
+  compute: CLOCK_THREAD_CPUTIME_ID   # C = CPU time actually consumed by the RT
+                                     # thread; does NOT advance during steal/preempt
+  wall:    CLOCK_MONOTONIC_RAW       # R = wall-clock release->finish; not NTP-slewed
+  # delay = R - C is the primary attribution quantity (runnable-but-not-running).
+
+# -----------------------------------------------------------------------------
+# PER-CELL SAMPLE SIZE
+# -----------------------------------------------------------------------------
+# N=5000 gives a stable body and p99 but NOT a stable p99.9 tail
+# (miss-rate resolution ~4e-4); tail/EVT figures are best-effort at this N.
+stopping_rule:
+  n_jobs: 5000               # measured jobs per cell (config knob N_jobs)
+  warmup_jobs: 200           # discard the first N completed jobs before statistics
+  # Safety guards so a saturated/diverging cell can't run forever or hang:
+  max_wall_seconds_factor: 3.0   # per-cell wall cap = 120 + factor*n_jobs*period
+  no_jobs_timeout_seconds: 300   # abort a Ready-but-silent cell (rt-app/kernel not running)
+  max_duration_seconds: 10800    # 3 h hard guard per cell
+
+# -----------------------------------------------------------------------------
+# PER-JOB OUTPUT SCHEMA  (kernel log -> jobs.csv)
+# -----------------------------------------------------------------------------
+# Every column joinable by monotonic time to the covariate samples in its window.
+# delay = R - C is split into dispatch latency (front-loaded) and mid-job
+# preemption (intrusion during execution) for a sharper attribution:
+#     dispatch_latency = start - release     (scheduler/CBS replenishment timing)
+#     mid_job_preempt  = (finish - start) - C  (IRQ/steal/preempt DURING the job)
+per_job_columns:
+  - job_index
+  - release_us          # activation instant (CLOCK_MONOTONIC_RAW)
+  - start_us            # first instruction of the job's compute
+  - finish_us           # last instruction of the job's compute
+  - C_cputime_us        # CLOCK_THREAD_CPUTIME_ID delta over the job (compute demand)
+  - R_wall_us           # finish_us - release_us (the guarantee)
+  - delay_us            # R_wall_us - C_cputime_us  (pure delay)
+  - dispatch_latency_us # start_us - release_us
+  - mid_job_preempt_us  # (finish_us - start_us) - C_cputime_us
+  - slack_us            # P - R_wall_us
+  - deadline_miss       # 1 if R_wall_us > P else 0
+  - tardiness_us        # max(0, R_wall_us - P)
+  - nonvol_ctxt         # per-job delta of /proc/<tid>/status nonvoluntary_ctxt_switches
+  - K_reps              # repetition count used (from calibration table)
+  - matrix_M
+
+# -----------------------------------------------------------------------------
+# MEASUREMENT / SAMPLING  (covariates for the attribution identity)
+# -----------------------------------------------------------------------------
+# Attribution identity the thesis fits offline:
+#     R - C  ~=  I_steal + I_IRQ + I_preempt + Delta_server + eps
+# schedstat field 2 (run-delay) is the single most valuable covariate: it is the
+# kernel's own "runnable-but-not-running" time and captures most of R - C.
+sampling:
+  clock: CLOCK_MONOTONIC_RAW
+  rate_hz:
+    tight: 1000              # tight scale needs the higher sample rate
+    soft: 100
+  server_level:              # SUPPLY: RT container cgroup cpu.stat
+    source: cgroup_cpu_stat
+    fields: [usage_usec, nr_periods, nr_throttled, throttled_usec]  # -> alpha_eff, Delta_eff, empirical supply-bound
+  covariates:
+    steal_time:              # DELAY (alpha-delivery)
+      - /proc/stat                 # per-CPU 'steal' column on the RT core
+      - /proc/<tid>/schedstat      # field 2 = run-delay (runnable-but-not-running)
+    irq:                     # DELAY (Delta) -- driven by network traffic in Model 4
+      - /proc/interrupts           # per-line counts on the RT core
+      - /proc/softirqs
+      - /proc/stat                 # irq/softirq CPU-time columns
+    preemption:              # DELAY (Delta)
+      - /proc/<tid>/status         # nonvoluntary_ctxt_switches
+      - /proc/<tid>/schedstat      # run-delay (shared with steal)
+    dvfs:                    # EXECUTION (C-inflation); often restricted in Azure guest
+      - /sys/devices/system/cpu/cpu<n>/cpufreq/scaling_cur_freq
+      - aperf_mperf                # via MSRs if permitted; else record as limitation
+    freeze_detection:
+      monotonic_timestamp: true
+      gap_flag_multiplier: 5   # gap > 5x expected sample interval => flag VM freeze/migration (EXCLUDE, not a factor)
+  # CPU-ONLY: no memory/cache stressors anywhere (Model 1 has no neighbours).
+  # NUMA excluded (single NUMA node on D4s_v5). Network enters only as the IRQ
+  # driver in Model 4, never as a direct metric here.
+
+# -----------------------------------------------------------------------------
+# TIME-BLOCKING
+# -----------------------------------------------------------------------------
+timeblock:
+  recommended_repeats: [3, 5]
+  label_format: "tb-{YYYYMMDD}-{HHMM}"   # informational; caller passes any label
+
+# -----------------------------------------------------------------------------
+# CANARY (continuous, never torn down between cells; OTHER physical core)
+# -----------------------------------------------------------------------------
+canary:
+  enabled: true
+  utilization: 0.1
+  scale: soft                # fixed timescale for the canary (P = 100 ms)
+  cores: 1
+  # SAME matrix kernel as the RT cell; logs the SAME per-job metrics to witness
+  # ambient host contention (its simultaneous R spikes corroborate steal).
+
+# -----------------------------------------------------------------------------
+# EXECUTION ORDERING
+# -----------------------------------------------------------------------------
+execution:
+  sequential: true           # exactly one RT container-under-test alive at a time
+  parallel_u_levels: false   # NEVER parallelize U (would create contention)
+  recreate_between_cells: true  # delete + recreate (NOT in-place patch) per cell
+  inter_cell_settle_seconds: 12 # idle so the driver fully releases the claim
+  placement_max_attempts: 8  # retry until RT_CPUSET is Ready AND disjoint from the
+                             # canary's real SMT-sibling core (driver is SMT-blind)
+
+# -----------------------------------------------------------------------------
+# RESULTS LAYOUT
+# -----------------------------------------------------------------------------
+results:
+  root: results
+  path_template: "results/{timeblock}/{scale_dir}/U{u}"
+  # PVC is the prompt's preference; hostPath is the PROVEN path on this cluster
+  # (rt-DRA + hostPath already validated in ../model1). storage.mode selects it.
+  per_job_csv: jobs.csv
+  server_csv: server.csv
+  covariates_csv: covariates.csv
+  joined_csv: jobs_with_covariates.csv   # per-job rows joined to covariate windows
+  cell_metadata_json: cell.json
+
+storage:
+  mode: hostPath             # hostPath | pvc  (prompt asks PVC; hostPath is proven)
+  host_path: /var/lib/model1_1/results     # node-side hostPath mount for pods
+  pvc:
+    name: model1-1-results
+    storage_class: ""        # <<< set if mode: pvc >>>
+    size: 5Gi
+
+# -----------------------------------------------------------------------------
+# KUBEDEADLINE RESERVATION SPEC  (CONFIRMED — reuse of ../model1, rt-DRA flow)
+# -----------------------------------------------------------------------------
+# runtime -> Q, period -> P, count -> m, in MICROSECONDS. Same *.example.com DRA
+# flow validated in ../model1 / workloads/rt-dra-verify.
+kubedeadline_reservation_spec:
+  confirmed: true
+  mechanism: dra
+  units: microseconds
+  dra:
+    claim_params_api_version: rt.resource.example.com/v1alpha1
+    claim_params_kind: RtClaimParameters
+    runtime_field: runtime   # <- Q
+    period_field: period     # <- P
+    count_field: count       # <- m
+    resource_class_name: rt.example.com
+    claim_template_api_version: resource.k8s.io/v1alpha2
+
+# -----------------------------------------------------------------------------
+# CONTAINER IMAGE  <<< CONFIRM BEFORE USE (question 2) >>>
+# -----------------------------------------------------------------------------
+# UNLIKE ../model1 (rt-app install-at-runtime), this model runs a COMPILED C
+# kernel, so it NEEDS a built + pushed image. Registry/tag must be confirmed.
+image:
+  confirmed: true                          # user: new image pushed to Docker Hub
+  strategy: build                          # build kernel/ and push to Docker Hub
+  registry: "docker.io/pippina2"           # Docker Hub namespace (same acct as dra-rt-driver)
+  name: "model1-kernel"                    # image name
+  tag: "v0.1.0"                            # image tag
+  full_ref: "pippina2/model1-kernel:v0.1.0"  # what manifests pull (Docker Hub short ref)
+  pull_policy: IfNotPresent
+  # The sampler is stdlib-only python3 and stays install-at-runtime on ubuntu:24.04.
+  sampler_base_image: ubuntu:24.04
+  sampler_apt_packages: [python3]
+
+# -----------------------------------------------------------------------------
+# SAMPLER DEPLOYMENT
+# -----------------------------------------------------------------------------
+sampler:
+  mode: daemonset
+  host_pid: true             # needed for /proc/<tid>/schedstat of the RT thread
+  privileged: true           # needed to read host /proc + container cgroups
+
+# -----------------------------------------------------------------------------
+# RT SYSCTL EXPECTATIONS (recorded per cell; not set by this harness)
+# -----------------------------------------------------------------------------
+rt_sysctls_recorded:
+  - kernel.sched_rt_runtime_us
+  - kernel.sched_rt_period_us

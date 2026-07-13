@@ -1,0 +1,11 @@
+# Model 4 — experiment outputs (regenerable from the cluster)
+results/
+**/__pycache__/
+*.pyc
+
+# rendered manifests are regenerable via manifests/template/render.py --all
+manifests/namespace.yaml
+manifests/off/
+manifests/on/
+manifests/irq-source/*.yaml
+!manifests/irq-source/irq-source.template.yaml

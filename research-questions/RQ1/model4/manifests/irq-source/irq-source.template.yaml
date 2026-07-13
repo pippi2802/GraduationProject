@@ -1,0 +1,60 @@
+# =============================================================================
+# Model 4 — OPTIONAL IRQ SOURCE (network-I/O generator). An iperf3 UDP flood that
+# produces REAL, steerable NIC interrupts so the IRQ-steering effect is observable
+# even when the node's AMBIENT IRQ rate is too low. Two UNRESERVED pods (server +
+# client) on the model4 node, OUTSIDE the RT reservation. Small UDP packets
+# (--packet-len) maximise the PACKET rate => many RX IRQs/softirqs; the client
+# bitrate (${BITRATE}) is the `--irq-load` knob.
+#
+# The server uses hostNetwork so RX traffic traverses the node NIC (drives virtio
+# IRQs that irq-control can steer). Both are deleted with the sweep. Rendered by
+# manifests/template/render.py (${VAR} substitution) with ${SERVER_IP} filled by
+# run_model4.py at apply time (the server pod's hostIP).
+# =============================================================================
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${SERVER_NAME}
+  labels: { app: model4-irq-source, role: server, irq-load: "${IRQ_LOAD}" }
+spec:
+  restartPolicy: Never
+  hostNetwork: ${SERVER_HOST_NETWORK}
+  nodeSelector:
+    ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: iperf3-server
+      image: ${IRQ_SOURCE_IMAGE}
+      imagePullPolicy: IfNotPresent
+      command: ["iperf3", "-s", "-p", "${PORT}"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CLIENT_NAME}
+  labels: { app: model4-irq-source, role: client, irq-load: "${IRQ_LOAD}" }
+spec:
+  restartPolicy: Never
+  hostNetwork: ${SERVER_HOST_NETWORK}
+  nodeSelector:
+    ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: iperf3-client
+      image: ${IRQ_SOURCE_IMAGE}
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          set -e
+          echo "[irq-source] flooding ${SERVER_IP}:${PORT} udp bitrate=${BITRATE} len=${PACKET_LEN} load=${IRQ_LOAD}"
+          # loop so a finished burst restarts until the pod is deleted with the cell
+          while true; do
+            iperf3 -c ${SERVER_IP} -p ${PORT} -u -b ${BITRATE} -l ${PACKET_LEN} \
+              -t ${DURATION_S} --connect-timeout 3000 || sleep 2
+          done

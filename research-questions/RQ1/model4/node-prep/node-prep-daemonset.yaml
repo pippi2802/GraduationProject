@@ -1,0 +1,54 @@
+# =============================================================================
+# Model 4 node-prep DaemonSet (privileged; no custom image). Runs detect-siblings.sh
+# in DETECT-ONLY mode (writes cpu-map.json: per-core siblings + core_of table), then
+# idles. Re-runs on reboot. Targets the experiment-model=model4 node.
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: model4
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: model4-node-prep
+  namespace: model4
+  labels: { app: model4-node-prep }
+spec:
+  selector:
+    matchLabels: { app: model4-node-prep }
+  template:
+    metadata:
+      labels: { app: model4-node-prep }
+    spec:
+      hostPID: true
+      nodeSelector:
+        experiment-model: "model4"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: node-prep
+          image: ubuntu:24.04
+          securityContext:
+            privileged: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              cp /scripts/detect-siblings.sh /scripts/offline-siblings.sh /scripts/online-siblings.sh /tmp/
+              chmod +x /tmp/*.sh
+              MAP_OUT=/host/var/lib/model4/cpu-map.json /tmp/detect-siblings.sh
+              echo "[node-prep] detect-only done; idling (no CPUs offlined)."
+              sleep infinity
+          volumeMounts:
+            - { name: sys, mountPath: /sys }
+            - { name: hostvar, mountPath: /host/var/lib/model4 }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: sys
+          hostPath: { path: /sys, type: Directory }
+        - name: hostvar
+          hostPath: { path: /var/lib/model4, type: DirectoryOrCreate }
+        - name: scripts
+          configMap: { name: model4-node-prep-scripts, defaultMode: 0755 }

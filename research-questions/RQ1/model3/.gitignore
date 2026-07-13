@@ -1,0 +1,11 @@
+# Model 3 — experiment outputs (regenerable from the cluster)
+results/
+**/__pycache__/
+*.pyc
+
+# rendered manifests are regenerable via manifests/template/render.py --all
+manifests/namespace.yaml
+manifests/physical/
+manifests/sibling/
+manifests/interferer/*.yaml
+!manifests/interferer/interferer.template.yaml

@@ -1,0 +1,85 @@
+# =============================================================================
+# Model 1_1 CANARY TEMPLATE. A CONTINUOUS single matmul task at fixed U=0.1 on
+# its OWN physical core, never torn down between cells — witnesses ambient host
+# contention (its simultaneous R spikes corroborate steal). Deployment so it
+# self-heals. Rendered by render.py --canary.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-params
+spec:
+  count: ${RES_COUNT}
+  runtime: ${RES_RUNTIME}   # Q = 0.1 * P
+  period: ${RES_PERIOD}     # P (soft scale)
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${CELL_ID}-params
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}
+  labels: { app: model1-1-canary }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: model1-1-canary }
+  template:
+    metadata:
+      labels: { app: model1-1-canary, cell: "${CELL_ID}", scale: "${SCALE}" }
+    spec:
+      nodeSelector:
+        ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: matmul
+          image: ${IMAGE}
+          imagePullPolicy: ${PULL_POLICY}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              mkdir -p /results
+              echo "[canary] RT_CPUSET=$RT_CPUSET K=${K_REPS} M=${MATRIX_M} P=${PERIOD_US}us"
+              # very large N -> effectively continuous; Deployment restarts if it exits.
+              if [ -n "$RT_CPUSET" ]; then
+                exec taskset -c "$RT_CPUSET" /usr/local/bin/matmul \
+                  --M ${MATRIX_M} --K ${K_REPS} --period-us ${PERIOD_US} \
+                  --n-jobs ${N_JOBS} --warmup 0 --priority ${PRIORITY} \
+                  --cpu env --seed ${SEED} --logfile /results/jobs.csv
+              else
+                exec /usr/local/bin/matmul \
+                  --M ${MATRIX_M} --K ${K_REPS} --period-us ${PERIOD_US} \
+                  --n-jobs ${N_JOBS} --warmup 0 --priority ${PRIORITY} \
+                  --seed ${SEED} --logfile /results/jobs.csv
+              fi
+          securityContext:
+            capabilities:
+              add: ["SYS_NICE", "IPC_LOCK"]
+          volumeMounts:
+            - { name: results, mountPath: /results }
+          resources:
+            claims:
+              - name: rtcpu
+      resourceClaims:
+        - name: rtcpu
+          source:
+            resourceClaimTemplateName: ${CELL_ID}-claim
+      volumes:
+        - name: results
+          hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }

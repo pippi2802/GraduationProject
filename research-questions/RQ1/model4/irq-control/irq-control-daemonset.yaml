@@ -1,0 +1,55 @@
+# =============================================================================
+# Model 4 IRQ-control DaemonSet (privileged; hostPID; no custom image). Idles with
+# steer.sh / restore.sh mounted from a ConfigMap; run_model4.py `kubectl exec`s them
+# with the per-arm env (ARM/RT_CPU/OTHER_CPU/STEERABLE_REGEX). /proc/irq is kernel-
+# GLOBAL so a privileged container can rewrite IRQ affinity on the host; hostPID lets
+# it pause/resume the host irqbalance. Targets the experiment-model=model4 node.
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: model4 }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: model4-irq-control
+  namespace: model4
+  labels: { app: model4-irq-control }
+spec:
+  selector:
+    matchLabels: { app: model4-irq-control }
+  template:
+    metadata:
+      labels: { app: model4-irq-control }
+    spec:
+      hostPID: true
+      nodeSelector:
+        experiment-model: "model4"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: irq-control
+          image: ubuntu:24.04
+          securityContext:
+            privileged: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              export DEBIAN_FRONTEND=noninteractive
+              command -v pgrep >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq procps; }
+              cp /scripts/steer.sh /scripts/restore.sh /tmp/ && chmod +x /tmp/*.sh
+              echo "[irq-control] ready; idling. run_model4.py execs /tmp/steer.sh /tmp/restore.sh"
+              sleep infinity
+          volumeMounts:
+            - { name: hostsys, mountPath: /sys }
+            - { name: hostvar, mountPath: /host/var/lib/model4 }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: hostsys
+          hostPath: { path: /sys, type: Directory }
+        - name: hostvar
+          hostPath: { path: /var/lib/model4, type: DirectoryOrCreate }
+        - name: scripts
+          configMap: { name: model4-irq-control-scripts, defaultMode: 0755 }

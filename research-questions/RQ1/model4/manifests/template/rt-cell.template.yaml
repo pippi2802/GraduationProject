@@ -1,0 +1,86 @@
+# =============================================================================
+# Model 4 — RT reservation cell TEMPLATE. ONE KubeDeadline reservation (Q,P,m=1)
+# holding ONE SCHED_FIFO matmul task that runs a FIXED N jobs then Completes. Used
+# for BOTH arms (off, on): the reservation + K are IDENTICAL across arms, so the
+# difference in the R-tail is a pure IRQ-steering effect. Rendered by
+# manifests/template/render.py (pure-Python ${VAR} substitution) from config.yaml +
+# the REUSED Model 1_1 K table (nothing hardcoded here).
+#
+# IRQ affinity is applied SEPARATELY by irq-control (steer.sh), keyed on this RT
+# container's ACTUAL RT_CPUSET (read at runtime; the rt-DRA driver is SMT-blind), so
+# device IRQs are steered ONTO (on) or AWAY from (off) whatever core hosts the task.
+#
+# >>> KUBEDEADLINE RESERVATION (rt-DRA / RtClaimParameters): runtime->Q, period->P,
+#     count->m=1, microseconds. Schema confirmed vs workloads/rt-dra-verify.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${RT_NAME}-params
+spec:
+  count: ${RES_COUNT}       # m (cores) = 1
+  runtime: ${RES_RUNTIME}   # Q = round(U*P)
+  period: ${RES_PERIOD}     # P
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${RT_NAME}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${RT_NAME}-params
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${RT_NAME}
+  labels:
+    app: model4-rt
+    arm: "${ARM}"
+    cell: "${CELL_ID}"
+    scale: "${SCALE}"
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: matmul
+      image: ${IMAGE}
+      imagePullPolicy: ${PULL_POLICY}
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          mkdir -p /results
+          rm -f /results/jobs.csv 2>/dev/null || true
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; else PIN=""; fi
+          echo "[rt/${ARM}] cell=${CELL_ID} RT_CPUSET=$RT_CPUSET M=${MATRIX_M} K=${K_REPS} P=${PERIOD_US}us N=${N_JOBS}"
+          exec $PIN /usr/local/bin/matmul \
+            --M ${MATRIX_M} --K ${K_REPS} --period-us ${PERIOD_US} \
+            --n-jobs ${N_JOBS} --warmup ${WARMUP} --priority ${PRIORITY} \
+            --cpu env --seed ${SEED} --logfile /results/jobs.csv
+      securityContext:
+        capabilities:
+          add: ["SYS_NICE", "IPC_LOCK"]
+      volumeMounts:
+        - { name: results, mountPath: /results }
+      resources:
+        claims:
+          - name: rtcpu
+  resourceClaims:
+    - name: rtcpu
+      source:
+        resourceClaimTemplateName: ${RT_NAME}-claim
+  volumes:
+    - name: results
+      hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }

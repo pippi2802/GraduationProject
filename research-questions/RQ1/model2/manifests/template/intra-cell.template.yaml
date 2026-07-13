@@ -1,0 +1,90 @@
+# =============================================================================
+# Model 2 — VARIANT 2a (INTRA) cell TEMPLATE. ONE KubeDeadline reservation
+# (Q,P,m=1) holding k SCHED_FIFO matmul tasks that SHARE the single budget Q ->
+# task-vs-task (inner-level) contention. Rendered by manifests/template/render.py
+# (pure-Python ${VAR} substitution) from config.yaml + the REUSED Model 1_1 K
+# table (nothing hardcoded here).
+#
+# The k per-task matmul invocations (each with its own calibrated K + its own
+# /results/task{i}.csv) are generated in Python and spliced into the launch
+# block below. All tasks are pinned to the reservation's single core (RT_CPUSET)
+# and run a FIXED N jobs, so the pod COMPLETES on its own.
+#
+# >>> KUBEDEADLINE RESERVATION (rt-DRA / RtClaimParameters): runtime->Q, period->P,
+#     count->m=1, microseconds. KubeDeadline pins the reserved container.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-params
+spec:
+  count: ${RES_COUNT}       # m (cores) = 1
+  runtime: ${RES_RUNTIME}   # Q = round(U*P)
+  period: ${RES_PERIOD}     # P
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${CELL_ID}-params
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${CELL_ID}
+  labels:
+    app: model2-intra
+    variant: intra
+    cell: "${CELL_ID}"
+    scale: "${SCALE}"
+    split: "${SPLIT}"
+    ntasks: "${K_TASKS}"
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: matmul
+      image: ${IMAGE}
+      imagePullPolicy: ${PULL_POLICY}
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          mkdir -p /results
+          # start each cell clean (hostPath persists across pods)
+          rm -f /results/task*.csv 2>/dev/null || true
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; else PIN=""; fi
+          echo "[intra] cell=${CELL_ID} RT_CPUSET=$RT_CPUSET k=${K_TASKS} split=${SPLIT} M=${MATRIX_M} P=${PERIOD_US}us N=${N_JOBS}"
+          # --- k SCHED_FIFO tasks sharing the ONE reserved core (generated) ---
+${TASK_LAUNCH_BLOCK}
+          # wait for ALL tasks to finish their N jobs (pod then Completes)
+          wait
+          echo "[intra] all ${K_TASKS} tasks complete"
+      securityContext:
+        capabilities:
+          add: ["SYS_NICE", "IPC_LOCK"]   # FIFO scheduling + lock_pages
+      volumeMounts:
+        - { name: results, mountPath: /results }
+      resources:
+        claims:
+          - name: rtcpu
+  resourceClaims:
+    - name: rtcpu
+      source:
+        resourceClaimTemplateName: ${CELL_ID}-claim
+  volumes:
+    - name: results
+      hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }

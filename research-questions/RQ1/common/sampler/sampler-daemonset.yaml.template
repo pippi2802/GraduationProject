@@ -1,0 +1,63 @@
+# =============================================================================
+# SHARED covariate sampler DaemonSet (RQ1 deterministic-probe models). Rendered
+# per-model by common/sampler/apply.sh (@@MODEL@@ / @@HOSTDIR@@ / @@NODE_MODEL@@
+# substituted). Privileged + hostPID so /proc is the host's; mounts host /sys for
+# cgroup cpu.stat + cpufreq; writes cumulative counter streams to
+# /var/lib/@@HOSTDIR@@/samples. No custom image (python3 stdlib).
+#
+# The sampler records per-CPU /proc/stat (incl. the irq & softirq columns) for
+# EVERY logical cpu, so each model's interference source is captured for free and
+# attributed offline: the RT core's HT-SIBLING busy-time (model3) and its
+# IRQ/softirq CPU-time (model4) both fall out of the same per-cpu streams.
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: @@MODEL@@ }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: @@MODEL@@-sampler
+  namespace: @@MODEL@@
+  labels: { app: @@MODEL@@-sampler }
+spec:
+  selector:
+    matchLabels: { app: @@MODEL@@-sampler }
+  template:
+    metadata:
+      labels: { app: @@MODEL@@-sampler }
+    spec:
+      hostPID: true
+      nodeSelector:
+        experiment-model: "@@NODE_MODEL@@"
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: sampler
+          image: ubuntu:24.04
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              export DEBIAN_FRONTEND=noninteractive
+              command -v python3 >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq python3; }
+              mkdir -p /host/var/lib/@@HOSTDIR@@/samples
+              exec python3 /scripts/sampler.py \
+                --outdir /host/var/lib/@@HOSTDIR@@/samples \
+                --rate-hz 1000 --proc /proc --sys /host/sys \
+                --cgroup-root /host/sys/fs/cgroup
+          volumeMounts:
+            - { name: hostsys, mountPath: /host/sys }
+            - { name: hostvar, mountPath: /host/var/lib/@@HOSTDIR@@ }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: hostsys
+          hostPath: { path: /sys, type: Directory }
+        - name: hostvar
+          hostPath: { path: /var/lib/@@HOSTDIR@@, type: DirectoryOrCreate }
+        - name: scripts
+          configMap: { name: @@MODEL@@-sampler-scripts, defaultMode: 0755 }

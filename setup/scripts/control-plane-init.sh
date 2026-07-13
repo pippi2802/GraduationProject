@@ -183,6 +183,23 @@ echo "       scp $JOIN_FILE worker:/tmp/kubeadm-join.sh && ssh worker 'sudo bash
 # 9. Wait for Calico to come up, then install dra-rt-driver
 # -----------------------------------------------------------------------------
 echo "[wait] Calico apiserver/operator"
+# The tigera-operator creates the calico-system namespace and the calico-node
+# DaemonSet ASYNCHRONOUSLY, a few seconds after its manifests are applied.
+# Running `rollout status` immediately races the operator and fails with
+# "namespaces calico-system not found" / "daemonsets calico-node not found"
+# even though Calico comes up fine moments later. So FIRST wait for the operator
+# to reconcile and create those objects, THEN gate on readiness.
+kubectl -n tigera-operator rollout status deploy/tigera-operator --timeout=5m || true
+
+echo "[wait] operator to create calico-system ns + calico-node DaemonSet"
+for _ in $(seq 1 60); do
+    if kubectl get ns calico-system >/dev/null 2>&1 \
+       && kubectl -n calico-system get ds/calico-node >/dev/null 2>&1; then
+        break
+    fi
+    sleep 5
+done
+
 # Do NOT mask these with `|| true`: if Calico never comes up the node stays
 # NotReady and DRA install below is pointless. Fail loudly instead.
 if ! kubectl -n calico-system rollout status ds/calico-node --timeout=10m; then

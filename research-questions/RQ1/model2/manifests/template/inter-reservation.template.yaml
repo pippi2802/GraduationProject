@@ -1,0 +1,92 @@
+# =============================================================================
+# Model 2 — VARIANT 2b (INTER) reservation TEMPLATE. ONE KubeDeadline reservation
+# (Q,P,m=1) with ONE matmul task. Rendered ONCE per participating container by
+# manifests/template/render.py: the "target" reservation (measured) and each
+# "neighbour" reservation (load) reuse THIS template with a different role,
+# runtime (Q_i), job count N and logfile. All co-schedule on the SAME node
+# (model2) -> server-vs-server (outer-level) contention. Co-location on a physical
+# AUDITED offline via each pod's recorded RT_CPUSET (the rt-DRA driver is SMT-blind).
+#
+# target   : runs a FIXED N jobs then Completes (measured, warmup discarded).
+# neighbour: runs effectively continuously (huge N) to load the CBS/admission
+#            machinery; deleted with the cell. Its per-job log is kept for provenance.
+# =============================================================================
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${OBJ_NAME}-params
+spec:
+  count: ${RES_COUNT}       # m = 1
+  runtime: ${RES_RUNTIME}   # Q_i
+  period: ${RES_PERIOD}     # P (shared across all participants of a cell)
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${OBJ_NAME}-claim
+spec:
+  spec:
+    resourceClassName: ${RES_CLASS}
+    parametersRef:
+      apiGroup: rt.resource.example.com
+      kind: RtClaimParameters
+      name: ${OBJ_NAME}-params
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ${NAMESPACE}
+  name: ${OBJ_NAME}
+  labels:
+    app: model2-inter
+    variant: inter
+    arm: "${ARM}"
+    cell: "${CELL_ID}"
+    role: "${ROLE}"
+    scale: "${SCALE}"
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    ${NODE_LABEL_KEY}: "${NODE_LABEL_VAL}"
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: matmul
+      image: ${IMAGE}
+      imagePullPolicy: ${PULL_POLICY}
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          mkdir -p /results
+          rm -f /results/${LOGFILE} 2>/dev/null || true
+          echo "[inter/${ROLE}] cell=${CELL_ID} obj=${OBJ_NAME} RT_CPUSET=$RT_CPUSET Q=${RES_RUNTIME} P=${RES_PERIOD} N=${N_JOBS}"
+          if [ -n "$RT_CPUSET" ]; then
+            exec taskset -c "$RT_CPUSET" /usr/local/bin/matmul \
+              --M ${MATRIX_M} --K ${K_REPS} --period-us ${PERIOD_US} \
+              --n-jobs ${N_JOBS} --warmup ${WARMUP} --priority ${PRIORITY} \
+              --cpu env --seed ${SEED} --logfile /results/${LOGFILE}
+          else
+            exec /usr/local/bin/matmul \
+              --M ${MATRIX_M} --K ${K_REPS} --period-us ${PERIOD_US} \
+              --n-jobs ${N_JOBS} --warmup ${WARMUP} --priority ${PRIORITY} \
+              --seed ${SEED} --logfile /results/${LOGFILE}
+          fi
+      securityContext:
+        capabilities:
+          add: ["SYS_NICE", "IPC_LOCK"]
+      volumeMounts:
+        - { name: results, mountPath: /results }
+      resources:
+        claims:
+          - name: rtcpu
+  resourceClaims:
+    - name: rtcpu
+      source:
+        resourceClaimTemplateName: ${OBJ_NAME}-claim
+  volumes:
+    - name: results
+      hostPath: { path: ${HOST_RESULTS_PATH}, type: DirectoryOrCreate }
