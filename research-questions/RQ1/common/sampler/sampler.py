@@ -75,13 +75,15 @@ def find_matmul_threads(proc="/proc"):
         taskdir = f"{proc}/{pid}/task"
         try:
             tids = os.listdir(taskdir)
-        except (FileNotFoundError, PermissionError):
+        except OSError:
+            # pid vanished between listing /proc and reading its tasks (ESRCH/ENOENT).
             continue
         for tid in tids:
             try:
                 with open(f"{taskdir}/{tid}/comm") as fh:
                     comm = fh.read().strip()
-            except (FileNotFoundError, PermissionError):
+            except OSError:
+                # thread exited mid-scan (ProcessLookupError/FileNotFoundError/...) -> skip.
                 continue
             if comm == "matmul":
                 yield tid, pid, comm
@@ -93,7 +95,7 @@ def read_schedstat(proc, pid, tid):
         with open(f"{proc}/{pid}/task/{tid}/schedstat") as fh:
             f = fh.read().split()
             return int(f[1]) if len(f) >= 2 else -1
-    except (FileNotFoundError, PermissionError, ValueError):
+    except (OSError, ValueError):
         return -1
 
 
@@ -103,7 +105,7 @@ def read_nivcsw(proc, pid, tid):
             for line in fh:
                 if line.startswith("nonvoluntary_ctxt_switches:"):
                     return int(line.split()[1])
-    except (FileNotFoundError, PermissionError, ValueError):
+    except (OSError, ValueError):
         pass
     return -1
 
@@ -120,7 +122,7 @@ def cgroup_cpu_stat(proc, pid, cgroot="/sys/fs/cgroup"):
                 k, v = line.split()
                 stat[k] = int(v)
         return stat
-    except (FileNotFoundError, PermissionError, ValueError, IndexError):
+    except (OSError, ValueError, IndexError):
         return {}
 
 
