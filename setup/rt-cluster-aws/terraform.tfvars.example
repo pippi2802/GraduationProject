@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------------------
+# Example values mirroring setup/rt-cluster/parameters.json.
+# Copy to terraform.tfvars and edit. NEVER commit real secrets.
+# ---------------------------------------------------------------------------
+aws_region   = "eu-north-1"
+cluster_name = "rt-cluster"
+environment  = "dev"
+
+control_plane_count         = 1
+worker_node_count           = 4
+control_plane_instance_type = "m6i.xlarge"
+worker_instance_type        = "m6i.xlarge"
+
+# Empty => first 3 AZs in the region. Or e.g. ["eu-north-1a","eu-north-1b","eu-north-1c"].
+availability_zones = []
+
+admin_username = "ubuntu"
+# ssh_public_key = "ssh-ed25519 AAAA... you@host"   # recommended; enables key-pair auth
+# admin_password = "ChangeMe-Now-12345!"            # used only when ssh_public_key is empty
+
+# image_type = "custom"   -> set custom_ami_id
+# image_type = "ubuntu2404" -> latest Canonical Ubuntu 24.04 AMI is looked up
+image_type    = "custom"
+custom_ami_id = "ami-0123456789abcdef0"
+
+vpc_cidr                    = "10.0.0.0/16"
+control_plane_subnet_prefix = "10.0.1.0/24"
+worker_subnet_prefix        = "10.0.2.0/24"
+public_subnet_prefix        = "10.0.0.0/24"
