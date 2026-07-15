@@ -154,22 +154,45 @@ def _render_inter_reservation(cfg, cell, obj_name, role, logfile, res_runtime,
     return _subst(INTER_TEMPLATE.read_text(encoding="utf-8"), env).rstrip() + "\n"
 
 
-def render_inter_cell(cfg, cell, timeblock="manual") -> str:
-    if cell["target_K"] is None or (cell["n_neighbours"] and cell["neighbour_K"] is None):
-        raise SystemExit(f"ERROR: inter cell {cell['cell_id']} has undefined 'K' (reused "
-                         f"Model 1_1 table missing?). Build ../model1_1 calibration first.")
+def render_inter_target(cfg, cell, timeblock="manual") -> str:
+    """Just the TARGET reservation doc. Applied FIRST so the measured reservation is
+    admitted before the (possibly over-subscribing) neighbours compete for capacity."""
+    if cell["target_K"] is None:
+        raise SystemExit(f"ERROR: inter cell {cell['cell_id']} has undefined target 'K' "
+                         f"(reused Model 1_1 table missing?). Build ../model1_1 calibration first.")
     names = inter_object_names(cell)
     hp = _inter_host_path(cfg, timeblock, cell["scale_dir"], cell["arm"], cell["cell_id"])
-    docs = [_render_inter_reservation(
+    return _render_inter_reservation(
         cfg, cell, names["target"], "target", "target.csv",
         cell["target_reservation_runtime"], cell["target_reservation_period"],
-        cell["target_K"], cell["n_jobs"], cell["warmup"], hp)]
+        cell["target_K"], cell["n_jobs"], cell["warmup"], hp)
+
+
+def render_inter_neighbours(cfg, cell, timeblock="manual") -> str:
+    """Just the NEIGHBOUR reservation docs (may be empty). Applied AFTER the target."""
+    if cell["n_neighbours"] and cell["neighbour_K"] is None:
+        raise SystemExit(f"ERROR: inter cell {cell['cell_id']} has undefined neighbour 'K' "
+                         f"(reused Model 1_1 table missing?). Build ../model1_1 calibration first.")
+    names = inter_object_names(cell)
+    hp = _inter_host_path(cfg, timeblock, cell["scale_dir"], cell["arm"], cell["cell_id"])
+    docs = []
     for i, nb in enumerate(names["neighbours"]):
         docs.append(_render_inter_reservation(
             cfg, cell, nb, "neighbour", f"neighbour{i}.csv",
             cell["neighbour_reservation_runtime"], cell["neighbour_reservation_period"],
             cell["neighbour_K"], INTER_NEIGHBOUR_N, 0, hp))
-    return ("---\n").join(d for d in docs)
+    return ("---\n").join(docs)
+
+
+def render_inter_cell(cfg, cell, timeblock="manual") -> str:
+    """Full cell (target + neighbours) — used for dry-run/preview and `render --all`.
+    The orchestrator applies target then neighbours separately (see run_model2.do_inter)."""
+    target = render_inter_target(cfg, cell, timeblock)
+    neighbours = render_inter_neighbours(cfg, cell, timeblock)
+    if not neighbours.strip():
+        return target
+    return target.rstrip() + "\n---\n" + neighbours
+
 
 
 # --------------------------------------------------------------------------- #

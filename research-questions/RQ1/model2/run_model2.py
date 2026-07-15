@@ -267,13 +267,20 @@ def do_inter(cfg, cell, tb, outdir, spod, facts, attempts, settle, dry):
     else:
         for att in range(1, attempts + 1):
             delete_objects(all_objs); time.sleep(settle)
-            kubectl("apply", "-f", "-", input_text=_render.render_inter_cell(cfg, cell, tb))
-            # the TARGET must become Ready; neighbours are best-effort (oversub may Pend)
+            # PHASE 1: admit the TARGET ALONE first, so the measured reservation is
+            # guaranteed before the (possibly over-subscribing) neighbours compete.
+            kubectl("apply", "-f", "-", input_text=_render.render_inter_target(cfg, cell, tb))
             if not wait_ready(target, 120):
                 log(f"{target}: attempt {att}/{attempts} target not Ready; retry"); continue
             tgt_env = pod_rt_env(target)
             if not parse_cpuset(tgt_env.get("RT_CPUSET", "")):
                 log(f"{target}: attempt {att}/{attempts} no RT_CPUSET; retry"); continue
+            # PHASE 2: target is admitted — now add the neighbours (best-effort; the
+            # over-subscribe arm may legitimately leave some/all of them Pending).
+            nb_manifest = _render.render_inter_neighbours(cfg, cell, tb)
+            if nb_manifest.strip():
+                kubectl("apply", "-f", "-", input_text=nb_manifest)
+            placed = True; break
             placed = True; break
     if not placed:
         delete_objects(all_objs)
