@@ -229,6 +229,8 @@ def join_model1_1(cell_dir, samples_dir):
     for kind, data, extra in _iter_jobs(jobs_p):
         if kind == "__header__":
             header = data; jidx = extra; continue
+        if header is not None and len(data) < len(header):
+            continue  # truncated final row (run cut short) -> don't emit a malformed join
         try:
             t0 = int(float(data[jidx["release_us"]]) * 1000)
             t1 = int(float(data[jidx["finish_us"]]) * 1000)
@@ -279,6 +281,8 @@ def _join_one_file(csv_path, cpu, samples_dir):
     for kind, data, extra in _iter_jobs(csv_path):
         if kind == "__header__":
             header = data; jidx = extra; continue
+        if header is not None and len(data) < len(header):
+            continue  # truncated final row (run cut short) -> don't emit a malformed join
         try:
             t0 = int(float(data[jidx["release_us"]]) * 1000)
             t1 = int(float(data[jidx["finish_us"]]) * 1000)

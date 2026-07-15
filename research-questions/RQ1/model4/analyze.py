@@ -48,9 +48,11 @@ def _mean_col(csv_path: Path, col: str):
                 continue
             if header is None:
                 header = r; idx = {x: i for i, x in enumerate(header)}; continue
+            if len(r) < len(header):
+                continue
             try:
                 vals.append(float(r[idx[col]]))
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, IndexError):
                 continue
     return sum(vals) / len(vals) if vals else None
 
