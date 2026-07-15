@@ -1,5 +1,14 @@
-# Model 2 — experiment outputs (regenerable from the cluster)
-results/
+# Model 2 — experiment outputs (raw per-job CSVs are regenerable from the cluster)
+# Ignore everything under results/ EXCEPT the derived analysis artifacts:
+#   - intra-summary.csv / inter-summary.csv (analyze.py)
+#   - per-cell cell.json metadata (+ folded "derived" stats)
+#   - figures/ (plots/plot_all.py -> PNG + PDF)
+# The !results/**/ line is required so git descends into the ignored tree.
+results/**
+!results/**/
+!results/**/*-summary.csv
+!results/**/cell.json
+!results/**/figures/**
 **/__pycache__/
 *.pyc
 
