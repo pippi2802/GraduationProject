@@ -17,8 +17,56 @@ from __future__ import annotations
 
 import bisect
 import csv
+import functools
 import json
+import os
+from array import array
 from pathlib import Path
+
+
+def _mtime_of(path):
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return 0.0
+
+
+def _is_sorted(seq):
+    prev = None
+    for v in seq:
+        if prev is not None and v < prev:
+            return False
+        prev = v
+    return True
+
+
+def _sort_by_mono(mono, series):
+    """Return (mono, series) ordered by mono. No-op copy when already ascending
+    (the sampler appends in time order), which avoids the memory spike of building
+    an index list + reordered copies for a large stream."""
+    if _is_sorted(mono):
+        return mono, series
+    order = sorted(range(len(mono)), key=mono.__getitem__)
+    mono2 = array("q", (mono[i] for i in order))
+    series2 = {k: array("q", (v[i] for i in order)) for k, v in series.items()}
+    return mono2, series2
+
+
+def _read_clk_tck(path):
+    """First comment line of a sampler stream may carry CLK_TCK=<n>."""
+    try:
+        with open(path) as fh:
+            for line in fh:
+                if not line.startswith("#"):
+                    break
+                if "CLK_TCK=" in line:
+                    try:
+                        return int(line.split("CLK_TCK=")[1].split(",")[0].strip())
+                    except ValueError:
+                        return 100
+    except OSError:
+        pass
+    return 100
 
 
 # --------------------------------------------------------------------------- #
@@ -48,45 +96,81 @@ def _load_stream(path):
 
 
 def cpu_series(samples_dir, cpu):
-    """sorted (mono_ns[], {steal,irq,softirq,freq: values[]}, clk_tck) for a cpu."""
-    rows, header, clk_tck = _load_stream(Path(samples_dir) / "cpu.csv")
-    if not rows or header is None:
+    """sorted (mono_ns[], {steal,irq,softirq,freq: values[]}, clk_tck) for a cpu.
+
+    Result is cached per (samples_dir, cpu, cpu.csv mtime) so analyze.py can join
+    many cells in one process without re-parsing the (potentially large) stream.
+    The file is streamed row-by-row straight into compact int64 arrays (only the
+    target cpu is retained), so peak memory stays bounded even for huge streams.
+    """
+    sd = str(Path(samples_dir))
+    return _cpu_series_impl(sd, cpu, _mtime_of(Path(sd) / "cpu.csv"))
+
+
+@functools.lru_cache(maxsize=64)
+def _cpu_series_impl(samples_dir, cpu, _mtime):
+    path = Path(samples_dir) / "cpu.csv"
+    clk_tck = _read_clk_tck(path)
+    mono = array("q"); steal = array("q"); irq = array("q")
+    softirq = array("q"); freq = array("q")
+    if not path.exists():
         return [], {}, clk_tck
-    idx = {name: i for i, name in enumerate(header)}
-    mono, steal, irq, softirq, freq = [], [], [], [], []
-    for r in rows:
-        try:
-            if int(r[idx["cpu"]]) != cpu:
+    with open(path) as fh:
+        reader = csv.reader(fh)
+        ci = mi = si = ii = fi = qi = None
+        for r in reader:
+            if not r or r[0].startswith("#"):
                 continue
-            mono.append(int(r[idx["mono_ns"]]))
-            steal.append(int(r[idx["steal"]]))
-            irq.append(int(r[idx["irq"]]))
-            softirq.append(int(r[idx["softirq"]]))
-            freq.append(int(r[idx["freq_khz"]]))
-        except (ValueError, KeyError):
-            continue
-    order = sorted(range(len(mono)), key=lambda i: mono[i])
-    mono = [mono[i] for i in order]
-    return mono, {"steal": [steal[i] for i in order], "irq": [irq[i] for i in order],
-                  "softirq": [softirq[i] for i in order], "freq": [freq[i] for i in order]}, clk_tck
+            if ci is None:
+                idx = {name: i for i, name in enumerate(r)}
+                try:
+                    ci = idx["cpu"]; mi = idx["mono_ns"]; si = idx["steal"]
+                    ii = idx["irq"]; fi = idx["softirq"]; qi = idx["freq_khz"]
+                except KeyError:
+                    return [], {}, clk_tck
+                continue
+            try:
+                if int(r[ci]) != cpu:
+                    continue
+                mono.append(int(r[mi])); steal.append(int(r[si])); irq.append(int(r[ii]))
+                softirq.append(int(r[fi])); freq.append(int(r[qi]))
+            except (ValueError, IndexError):
+                continue
+    series = {"steal": steal, "irq": irq, "softirq": softirq, "freq": freq}
+    mono, series = _sort_by_mono(mono, series)
+    return mono, series, clk_tck
 
 
 def server_series(samples_dir):
-    rows, header, _ = _load_stream(Path(samples_dir) / "server.csv")
-    if not rows or header is None:
+    sd = str(Path(samples_dir))
+    return _server_series_impl(sd, _mtime_of(Path(sd) / "server.csv"))
+
+
+@functools.lru_cache(maxsize=64)
+def _server_series_impl(samples_dir, _mtime):
+    path = Path(samples_dir) / "server.csv"
+    mono = array("q"); usage = array("q"); throttled = array("q")
+    if not path.exists():
         return [], {}
-    idx = {name: i for i, name in enumerate(header)}
-    mono, usage, throttled = [], [], []
-    for r in rows:
-        try:
-            mono.append(int(r[idx["mono_ns"]]))
-            usage.append(int(r[idx["usage_usec"]]))
-            throttled.append(int(r[idx["throttled_usec"]]))
-        except (ValueError, KeyError):
-            continue
-    order = sorted(range(len(mono)), key=lambda i: mono[i])
-    return [mono[i] for i in order], {"usage": [usage[i] for i in order],
-                                      "throttled": [throttled[i] for i in order]}
+    with open(path) as fh:
+        reader = csv.reader(fh)
+        mi = ui = ti = None
+        for r in reader:
+            if not r or r[0].startswith("#"):
+                continue
+            if mi is None:
+                idx = {name: i for i, name in enumerate(r)}
+                try:
+                    mi = idx["mono_ns"]; ui = idx["usage_usec"]; ti = idx["throttled_usec"]
+                except KeyError:
+                    return [], {}
+                continue
+            try:
+                mono.append(int(r[mi])); usage.append(int(r[ui])); throttled.append(int(r[ti]))
+            except (ValueError, IndexError):
+                continue
+    mono, series = _sort_by_mono(mono, {"usage": usage, "throttled": throttled})
+    return mono, series
 
 
 def delta_over(mono, series, t0, t1):

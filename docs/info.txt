@@ -1,0 +1,1 @@
+kubeadm join 10.0.1.4:6443 --token yqaquy.wybahsge1armod8c --discovery-token-ca-cert-hash sha256:b1c45a8bda779835a6ebf1a8d5b0937544da9d53aea18695aefb3445b2978cd7

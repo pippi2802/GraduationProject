@@ -14,7 +14,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -24,7 +23,7 @@ import model1lib as m1  # noqa: E402
 sys.path.insert(0, str(HERE / "parse"))
 import supply as supplymod  # noqa: E402
 sys.path.insert(0, str(HERE.parent / "common"))
-from rtmetrics import metrics  # noqa: E402
+from rtmetrics import metrics, covariates  # noqa: E402
 
 
 def cell_stats(cell_dir: Path):
@@ -50,9 +49,9 @@ def main() -> int:
     for cellj in sorted(tb.glob("*/U*/cell.json")):
         cd = cellj.parent
         meta = json.loads(cellj.read_text())
-        # 1. covariate join
-        subprocess.run([sys.executable, str(HERE / "parse" / "join_covariates.py"),
-                        "--cell-dir", str(cd), "--samples-dir", str(samples)])
+        # 1. covariate join (in-process; sampler streams are parsed once and cached
+        #    across all cells, so a large samples/ dir is not re-read per cell)
+        covariates.join_model1_1(cd, samples)
         # 2. supply
         try:
             sup = supplymod.compute(cd, samples)

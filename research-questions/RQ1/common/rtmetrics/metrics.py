@@ -17,8 +17,20 @@ from __future__ import annotations
 
 import bisect
 import csv
+import functools
 import json
+import os
+from array import array
 from pathlib import Path
+
+
+def _is_sorted(seq):
+    prev = None
+    for v in seq:
+        if prev is not None and v < prev:
+            return False
+        prev = v
+    return True
 
 
 # --------------------------------------------------------------------------- #
@@ -136,22 +148,40 @@ def reservation_supply(csv_paths, Q_us, P_us):
 # --------------------------------------------------------------------------- #
 def _load_server_stream(samples_dir):
     p = Path(samples_dir) / "server.csv"
+    try:
+        mtime = os.path.getmtime(p)
+    except OSError:
+        mtime = 0.0
+    return _load_server_stream_impl(str(Path(samples_dir)), mtime)
+
+
+@functools.lru_cache(maxsize=64)
+def _load_server_stream_impl(samples_dir, _mtime):
+    p = Path(samples_dir) / "server.csv"
     if not p.exists():
         return [], []
-    mono, usage = [], []
+    mono = array("q"); usage = array("q")
     with open(p) as fh:
-        header = None
-        for r in csv.reader(fh):
+        reader = csv.reader(fh)
+        mi = ui = None
+        for r in reader:
             if not r or r[0].startswith("#"):
                 continue
-            if header is None:
-                header = r; idx = {n: i for i, n in enumerate(header)}; continue
+            if mi is None:
+                idx = {n: i for i, n in enumerate(r)}
+                try:
+                    mi = idx["mono_ns"]; ui = idx["usage_usec"]
+                except KeyError:
+                    return [], []
+                continue
             try:
-                mono.append(int(r[idx["mono_ns"]])); usage.append(int(r[idx["usage_usec"]]))
-            except (ValueError, KeyError):
+                mono.append(int(r[mi])); usage.append(int(r[ui]))
+            except (ValueError, IndexError):
                 pass
-    order = sorted(range(len(mono)), key=lambda i: mono[i])
-    return [mono[i] for i in order], [usage[i] for i in order]
+    if _is_sorted(mono):
+        return mono, usage
+    order = sorted(range(len(mono)), key=mono.__getitem__)
+    return array("q", (mono[i] for i in order)), array("q", (usage[i] for i in order))
 
 
 def supply_from_server(cell_dir, samples_dir):
