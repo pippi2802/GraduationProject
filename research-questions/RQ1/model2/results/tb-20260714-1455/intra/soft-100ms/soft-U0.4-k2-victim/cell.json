@@ -1,0 +1,154 @@
+{
+  "variant": "intra",
+  "cell_id": "soft-U0.4-k2-victim",
+  "scale": "soft",
+  "P_us": 100000,
+  "U": 0.4,
+  "Q_us": 40000,
+  "m": 1,
+  "k": 2,
+  "split": "victim",
+  "matrix_M": 48,
+  "task_utilizations": [
+    0.1,
+    0.30000000000000004
+  ],
+  "task_C_us": [
+    10000,
+    30000
+  ],
+  "task_K": [
+    130,
+    408
+  ],
+  "victim_index": 0,
+  "reservation": {
+    "runtime": 40000,
+    "period": 100000,
+    "count": 1
+  },
+  "placements": {
+    "shared_rt_cpuset": "2",
+    "shared_cpu": 2,
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "index": 0,
+        "u": 0.1,
+        "target_C_us": 10000,
+        "K": 130,
+        "role": "victim",
+        "cpu": 2,
+        "n_collected": 5000
+      },
+      {
+        "file": "task1.csv",
+        "index": 1,
+        "u": 0.30000000000000004,
+        "target_C_us": 30000,
+        "K": 408,
+        "role": "greedy",
+        "cpu": 2,
+        "n_collected": 5000
+      }
+    ]
+  },
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 524.2,
+  "timeblock": "tb-20260714-1455",
+  "node": "rt-cluster-worker-1",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "950000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model2-node-prep-gsjrg",
+    "kernel": "7.0.0+",
+    "core_a_cpu": 0,
+    "core_b_cpu": 2,
+    "core_a_siblings": "0 1",
+    "core_b_siblings": "2 3",
+    "offline_siblings": [],
+    "physical_cores": 2,
+    "dry_run": 1
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.8711\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3490.9961\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.3730\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3628.9990",
+  "derived": {
+    "container_supply": {
+      "n": 10000,
+      "alpha_theory": 0.4,
+      "alpha_eff": 0.3997,
+      "delta_theory_us": 120000,
+      "delta_eff_us": 10737117.7,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "role": "victim",
+        "tail": {
+          "n": 5000,
+          "miss": 4897,
+          "miss_rate": 0.9794,
+          "R_p50": 2324706.5455,
+          "R_p99": 9620892.161450002,
+          "R_p999": 10505868.391508002,
+          "R_max": 10806975.555,
+          "C_p50": 9620.266,
+          "C_p99": 11416.474040000026,
+          "C_max": 19729.809,
+          "delay_p50": 2315010.8305,
+          "delay_p99": 9611296.499250002,
+          "dispatch_p99": 9611296.077460002,
+          "dispatch_max": 10737117.736,
+          "midpreempt_p99": 60408.01799,
+          "midpreempt_max": 60876.849,
+          "tardiness_max": 10706975.555
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.1,
+          "alpha_eff": 0.0967,
+          "delta_theory_us": 180000,
+          "delta_eff_us": 10737117.7,
+          "alpha_violation": true,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task1.csv",
+        "role": "greedy",
+        "tail": {
+          "n": 5000,
+          "miss": 4898,
+          "miss_rate": 0.9796,
+          "R_p50": 807038.7694999999,
+          "R_p99": 3126208.3661100003,
+          "R_p999": 3415244.448101002,
+          "R_max": 3514251.201,
+          "C_p50": 30260.9675,
+          "C_p99": 33901.19318000001,
+          "C_max": 40254.811,
+          "delay_p50": 776680.477,
+          "delay_p99": 3096004.72908,
+          "dispatch_p99": 3036758.72291,
+          "dispatch_max": 3423855.975,
+          "midpreempt_p99": 60548.11743,
+          "midpreempt_max": 63266.728,
+          "tardiness_max": 3414251.201
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.3,
+          "alpha_eff": 0.304,
+          "delta_theory_us": 140000,
+          "delta_eff_us": 3423856.0,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      }
+    ]
+  }
+}

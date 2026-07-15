@@ -1,0 +1,244 @@
+{
+  "variant": "intra",
+  "cell_id": "soft-U0.94-k4-equal",
+  "scale": "soft",
+  "P_us": 100000,
+  "U": 0.94,
+  "Q_us": 94000,
+  "m": 1,
+  "k": 4,
+  "split": "equal",
+  "matrix_M": 48,
+  "task_utilizations": [
+    0.235,
+    0.235,
+    0.235,
+    0.235
+  ],
+  "task_C_us": [
+    23500,
+    23500,
+    23500,
+    23500
+  ],
+  "task_K": [
+    315,
+    315,
+    315,
+    315
+  ],
+  "victim_index": null,
+  "reservation": {
+    "runtime": 94000,
+    "period": 100000,
+    "count": 1
+  },
+  "placements": {
+    "shared_rt_cpuset": "3",
+    "shared_cpu": 3,
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "index": 0,
+        "u": 0.235,
+        "target_C_us": 23500,
+        "K": 315,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      },
+      {
+        "file": "task1.csv",
+        "index": 1,
+        "u": 0.235,
+        "target_C_us": 23500,
+        "K": 315,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      },
+      {
+        "file": "task2.csv",
+        "index": 2,
+        "u": 0.235,
+        "target_C_us": 23500,
+        "K": 315,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      },
+      {
+        "file": "task3.csv",
+        "index": 3,
+        "u": 0.235,
+        "target_C_us": 23500,
+        "K": 315,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      }
+    ]
+  },
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 524.0,
+  "timeblock": "tb-20260714-1455",
+  "node": "rt-cluster-worker-1",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "950000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model2-node-prep-gsjrg",
+    "kernel": "7.0.0+",
+    "core_a_cpu": 0,
+    "core_b_cpu": 2,
+    "core_a_siblings": "0 1",
+    "core_b_siblings": "2 3",
+    "offline_siblings": [],
+    "physical_cores": 2,
+    "dry_run": 1
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.8711\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3490.9961\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.3730\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3628.9990",
+  "derived": {
+    "container_supply": {
+      "n": 20000,
+      "alpha_theory": 0.94,
+      "alpha_eff": 0.9388,
+      "delta_theory_us": 12000,
+      "delta_eff_us": 2846715.6,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 1912,
+          "miss_rate": 0.3824,
+          "R_p50": 97123.4925,
+          "R_p99": 551883.4729400029,
+          "R_p999": 1851486.0532320153,
+          "R_max": 2213403.087,
+          "C_p50": 23352.103,
+          "C_p99": 28637.14443000004,
+          "C_max": 37694.12,
+          "delay_p50": 73536.914,
+          "delay_p99": 528016.7802900003,
+          "dispatch_p99": 528016.1418000002,
+          "dispatch_max": 2168851.027,
+          "midpreempt_p99": 6872.93338,
+          "midpreempt_max": 6889.594,
+          "tardiness_max": 2113403.087
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.235,
+          "alpha_eff": 0.2354,
+          "delta_theory_us": 153000,
+          "delta_eff_us": 2168851.0,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task1.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 535,
+          "miss_rate": 0.107,
+          "R_p50": 54065.278000000006,
+          "R_p99": 672512.82458,
+          "R_p999": 2191589.195926013,
+          "R_max": 2504376.376,
+          "C_p50": 23353.966,
+          "C_p99": 28738.345840000005,
+          "C_max": 37910.36,
+          "delay_p50": 30623.408000000003,
+          "delay_p99": 635635.9017500025,
+          "dispatch_p99": 635634.6125500025,
+          "dispatch_max": 2462217.44,
+          "midpreempt_p99": 6658.9106,
+          "midpreempt_max": 6892.247,
+          "tardiness_max": 2404376.376
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.235,
+          "alpha_eff": 0.2349,
+          "delta_theory_us": 153000,
+          "delta_eff_us": 2462217.4,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task2.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 536,
+          "miss_rate": 0.1072,
+          "R_p50": 76555.554,
+          "R_p99": 553790.5532300055,
+          "R_p999": 2171614.243088013,
+          "R_max": 2478103.599,
+          "C_p50": 23358.5015,
+          "C_p99": 30740.24955000003,
+          "C_max": 38470.434,
+          "delay_p50": 53050.737,
+          "delay_p99": 518800.1670400079,
+          "dispatch_p99": 518799.5896700079,
+          "dispatch_max": 2442053.11,
+          "midpreempt_p99": 6693.419250000001,
+          "midpreempt_max": 6874.497,
+          "tardiness_max": 2378103.599
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.235,
+          "alpha_eff": 0.2351,
+          "delta_theory_us": 153000,
+          "delta_eff_us": 2442053.1,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task3.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 1915,
+          "miss_rate": 0.383,
+          "R_p50": 70003.80900000001,
+          "R_p99": 624261.8795300106,
+          "R_p999": 2575934.233738013,
+          "R_max": 2882989.802,
+          "C_p50": 23357.4695,
+          "C_p99": 28967.28291000003,
+          "C_max": 38067.579,
+          "delay_p50": 46602.377,
+          "delay_p99": 600757.2203100084,
+          "dispatch_p99": 600756.7364800083,
+          "dispatch_max": 2846715.609,
+          "midpreempt_p99": 6861.98301,
+          "midpreempt_max": 6884.401,
+          "tardiness_max": 2782989.802
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.235,
+          "alpha_eff": 0.2348,
+          "delta_theory_us": 153000,
+          "delta_eff_us": 2846715.6,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "variant": "intra",
+  "cell_id": "tight-U0.4-k2-equal",
+  "scale": "tight",
+  "P_us": 10000,
+  "U": 0.4,
+  "Q_us": 4000,
+  "m": 1,
+  "k": 2,
+  "split": "equal",
+  "matrix_M": 48,
+  "task_utilizations": [
+    0.2,
+    0.2
+  ],
+  "task_C_us": [
+    2000,
+    2000
+  ],
+  "task_K": [
+    27,
+    27
+  ],
+  "victim_index": null,
+  "reservation": {
+    "runtime": 4000,
+    "period": 10000,
+    "count": 1
+  },
+  "placements": {
+    "shared_rt_cpuset": "3",
+    "shared_cpu": 3,
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "index": 0,
+        "u": 0.2,
+        "target_C_us": 2000,
+        "K": 27,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      },
+      {
+        "file": "task1.csv",
+        "index": 1,
+        "u": 0.2,
+        "target_C_us": 2000,
+        "K": 27,
+        "role": null,
+        "cpu": 3,
+        "n_collected": 5000
+      }
+    ]
+  },
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 55.3,
+  "timeblock": "tb-20260714-1455",
+  "node": "rt-cluster-worker-1",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "950000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model2-node-prep-gsjrg",
+    "kernel": "7.0.0+",
+    "core_a_cpu": 0,
+    "core_b_cpu": 2,
+    "core_a_siblings": "0 1",
+    "core_b_siblings": "2 3",
+    "offline_siblings": [],
+    "physical_cores": 2,
+    "dry_run": 1
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.8711\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3490.9961\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.3730\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3628.9990",
+  "derived": {
+    "container_supply": {
+      "n": 10000,
+      "alpha_theory": 0.4,
+      "alpha_eff": 0.3977,
+      "delta_theory_us": 12000,
+      "delta_eff_us": 989969.9,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 4925,
+          "miss_rate": 0.985,
+          "R_p50": 211085.5255,
+          "R_p99": 880186.4433000002,
+          "R_p999": 970058.2619670004,
+          "R_max": 991973.077,
+          "C_p50": 1998.226,
+          "C_p99": 2194.0744200000036,
+          "C_max": 3383.136,
+          "delay_p50": 209069.237,
+          "delay_p99": 878186.0499600001,
+          "dispatch_p99": 872498.99921,
+          "dispatch_max": 989969.917,
+          "midpreempt_p99": 6138.63277,
+          "midpreempt_max": 6986.559,
+          "tardiness_max": 981973.077
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.2,
+          "alpha_eff": 0.2001,
+          "delta_theory_us": 16000,
+          "delta_eff_us": 989969.9,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task1.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 4926,
+          "miss_rate": 0.9852,
+          "R_p50": 210973.07049999997,
+          "R_p99": 859132.12168,
+          "R_p999": 942672.3636470017,
+          "R_max": 970364.311,
+          "C_p50": 1998.539,
+          "C_p99": 2194.243820000001,
+          "C_max": 3070.177,
+          "delay_p50": 208976.195,
+          "delay_p99": 857134.75868,
+          "dispatch_p99": 851050.55608,
+          "dispatch_max": 962259.505,
+          "midpreempt_p99": 6138.94322,
+          "midpreempt_max": 6901.143,
+          "tardiness_max": 960364.311
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.2,
+          "alpha_eff": 0.1988,
+          "delta_theory_us": 16000,
+          "delta_eff_us": 962259.5,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      }
+    ]
+  }
+}

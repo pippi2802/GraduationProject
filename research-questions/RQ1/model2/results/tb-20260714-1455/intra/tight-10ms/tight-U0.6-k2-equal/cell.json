@@ -1,0 +1,154 @@
+{
+  "variant": "intra",
+  "cell_id": "tight-U0.6-k2-equal",
+  "scale": "tight",
+  "P_us": 10000,
+  "U": 0.6,
+  "Q_us": 6000,
+  "m": 1,
+  "k": 2,
+  "split": "equal",
+  "matrix_M": 48,
+  "task_utilizations": [
+    0.3,
+    0.3
+  ],
+  "task_C_us": [
+    3000,
+    3000
+  ],
+  "task_K": [
+    41,
+    41
+  ],
+  "victim_index": null,
+  "reservation": {
+    "runtime": 6000,
+    "period": 10000,
+    "count": 1
+  },
+  "placements": {
+    "shared_rt_cpuset": "1",
+    "shared_cpu": 1,
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "index": 0,
+        "u": 0.3,
+        "target_C_us": 3000,
+        "K": 41,
+        "role": null,
+        "cpu": 1,
+        "n_collected": 5000
+      },
+      {
+        "file": "task1.csv",
+        "index": 1,
+        "u": 0.3,
+        "target_C_us": 3000,
+        "K": 41,
+        "role": null,
+        "cpu": 1,
+        "n_collected": 5000
+      }
+    ]
+  },
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 81.9,
+  "timeblock": "tb-20260714-1455",
+  "node": "rt-cluster-worker-1",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "950000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model2-node-prep-gsjrg",
+    "kernel": "7.0.0+",
+    "core_a_cpu": 0,
+    "core_b_cpu": 2,
+    "core_a_siblings": "0 1",
+    "core_b_siblings": "2 3",
+    "offline_siblings": [],
+    "physical_cores": 2,
+    "dry_run": 1
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.8711\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3490.9961\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.3730\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3628.9990",
+  "derived": {
+    "container_supply": {
+      "n": 10000,
+      "alpha_theory": 0.6,
+      "alpha_eff": 0.5974,
+      "delta_theory_us": 8000,
+      "delta_eff_us": 33869981.2,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 4988,
+          "miss_rate": 0.9976,
+          "R_p50": 4011077.2145,
+          "R_p99": 27481600.9262,
+          "R_p999": 27574386.508433003,
+          "R_max": 27589096.313,
+          "C_p50": 4716.960499999999,
+          "C_p99": 4762.03894,
+          "C_max": 5573.648,
+          "delay_p50": 4006383.1465,
+          "delay_p99": 27476860.677780002,
+          "dispatch_p99": 27473012.66496,
+          "dispatch_max": 27580058.963,
+          "midpreempt_p99": 4912.15244,
+          "midpreempt_max": 4946.029,
+          "tardiness_max": 27579096.313
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.3,
+          "alpha_eff": 0.2986,
+          "delta_theory_us": 14000,
+          "delta_eff_us": 27580059.0,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task1.csv",
+        "role": null,
+        "tail": {
+          "n": 5000,
+          "miss": 4989,
+          "miss_rate": 0.9978,
+          "R_p50": 28612578.1295,
+          "R_p99": 33771330.45153,
+          "R_p999": 33864714.22524,
+          "R_max": 33874688.738,
+          "C_p50": 4716.2035,
+          "C_p99": 4757.31175,
+          "C_max": 4944.437,
+          "delay_p50": 28607858.085,
+          "delay_p99": 33766608.08064,
+          "dispatch_p99": 33762720.836229995,
+          "dispatch_max": 33869981.243,
+          "midpreempt_p99": 4886.55415,
+          "midpreempt_max": 6578.578,
+          "tardiness_max": 33864688.738
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.3,
+          "alpha_eff": 0.3021,
+          "delta_theory_us": 14000,
+          "delta_eff_us": 33869981.2,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      }
+    ]
+  }
+}

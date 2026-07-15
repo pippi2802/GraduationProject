@@ -1,0 +1,154 @@
+{
+  "variant": "intra",
+  "cell_id": "tight-U0.8-k2-victim",
+  "scale": "tight",
+  "P_us": 10000,
+  "U": 0.8,
+  "Q_us": 8000,
+  "m": 1,
+  "k": 2,
+  "split": "victim",
+  "matrix_M": 48,
+  "task_utilizations": [
+    0.1,
+    0.7000000000000001
+  ],
+  "task_C_us": [
+    1000,
+    7000
+  ],
+  "task_K": [
+    13,
+    95
+  ],
+  "victim_index": 0,
+  "reservation": {
+    "runtime": 8000,
+    "period": 10000,
+    "count": 1
+  },
+  "placements": {
+    "shared_rt_cpuset": "1",
+    "shared_cpu": 1,
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "index": 0,
+        "u": 0.1,
+        "target_C_us": 1000,
+        "K": 13,
+        "role": "victim",
+        "cpu": 1,
+        "n_collected": 5000
+      },
+      {
+        "file": "task1.csv",
+        "index": 1,
+        "u": 0.7000000000000001,
+        "target_C_us": 7000,
+        "K": 95,
+        "role": "greedy",
+        "cpu": 1,
+        "n_collected": 5000
+      }
+    ]
+  },
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 77.8,
+  "timeblock": "tb-20260714-1455",
+  "node": "rt-cluster-worker-1",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "950000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model2-node-prep-gsjrg",
+    "kernel": "7.0.0+",
+    "core_a_cpu": 0,
+    "core_b_cpu": 2,
+    "core_a_siblings": "0 1",
+    "core_b_siblings": "2 3",
+    "offline_siblings": [],
+    "physical_cores": 2,
+    "dry_run": 1
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.8711\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3490.9961\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.3730\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3628.9990",
+  "derived": {
+    "container_supply": {
+      "n": 10000,
+      "alpha_theory": 0.8,
+      "alpha_eff": 0.7975,
+      "delta_theory_us": 4000,
+      "delta_eff_us": 57827299.0,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "tasks": [
+      {
+        "file": "task0.csv",
+        "role": "victim",
+        "tail": {
+          "n": 5000,
+          "miss": 4983,
+          "miss_rate": 0.9966,
+          "R_p50": 37540726.795499995,
+          "R_p99": 57422300.14108,
+          "R_p999": 57788202.078088,
+          "R_max": 57828808.152,
+          "C_p50": 1489.2945,
+          "C_p99": 1519.74518,
+          "C_max": 1956.972,
+          "delay_p50": 37539223.7175,
+          "delay_p99": 57420803.75515,
+          "dispatch_p99": 57420803.16831,
+          "dispatch_max": 57827298.993,
+          "midpreempt_p99": 2427.92756,
+          "midpreempt_max": 2827.132,
+          "tardiness_max": 57818808.152
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.1,
+          "alpha_eff": 0.0963,
+          "delta_theory_us": 18000,
+          "delta_eff_us": 57827299.0,
+          "alpha_violation": true,
+          "delta_violation": true
+        }
+      },
+      {
+        "file": "task1.csv",
+        "role": "greedy",
+        "tail": {
+          "n": 5000,
+          "miss": 4983,
+          "miss_rate": 0.9966,
+          "R_p50": 6257826.119,
+          "R_p99": 15200568.43356,
+          "R_p999": 15364687.238846,
+          "R_max": 15382941.178,
+          "C_p50": 10896.089,
+          "C_p99": 10968.12207,
+          "C_max": 11168.547,
+          "delay_p50": 6246889.797499999,
+          "delay_p99": 15189667.6148,
+          "dispatch_p99": 15185674.649810001,
+          "dispatch_max": 15368420.326,
+          "midpreempt_p99": 4605.09854,
+          "midpreempt_max": 8939.727,
+          "tardiness_max": 15372941.178
+        },
+        "supply": {
+          "n": 5000,
+          "alpha_theory": 0.7,
+          "alpha_eff": 0.787,
+          "delta_theory_us": 6000,
+          "delta_eff_us": 15368420.3,
+          "alpha_violation": false,
+          "delta_violation": true
+        }
+      }
+    ]
+  }
+}
