@@ -1,0 +1,127 @@
+{
+  "arm": "off",
+  "cell_id": "soft-U0.9",
+  "scale": "soft",
+  "P_us": 100000,
+  "U": 0.9,
+  "Q_us": 90000,
+  "m": 1,
+  "K": 1224,
+  "matrix_M": 48,
+  "c_baseline_us": 91206.5,
+  "reservation": {
+    "runtime": 90000,
+    "period": 100000,
+    "count": 1
+  },
+  "placements": {
+    "rt_cpuset": "1",
+    "rt_cpu": 1,
+    "target": {
+      "file": "jobs.csv",
+      "obj": "m4-off-soft-u90",
+      "rt_cpuset": "1",
+      "cpu": 1
+    }
+  },
+  "rt_cpuset": "1",
+  "cpu_used": 1,
+  "other_cpu": 2,
+  "irq_map": {
+    "arm": "off",
+    "target_cpu": 2,
+    "rt_cpu": 1,
+    "other_cpu": 2,
+    "irqbalance_was_running": 1,
+    "steerable_regex": "virtio|hyperv|hv_|mlx|eth|nvme|storvsc|scsi",
+    "steered_irqs": [
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "steered_count": 5,
+    "not_steerable_count": 0
+  },
+  "irq_preflight": {
+    "rt_cpu": 1,
+    "other_cpu": 2,
+    "irq_rate_before": 0,
+    "irq_rate_after": 0,
+    "irq_rate_delta_per_s": 0,
+    "steered_count": 5
+  },
+  "irq_top_lines_before": "25: 105546  HV-PCI-MSIX-d11a:00:02.0 1-edge mlx5_comp0@pci:d11a:00:02.0\n26: 21596  HV-PCI-MSIX-d11a:00:02.0 2-edge mlx5_comp1@pci:d11a:00:02.0\n24: 1623  HV-PCI-MSIX-d11a:00:02.0 0-edge mlx5_async0@pci:d11a:00:02.0\n27: 204  HV-PCI-MSIX-d11a:00:02.0 3-edge mlx5_comp2@pci:d11a:00:02.0\n9: 0  IO-APIC 9-fasteoi acpi\n8: 0  IO-APIC 8-edge rtc0\n4: 0  IO-APIC 4-edge ttyS0\n28: 0  HV-PCI-MSIX-d11a:00:02.0 4-edge mlx5_comp3@pci:d11a:00:02.0",
+  "irq_top_lines_after": "25: 105546  HV-PCI-MSIX-d11a:00:02.0 1-edge mlx5_comp0@pci:d11a:00:02.0\n26: 21596  HV-PCI-MSIX-d11a:00:02.0 2-edge mlx5_comp1@pci:d11a:00:02.0\n24: 1623  HV-PCI-MSIX-d11a:00:02.0 0-edge mlx5_async0@pci:d11a:00:02.0\n27: 204  HV-PCI-MSIX-d11a:00:02.0 3-edge mlx5_comp2@pci:d11a:00:02.0\n9: 0  IO-APIC 9-fasteoi acpi\n8: 0  IO-APIC 8-edge rtc0\n4: 0  IO-APIC 4-edge ttyS0\n28: 0  HV-PCI-MSIX-d11a:00:02.0 4-edge mlx5_comp3@pci:d11a:00:02.0",
+  "n_jobs": 5000,
+  "warmup": 200,
+  "stop_reason": "completed",
+  "elapsed_s": 775.6,
+  "timeblock": "tb-20260714-1502",
+  "node": "rt-cluster-worker-3",
+  "kernel": "7.0.0+",
+  "sched_rt_runtime_us": "1000000",
+  "sched_rt_period_us": "1000000",
+  "cpu_map": {
+    "node": "model4-node-prep-4pnk8",
+    "kernel": "7.0.0+",
+    "physical_cores": 2,
+    "cores": [
+      {
+        "leader": 0,
+        "siblings": [
+          0,
+          1
+        ]
+      },
+      {
+        "leader": 2,
+        "siblings": [
+          2,
+          3
+        ]
+      }
+    ],
+    "core_of": {
+      "0": 0,
+      "1": 0,
+      "2": 2,
+      "3": 2
+    }
+  },
+  "lscpu": "CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE    MAXMHZ   MINMHZ       MHZ\n  0    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3456.1650\n  1    0      0    0 0:0:0:0          yes 2800.0000 800.0000 3491.5171\n  2    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.7610\n  3    0      0    1 1:1:1:0          yes 2800.0000 800.0000 3491.9709",
+  "derived": {
+    "tail": {
+      "n": 5000,
+      "miss": 5000,
+      "miss_rate": 1.0,
+      "R_p50": 120186085.695,
+      "R_p99": 251336346.61329,
+      "R_p999": 253777317.551842,
+      "R_max": 254051819.99,
+      "C_p50": 138963.1385,
+      "C_p99": 141587.42783,
+      "C_max": 154366.023,
+      "delay_p50": 120045867.597,
+      "delay_p99": 251197617.09346002,
+      "dispatch_p99": 251177122.09953,
+      "dispatch_max": 253902604.012,
+      "midpreempt_p99": 20815.166569999998,
+      "midpreempt_max": 26120.659,
+      "tardiness_max": 253951819.99
+    },
+    "supply": {
+      "n": 5000,
+      "alpha_theory": 0.9,
+      "alpha_eff": 0.8967,
+      "delta_theory_us": 20000,
+      "delta_eff_us": 253902604.0,
+      "alpha_violation": false,
+      "delta_violation": true
+    },
+    "irq_us_mean": 0.0,
+    "softirq_us_mean": 78160.0,
+    "steal_us_mean": 0.0
+  }
+}
