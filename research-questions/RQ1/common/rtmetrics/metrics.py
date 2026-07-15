@@ -61,6 +61,8 @@ def job_stats(csv_path):
                 continue
             if header is None:
                 header = r; idx = {x: i for i, x in enumerate(header)}; continue
+            if len(r) < len(header):
+                continue  # truncated final row (run cut short) -> skip cleanly
             try:
                 R.append(float(r[idx["R_wall_us"]]))
                 C.append(float(r[idx["C_cputime_us"]]))
@@ -71,7 +73,7 @@ def job_stats(csv_path):
                     miss += 1
                 tard.append(float(r[idx["tardiness_us"]]))
                 n += 1
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, IndexError):
                 continue
     if n == 0:
         return None
@@ -100,12 +102,14 @@ def _read_supply_cols(csv_path):
                 continue
             if header is None:
                 header = r; idx = {n: i for i, n in enumerate(header)}; continue
+            if len(r) < len(header):
+                continue  # truncated final row (run cut short) -> skip cleanly
             try:
                 C.append(float(r[idx["C_cputime_us"]]))
                 rel.append(float(r[idx["release_us"]]))
                 fin.append(float(r[idx["finish_us"]]))
                 disp.append(float(r[idx["dispatch_latency_us"]]))
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, IndexError):
                 continue
     return C, rel, fin, disp
 
@@ -204,10 +208,12 @@ def supply_from_server(cell_dir, samples_dir):
                     continue
                 if header is None:
                     header = r; idx = {n: i for i, n in enumerate(header)}; continue
+                if len(r) < len(header):
+                    continue  # truncated final row (run cut short) -> skip cleanly
                 try:
                     rel = float(r[idx["release_us"]]); fin = float(r[idx["finish_us"]])
                     disp_max = max(disp_max, float(r[idx["dispatch_latency_us"]]))
-                except (ValueError, KeyError):
+                except (ValueError, KeyError, IndexError):
                     continue
                 if t0 is None:
                     t0 = rel

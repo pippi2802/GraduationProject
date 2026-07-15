@@ -232,7 +232,7 @@ def join_model1_1(cell_dir, samples_dir):
         try:
             t0 = int(float(data[jidx["release_us"]]) * 1000)
             t1 = int(float(data[jidx["finish_us"]]) * 1000)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, IndexError):
             continue
         steal = delta_over(mono_c, cser.get("steal", []), t0, t1)
         irq = delta_over(mono_c, cser.get("irq", []), t0, t1)
@@ -282,7 +282,7 @@ def _join_one_file(csv_path, cpu, samples_dir):
         try:
             t0 = int(float(data[jidx["release_us"]]) * 1000)
             t1 = int(float(data[jidx["finish_us"]]) * 1000)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, IndexError):
             continue
         steal = delta_over(mono_c, cser.get("steal", []), t0, t1)
         irq = delta_over(mono_c, cser.get("irq", []), t0, t1)
