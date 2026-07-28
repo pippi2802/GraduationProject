@@ -21,7 +21,7 @@ kind: Pod
 metadata:
   namespace: rq1-model4
   name: "@@NAME@@"
-  labels: { app: rq1-model4, role: target }
+  labels: { app: model4, role: target }
 spec:
   restartPolicy: Never
   nodeSelector: { experiment-model: model4 }
