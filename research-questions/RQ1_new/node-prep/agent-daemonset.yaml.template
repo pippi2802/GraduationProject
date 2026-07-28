@@ -27,23 +27,22 @@ spec:
           args:
             - |
               set -x
-              # --- PIN CPU FREQUENCY (intel_pstate; verified on Azure D4s_v5) -----
-              # governor (harmless if intel_pstate ignores it)
+              # --- PIN CPU FREQUENCY (best effort; Azure may restrict) ----------
               for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
                 echo performance > "$g" 2>/dev/null || true
               done
-              # disable turbo, then pin the P-state to 100% of base -> fixed clock.
-              # (scaling_max_freq is NOT writable under intel_pstate active mode;
-              #  min_perf_pct == max_perf_pct is what actually pins the frequency.)
-              echo 1   > /sys/devices/system/cpu/intel_pstate/no_turbo      2>/dev/null || true
-              echo 100 > /sys/devices/system/cpu/intel_pstate/min_perf_pct  2>/dev/null || true
-              echo 100 > /sys/devices/system/cpu/intel_pstate/max_perf_pct  2>/dev/null || true
-              echo 0   > /sys/devices/system/cpu/cpufreq/boost              2>/dev/null || true  # non-pstate fallback
-              # --- verify + LOG what actually stuck (so it's recorded, not silent) --
-              echo "[agent] no_turbo=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null)"
-              echo "[agent] perf_pct min=$(cat /sys/devices/system/cpu/intel_pstate/min_perf_pct 2>/dev/null) max=$(cat /sys/devices/system/cpu/intel_pstate/max_perf_pct 2>/dev/null)"
-              echo "[agent] governor=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null)"
-              echo "[agent] cur_freq cpu0=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2>/dev/null) cpu2=$(cat /sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq 2>/dev/null)"
+              # disable turbo/boost so C is a stable base-clock measurement
+              echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
+              echo 0 > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+              # pin min=max where the platform exposes it
+              for c in /sys/devices/system/cpu/cpu*/cpufreq; do
+                if [ -f "$c/scaling_min_freq" ] && [ -f "$c/cpuinfo_min_freq" ]; then
+                  cat "$c/scaling_min_freq" > "$c/scaling_max_freq" 2>/dev/null || true
+                fi
+              done
+              echo "[agent] governor + turbo state:"
+              cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || true
+              cat /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
               mkdir -p "/host@@HOST_PATH@@"
               echo "[agent] ready; results at /host@@HOST_PATH@@"
               sleep infinity
