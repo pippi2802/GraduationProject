@@ -90,14 +90,12 @@ spec:
       command: ["/bin/bash","-c"]
       args:
         - |
-          set -e; mkdir -p /results
-          # UNRESERVED (CFS) matmul pinned to the SMT sibling; priority 0.
-          exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us {p} \\
-            --n-jobs 6000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
-      volumeMounts: [{{ name: results, mountPath: /results }}]
-  volumes:
-    - name: results
-      hostPath: {{ path: {host}/{sub}/intf, type: DirectoryOrCreate }}
+          set -e
+          # UNRESERVED (CFS) matmul SATURATING the SMT sibling of the RT core,
+          # continuous (period 0) until the pod is deleted. {cpu} is filled in at
+          # run time with the target's REAL sibling by run_job.sh.
+          exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us 0 \\
+            --n-jobs 100000000 --warmup 0 --priority 0 --cpu {cpu} --seed 20260713 --logfile /dev/null
 """
 
 
@@ -138,9 +136,13 @@ def main() -> int:
                                             host=host, sub=sub)
             intf = cr.get("interferer")
             if intf:
-                doc += INTERFERER.format(ns=ns, name=name, model=model, lk=lk, lv=lv,
-                                         image=image, cpu=intf.get("cpu", "1"), k=K, p=P,
-                                         host=host, sub=sub)
+                # SEPARATE file with a @@INTF_CPU@@ placeholder; run_job.sh fills it
+                # with the target's REAL SMT sibling after the target is placed.
+                intf_doc = INTERFERER.format(ns=ns, name=name, model=model, lk=lk, lv=lv,
+                                             image=image, cpu="@@INTF_CPU@@", k=K)
+                ifp = out_root / "_intf" / scale / f"U{ulabel(u)}.yaml"
+                ifp.parent.mkdir(parents=True, exist_ok=True)
+                ifp.write_text(intf_doc, encoding="utf-8")
 
             fp = out_root / scale / f"U{ulabel(u)}.yaml"
             fp.parent.mkdir(parents=True, exist_ok=True)

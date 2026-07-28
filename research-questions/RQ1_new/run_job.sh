@@ -20,7 +20,7 @@ AGENT=$(kubectl -n "$NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metada
 
 GLOB="models/$MODEL/generated/${SCALE:+$SCALE/}"
 [ -n "$SCALE" ] && GLOB="models/$MODEL/generated/$SCALE" || GLOB="models/$MODEL/generated"
-mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' | sort)
+mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' -not -path '*/_intf/*' | sort)
 [ ${#FILES[@]} -eq 0 ] && { echo "ERROR: no manifests; run generate_yaml.py $MODEL"; exit 1; }
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]}"
 
@@ -35,6 +35,23 @@ for f in "${FILES[@]}"; do
   if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
         --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
     echo "[run] target not Ready; skipping"; kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1; continue
+  fi
+
+  # model3: pin an UNRESERVED interferer on the target's REAL SMT sibling
+  # (relative placement: read where the driver put the target, resolve its sibling).
+  intf="models/$MODEL/generated/_intf/$scale/$ul.yaml"
+  if [ -f "$intf" ]; then
+    tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
+    rtcpu=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+    if [ -n "$rtcpu" ]; then
+      sibs=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$rtcpu/topology/thread_siblings_list" 2>/dev/null)
+      sib=$(echo "$sibs" | tr ',-' '  ' | tr ' ' '\n' | grep -vx "$rtcpu" | head -1)
+      [ -z "$sib" ] && sib="$rtcpu"
+      echo "[run] interferer on sibling cpu=$sib (target cpu=$rtcpu)"
+      sed "s/@@INTF_CPU@@/$sib/g" "$intf" | kubectl create -f - >/dev/null 2>&1
+    else
+      echo "[run] WARN could not read RT_CPUSET; interferer skipped"
+    fi
   fi
 
   # wait for the target pod to Complete (Succeeded)
@@ -53,6 +70,7 @@ for f in "${FILES[@]}"; do
   if [ -s "$out/jobs.csv" ]; then echo "[run] collected $(wc -l < "$out/jobs.csv") lines -> $out"; \
      else echo "[run] WARN empty jobs.csv"; fi
 
+  kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
   sleep 12   # let the driver release the claim before the next cell
 done
