@@ -1,0 +1,172 @@
+# BASE manifest for one model-2 cell. Same readable target as model1; the co-located
+# neighbours are declared in config.yaml (co_runners) and appended by generate_yaml.py.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-params" }
+spec: { count: 1, runtime: 50000, period: 100000 }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model2-soft-u50-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model2
+  name: "model2-soft-u50"
+  labels: { app: model2, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v1
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results; rm -f /results/jobs.csv || true
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/matmul --M 48 --K 832 --period-us 100000 \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
+            --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model2-soft-u50-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model2/soft/U0.5/target, type: DirectoryOrCreate }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb0-params" }
+spec: { count: 1, runtime: 10000, period: 100000 }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model2-soft-u50-nb0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model2
+  name: "model2-soft-u50-nb0"
+  labels: { app: model2, role: neighbour }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v1
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/matmul --M 48 --K 167 --period-us 100000 \
+            --n-jobs 6000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model2-soft-u50-nb0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model2/soft/U0.5/nb0, type: DirectoryOrCreate }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb1-params" }
+spec: { count: 1, runtime: 10000, period: 100000 }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb1-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model2-soft-u50-nb1-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model2
+  name: "model2-soft-u50-nb1"
+  labels: { app: model2, role: neighbour }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v1
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/matmul --M 48 --K 167 --period-us 100000 \
+            --n-jobs 6000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model2-soft-u50-nb1-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model2/soft/U0.5/nb1, type: DirectoryOrCreate }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb2-params" }
+spec: { count: 1, runtime: 10000, period: 100000 }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model2, name: "model2-soft-u50-nb2-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model2-soft-u50-nb2-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model2
+  name: "model2-soft-u50-nb2"
+  labels: { app: model2, role: neighbour }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v1
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/matmul --M 48 --K 167 --period-us 100000 \
+            --n-jobs 6000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model2-soft-u50-nb2-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model2/soft/U0.5/nb2, type: DirectoryOrCreate }
