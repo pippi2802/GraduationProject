@@ -101,31 +101,6 @@ def cdf_fig(cells, col, xlabel, title, figs, name, mark_one=True):
     _save(fig, figs, name)
 
 
-def cdf_pooled_fig(cells, col, xlabel, title, figs, name, mark_one=True):
-    """ONE CDF pooling every U into a single curve. Valid because the metric is
-    normalized (R/D, alpha=C/Q, delta) — each job is already on the same 0-1 scale,
-    so the pooled curve answers the headline: across the whole U range, what
-    fraction of jobs stayed under the break line (=1)?"""
-    fig, ax = plt.subplots(figsize=(6.4, 4.4))
-    arrs = [cells[u][col].dropna().values for u in cells]
-    allv = np.sort(np.concatenate([a for a in arrs if len(a)])) if arrs else np.array([])
-    if len(allv):
-        y = np.arange(1, len(allv) + 1) / len(allv)
-        ax.plot(allv, y, color="#1f77b4", lw=2.4, label="all U pooled")
-        if mark_one:
-            frac = float(np.mean(allv <= 1.0))
-            ax.text(0.03, 0.97, f"P(≤ 1) = {frac:.3f}", transform=ax.transAxes,
-                    va="top", ha="left", fontsize=10,
-                    bbox=dict(boxstyle="round", fc="white", ec="0.7"))
-    if mark_one:
-        ax.axvline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
-        ax.text(1.0, 0.02, "break (=1)", color="red", fontsize=8,
-                rotation=90, va="bottom", ha="right", alpha=0.8)
-    ax.set_xlabel(xlabel); ax.set_ylabel("P(X ≤ x)"); ax.set_title(title)
-    ax.set_ylim(0, 1.02); ax.grid(alpha=0.3); ax.legend(fontsize=9, loc="lower right")
-    _save(fig, figs, name)
-
-
 def over_u_figs(summary_df, scale, figs):
     d = summary_df[(summary_df.scale == scale) & (summary_df.n > 0)].sort_values("U")
     if d.empty:
@@ -174,12 +149,67 @@ def summarize(cells_by_scale):
     return pd.DataFrame(rows)
 
 
+def _load_cfg_scales(name):
+    """Scales (P per scale) for a result set. Tagged sets like 'model3_sep'
+    fall back to their base model's config ('model3')."""
+    p = HERE / "models" / name / "config.yaml"
+    if not p.exists():
+        p = HERE / "models" / name.split("_")[0] / "config.yaml"
+    cfg = yaml.safe_load(p.read_text())
+    return {k: int(v) for k, v in cfg["scales"].items()}
+
+
+def compare(a, b):
+    """Overlay pooled CDFs of two result sets (e.g. sibling vs separate core)
+    and print the C(a)/C(b) execution-time inflation per cell."""
+    sa = _load_cfg_scales(a)
+    ca = load_cells(a, sa)
+    cb = load_cells(b, sa)
+    figs = HERE / "results" / a / "figures"
+    print(f"[compare] {a} vs {b}  (inflation = C_med[{a}] / C_med[{b}])")
+    print(f"{'scale':6} {'U':>5} {'C50_a':>10} {'C50_b':>10} {'infl':>6} "
+          f"{'miss_a':>7} {'miss_b':>7}")
+    for scale in sa:
+        A = ca.get(scale, {}); B = cb.get(scale, {})
+        for u in sorted(set(A) & set(B)):
+            ca_med = float(A[u].C.median()); cb_med = float(B[u].C.median())
+            infl = ca_med / cb_med if cb_med else float("nan")
+            print(f"{scale:6} {u:>5g} {ca_med:>10.0f} {cb_med:>10.0f} {infl:>6.2f} "
+                  f"{float(A[u]['miss'].mean()):>7.3f} {float(B[u]['miss'].mean()):>7.3f}")
+        for col, xlabel, fname in (("RoverD", "R / D", "cmp_RoverD"),
+                                   ("alpha", "α = C/Q", "cmp_alpha")):
+            va = [A[u][col].dropna().values for u in A]
+            vb = [B[u][col].dropna().values for u in B]
+            if not va or not vb:
+                continue
+            allA = np.sort(np.concatenate(va)); allB = np.sort(np.concatenate(vb))
+            if len(allA) == 0 or len(allB) == 0:
+                continue
+            fig, ax = plt.subplots(figsize=(7.2, 4.6))
+            ax.plot(allA, np.arange(1, len(allA) + 1) / len(allA),
+                    color="#d62728", lw=2.4, label=a)
+            ax.plot(allB, np.arange(1, len(allB) + 1) / len(allB),
+                    color="#1f77b4", lw=2.4, label=b)
+            ax.axvline(1.0, color="k", ls=":", lw=1.2, alpha=0.7)
+            ax.text(1.0, 0.02, "limit = 1", color="k", fontsize=8,
+                    rotation=90, va="bottom", ha="right", alpha=0.8)
+            ax.set_xlabel(xlabel); ax.set_ylabel("P(X ≤ x)")
+            ax.set_title(f"{xlabel} — {a} vs {b} ({scale}, all U pooled)")
+            ax.set_ylim(0, 1.02); ax.grid(alpha=0.3)
+            ax.legend(loc="lower right", fontsize=9, frameon=True)
+            _save(fig, figs, f"{fname}_{scale}")
+    print(f"[compare] figures in {figs}")
+    return 0
+
+
 def main() -> int:
-    if len(sys.argv) != 2:
-        print("usage: result.py <model>"); return 2
-    model = sys.argv[1]
-    cfg = yaml.safe_load((HERE / "models" / model / "config.yaml").read_text())
-    scales = {k: int(v) for k, v in cfg["scales"].items()}
+    args = sys.argv[1:]
+    if len(args) == 3 and args[0] == "compare":
+        return compare(args[1], args[2])
+    if len(args) != 1:
+        print("usage: result.py <model>  |  result.py compare <A> <B>"); return 2
+    model = args[0]
+    scales = _load_cfg_scales(model)
     base = HERE / "results" / model
     figs = base / "figures"
 
@@ -202,10 +232,6 @@ def main() -> int:
             cdf_fig(c, "RoverD", "R / D", f"CDF of normalized Response Time ({scale})", figs, f"cdf_RoverD_{scale}")
             cdf_fig(c, "delta", "(R−C)/bound", f"CDF of normalized Δ ({scale})", figs, f"cdf_delta_{scale}", mark_one=False)
             cdf_fig(c, "alpha", "α = C/Q", f"CDF of normalized α ({scale})", figs, f"cdf_alpha_{scale}")
-            # pooled "all U" CDFs — the one-line headline per metric
-            cdf_pooled_fig(c, "RoverD", "R / D", f"CDF of R/D — all U pooled ({scale})", figs, f"cdf_RoverD_all_{scale}")
-            cdf_pooled_fig(c, "delta", "(R−C)/bound", f"CDF of Δ — all U pooled ({scale})", figs, f"cdf_delta_all_{scale}", mark_one=False)
-            cdf_pooled_fig(c, "alpha", "α = C/Q", f"CDF of α — all U pooled ({scale})", figs, f"cdf_alpha_all_{scale}")
         if not summary.empty:
             over_u_figs(summary, scale, figs)
     print(f"[result] figures in {figs}")
