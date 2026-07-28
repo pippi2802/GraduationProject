@@ -29,8 +29,19 @@ response time **R** is the cloud environment's signature.
 ## Per-job CSV columns
 `job_index, release_us, start_us, finish_us, C_cputime_us, R_wall_us, delay_us,
 dispatch_latency_us, mid_job_preempt_us, slack_us, deadline_miss, tardiness_us,
-nonvol_ctxt, K_reps, matrix_M` (`nonvol_ctxt` = involuntary context switches during
-the job, from `getrusage(RUSAGE_THREAD)`).
+nonvol_ctxt, K_reps, matrix_M, skipped_before` (`nonvol_ctxt` = involuntary context
+switches during the job, from `getrusage(RUSAGE_THREAD)`; `skipped_before` = number
+of releases the catch-up rule skipped immediately before this job — see below).
+
+## Warm-up + catch-up (harness robustness)
+- The `--warmup` jobs run **first, un-timed and off the periodic schedule** (fault in
+  pages / warm caches / settle DVFS), and the metronome is anchored **after** them, so
+  a slow first activation cannot poison every later release.
+- The measured loop has a **missed-release catch-up**: if a job overruns its period the
+  next release would be in the past; instead of accumulating an unbounded backlog (which
+  makes `R` diverge to seconds), it skips forward to the next future release and records
+  the count in `skipped_before`. Each skipped release is an on-time-start miss, so
+  genuine overload shows up as a **bounded miss-rate** rather than a runaway `R`.
 
 ## Build
 - **Native (for calibration on the node):** `make` → `./matmul`.

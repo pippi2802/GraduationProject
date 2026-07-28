@@ -46,6 +46,7 @@ def main() -> int:
         print(f"no results at {tb}"); return 1
 
     rows = []
+    unstable = []
     for cellj in sorted(tb.glob("*/U*/cell.json")):
         cd = cellj.parent
         meta = json.loads(cellj.read_text())
@@ -59,11 +60,32 @@ def main() -> int:
             sup = {"error": str(e)}
         # 3. tail stats
         st = cell_stats(cd) or {}
-        meta["derived"] = {"supply": sup, "tail": st}
+        # 4. stability: the reservation is stable only if per-job demand C sits
+        #    BELOW the budget Q (rho < 1) and R does not run away. rho >= ~0.9 or a
+        #    high miss-rate / R >> P means the cell diverged (see FINDING doc).
+        P, Q = meta.get("P_us"), meta.get("Q_us")
+        c50, r99, mr = st.get("C_p50"), st.get("R_p99"), st.get("miss_rate")
+        rho = (c50 / Q) if (c50 is not None and Q) else None
+        diverged = bool((mr is not None and mr > 0.5)
+                        or (r99 is not None and P and r99 > 3 * P))
+        if rho is not None and rho >= 0.9:
+            reason = "C>=Q (no headroom)"
+        elif diverged:
+            reason = "R>>P / high miss-rate"
+        else:
+            reason = "ok"
+        stability = {"rho_C_over_Q": round(rho, 3) if rho is not None else None,
+                     "diverged": diverged, "reason": reason}
+        if diverged or reason != "ok":
+            unstable.append((meta.get("scale"), meta.get("U"), reason,
+                             stability["rho_C_over_Q"]))
+        meta["derived"] = {"supply": sup, "tail": st, "stability": stability}
         cellj.write_text(json.dumps(meta, indent=2), encoding="utf-8")
         rows.append({
             "scale": meta["scale"], "U": meta["U"], "P_us": meta["P_us"], "Q_us": meta["Q_us"],
             "K": meta.get("K"), "n": st.get("n"), "miss_rate": st.get("miss_rate"),
+            "skipped_total": st.get("skipped_total"),
+            "miss_rate_incl_skipped": st.get("miss_rate_incl_skipped"),
             "R_p50": st.get("R_p50"), "R_p99": st.get("R_p99"),
             "R_p999": st.get("R_p999"), "R_max": st.get("R_max"),
             "C_p50": st.get("C_p50"), "C_p99": st.get("C_p99"),
@@ -71,6 +93,7 @@ def main() -> int:
             "tardiness_max": st.get("tardiness_max"),
             "alpha_theory": sup.get("alpha_theory"), "alpha_eff": sup.get("alpha_eff"),
             "delta_theory_us": sup.get("delta_theory_us"), "delta_eff_us": sup.get("delta_eff_us"),
+            "rho_C_over_Q": stability["rho_C_over_Q"], "diverged": diverged,
             "stop_reason": meta.get("stop_reason"),
         })
 
@@ -85,6 +108,14 @@ def main() -> int:
         print(f"[analyze] wrote {out} ({len(rows)} cells)")
     else:
         print("[analyze] no cells with data")
+
+    if unstable:
+        print(f"[analyze] WARNING: {len(unstable)} unstable cell(s) "
+              f"(rho=C/Q>=0.9 or R>>P -> reservation overloaded; see "
+              f"docs/FINDING-model1_1-response-time-divergence.md):")
+        for scale, u, reason, rho in sorted(unstable):
+            print(f"[analyze]   {scale}-U{u}: {reason} (rho_C_over_Q={rho})")
+        return 2
     return 0
 
 

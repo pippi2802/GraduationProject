@@ -1,0 +1,8 @@
+# Results live here, one subtree per model:
+#   <model>/<arm>/<scale>/U<u>/{jobs.csv,cell.json}
+#   <model>/summary.csv        (unified schema, analyze.py)
+#   <model>/figures/*.png|pdf  (plot.py)
+#
+# Raw per-job CSVs are large and regenerable from the cluster -> ignored.
+# Summaries, per-cell metadata and figures are tracked.
+**/jobs.csv

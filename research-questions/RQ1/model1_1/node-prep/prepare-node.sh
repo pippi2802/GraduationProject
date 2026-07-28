@@ -64,12 +64,44 @@ else
   log "DRY_RUN=1: not modifying CPU online state (Azure-safe)"
 fi
 
+# ---------------------------------------------------------------------------
+# CPU frequency pinning: make calibration-time C match run-time C. If the guest
+# lets us, set the performance governor on every online CPU and disable turbo so
+# the matmul probe runs at a FIXED frequency in BOTH calibration and the measured
+# run. Without this, calibration on an isolated/turbo core UNDERSHOOTS K and the
+# real run's C then exceeds Q -> reservation overload and R divergence (observed
+# in tb-20260714-1449). Azure guests often restrict cpufreq; this is BEST-EFFORT
+# and never fatal. Set PIN_FREQ=0 to leave scaling untouched.
+# ---------------------------------------------------------------------------
+PIN_FREQ="${PIN_FREQ:-1}"
+freq_governor="unknown"; turbo_state="unknown"
+if [[ "$PIN_FREQ" == "1" ]]; then
+  for g in "$SYS"/cpu[0-9]*/cpufreq/scaling_governor; do
+    [[ -w "$g" ]] || continue
+    avail="${g%scaling_governor}scaling_available_governors"
+    if grep -qw performance "$avail" 2>/dev/null && echo performance > "$g" 2>/dev/null; then
+      freq_governor="performance"
+    fi
+  done
+  if [[ -w /sys/devices/system/cpu/intel_pstate/no_turbo ]] \
+     && echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null; then
+    turbo_state="disabled"
+  elif [[ -w /sys/devices/system/cpu/cpufreq/boost ]] \
+     && echo 0 > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null; then
+    turbo_state="disabled"
+  fi
+  log "freq pin: governor=$freq_governor turbo=$turbo_state"
+else
+  log "PIN_FREQ=0: leaving CPU frequency scaling as-is"
+fi
+
 mkdir -p "$(dirname "$MAP_OUT")"
 {
   printf '{\n  "node": "%s",\n  "kernel": "%s",\n' "$(hostname)" "$(uname -r)"
   printf '  "rt_cpu": %s,\n  "canary_cpu": %s,\n' "$rt_cpu" "$canary_cpu"
   if [[ "$DRY_RUN" == "1" ]]; then printf '  "offline_siblings": [],\n'
   else printf '  "offline_siblings": [%s],\n' "$(IFS=,; echo "${offline[*]:-}")"; fi
+  printf '  "freq_governor": "%s",\n  "turbo": "%s",\n' "$freq_governor" "$turbo_state"
   printf '  "physical_cores": %s,\n  "dry_run": %s\n}\n' "${#core_keys[@]}" "$DRY_RUN"
 } > "$MAP_OUT"
 log "wrote CPU map -> $MAP_OUT"; cat "$MAP_OUT" >&2

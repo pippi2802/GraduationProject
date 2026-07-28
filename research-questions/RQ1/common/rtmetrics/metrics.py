@@ -53,7 +53,7 @@ def job_stats(csv_path):
     if not csv_path.exists():
         return None
     R, C, delay, disp, midpre, tard = [], [], [], [], [], []
-    miss = 0; n = 0
+    miss = 0; n = 0; skipped_total = 0
     with open(csv_path) as fh:
         header = None
         for r in csv.reader(fh):
@@ -72,14 +72,22 @@ def job_stats(csv_path):
                 if int(r[idx["deadline_miss"]]):
                     miss += 1
                 tard.append(float(r[idx["tardiness_us"]]))
+                if "skipped_before" in idx:  # catch-up: skipped releases = misses
+                    skipped_total += int(float(r[idx["skipped_before"]]))
                 n += 1
             except (ValueError, KeyError, IndexError):
                 continue
     if n == 0:
         return None
     Rs, Cs = sorted(R), sorted(C)
+    # miss_rate counts COMPLETED jobs that overran; miss_rate_incl_skipped also
+    # counts releases the catch-up rule skipped (never started on time), so a
+    # genuinely overloaded cell reads as a high bounded miss-rate, not a runaway R.
+    denom_incl = n + skipped_total
     return {
         "n": n, "miss": miss, "miss_rate": miss / n,
+        "skipped_total": skipped_total,
+        "miss_rate_incl_skipped": (miss + skipped_total) / denom_incl if denom_incl else None,
         "R_p50": pct(Rs, 50), "R_p99": pct(Rs, 99), "R_p999": pct(Rs, 99.9), "R_max": Rs[-1],
         "C_p50": pct(Cs, 50), "C_p99": pct(Cs, 99), "C_max": Cs[-1],
         "delay_p50": pct(sorted(delay), 50), "delay_p99": pct(sorted(delay), 99),

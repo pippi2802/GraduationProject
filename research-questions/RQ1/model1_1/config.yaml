@@ -12,7 +12,9 @@
 #   inner = ONE SCHED_FIFO task running a FIXED matrix multiply, K reps per job.
 # Model 1_1: exactly one FIFO task per container, m = 1, task period = P, and the
 # per-job compute demand C is TUNED by the repetition count K (calibrated per
-# cell) so median C ~= Q. The workload is DETERMINISTIC (fixed A,B, fixed K), so
+# cell) so median C ~= headroom_frac * Q (a FRACTION of the budget, leaving intra-
+# reservation slack so R stays bounded; targeting C == Q critically loads the
+# server and R diverges). The workload is DETERMINISTIC (fixed A,B, fixed K), so
 # any variance in C or R is the CLOUD ENVIRONMENT's signature, not workload noise.
 # =============================================================================
 
@@ -105,14 +107,23 @@ kernel:
 # CALIBRATION  (tune K so median C ~= Q, on an ISOLATED physical core)
 # -----------------------------------------------------------------------------
 # Per (scale, U): binary-search the repetition count K so the MEDIAN per-job
-# execution time C (CLOCK_THREAD_CPUTIME_ID) ~= target Q = round(U*P). Store K +
-# matrix_M per cell and REUSE it for the measured run. Also record C's coefficient
-# of variation (CV) and FAIL LOUDLY if CV > kernel.cv_threshold (a clean C is a
-# precondition for delay attribution). Record the K-vs-median-C curve.
+# execution time C (CLOCK_THREAD_CPUTIME_ID) ~= target = headroom_frac * Q, where
+# Q = round(U*P). Store K + matrix_M per cell and REUSE it for the measured run.
+# Also record C's coefficient of variation (CV) and FAIL LOUDLY if
+# CV > kernel.cv_threshold (a clean C is a precondition for delay attribution).
+# Record the K-vs-median-C curve.
 calibration:
   metric: median_C_cputime_us   # tune to median thread-CPU-time per job
-  target: Q                     # median C ~= Q_us
-  tolerance_frac: 0.03          # accept K when |median_C - Q| <= 3% of Q
+  target: Q                     # base reference is the reservation budget Q_us
+  # Leave HEADROOM inside the reservation: tune K so median C ~= headroom_frac * Q,
+  # NOT C ~= Q. Targeting C == Q makes intra-reservation utilisation rho = C/Q ~= 1
+  # (a critically-loaded server) -> response time diverges without bound and every
+  # job misses its deadline (observed in tb-20260714-1449: R reached hundreds of
+  # seconds for a 10-100 ms period). A fraction < 1 gives a STABLE server whose R
+  # settles near C + Delta < P, so what we measure is the virtualization noise
+  # floor, not queue divergence. 0.7 => ~30% slack.
+  headroom_frac: 0.7            # median C target = headroom_frac * Q  (0 < f < 1)
+  tolerance_frac: 0.03          # accept K when |median_C - target| <= 3% of target
   search: binary                # binary-search on K
   k_min: 1
   k_max: 100000000              # upper guard for the search
@@ -169,6 +180,10 @@ per_job_columns:
   - nonvol_ctxt         # per-job delta of /proc/<tid>/status nonvoluntary_ctxt_switches
   - K_reps              # repetition count used (from calibration table)
   - matrix_M
+  - skipped_before      # releases skipped by the catch-up rule just before this job
+                        # (>0 => the previous job overran its period; each skipped
+                        # release is an on-time-start miss). Bounds R instead of
+                        # letting a backlog diverge; analysis folds it into miss-rate.
 
 # -----------------------------------------------------------------------------
 # MEASUREMENT / SAMPLING  (covariates for the attribution identity)

@@ -3,8 +3,10 @@
 calibrate.py — per-cell K calibration for Model 1_1.
 
 For each (scale, U) cell: find the repetition count K so the MEDIAN per-job
-execution time C (CLOCK_THREAD_CPUTIME_ID) ~= target Q = round(U*P), on an
-ISOLATED physical core, and record C's coefficient of variation (CV). A clean,
+execution time C (CLOCK_THREAD_CPUTIME_ID) ~= target = headroom_frac * Q, where
+Q = round(U*P), on an ISOLATED physical core (headroom keeps the reservation
+below saturation so R stays bounded), and record C's coefficient of variation
+(CV). A clean,
 low-CV C is a precondition for delay attribution, so we WARN/FAIL if CV exceeds
 config kernel.cv_threshold.
 
@@ -189,6 +191,7 @@ def main() -> int:
     rt_cpu = args.rt_cpu if args.rt_cpu is not None else int(cfg["cpu_assignment"]["rt_core_logical"])
     M = int(cfg["kernel"]["matrix_M"])
     cv_thr = float(cfg["kernel"]["cv_threshold"])
+    headroom = float(cfg["calibration"].get("headroom_frac", 1.0))
 
     node = None
     if not args.local:
@@ -217,15 +220,19 @@ def main() -> int:
             log(f"{cid}: already calibrated (K={ktab[cid]['K']}); skip")
             continue
         Q = c["q_us"]
-        log(f"{cid}: solving K for Q={Q}us (M={M}) on cpu{rt_cpu} ...")
-        K, med, cv = solve_K(runner, M, Q, cfg, curve_rows, cid)
+        target = headroom * Q
+        log(f"{cid}: solving K for target C={target:.0f}us "
+            f"(= {headroom:g} * Q={Q}us, M={M}) on cpu{rt_cpu} ...")
+        K, med, cv = solve_K(runner, M, target, cfg, curve_rows, cid)
         entry = {"K": K, "median_C_us": round(med, 1), "cv": round(cv, 4),
-                 "M": M, "Q_us": Q, "scale": c["scale"], "u": c["u"]}
+                 "M": M, "Q_us": Q, "target_C_us": round(target, 1),
+                 "headroom_frac": headroom, "scale": c["scale"], "u": c["u"]}
         ktab[cid] = entry
         cv_report[cid] = {"cv": round(cv, 4), "threshold": cv_thr,
-                          "ok": cv <= cv_thr, "median_C_us": round(med, 1), "Q_us": Q}
+                          "ok": cv <= cv_thr, "median_C_us": round(med, 1),
+                          "target_C_us": round(target, 1), "Q_us": Q}
         flag = "OK" if cv <= cv_thr else "HIGH-CV!!"
-        log(f"{cid}: K={K} median_C={med:.0f}us (Q={Q}) cv={cv:.4f} [{flag}]")
+        log(f"{cid}: K={K} median_C={med:.0f}us (target={target:.0f}, Q={Q}) cv={cv:.4f} [{flag}]")
         if cv > cv_thr:
             failed_cv.append(cid)
 

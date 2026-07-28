@@ -1,0 +1,13 @@
+# Model 1 — clean baseline. Only the sweep grid + calibration knobs live here;
+# the manifest is job.yaml. namespace/node/image are duplicated so calibrate.py
+# can reach the cluster.
+model: model1
+namespace: rq1-model1
+node_label: experiment-model=model1
+host_path: /var/lib/rq1/model1
+image: pippina2/rq1-probe:v1
+matrix_M: 48
+headroom_frac: 0.7            # calibrate median C -> 0.7*Q so R stays bounded
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }   # period_us per scale
+co_runners: {}

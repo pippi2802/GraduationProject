@@ -1,0 +1,19 @@
+# Model 4 — IRQ steering. Does steering device interrupts onto the RT core inflate
+# the delay layer (R - C)? Two arms with IDENTICAL manifests: off (device IRQs
+# steered AWAY from the RT core) and on (steered ONTO it). The steering itself is a
+# node-level action applied by the agent / a privileged step before each arm — the
+# harness measures both arms and records which; the reservation is identical so any
+# R-tail difference is a pure IRQ effect. NOTE (stated limitation): in an Azure
+# guest many IRQs are managed and cannot be steered; if no interrupt CPU-time lands
+# on the RT core, model4 is a documented negative result, not a failure.
+model: model4
+namespace: rq1-model4
+node_label: experiment-model=model4
+host_path: /var/lib/rq1/model4
+image: pippina2/rq1-probe:v1
+
+matrix_M: 48
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners: {}                          # IRQ steering is a node action; run twice (off/on)
