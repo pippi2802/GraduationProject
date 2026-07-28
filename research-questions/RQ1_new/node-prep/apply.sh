@@ -7,11 +7,9 @@ MODEL="${1:?usage: apply.sh <model>}"
 cd "$(dirname "$0")"
 
 read -r NS LK LV HOST_PATH < <(python3 - "$MODEL" <<'PY'
-import sys
-sys.path.insert(0, "../common")
-import rqlib
-c = rqlib.load_config(sys.argv[1])
-k, v = rqlib._label_kv(c)
+import sys, yaml
+c = yaml.safe_load(open(f"../models/{sys.argv[1]}/config.yaml"))
+k, _, v = c["node_label"].partition("=")
 print(c["namespace"], k, v, c["host_path"])
 PY
 )
