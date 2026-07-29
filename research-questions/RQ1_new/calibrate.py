@@ -14,6 +14,7 @@ every U in the grid (0.1 covers neighbours too).
 """
 import argparse
 import json
+import os
 import statistics
 import subprocess
 import sys
@@ -50,31 +51,31 @@ def median_cv(csv_text):
     return m, (statistics.pstdev(C) / m if m else float("inf"))
 
 
-def measure(cfg, K, local, rt_cpu, ns, pod):
+def measure(cfg, K, local, rt_cpu, ns, pod, extra):
     args = ["--M", str(cfg["matrix_M"]), "--K", str(K), "--period-us", "0",
             "--n-jobs", str(PROBE_JOBS), "--warmup", str(PROBE_WARMUP),
-            "--priority", "90", "--cpu", str(rt_cpu)]
+            "--priority", "90", "--cpu", str(rt_cpu), *extra]
     if local:
         return median_cv(run([str(BIN), *args]).stdout or "")
     cmd = f"taskset -c {rt_cpu} /usr/local/bin/matmul " + " ".join(args)
     return median_cv(run(["kubectl", "exec", "-n", ns, pod, "--", "bash", "-c", cmd]).stdout or "")
 
 
-def solve_K(cfg, target, local, rt_cpu, ns, pod):
+def solve_K(cfg, target, local, rt_cpu, ns, pod, extra):
     K = 1
-    res = measure(cfg, K, local, rt_cpu, ns, pod)
+    res = measure(cfg, K, local, rt_cpu, ns, pod, extra)
     if not res:
         raise RuntimeError("no C samples (probe failed?)")
     med, cv = res
     while med < 200.0 and K < 10**8:
-        K = max(K * 4, K + 1); med, cv = measure(cfg, K, local, rt_cpu, ns, pod)
+        K = max(K * 4, K + 1); med, cv = measure(cfg, K, local, rt_cpu, ns, pod, extra)
     for _ in range(8):
         if med > 0 and abs(med - target) <= 0.03 * target:
             break
         Knew = max(1, int(round(target / (med / K))))
         if Knew == K:
             break
-        K = Knew; med, cv = measure(cfg, K, local, rt_cpu, ns, pod)
+        K = Knew; med, cv = measure(cfg, K, local, rt_cpu, ns, pod, extra)
     return K, med, cv
 
 
@@ -113,10 +114,16 @@ def main() -> int:
 
     cfg = yaml.safe_load((HERE / "models" / args.model / "config.yaml").read_text())
     ns, pod = cfg["namespace"], f"{cfg['model']}-calib"
+    # workload selection: WORKLOAD env overrides config; separate k_table per kind.
+    workload = (os.environ.get("WORKLOAD") or cfg.get("workload") or "matmul").strip()
+    buf_kb = int(os.environ.get("BUF_KB") or cfg.get("buf_kb") or 131072)
+    extra = [] if workload == "matmul" else ["--kind", workload, "--buf-kb", str(buf_kb)]
+    print(f"[calib] workload={workload}" + (f" buf_kb={buf_kb}" if extra else ""))
     if not args.local:
         ensure_pod(cfg, ns, pod)
 
-    tab_path = HERE / "models" / args.model / "k_table.json"
+    tab_name = "k_table.json" if workload == "matmul" else f"k_table.{workload}.json"
+    tab_path = HERE / "models" / args.model / tab_name
     table = json.loads(tab_path.read_text()) if tab_path.exists() else {}
     failed = []
     for scale, P in cfg["scales"].items():
@@ -126,7 +133,7 @@ def main() -> int:
                 print(f"[calib] {key}: cached K={table[key]['K']}; skip"); continue
             Q = int(round(u * P))
             target = int(round(cfg["headroom_frac"] * Q))
-            K, med, cv = solve_K(cfg, target, args.local, args.rt_cpu, ns, pod)
+            K, med, cv = solve_K(cfg, target, args.local, args.rt_cpu, ns, pod, extra)
             table[key] = {"K": K, "median_C_us": round(med, 1), "cv": round(cv, 4),
                           "target_us": target, "Q_us": Q, "scale": scale, "u": u}
             print(f"[calib] {key}: K={K} medC={med:.0f} (target {target}) cv={cv:.4f} "

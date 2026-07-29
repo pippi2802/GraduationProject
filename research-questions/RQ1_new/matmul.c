@@ -53,6 +53,9 @@ static const char *CSV_HEADER =
     "dispatch_latency_us,mid_job_preempt_us,slack_us,deadline_miss,tardiness_us,"
     "nonvol_ctxt,K_reps,matrix_M,skipped_before";
 
+enum { KIND_MATMUL, KIND_PTRCHASE };
+#define PTRCHASE_HOPS_PER_K 512   // hops per K-unit; calibration tunes K
+
 static inline int64_t ts_ns(const struct timespec *t) {
     return (int64_t)t->tv_sec * 1000000000LL + (int64_t)t->tv_nsec;
 }
@@ -85,6 +88,25 @@ static void matmul(const double *restrict A, const double *restrict B,
     }
 }
 
+// ---- memory-bound kernel: pointer chase over a buffer >> LLC -----------------
+// A single random cycle (Sattolo) means idx = buf[idx] visits every slot in an
+// unpredictable order, defeating the HW prefetcher: on a buffer larger than the
+// LLC nearly every hop is a last-level-cache / DRAM miss, so execution time C is
+// dominated by SHARED cache + memory-bandwidth latency -- the resource neither
+// Kubernetes nor the DRA driver partitions. Deterministic from --seed.
+static void build_cycle(size_t *buf, size_t n, uint64_t *state) {
+    for (size_t i = 0; i < n; i++) buf[i] = i;
+    for (size_t i = n - 1; i > 0; i--) {          // Sattolo -> one Hamiltonian cycle
+        uint64_t x = *state; x ^= x << 13; x ^= x >> 7; x ^= x << 17; *state = x;
+        size_t j = (size_t)(x % i);               // 0 <= j < i
+        size_t t = buf[i]; buf[i] = buf[j]; buf[j] = t;
+    }
+}
+static size_t ptrchase(const size_t *restrict buf, size_t pos, long hops) {
+    for (long h = 0; h < hops; h++) pos = buf[pos];
+    return pos;
+}
+
 static long involuntary_ctxt(void) {
     struct rusage ru;
     if (getrusage(RUSAGE_THREAD, &ru) == 0) return ru.ru_nivcsw;
@@ -94,8 +116,10 @@ static long involuntary_ctxt(void) {
 static void usage(const char *p) {
     fprintf(stderr,
         "usage: %s --M <int> --K <int> --period-us <int> --n-jobs <int>\n"
+        "          [--kind matmul|ptrchase] [--buf-kb <int>]\n"
         "          [--warmup <int>] [--priority <int>] [--cpu <int|env>]\n"
         "          [--seed <uint>] [--logfile <path>] [--no-lock-pages]\n"
+        "  --kind ptrchase  memory/LLC-bound random pointer chase (--buf-kb working set).\n"
         "  --cpu env  reads RT_CPUSET (first cpu) for affinity; else no pinning.\n",
         p);
 }
@@ -107,6 +131,8 @@ int main(int argc, char **argv) {
     uint64_t seed = 20260713ULL;
     int cpu = -1;                 // -1 => no explicit pinning (driver/taskset did it)
     int lock_pages = 1;
+    int kind = KIND_MATMUL;       // matmul (FP, in-cache) | ptrchase (memory/LLC)
+    long buf_kb = 131072;         // ptrchase working set in KB (>> LLC); default 128 MB
     const char *logfile = NULL;
 
     static struct option opts[] = {
@@ -120,6 +146,8 @@ int main(int argc, char **argv) {
         {"seed", required_argument, 0, 's'},
         {"logfile", required_argument, 0, 'o'},
         {"no-lock-pages", no_argument, 0, 'L'},
+        {"kind", required_argument, 0, 1001},
+        {"buf-kb", required_argument, 0, 1002},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}};
     int ci;
@@ -134,6 +162,8 @@ int main(int argc, char **argv) {
         case 's': seed = strtoull(optarg, NULL, 10); break;
         case 'o': logfile = optarg; break;
         case 'L': lock_pages = 0; break;
+        case 1001: kind = (strcmp(optarg, "ptrchase") == 0) ? KIND_PTRCHASE : KIND_MATMUL; break;
+        case 1002: buf_kb = atol(optarg); break;
         case 'c':
             if (strcmp(optarg, "env") == 0) {
                 const char *e = getenv("RT_CPUSET");
@@ -177,11 +207,25 @@ int main(int argc, char **argv) {
     matmul(A, B, Cm, M);            // touch pages / warm caches before timing
     volatile double sink = 0.0;
 
+    // memory-bound kernel: build one random cycle over a buffer >> LLC so every
+    // hop is a cache/DRAM miss. Uses the same seed stream (deterministic).
+    size_t *cbuf = NULL; size_t cbuf_n = 0, chase_pos = 0;
+    if (kind == KIND_PTRCHASE) {
+        size_t bytes = (size_t)(buf_kb > 0 ? buf_kb : 131072) * 1024;
+        cbuf_n = bytes / sizeof(size_t);
+        if (cbuf_n < 2) cbuf_n = 2;
+        cbuf = aligned_alloc(64, cbuf_n * sizeof(size_t));
+        if (!cbuf) { fprintf(stderr, "[probe] ptrchase alloc failed (buf_kb=%ld)\n", buf_kb); return 1; }
+        build_cycle(cbuf, cbuf_n, &st);   // touches every page (warm)
+    }
+
     FILE *out = stdout;
     if (logfile) { out = fopen(logfile, "w"); if (!out) { perror("fopen"); return 1; } }
-    fprintf(out, "# matmul M=%d K=%d period_us=%lld priority=%d cpu=%d seed=%llu "
-                 "n_jobs=%ld warmup=%d\n",
-            M, K, (long long)(period_ns / 1000), priority, cpu,
+    fprintf(out, "# probe kind=%s M=%d K=%d buf_kb=%ld period_us=%lld priority=%d "
+                 "cpu=%d seed=%llu n_jobs=%ld warmup=%d\n",
+            kind == KIND_PTRCHASE ? "ptrchase" : "matmul", M, K,
+            (kind == KIND_PTRCHASE ? buf_kb : 0L),
+            (long long)(period_ns / 1000), priority, cpu,
             (unsigned long long)seed, n_jobs, warmup);
     fprintf(out, "%s\n", CSV_HEADER);
 
@@ -190,8 +234,13 @@ int main(int argc, char **argv) {
     // transients BEFORE anchoring the metronome, so a slow first job cannot poison
     // every subsequent release. These jobs are neither timed nor logged.
     for (long w = 0; w < warmup; w++) {
-        for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
-        sink += Cm[0];
+        if (kind == KIND_PTRCHASE) {
+            chase_pos = ptrchase(cbuf, chase_pos, (long)K * PTRCHASE_HOPS_PER_K);
+            sink += (double)chase_pos;
+        } else {
+            for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
+            sink += Cm[0];
+        }
     }
 
     // --- periodic loop (measured, with missed-release CATCH-UP) -----------------
@@ -207,8 +256,13 @@ int main(int argc, char **argv) {
         clock_gettime(CLOCK_MONOTONIC, &t_start);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc0);
 
-        for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
-        sink += Cm[0];
+        if (kind == KIND_PTRCHASE) {
+            chase_pos = ptrchase(cbuf, chase_pos, (long)K * PTRCHASE_HOPS_PER_K);
+            sink += (double)chase_pos;
+        } else {
+            for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
+            sink += Cm[0];
+        }
 
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc1);
         clock_gettime(CLOCK_MONOTONIC, &t_finish);
@@ -247,6 +301,6 @@ int main(int argc, char **argv) {
     }
     if (out != stdout) fclose(out);
     (void)sink;
-    free(A); free(B); free(Cm);
+    free(A); free(B); free(Cm); free(cbuf);
     return 0;
 }

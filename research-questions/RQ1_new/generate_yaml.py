@@ -12,6 +12,7 @@ models/<model>/k_table.json (calibrate.py). Co-runners declared in config.yaml
     -> models/model2/generated/<scale>/U<u>.yaml   (kubectl create -f these; run_job.sh does it)
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -109,7 +110,11 @@ def main() -> int:
     model = sys.argv[1]
     cfg = yaml.safe_load((MODELS / model / "config.yaml").read_text(encoding="utf-8"))
     base = (MODELS / model / "job.yaml").read_text(encoding="utf-8")
-    ktab_path = MODELS / model / "k_table.json"
+    # workload selection: WORKLOAD env overrides config; separate k_table per kind.
+    workload = (os.environ.get("WORKLOAD") or cfg.get("workload") or "matmul").strip()
+    buf_kb = int(os.environ.get("BUF_KB") or cfg.get("buf_kb") or 131072)
+    tab_name = "k_table.json" if workload == "matmul" else f"k_table.{workload}.json"
+    ktab_path = MODELS / model / tab_name
     ktab = json.loads(ktab_path.read_text(encoding="utf-8")) if ktab_path.exists() else {}
     cr = cfg.get("co_runners") or {}
     lk, _, lv = cfg["node_label"].partition("=")
@@ -144,11 +149,17 @@ def main() -> int:
                                          image=image, cpu=intf.get("cpu", "1"), k=K, p=P,
                                          host=host, sub=sub)
 
+            # non-matmul workloads: inject the kernel flags into EVERY probe command
+            # (target + neighbours + interferer all call /usr/local/bin/matmul).
+            if workload != "matmul":
+                doc = doc.replace("/usr/local/bin/matmul ",
+                                  f"/usr/local/bin/matmul --kind {workload} --buf-kb {buf_kb} ")
+
             fp = out_root / scale / f"U{ulabel(u)}.yaml"
             fp.parent.mkdir(parents=True, exist_ok=True)
             fp.write_text(doc, encoding="utf-8")
             n += 1
-    print(f"[gen] wrote {n} manifest(s) under {out_root}")
+    print(f"[gen] wrote {n} manifest(s) under {out_root} (workload={workload})")
     return 0
 
 

@@ -10,17 +10,18 @@ so we keep only the guarantee metrics (R, C) and their normalized forms.
 
 ## Files (all flat at the top)
 ```
-matmul.c  Makefile  Dockerfile  build.sh   the ONE probe (fixed clocks, warm-up, catch-up)
+matmul.c  Makefile  Dockerfile  build.sh   the ONE probe: --kind matmul (FP) | ptrchase (memory/LLC)
 generate_yaml.py    models/<m>/job.yaml + k_table.json -> models/<m>/generated/<scale>/U<u>.yaml
 run_job.sh          loop the generated manifests: create -> wait -> pull jobs.csv -> delete
 calibrate.py        K per (scale,U) so median C ≈ 0.7·Q  (run with frequency PINNED)
-result.py           the five figures + results/<m>/summary.csv  (pandas/matplotlib)
+result.py           the five figures + results/<m>/summary.csv  (also: result.py compare A B)
 node-prep/apply.sh  node agent: PIN CPU FREQUENCY + expose results
+node-prep/steer-irqs.sh  model4: steer device IRQs off/onto the RT core (+ /proc/interrupts evidence)
 models/
   model1/{config.yaml, job.yaml}   clean baseline
   model2/{config.yaml, job.yaml}   + reserved neighbours    (co_runners.neighbours)
-  model3/{config.yaml, job.yaml}   + SMT-sibling interferer (co_runners.interferer)
-  model4/{config.yaml, job.yaml}   IRQ steering (node action; run twice off/on)
+  model3/{config.yaml, job.yaml}   + interferer, SMT sibling OR separate core (INTF_PLACEMENT)
+  model4/{config.yaml, job.yaml}   IRQ steering off/on       (IRQ_STEER)
 results/<model>/<scale>/U<u>/jobs.csv · <model>/summary.csv · <model>/figures/
 ```
 
@@ -44,25 +45,50 @@ readable manifest with five tokens `generate_yaml.py` fills:
 Because every model runs the same probe, all `summary.csv` share one schema and the
 figures are directly comparable across models.
 
-## Run a model (e.g. model2, both scales)
+## Run a model
 ```bash
-# 0. build + push the probe once (any model uses it)
-IMAGE=pippina2/rq1-probe:v1 ./build.sh
+# 0. build + push the probe once (rebuild after editing matmul.c; bumps to :v2)
+./build.sh
 
 # 1. pin frequency + start the results agent on the model's node
-node-prep/apply.sh model2
+bash node-prep/apply.sh model2
 
-# 2. calibrate K at the pinned clock (native on an isolated core, or via a pod)
-python calibrate.py model2 --local        # -> models/model2/k_table.json
-
-# 3. stamp the manifests, then run + plot
-python generate_yaml.py model2            # -> models/model2/generated/<scale>/U<u>.yaml
-./run_job.sh model2                        # both scales (or: ./run_job.sh model2 soft)
-python result.py model2                    # -> results/model2/summary.csv + figures/
+# 2. calibrate K (pinned clock)  3. stamp manifests  4. run  5. plot
+python calibrate.py model2                  # -> models/model2/k_table.json
+python generate_yaml.py model2              # -> models/model2/generated/<scale>/U<u>.yaml
+./run_job.sh model2                          # both scales (or: ./run_job.sh model2 soft)
+python result.py model2                      # -> results/model2/summary.csv + figures/
 ```
 
-Model 4 (IRQ off vs on): steer IRQs away, run the sweep, move `results/model4` →
-`results/model4-off`; steer onto the core, run again → `results/model4-on`; compare.
+### Choose the workload (any model)
+`matmul` (default, FP/in-cache) or `ptrchase` (memory/LLC-bound). Set `WORKLOAD` for
+calibrate **and** generate: it uses a separate `k_table.<kind>.json` and injects the
+kernel into every probe (target + co-runners). Keep results apart with `OUT_TAG`:
+```bash
+WORKLOAD=ptrchase BUF_KB=131072 python calibrate.py model3     # 128 MB working set >> LLC
+WORKLOAD=ptrchase BUF_KB=131072 python generate_yaml.py model3
+OUT_TAG=_mem ./run_job.sh model3                               # -> results/model3_mem/
+python result.py model3_mem
+```
+
+### model3 — interferer placement (SMT sibling vs separate core)
+```bash
+INTF_PLACEMENT=sibling  ./run_job.sh model3                    # same physical core (default)
+INTF_PLACEMENT=separate OUT_TAG=_sep ./run_job.sh model3       # control: different core
+python result.py compare model3 model3_sep                     # overlay CDFs + C-inflation table
+```
+
+### model4 — IRQ steering (off vs on)
+Real steering + `/proc/interrupts` ground truth (`node-prep/steer-irqs.sh`); each cell
+logs `irq.json`:
+```bash
+IRQ_STEER=off OUT_TAG=_off ./run_job.sh model4
+IRQ_STEER=on  OUT_TAG=_on  ./run_job.sh model4
+python result.py compare model4_off model4_on
+```
+
+**Env knobs:** `WORKLOAD` `BUF_KB` (workload) · `INTF_PLACEMENT` (model3) · `IRQ_STEER`
+(model4) · `OUT_TAG` (results subdir suffix, e.g. `_sep` → `results/<model>_sep/`).
 
 ## Reproducibility (built in)
 - **Frequency pinned** (`node-prep`) so `C` is a stable base-clock measurement.

@@ -2,7 +2,7 @@
 # Build + push the shared probe image. All models reference this one ref.
 # Override the ref with  IMAGE=myrepo/myname:tag ./build.sh
 set -euo pipefail
-IMAGE="${IMAGE:-pippina2/rq1-probe:v1}"
+IMAGE="${IMAGE:-pippina2/rq1-probe:v2}"
 cd "$(dirname "$0")"
 echo "[build] $IMAGE"
 docker build -t "$IMAGE" .

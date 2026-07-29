@@ -10,7 +10,7 @@ model: model4
 namespace: rq1-model4
 node_label: experiment-model=model4
 host_path: /var/lib/rq1/model4
-image: pippina2/rq1-probe:v1
+image: pippina2/rq1-probe:v2
 
 matrix_M: 48
 headroom_frac: 0.7
