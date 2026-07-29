@@ -1,0 +1,1 @@
+{"model":"model3","scale":"soft","U":"0.4","placement_mode":"sibling","target_pod":"model3-soft-u40","target_RT_CPUSET":"2","interferer_cpu":"3","thread_siblings_list":"2-3","interferer_on_sibling":"true"}
