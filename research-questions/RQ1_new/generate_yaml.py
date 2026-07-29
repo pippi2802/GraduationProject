@@ -94,9 +94,11 @@ spec:
       args:
         - |
           set -e; mkdir -p /results
-          # UNRESERVED (CFS) matmul pinned to the SMT sibling; priority 0.
+          # UNRESERVED (CFS) matmul pinned to the SMT sibling; priority 0. Runs
+          # until the cell is torn down (after the TARGET completes), so it
+          # contends for the target's WHOLE run instead of finishing early.
           exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us {p} \\
-            --n-jobs 6000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
+            --n-jobs 100000000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
       volumeMounts: [{{ name: results, mountPath: /results }}]
   volumes:
     - name: results
