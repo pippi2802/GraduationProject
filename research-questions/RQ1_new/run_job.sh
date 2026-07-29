@@ -16,6 +16,10 @@ INTF_PLACEMENT="${INTF_PLACEMENT:-sibling}"
 # suffix for the results dir so a control run doesn't overwrite the sibling run,
 # e.g. OUT_TAG=_sep -> results/model3_sep/...
 OUT_TAG="${OUT_TAG:-}"
+# IRQ steering arm (model4 only): unset | off | on.
+#   off -> park device IRQs on a non-RT core   on -> steer them onto the RT core.
+# This is what makes model4's two arms a real experiment (otherwise off==on).
+IRQ_STEER="${IRQ_STEER:-}"
 
 read -r NS HOST_PATH < <(python3 - "$MODEL" <<'PY'
 import sys, yaml
@@ -49,6 +53,7 @@ for f in "${FILES[@]}"; do
   # record where the driver actually placed the target (proof of co-location)
   tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
   tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
+  rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
 
   # model3: pin an UNRESERVED interferer relative to where the driver put the target.
   #   INTF_PLACEMENT=sibling  -> same physical core (SMT sibling)       [default]
@@ -56,7 +61,6 @@ for f in "${FILES[@]}"; do
   intf="models/$MODEL/generated/_intf/$scale/$ul.yaml"
   intf_cpu=""; sibs=""; is_sibling="n/a"
   if [ -f "$intf" ]; then
-    rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
     if [ -n "$rtcpu" ]; then
       sibs=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$rtcpu/topology/thread_siblings_list" 2>/dev/null)
       sibset=$(echo "$sibs" | tr ',-' '  ')                # e.g. "2 3" = the target's physical core
@@ -87,6 +91,16 @@ for f in "${FILES[@]}"; do
 {"model":"$MODEL","scale":"$scale","U":"${ul#U}","placement_mode":"$INTF_PLACEMENT","target_pod":"$tgt","target_RT_CPUSET":"$tgt_cpuset","interferer_cpu":"$intf_cpu","thread_siblings_list":"$sibs","interferer_on_sibling":"$is_sibling"}
 JSON
 
+  # model4: apply the IRQ-steering arm and snapshot the RT core's interrupt count.
+  # The before/after delta on /proc/interrupts is the GROUND TRUTH of whether IRQs
+  # actually reached the RT core (masks are only intent; Azure may ignore them).
+  steer_out=""; irq_before=""
+  if [ -n "$IRQ_STEER" ] && [ -n "$rtcpu" ]; then
+    steer_out=$(kubectl -n "$NS" exec -i "$AGENT" -- bash -s -- "$IRQ_STEER" "$rtcpu" < node-prep/steer-irqs.sh 2>/dev/null)
+    irq_before=$(kubectl -n "$NS" exec "$AGENT" -- awk -v c=$((rtcpu + 2)) 'NR>1{s+=$c} END{print s+0}' /proc/interrupts 2>/dev/null)
+    echo "[run] IRQ_STEER=$IRQ_STEER rtcpu=$rtcpu -> ${steer_out:-<none>}"
+  fi
+
   # wait for the target pod to Complete (Succeeded)
   echo "[run] running..."
   for _ in $(seq 1 1000); do
@@ -101,6 +115,15 @@ JSON
   kubectl exec -n "$NS" "$AGENT" -- cat "/host$HOST_PATH/$sub/target/jobs.csv" > "$out/jobs.csv" 2>/dev/null
   if [ -s "$out/jobs.csv" ]; then echo "[run] collected $(wc -l < "$out/jobs.csv") lines -> $out"; \
      else echo "[run] WARN empty jobs.csv"; fi
+
+  # model4: close the IRQ evidence — how many interrupts actually hit the RT core.
+  if [ -n "$IRQ_STEER" ] && [ -n "$rtcpu" ]; then
+    irq_after=$(kubectl -n "$NS" exec "$AGENT" -- awk -v c=$((rtcpu + 2)) 'NR>1{s+=$c} END{print s+0}' /proc/interrupts 2>/dev/null)
+    delta=$(( ${irq_after:-0} - ${irq_before:-0} ))
+    printf '{"arm":"%s","steer":%s,"irqs_on_rtcpu_during_run":%d}\n' \
+      "$IRQ_STEER" "${steer_out:-null}" "$delta" > "$out/irq.json"
+    echo "[run] interrupts serviced on RT cpu$rtcpu during run: $delta"
+  fi
 
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
