@@ -20,6 +20,11 @@ OUT_TAG="${OUT_TAG:-}"
 #   off -> park device IRQs on a non-RT core   on -> steer them onto the RT core.
 # This is what makes model4's two arms a real experiment (otherwise off==on).
 IRQ_STEER="${IRQ_STEER:-}"
+# pin the target to a specific logical cpu for stable, comparable placement. The
+# SMT-blind driver has no core knob, so we delete+recreate until worst-fit lands
+# there (up to PIN_ATTEMPTS). Empty = accept whatever the driver picks.
+PIN_RTCPU="${PIN_RTCPU:-}"
+PIN_ATTEMPTS="${PIN_ATTEMPTS:-8}"
 
 read -r NS HOST_PATH < <(python3 - "$MODEL" <<'PY'
 import sys, yaml
@@ -41,19 +46,27 @@ for f in "${FILES[@]}"; do
   sub="$scale/$ul"; out="results/${MODEL}${OUT_TAG}/$scale/$ul"
   echo "[run] === $sub ($f) ==="
   mkdir -p "$out"
-  kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-  kubectl create -f "$f" >/dev/null
 
-  # target must become Ready (skip cell if it never places, e.g. over-subscribe)
-  if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
-        --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
-    echo "[run] target not Ready; skipping"; kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1; continue
+  # create the cell; if PIN_RTCPU is set, retry placement until the driver puts the
+  # target on that cpu (stable, comparable core across cells/arms).
+  placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
+  for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
+    kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+    kubectl create -f "$f" >/dev/null
+    if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
+          --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
+      echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS)"; continue
+    fi
+    tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
+    tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
+    rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
+    if [ -z "$PIN_RTCPU" ] || [ "$rtcpu" = "$PIN_RTCPU" ]; then placed=1; break; fi
+    echo "[run] target on cpu$rtcpu != PIN_RTCPU=$PIN_RTCPU; re-placing ($attempt/$PIN_ATTEMPTS)"
+  done
+  if [ "$placed" = 0 ]; then
+    echo "[run] could not place target on cpu${PIN_RTCPU:-any}; skipping cell"
+    kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1; continue
   fi
-
-  # record where the driver actually placed the target (proof of co-location)
-  tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
-  tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
-  rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
 
   # model3: pin an UNRESERVED interferer relative to where the driver put the target.
   #   INTF_PLACEMENT=sibling  -> same physical core (SMT sibling)       [default]

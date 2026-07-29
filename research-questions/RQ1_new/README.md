@@ -88,7 +88,8 @@ python result.py compare model4_off model4_on
 ```
 
 **Env knobs:** `WORKLOAD` `BUF_KB` (workload) · `INTF_PLACEMENT` (model3) · `IRQ_STEER`
-(model4) · `OUT_TAG` (results subdir suffix, e.g. `_sep` → `results/<model>_sep/`).
+(model4) · `PIN_RTCPU` (force the target onto a fixed logical cpu, e.g. `PIN_RTCPU=0`,
+via placement retries) · `OUT_TAG` (results subdir suffix, e.g. `_sep` → `results/<model>_sep/`).
 
 ## Reproducibility (built in)
 - **Frequency pinned** (`node-prep`) so `C` is a stable base-clock measurement.
