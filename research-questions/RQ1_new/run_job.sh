@@ -53,7 +53,7 @@ for f in "${FILES[@]}"; do
 
   # create the cell; if PIN_RTCPU is set, retry placement until the driver puts the
   # target on that cpu (stable, comparable core across cells/arms).
-  placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
+  placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; nb_cpu=""; nb_on_sibling="n/a"
   for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
     kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
     kubectl create -f "$f" >/dev/null
@@ -70,18 +70,20 @@ for f in "${FILES[@]}"; do
     if [ -n "$COLOCATE" ] && [ -n "$rtcpu" ]; then
       # require a reserved neighbour on the target's SMT sibling (same physical core)
       kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" --for=condition=Ready --timeout=90s >/dev/null 2>&1 || true
-      sibs=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$rtcpu/topology/thread_siblings_list" 2>/dev/null | tr ',-' '  ')
-      found=0
+      sibs=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$rtcpu/topology/thread_siblings_list" 2>/dev/null)
+      sibset=$(echo "$sibs" | tr ',-' '  ')
+      found=0; nb_cpu=""
       for np in $(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
         ncpu=$(kubectl -n "$NS" exec "$np" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
-        for s in $sibs; do
-          if [ "$s" != "$rtcpu" ] && [ "$s" = "$ncpu" ]; then found=1; fi
+        for s in $sibset; do
+          if [ "$s" != "$rtcpu" ] && [ "$s" = "$ncpu" ]; then found=1; nb_cpu="$ncpu"; fi
         done
       done
       if [ "$found" = 0 ]; then
         echo "[run] no neighbour on target's sibling (rtcpu=$rtcpu); re-placing ($attempt/$PIN_ATTEMPTS)"; continue
       fi
-      echo "[run] co-located: target cpu$rtcpu + neighbour on its SMT sibling"
+      nb_on_sibling="true"
+      echo "[run] co-located: target cpu$rtcpu + neighbour cpu$nb_cpu (same physical core)"
     fi
     placed=1; break
   done
@@ -123,7 +125,7 @@ for f in "${FILES[@]}"; do
 
   # persist placement so sibling-vs-separate-core is a logged FACT, not an inference
   cat > "$out/placement.json" <<JSON
-{"model":"$MODEL","scale":"$scale","U":"${ul#U}","placement_mode":"$INTF_PLACEMENT","target_pod":"$tgt","target_RT_CPUSET":"$tgt_cpuset","interferer_cpu":"$intf_cpu","thread_siblings_list":"$sibs","interferer_on_sibling":"$is_sibling"}
+{"model":"$MODEL","scale":"$scale","U":"${ul#U}","placement_mode":"$INTF_PLACEMENT","target_pod":"$tgt","target_RT_CPUSET":"$tgt_cpuset","interferer_cpu":"$intf_cpu","neighbour_cpu":"$nb_cpu","neighbour_on_sibling":"$nb_on_sibling","thread_siblings_list":"$sibs","interferer_on_sibling":"$is_sibling"}
 JSON
 
   # model4: apply the IRQ-steering arm and snapshot the RT core's interrupt count.
