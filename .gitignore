@@ -1,0 +1,12 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# RQ1_new generated manifests (regenerable via generate_yaml.py)
+research-questions/RQ1_new/models/*/generated/
+
+# stray shell-redirect artifacts occasionally created by mistyped loops
+research-questions/RQ1_new/awk
+research-questions/RQ1_new/done
+research-questions/RQ1_new/echo
