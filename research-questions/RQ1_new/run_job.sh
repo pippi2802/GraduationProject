@@ -25,6 +25,10 @@ IRQ_STEER="${IRQ_STEER:-}"
 # there (up to PIN_ATTEMPTS). Empty = accept whatever the driver picks.
 PIN_RTCPU="${PIN_RTCPU:-}"
 PIN_ATTEMPTS="${PIN_ATTEMPTS:-8}"
+# COLOCATE=1 (model2): retry placement until a reserved neighbour lands on the
+# target's SMT sibling (same physical core) -- the driver spreads 2 reservations
+# onto separate cores otherwise, so we retry until worst-fit co-locates them.
+COLOCATE="${COLOCATE:-}"
 
 read -r NS HOST_PATH < <(python3 - "$MODEL" <<'PY'
 import sys, yaml
@@ -60,8 +64,26 @@ for f in "${FILES[@]}"; do
     tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
     tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
     rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
-    if [ -z "$PIN_RTCPU" ] || [ "$rtcpu" = "$PIN_RTCPU" ]; then placed=1; break; fi
-    echo "[run] target on cpu$rtcpu != PIN_RTCPU=$PIN_RTCPU; re-placing ($attempt/$PIN_ATTEMPTS)"
+    if [ -n "$PIN_RTCPU" ] && [ "$rtcpu" != "$PIN_RTCPU" ]; then
+      echo "[run] target cpu$rtcpu != PIN_RTCPU=$PIN_RTCPU; re-placing ($attempt/$PIN_ATTEMPTS)"; continue
+    fi
+    if [ -n "$COLOCATE" ] && [ -n "$rtcpu" ]; then
+      # require a reserved neighbour on the target's SMT sibling (same physical core)
+      kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" --for=condition=Ready --timeout=90s >/dev/null 2>&1 || true
+      sibs=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$rtcpu/topology/thread_siblings_list" 2>/dev/null | tr ',-' '  ')
+      found=0
+      for np in $(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+        ncpu=$(kubectl -n "$NS" exec "$np" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+        for s in $sibs; do
+          if [ "$s" != "$rtcpu" ] && [ "$s" = "$ncpu" ]; then found=1; fi
+        done
+      done
+      if [ "$found" = 0 ]; then
+        echo "[run] no neighbour on target's sibling (rtcpu=$rtcpu); re-placing ($attempt/$PIN_ATTEMPTS)"; continue
+      fi
+      echo "[run] co-located: target cpu$rtcpu + neighbour on its SMT sibling"
+    fi
+    placed=1; break
   done
   if [ "$placed" = 0 ]; then
     echo "[run] could not place target on cpu${PIN_RTCPU:-any}; skipping cell"
