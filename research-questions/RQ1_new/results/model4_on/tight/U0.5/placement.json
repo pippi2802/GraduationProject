@@ -1,1 +1,0 @@
-{"model":"model4","scale":"tight","U":"0.5","placement_mode":"sibling","target_pod":"model4-tight-u50","target_RT_CPUSET":"2","interferer_cpu":"","neighbour_cpu":"","neighbour_on_sibling":"n/a","thread_siblings_list":"","interferer_on_sibling":"n/a"}
