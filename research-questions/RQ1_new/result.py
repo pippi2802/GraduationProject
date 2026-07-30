@@ -181,6 +181,79 @@ def sanity_check(summary_df):
         print(f"[sanity] {warned} warning(s) above -- these cells should be rerun/verified before the numbers are used in the thesis.")
 
 
+def _longest_consecutive_run(miss):
+    """Longest run of consecutive True values in a boolean Series (job-order assumed)."""
+    if not miss.any():
+        return 0
+    grp = (miss != miss.shift()).cumsum()
+    run_lengths = miss.groupby(grp).transform("size")
+    return int(run_lengths[miss].max())
+
+
+def tail_table(model, scales):
+    """Per-cell miss/tardiness/consecutive-run detail -- results/<model>/tail_table.csv.
+    Complements summary.csv: miss_rate alone doesn't distinguish a handful of isolated
+    single-job overruns from a cascading run of consecutive misses, which is exactly the
+    distinction that shows up between low- and high-U cells (less slack -> a disturbance
+    is more likely to bleed into the next job too, not just recur independently)."""
+    base = HERE / "results" / model
+    rows = []
+    for jobs in sorted(base.glob("*/U*/jobs.csv")):
+        scale = jobs.parent.parent.name
+        if scale not in scales:
+            continue
+        u = float(jobs.parent.name[1:])
+        try:
+            df = pd.read_csv(jobs, comment="#")
+        except Exception:
+            continue
+        if df.empty or "deadline_miss" not in df or "job_index" not in df:
+            continue
+        df = df.sort_values("job_index")
+        miss = df["deadline_miss"] == 1
+        n = len(df); miss_n = int(miss.sum())
+        tard = df.loc[miss, "tardiness_us"] if "tardiness_us" in df else pd.Series([], dtype=float)
+        rows.append({
+            "model": model, "scale": scale, "U": u, "n": n,
+            "miss_count": miss_n, "miss_rate": round(miss_n / n, 5) if n else 0.0,
+            "tardiness_max_us": round(float(tard.max()), 1) if miss_n else 0.0,
+            "tardiness_mean_us": round(float(tard.mean()), 1) if miss_n else 0.0,
+            "longest_consecutive_miss_run": _longest_consecutive_run(miss),
+        })
+    out_df = pd.DataFrame(rows)
+    if not out_df.empty:
+        out_df = out_df.sort_values(["scale", "U"])
+        out = base / "tail_table.csv"
+        out_df.to_csv(out, index=False)
+        print(f"[result] wrote {out} ({len(out_df)} cells)")
+    return out_df
+
+
+def cross_scale_tail_fig(summary_df, scales, figs):
+    """One figure, ALL scales overlaid: R_p999/period vs U. summary.csv/figures are all
+    per-scale, so there's no existing view that shows tight and soft side by side --
+    this is what makes a period-sensitivity finding (same absolute jitter is negligible
+    at a long period, near-deadline at a short one) visible directly, instead of
+    something you only notice by comparing two separate files by hand."""
+    if summary_df.empty:
+        return
+    fig, ax = plt.subplots(figsize=(7.2, 4.6))
+    for i, scale in enumerate(sorted(scales)):
+        d = summary_df[(summary_df.scale == scale) & (summary_df.n > 0)].sort_values("U")
+        if d.empty:
+            continue
+        P = scales[scale]
+        color, marker = _style(i)
+        ax.plot(d.U, d.R_p999 / P, color=color, marker=marker, lw=2, ms=6,
+                label=f"{scale} (P={P}us)")
+    ax.axhline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
+    ax.text(ax.get_xlim()[0], 1.005, "deadline (=1)", color="red", fontsize=8, va="bottom")
+    ax.set_xlabel("reserved utilisation  U = Q/P"); ax.set_ylabel("R p999 / period")
+    ax.set_title("Tail response time vs U, normalised by period -- all scales")
+    ax.grid(alpha=0.3); ax.legend(fontsize=9)
+    _save(fig, figs, "cross_scale_tail_vs_U")
+
+
 
 
 
@@ -263,6 +336,8 @@ def main() -> int:
               f"existing summary.csv ({len(summary)} cells); CDFs need raw data.")
         sanity_check(summary)
 
+    tail_table(model, scales)
+
     for scale in scales:
         c = cells.get(scale, {})
         if c:
@@ -271,6 +346,8 @@ def main() -> int:
             cdf_fig(c, "alpha", "α = C/Q", f"CDF of normalized α ({scale})", figs, f"cdf_alpha_{scale}")
         if not summary.empty:
             over_u_figs(summary, scale, figs)
+    if not summary.empty:
+        cross_scale_tail_fig(summary, scales, figs)
     print(f"[result] figures in {figs}")
     return 0
 
