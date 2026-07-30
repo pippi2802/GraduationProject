@@ -1,7 +1,10 @@
-# Model 2 — co-located contention. Does the reservation firewall the target from
-# neighbouring reservations? generate_yaml.py appends `count` reserved neighbours
-# (each at utilisation `u`) next to the target. For a solo reference run, set
-# co_runners: {}.
+# Model 2 — two containers, one physical core. Both target and neighbour are
+# m=1 (single-core) CBS reservations; run_job.sh forces them onto the SAME
+# physical core (i.e. the two SMT threads of one core -- with m=1 each, "same
+# core" and "sibling" are the same thing). Question: does H-CBS's own admission
+# accounting protect two independently-reserved containers from each other when
+# they share a physical core's execution units? model1 (alone) is the control.
+# For a solo reference run, set co_runners: {}.
 model: model2
 namespace: rq1-model2
 node_label: experiment-model=model2
@@ -12,4 +15,4 @@ headroom_frac: 0.7
 utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 scales: { tight: 10000, soft: 100000 }
 co_runners:
-  neighbours: { count: 3, u: 0.1 }     # 3 reserved co-tenants at U=0.1 each
+  neighbours: { count: 1, u: 0.1 }     # 1 reserved neighbour, forced onto target's sibling

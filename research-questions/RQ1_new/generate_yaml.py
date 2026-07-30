@@ -94,13 +94,65 @@ spec:
       args:
         - |
           set -e; mkdir -p /results
-          # UNRESERVED (CFS) matmul pinned to the SMT sibling; priority 0.
+          # UNRESERVED (CFS) matmul pinned to whatever cpu run_job.sh resolves at
+          # placement time (the target's spare/sibling cpu); priority 0.
           exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us {p} \\
             --n-jobs 6000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
       volumeMounts: [{{ name: results, mountPath: /results }}]
   volumes:
     - name: results
       hostPath: {{ path: {host}/{sub}/intf, type: DirectoryOrCreate }}
+"""
+
+# Reserved competitor (model3, COMPETITOR_TYPE=reserved): its own CBS reservation
+# at co_runners.competitor.u, generated as a SEPARATE file (like INTERFERER) since
+# it must only be instantiated for the reserved arm. Unlike INTERFERER it has no
+# cpu placeholder -- like any RT-DRA claim, its placement comes from the driver,
+# so run_job.sh places it with the same retry-until-landed technique as the target.
+COMPETITOR_RESERVED = """---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: {{ namespace: {ns}, name: "{name}-comp-params" }}
+spec: {{ count: 1, runtime: {cq}, period: {p} }}
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: {{ namespace: {ns}, name: "{name}-comp-claim" }}
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: {{ apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "{name}-comp-params" }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: {ns}
+  name: "{name}-comp"
+  labels: {{ app: {model}, role: competitor }}
+spec:
+  restartPolicy: Never
+  nodeSelector: {{ {lk}: {lv} }}
+  tolerations: [{{ operator: Exists }}]
+  containers:
+    - name: probe
+      image: {image}
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          # reserved competitor: runs until the cell is torn down, contending for
+          # the target's whole run (same rationale as model2's neighbour).
+          exec $PIN /usr/local/bin/matmul --M 48 --K {ck} --period-us {p} \\
+            --n-jobs 100000000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
+      securityContext: {{ capabilities: {{ add: ["SYS_NICE","IPC_LOCK"] }} }}
+      resources: {{ claims: [{{ name: rtcpu }}] }}
+      volumeMounts: [{{ name: results, mountPath: /results }}]
+  resourceClaims:
+    - {{ name: rtcpu, source: {{ resourceClaimTemplateName: "{name}-comp-claim" }} }}
+  volumes:
+    - name: results
+      hostPath: {{ path: {host}/{sub}/comp, type: DirectoryOrCreate }}
 """
 
 
@@ -143,11 +195,40 @@ def main() -> int:
                     doc += NEIGHBOUR.format(ns=ns, name=name, i=i, nbq=nb_Q, p=P, nbk=nb_K,
                                             model=model, lk=lk, lv=lv, image=image,
                                             host=host, sub=sub)
+
+            # model3: BOTH competitor arms are pre-generated as SEPARATE files (not
+            # appended to `doc`) since which one gets instantiated is a run_job.sh
+            # -time choice (COMPETITOR_TYPE); neither has a driver-independent cpu
+            # at generate time.
             intf = cr.get("interferer")
-            if intf:
-                doc += INTERFERER.format(ns=ns, name=name, model=model, lk=lk, lv=lv,
-                                         image=image, cpu=intf.get("cpu", "1"), k=K, p=P,
-                                         host=host, sub=sub)
+            if intf is not None:
+                # unreserved: taskset-pinned CFS load; @@INTF_CPU@@ is filled in by
+                # run_job.sh once it knows the target's actual spare/sibling cpu.
+                intf_doc = INTERFERER.format(ns=ns, name=name, model=model, lk=lk, lv=lv,
+                                             image=image, cpu="@@INTF_CPU@@", k=K, p=P,
+                                             host=host, sub=sub)
+                if workload != "matmul":
+                    intf_doc = intf_doc.replace("/usr/local/bin/matmul ",
+                                                f"/usr/local/bin/matmul --kind {workload} --buf-kb {buf_kb} ")
+                fp_intf = out_root / "_intf" / scale / f"U{ulabel(u)}.yaml"
+                fp_intf.parent.mkdir(parents=True, exist_ok=True)
+                fp_intf.write_text(intf_doc, encoding="utf-8")
+            comp = cr.get("competitor")
+            if comp is not None:
+                # reserved: its own CBS reservation; no cpu placeholder needed --
+                # like the target, its landing cpu comes from the driver and
+                # run_job.sh places it with the same retry-until-landed technique.
+                comp_u = float(comp.get("u", 0.3)); comp_Q = int(round(comp_u * P))
+                comp_K = (ktab.get(f"{scale}-U{ulabel(comp_u)}") or {}).get("K") or K
+                comp_doc = COMPETITOR_RESERVED.format(ns=ns, name=name, model=model, lk=lk, lv=lv,
+                                                      image=image, cq=comp_Q, p=P, ck=comp_K,
+                                                      host=host, sub=sub)
+                if workload != "matmul":
+                    comp_doc = comp_doc.replace("/usr/local/bin/matmul ",
+                                                f"/usr/local/bin/matmul --kind {workload} --buf-kb {buf_kb} ")
+                fp_comp = out_root / "_comp" / scale / f"U{ulabel(u)}.yaml"
+                fp_comp.parent.mkdir(parents=True, exist_ok=True)
+                fp_comp.write_text(comp_doc, encoding="utf-8")
 
             # non-matmul workloads: inject the kernel flags into EVERY probe command
             # (target + neighbours + interferer all call /usr/local/bin/matmul).

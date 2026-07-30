@@ -149,6 +149,41 @@ def summarize(cells_by_scale):
     return pd.DataFrame(rows)
 
 
+EXPECTED_N = 5000       # matches --n-jobs in every model's job.yaml
+ROWCOUNT_TOL = 0        # exact match required; harness now retries short cells itself
+ALPHA_CALIB_TOL = 0.10  # calibration targets headroom_frac (usually 0.7); flag drift past this
+R_P50_DROP_TOL = 0.05   # a later (higher-U) cell whose R_p50 falls >5% vs the previous is suspect
+
+
+def sanity_check(summary_df):
+    """Print [sanity] warnings for cells that look like data-quality problems
+    rather than real phenomena: short runs, calibration drift, non-monotonic R_p50
+    across the U-sweep within a scale. Doesn't change any file; just surfaces
+    what result.py already knows so it's visible every time figures are (re)made."""
+    if summary_df.empty:
+        return
+    warned = 0
+    for scale in sorted(summary_df.scale.unique()):
+        d = summary_df[summary_df.scale == scale].sort_values("U")
+        prev_u = prev_r50 = None
+        for _, row in d.iterrows():
+            if row.n != EXPECTED_N:
+                print(f"[sanity] WARNING {row.model} {scale} U={row.U:g}: n={row.n} "
+                      f"(expected {EXPECTED_N}) -- short/incomplete run, rerun this cell")
+                warned += 1
+            if prev_r50 is not None and row.R_p50 < prev_r50 * (1 - R_P50_DROP_TOL):
+                print(f"[sanity] WARNING {row.model} {scale} U={row.U:g}: R_p50={row.R_p50:.0f} "
+                      f"is >{R_P50_DROP_TOL:.0%} BELOW the U={prev_u:g} cell's ({prev_r50:.0f}) -- "
+                      f"non-monotonic vs utilisation, likely a calibration/transient artifact, verify before trusting")
+                warned += 1
+            prev_u, prev_r50 = row.U, row.R_p50
+    if warned:
+        print(f"[sanity] {warned} warning(s) above -- these cells should be rerun/verified before the numbers are used in the thesis.")
+
+
+
+
+
 def _load_cfg_scales(name):
     """Scales (P per scale) for a result set. Tagged sets like 'model3_sep'
     fall back to their base model's config ('model3')."""
@@ -219,12 +254,14 @@ def main() -> int:
         summary["model"] = model
         summary.to_csv(base / "summary.csv", index=False)
         print(f"[result] wrote {base/'summary.csv'} ({len(summary)} cells)")
+        sanity_check(summary)
     elif (base / "summary.csv").exists():
         # raw jobs.csv were pruned (only summary survived): still redraw the vs-U
         # figures from the saved summary. CDFs need the per-job data and are skipped.
         summary = pd.read_csv(base / "summary.csv")
         print(f"[result] raw jobs.csv absent — redrawing vs-U figures from "
               f"existing summary.csv ({len(summary)} cells); CDFs need raw data.")
+        sanity_check(summary)
 
     for scale in scales:
         c = cells.get(scale, {})
