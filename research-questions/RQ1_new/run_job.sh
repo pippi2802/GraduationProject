@@ -39,8 +39,17 @@ PIN_ATTEMPTS="${PIN_ATTEMPTS:-8}"
 # + run + row-count) before giving up and recording it as FAILED.
 CELL_ATTEMPTS="${CELL_ATTEMPTS:-4}"
 # calibration gate: refuse to run a cell whose recorded calibration cv is above
-# this (mis-calibrated K), matching calibrate.py's own CV_THRESHOLD.
-CV_THRESHOLD="${CV_THRESHOLD:-0.02}"
+# this (mis-calibrated K). Scale-aware: tight-scale cells calibrate over much
+# shorter durations (smaller K), so a small fixed absolute jitter is a much
+# bigger fraction of the measurement -- investigated 2026-07-30 (steal time,
+# SMT-sibling load, and frequency/governor pinning all directly ruled out as
+# causes; see memory/rq1_calibration_noise_floor.md), landing tight-scale cv
+# consistently in the ~0.02-0.04 band even on a clean, isolated core. Soft-scale
+# keeps the tighter 0.02 bar since it's comfortably under it in practice.
+# Setting CV_THRESHOLD applies the same value to both scales (old behavior);
+# CV_THRESHOLD_TIGHT/CV_THRESHOLD_SOFT override per-scale on top of that.
+CV_THRESHOLD_TIGHT="${CV_THRESHOLD_TIGHT:-${CV_THRESHOLD:-0.05}}"
+CV_THRESHOLD_SOFT="${CV_THRESHOLD_SOFT:-${CV_THRESHOLD:-0.02}}"
 WORKLOAD_KIND="${WORKLOAD:-matmul}"
 TAB_NAME="k_table.json"; [ "$WORKLOAD_KIND" != "matmul" ] && TAB_NAME="k_table.$WORKLOAD_KIND.json"
 
@@ -98,9 +107,10 @@ print(d.get('$key', {}).get('cv', 'NA'))
     echo "[run] ERROR $sub: no calibration entry for $key in $TAB_NAME -- run: python calibrate.py $MODEL -- skipping"
     FAILED_CELLS+=("$sub: not calibrated"); continue
   fi
-  if ! python3 -c "raise SystemExit(0 if float('$cv') <= $CV_THRESHOLD else 1)" 2>/dev/null; then
-    echo "[run] ERROR $sub: calibration cv=$cv > $CV_THRESHOLD (mis-calibrated K?) -- run: python calibrate.py $MODEL --force -- skipping"
-    FAILED_CELLS+=("$sub: high-cv calibration ($cv)"); continue
+  if [ "$scale" = "tight" ]; then cv_gate="$CV_THRESHOLD_TIGHT"; else cv_gate="$CV_THRESHOLD_SOFT"; fi
+  if ! python3 -c "raise SystemExit(0 if float('$cv') <= $cv_gate else 1)" 2>/dev/null; then
+    echo "[run] ERROR $sub: calibration cv=$cv > $cv_gate ($scale-scale threshold; mis-calibrated K?) -- run: python calibrate.py $MODEL --force -- skipping"
+    FAILED_CELLS+=("$sub: high-cv calibration ($cv > $cv_gate)"); continue
   fi
 
   EXPECTED_N=$(grep -oE -- '--n-jobs [0-9]+' "$f" | head -1 | grep -oE '[0-9]+')
