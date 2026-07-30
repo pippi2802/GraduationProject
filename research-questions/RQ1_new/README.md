@@ -142,12 +142,12 @@ python result.py compare model4_off model4_on
 (model3) · `IRQ_STEER` (model4) · `PIN_RTCPU` (force the target's first cpu, e.g.
 `PIN_RTCPU=0`) · `PIN_ATTEMPTS` (target placement retries, default 8) ·
 `CELL_ATTEMPTS` (whole-cell retries on bad placement/row-count, default 4) ·
-`CV_THRESHOLD_TIGHT`/`CV_THRESHOLD_SOFT` (calibration gate per scale, default
-0.05/0.02 — tight-scale's looser default reflects a measurement-floor noise
-investigation on 2026-07-30: short tight-scale calibration cells sit at
-cv~0.02-0.04 even with steal time, SMT-sibling load, and frequency/governor
-pinning all directly ruled out as causes; setting `CV_THRESHOLD` alone applies
-one value to both scales instead) ·
+`CV_THRESHOLD` (calibration gate, default 0.05 — reflects a measurement-floor
+noise investigation on 2026-07-30: short-duration cells, worst for tight-scale
+but also soft-scale's own shortest cell (soft-U0.1), sit at cv~0.02-0.04 even
+with steal time, SMT-sibling load, and frequency/governor pinning all directly
+ruled out as causes; 0.05 clears that floor while still catching genuinely
+broken calibrations) ·
 `OUT_TAG` (results subdir suffix, e.g. `_sib_cfs` → `results/<model>_sib_cfs/`).
 
 ## Reproducibility (built in)
@@ -158,8 +158,7 @@ one value to both scales instead) ·
 - **Fixed probe** (fixed seed, fixed K), off-schedule **warm-up** + missed-release
   **catch-up** so a slow start can't poison a run.
 - **Calibration recorded** per model (`models/<model>/k_table.json`), and gated:
-  `run_job.sh` refuses to run a cell whose recorded cv exceeds the scale's
-  `CV_THRESHOLD_TIGHT`/`CV_THRESHOLD_SOFT`.
+  `run_job.sh` refuses to run a cell whose recorded cv exceeds `CV_THRESHOLD`.
 - **Placement verified, not assumed**: every cell's actual co-location (or lack of
   it) is read from real topology/`RT_CPUSET` and retried until it matches the
   model's design, logged in `placement.json`.
