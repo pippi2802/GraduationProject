@@ -23,7 +23,35 @@ kubectl -n rq1-model1 exec ds/rq1-agent -- \
   cat /sys/devices/system/cpu/intel_pstate/no_turbo              # -> 1
 ```
 
-## Stronger isolation (optional, needs a reboot)
+## Core isolation (`isolcpus`/`nohz_full`/`rcu_nocbs`, needs a reboot)
 For a genuinely quiet RT core, boot the worker with `isolcpus=`, `nohz_full=`,
-`rcu_nocbs=` on the RT core and keep its SMT sibling idle. That's a node cmdline
-change outside this harness; the agent's frequency pin is the reboot-free minimum.
+`rcu_nocbs=` on every cpu except one kept for kubelet/sshd/housekeeping. This is
+now automated by `isolate.sh` (still **not** applied automatically by `apply.sh`,
+since it requires a reboot that evicts every pod on the node):
+
+```bash
+bash node-prep/apply.sh model1          # agent must be up first
+bash node-prep/isolate.sh model1 apply  # stages isolcpus=/nohz_full=/rcu_nocbs=
+                                         # in /etc/default/grub via nsenter into
+                                         # the host; does NOT reboot
+
+# reboot the node yourself (Azure Portal / az vm restart / ssh + sudo reboot),
+# then confirm it took effect:
+bash node-prep/isolate.sh model1 status
+
+# to undo (also needs a reboot to take effect):
+bash node-prep/isolate.sh model1 restore
+```
+
+By default cpu0 is kept OUTSIDE isolation for the OS; every other logical cpu on
+the node is isolated. Do not `PIN_RTCPU`/place a target or competitor on cpu0 once
+isolation is active — pass a different `keep_cpu` to `isolate.sh` if your sweep
+needs cpu0 specifically. A single backup of the original `/etc/default/grub` is
+kept at `/etc/default/grub.rq1.orig` on the node; `restore` reverts to it.
+
+This does not make the RT core immune to Azure/hypervisor-level interference —
+that's the thing RQ1 is measuring — it only removes generic in-guest Linux
+housekeeping noise (timer ticks, RCU callbacks, reschedule IPIs) from the
+isolated core, so the baseline's tail reflects cloud effects more cleanly and is
+more reproducible run-to-run, which is what RQ2's tail-based parameter
+derivation needs.
