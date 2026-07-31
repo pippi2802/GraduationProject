@@ -114,18 +114,33 @@ def over_u_figs(summary_df, scale, figs):
     ax.set_yscale("log"); ax.set_xlabel("U"); ax.set_ylabel("µs (log)")
     ax.set_title(f"|R| and |C| vs U ({scale})"); ax.grid(alpha=0.3); ax.legend(fontsize=7)
     _save(fig, figs, f"abs_RC_vs_U_{scale}")
-    # 5. margins
-    fig, ax = plt.subplots(figsize=(7.0, 4.6))
-    ax.plot(d.U, d.RoverD_p99, "o-", color="#1f77b4", lw=2, ms=7, label="R/D (deadline)")
-    ax.plot(d.U, d.alpha_p99, "s-", color="#ff7f0e", lw=2, ms=7, label="α = C/Q (bandwidth)")
-    ax.plot(d.U, d.delta_p99, "^-", color="#2ca02c", lw=2, ms=7, label="δ = (R−C)/bound (delay)")
-    ax.axhline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
-    ax.text(d.U.min(), 1.005, "break line (=1)", color="red", fontsize=8, va="bottom")
-    ax.set_ylim(0, max(1.1, float(d[["RoverD_p99", "alpha_p99", "delta_p99"]].max().max()) * 1.1))
-    ax.set_xlabel("reserved utilisation  U = Q/P"); ax.set_ylabel("normalised margin (p99)")
-    ax.set_title(f"margins vs U ({scale}) — above 1 = guarantee breaks")
-    ax.grid(alpha=0.3)
-    ax.legend(fontsize=9, loc="center left", bbox_to_anchor=(1.01, 0.5), frameon=True)
+    # 5. margins -- R/D and alpha naturally share a 0-~1 scale (both are
+    # fractions of a "1.0 = break" ceiling of comparable typical size). delta's
+    # typical values are much smaller under normal conditions but the SAME
+    # metric can spike close to or past its own break line in a disturbed
+    # cell, spanning orders of magnitude within one dataset -- sharing one
+    # linear axis would squash small-but-real delta differences to invisibility
+    # next to a rare large spike, so it gets its own subplot with a log axis.
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.2, 6.8), sharex=True,
+                                    gridspec_kw={"height_ratios": [1.3, 1], "hspace": 0.12})
+    ax1.plot(d.U, d.RoverD_p99, "o-", color="#1f77b4", lw=2, ms=7, label="R/D (deadline)")
+    ax1.plot(d.U, d.alpha_p99, "s-", color="#ff7f0e", lw=2, ms=7, label="α = C/Q (bandwidth)")
+    ax1.axhline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
+    ax1.text(d.U.min(), 1.005, "break line (=1)", color="red", fontsize=8, va="bottom")
+    ax1.set_ylim(0, max(1.1, float(d[["RoverD_p99", "alpha_p99"]].max().max()) * 1.1))
+    ax1.set_ylabel("normalised margin (p99)")
+    ax1.set_title(f"margins vs U ({scale}) — above 1 = guarantee breaks")
+    ax1.grid(alpha=0.3)
+    ax1.legend(fontsize=9, loc="center left", bbox_to_anchor=(1.01, 0.5), frameon=True)
+
+    delta_floor = 1e-5   # avoid log(0) if a cell's delta_p99 rounds to exactly 0
+    ax2.plot(d.U, d.delta_p99.clip(lower=delta_floor), "^-", color="#2ca02c", lw=2, ms=7,
+             label="δ = (R−C)/bound (delay)")
+    ax2.axhline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
+    ax2.set_yscale("log")
+    ax2.set_xlabel("reserved utilisation  U = Q/P"); ax2.set_ylabel("δ (p99, log)")
+    ax2.grid(alpha=0.3, which="both")
+    ax2.legend(fontsize=9, loc="center left", bbox_to_anchor=(1.01, 0.5), frameon=True)
     _save(fig, figs, f"margin_vs_U_{scale}")
 
 
@@ -191,11 +206,17 @@ def _longest_consecutive_run(miss):
 
 
 def tail_table(model, scales):
-    """Per-cell miss/tardiness/consecutive-run detail -- results/<model>/tail_table.csv.
-    Complements summary.csv: miss_rate alone doesn't distinguish a handful of isolated
-    single-job overruns from a cascading run of consecutive misses, which is exactly the
-    distinction that shows up between low- and high-U cells (less slack -> a disturbance
-    is more likely to bleed into the next job too, not just recur independently)."""
+    """Per-cell miss/tardiness/consecutive-run/bandwidth/delay detail --
+    results/<model>/tail_table.csv. Complements summary.csv two ways: (1)
+    miss_rate alone doesn't distinguish a handful of isolated single-job
+    overruns from a cascading run of consecutive misses -- the distinction
+    that shows up between low- and high-U cells (less slack -> a disturbance
+    is more likely to bleed into the next job too, not just recur
+    independently); (2) it puts all three guarantees -- deadline (miss/
+    tardiness), bandwidth (alpha = C/Q, normalized), delay (delta = (R-C)/
+    bound, normalized) -- in ONE per-cell row, so a cell that strains more
+    than one guarantee at once (the interesting case) is visible directly
+    instead of requiring a manual cross-reference against summary.csv."""
     base = HERE / "results" / model
     rows = []
     for jobs in sorted(base.glob("*/U*/jobs.csv")):
@@ -203,6 +224,7 @@ def tail_table(model, scales):
         if scale not in scales:
             continue
         u = float(jobs.parent.name[1:])
+        P = scales[scale]; Q = round(u * P); bound = max(1, 2 * (P - Q))
         try:
             df = pd.read_csv(jobs, comment="#")
         except Exception:
@@ -213,12 +235,18 @@ def tail_table(model, scales):
         miss = df["deadline_miss"] == 1
         n = len(df); miss_n = int(miss.sum())
         tard = df.loc[miss, "tardiness_us"] if "tardiness_us" in df else pd.Series([], dtype=float)
+        alpha = df["C_cputime_us"] / Q                              # normalized: budget used by compute
+        delta = (df["R_wall_us"] - df["C_cputime_us"]) / bound       # normalized: delay layer vs CBS bound
         rows.append({
             "model": model, "scale": scale, "U": u, "n": n,
             "miss_count": miss_n, "miss_rate": round(miss_n / n, 5) if n else 0.0,
             "tardiness_max_us": round(float(tard.max()), 1) if miss_n else 0.0,
             "tardiness_mean_us": round(float(tard.mean()), 1) if miss_n else 0.0,
             "longest_consecutive_miss_run": _longest_consecutive_run(miss),
+            "alpha_p99": round(float(alpha.quantile(.99)), 4),
+            "alpha_max": round(float(alpha.max()), 4),
+            "delta_p99": round(float(delta.quantile(.99)), 4),
+            "delta_max": round(float(delta.max()), 4),
         })
     out_df = pd.DataFrame(rows)
     if not out_df.empty:
