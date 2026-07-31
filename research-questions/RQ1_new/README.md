@@ -89,9 +89,14 @@ python result.py model3_mem
 ```
 
 ### model2 — two containers, one physical core
-Target (m=1) + one reserved neighbour (m=1); `run_job.sh` verifies (and retries
-until true) that the neighbour lands on the target's actual SMT sibling — logged
-in `placement.json`. Compare against `model1` (no neighbour) as the control:
+Target (m=1) + one reserved neighbour (m=1). The neighbour is placed and
+confirmed **Ready before the target is even created** — the target is then
+forced onto the neighbour's actual SMT sibling (retried until true). This
+ordering matters: bundling them together and letting the target start as soon
+as it's up was tried first and confirmed unreliable in practice (cells where
+the target had no real contention because the neighbour wasn't running yet, or
+had a placement window before it started). Confirmed placement is logged in
+`placement.json`. Compare against `model1` (no neighbour) as the control:
 ```bash
 ./run_job.sh model2
 python result.py model2

@@ -63,7 +63,7 @@ AGENT=$(kubectl -n "$NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metada
 
 GLOB="models/$MODEL/generated/${SCALE:+$SCALE/}"
 [ -n "$SCALE" ] && GLOB="models/$MODEL/generated/$SCALE" || GLOB="models/$MODEL/generated"
-mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' -not -path '*/_intf/*' -not -path '*/_comp/*' | sort)
+mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' -not -path '*/_intf/*' -not -path '*/_comp/*' -not -path '*/_nb/*' | sort)
 [ ${#FILES[@]} -eq 0 ] && { echo "ERROR: no manifests; run generate_yaml.py $MODEL"; exit 1; }
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"
@@ -80,6 +80,12 @@ siblings_of() {
   raw=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$1/topology/thread_siblings_list" 2>/dev/null)
   expand_cpuset "$(echo "$raw" | tr ',-' '  ')"
 }
+
+# every online logical cpu on the node -- the candidate list for model3's
+# PAIR_TYPE-driven placement search (see below). Queried once; topology
+# doesn't change mid-run.
+mapfile -t ONLINE_CPUS < <(expand_cpuset "$(kubectl -n "$NS" exec "$AGENT" -- cat /sys/devices/system/cpu/online 2>/dev/null || echo '0-3')" | tr ' ' '\n' | grep -v '^$')
+[ "$HAS_COMP" = 1 ] && echo "[run] candidate cpus for pair search: ${ONLINE_CPUS[*]}"
 
 FAILED_CELLS=()
 
@@ -115,75 +121,113 @@ print(d.get('$key', {}).get('cv', 'NA'))
   for cell_attempt in $(seq 1 "$CELL_ATTEMPTS"); do
     [ "$cell_attempt" -gt 1 ] && echo "[run] --- retrying cell (attempt $cell_attempt/$CELL_ATTEMPTS): $fail_reason ---"
 
-    # --- place the target; if PIN_RTCPU is set, retry until its FIRST cpu matches
-    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; sparecpu=""
+    # --- model2: place the NEIGHBOUR FIRST, confirmed Ready (+ a warm-up
+    # buffer) BEFORE the target is even created -- this is what actually
+    # guarantees contention is present from the target's very first job,
+    # instead of bundling both together and hoping the target doesn't race
+    # ahead of the neighbour's own startup. Confirmed in practice: without
+    # this, some cells had no real contention because the neighbour wasn't up
+    # yet, and others wasted whole-cell retries on "neighbour pod not Ready."
+    desired_target_cpu=""
+    if [ "$HAS_NB" = 1 ]; then
+      nb_file="models/$MODEL/generated/_nb/$scale/$ul.yaml"
+      kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl create -f "$nb_file" >/dev/null
+      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
+            --for=condition=Ready --timeout=60s >/dev/null 2>&1; then
+        fail_reason="neighbour pod not Ready"
+        echo "[run] $fail_reason; retrying cell"
+        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
+      nb_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[0].metadata.name}')
+      nb_cpu=$(kubectl -n "$NS" exec "$nb_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+      desired_target_cpu=$(siblings_of "$nb_cpu" | tr ' ' '\n' | grep -vx "$nb_cpu" | head -1)
+      [ -z "$desired_target_cpu" ] && desired_target_cpu="$nb_cpu"   # no SMT sibling on this node
+      sleep 5   # let the neighbour clear its own warm-up before the target starts
+      echo "[run] neighbour placed+running on cpu$nb_cpu; target will be forced onto its sibling cpu$desired_target_cpu"
+    fi
+
+    # --- place the target, searching systematically rather than hoping ------
+    # If PIN_RTCPU is set, only that cpu is ever tried (unchanged semantics).
+    # For model3 (HAS_COMP=1) the search cycles through EVERY online cpu as
+    # the candidate first-cpu, one per attempt, instead of repeatedly asking
+    # for "any cpu" and hoping the resulting pair happens to match PAIR_TYPE --
+    # the driver may place deterministically given an identical request on an
+    # otherwise-idle node, so blind retries could loop forever without
+    # converging, whereas cycling the full candidate list is guaranteed to
+    # explore every reachable outcome within a bounded number of attempts. For
+    # model2 (HAS_NB=1), the target is forced onto the neighbour's already-
+    # known sibling cpu, computed above. For models with neither requirement
+    # and no PIN_RTCPU, behavior is unchanged: the first placement is accepted
+    # as-is.
+    if [ -n "$PIN_RTCPU" ]; then
+      CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
+    elif [ "$HAS_COMP" = 1 ]; then
+      CPU_CANDIDATES=("${ONLINE_CPUS[@]}"); FORCE_CPU=1
+    elif [ "$HAS_NB" = 1 ]; then
+      CPU_CANDIDATES=("$desired_target_cpu"); FORCE_CPU=1
+    else
+      CPU_CANDIDATES=(); FORCE_CPU=0
+    fi
+
+    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; sparecpu=""; actual_pair=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
+      if [ "$FORCE_CPU" = 1 ]; then
+        want_cpu="${CPU_CANDIDATES[$(( (attempt - 1) % ${#CPU_CANDIDATES[@]} ))]}"
+      fi
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$f" >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
-        echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS)"; continue
+        echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS${want_cpu:+, tried cpu$want_cpu})"; continue
       fi
       tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
       tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
       rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
-      if [ -n "$PIN_RTCPU" ] && [ "$rtcpu" != "$PIN_RTCPU" ]; then
-        echo "[run] target on cpu$rtcpu != PIN_RTCPU=$PIN_RTCPU; re-placing ($attempt/$PIN_ATTEMPTS)"; continue
+      if [ "$FORCE_CPU" = 1 ] && [ "$rtcpu" != "$want_cpu" ]; then
+        echo "[run] target on cpu$rtcpu, wanted cpu$want_cpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+      fi
+      if [ "$HAS_COMP" = 1 ]; then
+        pair=($(expand_cpuset "$tgt_cpuset"))
+        sparecpu="${pair[1]:-}"
+        if [ -z "$sparecpu" ]; then
+          echo "[run] m=2 claim only yielded one cpu ($tgt_cpuset) on cpu$want_cpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
+        sibs_rt=" $(siblings_of "$rtcpu") "
+        case "$sibs_rt" in *" $sparecpu "*) actual_pair="sibling" ;; *) actual_pair="physical" ;; esac
+        if [ "$actual_pair" != "$PAIR_TYPE" ]; then
+          echo "[run] cpu$want_cpu's pair landed $actual_pair (cpus $rtcpu,$sparecpu), wanted $PAIR_TYPE ($attempt/$PIN_ATTEMPTS); re-placing"
+          continue
+        fi
+        echo "[run] target pair = $rtcpu,$sparecpu ($actual_pair, matches PAIR_TYPE=$PAIR_TYPE)"
       fi
       placed=1; break
     done
     if [ "$placed" = 0 ]; then
-      fail_reason="could not place target on cpu${PIN_RTCPU:-any} after $PIN_ATTEMPTS attempts"
+      if [ "$HAS_COMP" = 1 ]; then
+        fail_reason="could not find a target placement matching PAIR_TYPE=$PAIR_TYPE after $PIN_ATTEMPTS attempts across ${#CPU_CANDIDATES[@]} candidate cpu(s)"
+      else
+        fail_reason="could not place target on cpu${PIN_RTCPU:-any} after $PIN_ATTEMPTS attempts"
+      fi
       echo "[run] $fail_reason; giving up on this cell"
       kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1
+      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found >/dev/null 2>&1
       break
     fi
 
-    # --- model3: verify the target's OWN m=2 pair matches PAIR_TYPE -----------
-    actual_pair=""; pair_ok=1
-    if [ "$HAS_COMP" = 1 ]; then
-      pair=($(expand_cpuset "$tgt_cpuset"))
-      sparecpu="${pair[1]:-}"
-      if [ -z "$sparecpu" ]; then
-        pair_ok=0; fail_reason="m=2 claim only yielded one cpu ($tgt_cpuset)"
-      else
-        sibs_rt=" $(siblings_of "$rtcpu") "
-        case "$sibs_rt" in *" $sparecpu "*) actual_pair="sibling" ;; *) actual_pair="physical" ;; esac
-        if [ "$actual_pair" != "$PAIR_TYPE" ]; then
-          pair_ok=0; fail_reason="pair landed $actual_pair (cpus $rtcpu,$sparecpu), wanted $PAIR_TYPE"
-        fi
-      fi
-      if [ "$pair_ok" = 0 ]; then
-        echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-        continue
-      fi
-      echo "[run] target pair = $rtcpu,$sparecpu ($actual_pair, matches PAIR_TYPE=$PAIR_TYPE)"
+    # --- model2: defensive sanity check, not a retry trigger -- correctness is
+    # now guaranteed BY CONSTRUCTION (the target was forced onto the
+    # neighbour's sibling above), this just catches the unexpected case loudly
+    # instead of silently trusting it.
+    if [ "$HAS_NB" = 1 ] && [ "$rtcpu" != "$desired_target_cpu" ]; then
+      fail_reason="target landed on cpu$rtcpu despite being forced to cpu$desired_target_cpu -- placement forcing did not hold"
+      echo "[run] BUG: $fail_reason; retrying cell"
+      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      continue
     fi
-
-    # --- model2: verify the reserved neighbour landed on the target's SIBLING -
-    nb_ok=1
-    if [ "$HAS_NB" = 1 ]; then
-      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
-            --for=condition=Ready --timeout=60s >/dev/null 2>&1; then
-        nb_ok=0; fail_reason="neighbour pod not Ready"
-      else
-        nb_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[0].metadata.name}')
-        nb_cpuset=$(kubectl -n "$NS" exec "$nb_pod" -- printenv RT_CPUSET 2>/dev/null || true)
-        nb_cpu=$(echo "$nb_cpuset" | cut -d, -f1 | cut -d- -f1)
-        desired_nb=$(siblings_of "$rtcpu" | tr ' ' '\n' | grep -vx "$rtcpu" | head -1)
-        [ -z "$desired_nb" ] && desired_nb="$rtcpu"   # no SMT sibling on this node
-        if [ "$nb_cpu" != "$desired_nb" ]; then
-          nb_ok=0; fail_reason="neighbour on cpu$nb_cpu, wanted target's sibling cpu$desired_nb (target=cpu$rtcpu)"
-        fi
-      fi
-      if [ "$nb_ok" = 0 ]; then
-        echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-        continue
-      fi
-      echo "[run] neighbour on cpu$nb_cpu = target's sibling (target=cpu$rtcpu) -- confirmed same physical core"
-    fi
+    [ "$HAS_NB" = 1 ] && echo "[run] neighbour on cpu$nb_cpu, target forced to sibling cpu$rtcpu -- confirmed same physical core, neighbour already running"
 
     # --- model3: place the competitor on the spare cpu ------------------------
     intf_cpu=""; comp_cpu=""; comp_ok=1
@@ -268,6 +312,7 @@ JSON
     kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
     kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
     kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+    [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
     sleep 5
   done
 
@@ -280,6 +325,7 @@ JSON
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=neighbour" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+  [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
   sleep 12   # let the driver release the claim before the next cell
 done
 
