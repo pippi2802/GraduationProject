@@ -81,12 +81,6 @@ siblings_of() {
   expand_cpuset "$(echo "$raw" | tr ',-' '  ')"
 }
 
-# every online logical cpu on the node -- the candidate list for model3's
-# PAIR_TYPE-driven placement search (see below). Queried once; topology
-# doesn't change mid-run.
-mapfile -t ONLINE_CPUS < <(expand_cpuset "$(kubectl -n "$NS" exec "$AGENT" -- cat /sys/devices/system/cpu/online 2>/dev/null || echo '0-3')" | tr ' ' '\n' | grep -v '^$')
-[ "$HAS_COMP" = 1 ] && echo "[run] candidate cpus for pair search: ${ONLINE_CPUS[*]}"
-
 FAILED_CELLS=()
 
 for f in "${FILES[@]}"; do
@@ -148,30 +142,27 @@ print(d.get('$key', {}).get('cv', 'NA'))
       echo "[run] neighbour placed+running on cpu$nb_cpu; target will be forced onto its sibling cpu$desired_target_cpu"
     fi
 
-    # --- place the target, searching systematically rather than hoping ------
-    # If PIN_RTCPU is set, only that cpu is ever tried (unchanged semantics).
-    # For model3 (HAS_COMP=1) the search cycles through EVERY online cpu as
-    # the candidate first-cpu, one per attempt, instead of repeatedly asking
-    # for "any cpu" and hoping the resulting pair happens to match PAIR_TYPE --
-    # the driver may place deterministically given an identical request on an
-    # otherwise-idle node, so blind retries could loop forever without
-    # converging, whereas cycling the full candidate list is guaranteed to
-    # explore every reachable outcome within a bounded number of attempts. For
-    # model2 (HAS_NB=1), the target is forced onto the neighbour's already-
-    # known sibling cpu, computed above. For models with neither requirement
-    # and no PIN_RTCPU, behavior is unchanged: the first placement is accepted
-    # as-is.
+    # --- place the target ----------------------------------------------------
+    # The driver only accepts `count` (how many cores), never WHICH ones -- so
+    # there is no request we can make that targets a specific cpu or pair.
+    # PIN_RTCPU (explicit, user-requested) and model2's neighbour-sibling
+    # forcing are the only cases where a SPECIFIC cpu is required and checked
+    # per attempt. For model3's PAIR_TYPE (HAS_COMP=1, no PIN_RTCPU), do NOT
+    # gate on any particular cpu value -- comparing the driver's uncontrollable
+    # answer against a made-up "candidate" rejects it regardless of whether the
+    # actual pair was fine, wasting every attempt before the real check (does
+    # the resulting pair satisfy PAIR_TYPE) ever runs. Instead, accept whatever
+    # cpu the driver gives and let the PAIR_TYPE check below be the only thing
+    # that drives retries.
     if [ -n "$PIN_RTCPU" ]; then
       CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
-    elif [ "$HAS_COMP" = 1 ]; then
-      CPU_CANDIDATES=("${ONLINE_CPUS[@]}"); FORCE_CPU=1
     elif [ "$HAS_NB" = 1 ]; then
       CPU_CANDIDATES=("$desired_target_cpu"); FORCE_CPU=1
     else
       CPU_CANDIDATES=(); FORCE_CPU=0
     fi
 
-    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; sparecpu=""; actual_pair=""
+    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; sparecpu=""; actual_pair=""; want_cpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       if [ "$FORCE_CPU" = 1 ]; then
         want_cpu="${CPU_CANDIDATES[$(( (attempt - 1) % ${#CPU_CANDIDATES[@]} ))]}"
@@ -192,12 +183,12 @@ print(d.get('$key', {}).get('cv', 'NA'))
         pair=($(expand_cpuset "$tgt_cpuset"))
         sparecpu="${pair[1]:-}"
         if [ -z "$sparecpu" ]; then
-          echo "[run] m=2 claim only yielded one cpu ($tgt_cpuset) on cpu$want_cpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+          echo "[run] m=2 claim only yielded one cpu ($tgt_cpuset) on cpu$rtcpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
         fi
         sibs_rt=" $(siblings_of "$rtcpu") "
         case "$sibs_rt" in *" $sparecpu "*) actual_pair="sibling" ;; *) actual_pair="physical" ;; esac
         if [ "$actual_pair" != "$PAIR_TYPE" ]; then
-          echo "[run] cpu$want_cpu's pair landed $actual_pair (cpus $rtcpu,$sparecpu), wanted $PAIR_TYPE ($attempt/$PIN_ATTEMPTS); re-placing"
+          echo "[run] pair landed $actual_pair (cpus $rtcpu,$sparecpu), wanted $PAIR_TYPE ($attempt/$PIN_ATTEMPTS); re-placing"
           continue
         fi
         echo "[run] target pair = $rtcpu,$sparecpu ($actual_pair, matches PAIR_TYPE=$PAIR_TYPE)"
@@ -206,7 +197,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
     done
     if [ "$placed" = 0 ]; then
       if [ "$HAS_COMP" = 1 ]; then
-        fail_reason="could not find a target placement matching PAIR_TYPE=$PAIR_TYPE after $PIN_ATTEMPTS attempts across ${#CPU_CANDIDATES[@]} candidate cpu(s)"
+        fail_reason="could not find a target placement matching PAIR_TYPE=$PAIR_TYPE after $PIN_ATTEMPTS attempts"
       else
         fail_reason="could not place target on cpu${PIN_RTCPU:-any} after $PIN_ATTEMPTS attempts"
       fi
