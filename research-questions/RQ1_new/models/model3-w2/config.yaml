@@ -1,0 +1,28 @@
+# Model 3 — m=2 reservation, pair_type x competitor_type sweep. The target's own
+# RtClaimParameters asks for count=2 cores (job.yaml); run_job.sh forces that pair
+# to be either two SMT threads of ONE physical core (PAIR_TYPE=sibling) or one
+# thread from each of two DIFFERENT physical cores (PAIR_TYPE=physical), reading
+# the real topology from sysfs and retrying placement until it matches (the
+# driver is SMT-blind, so this is a delete/recreate retry, same idea as
+# PIN_RTCPU). The target's single probe thread still pins to only the FIRST cpu
+# of that pair (no probe changes); the SECOND ("spare") cpu is where the
+# competitor lands. COMPETITOR_TYPE selects what occupies the spare cpu:
+#   unreserved -> CFS matmul, taskset-pinned directly (models/model3/generated/_intf)
+#   reserved   -> its own CBS reservation at co_runners.competitor.u, placed by
+#                 retry-until-landed like the target (models/model3/generated/_comp)
+# 2x2 sweep: PAIR_TYPE={sibling,physical} x COMPETITOR_TYPE={reserved,unreserved},
+# selected via env vars at run_job.sh invocation time (see README), e.g.:
+#   PAIR_TYPE=sibling  COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs ./run_job.sh model3
+#   PAIR_TYPE=physical COMPETITOR_TYPE=reserved   OUT_TAG=_phys_res ./run_job.sh model3
+model: model3
+namespace: rq1-model3-w2
+node_label: experiment-model=model3-w2
+host_path: /var/lib/rq1/model3-w2
+image: pippina2/rq1-probe:v2
+matrix_M: 48
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners:
+  interferer: {}          # unreserved competitor; cpu is always resolved at run time
+  competitor: { u: 0.3 }  # reserved competitor's own utilisation
