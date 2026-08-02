@@ -7,7 +7,7 @@
     "environment":        { "value": "dev" },
 
     "controlPlaneCount":  { "value": 1 },
-    "workerNodeCount":    { "value": 4 },
+    "workerNodeCount":    { "value": 2 },
     "controlPlaneVmSize": { "value": "Standard_D4ds_v5" },
     "workerVmSize":       { "value": "Standard_D4ds_v5" },
     "zones":              { "value": [1, 2, 3] },
@@ -16,10 +16,10 @@
     "sshPublicKey":       { "value": "" },
 
     "imageType":          { "value": "custom" },
-    "imageSubscriptionId":{ "value": "d06f8f89-f7d3-46b3-b7a8-649244fb54c6" },
-    "imageResourceGroup": { "value": "rg-rtAKS" },
+    "imageSubscriptionId":{ "value": "f4ba420a-9799-4a43-bb7d-7fd76761e7a1" },
+    "imageResourceGroup": { "value": "rg-rt-k8s" },
     "imageGallery":       { "value": "rtUbuntu" },
-    "imageName":          { "value": "rtUbuntu22.04" },
+    "imageName":          { "value": "rt-Ubuntu22.04" },
     "imageVersion":       { "value": "1.0.0" },
 
     "vnetAddressPrefix":        { "value": "10.0.0.0/16" },

@@ -30,10 +30,10 @@ param sshPublicKey string = ''
 param imageReference object
 
 @description('OS disk size in GB.')
-param osDiskSizeGB int = 128
+param osDiskSizeGB int = 64
 
 @description('OS disk storage account type.')
-param osDiskStorageAccountType string = 'Premium_LRS'
+param osDiskStorageAccountType string = 'Standard_LRS'
 
 @description('Availability zones to spread VMs across (round-robin). Empty array => no zone.')
 param zones array = []
