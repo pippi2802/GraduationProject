@@ -83,6 +83,71 @@ would show from noise alone — which is exactly why model1's solo baseline
 (Claim 0) still matters even with all three measures in place: it's the
 floor that remains *after* hygiene, not before it.
 
+## Co-runner intensity and persistence (model2's neighbour, model3's competitor)
+
+**Why 40% utilization**: model2's neighbour and model3's competitor share
+one fixed reference intensity (`u=0.4`), chosen to be high enough to cause a
+*relevant*, clearly-detectable amount of contention rather than a marginal
+one. This matters differently for the two pairing mechanisms this thesis
+tests: sibling-sharing is a direct hardware effect (two threads contending
+for the same physical core's execution ports/caches every cycle both are
+scheduled), so even a modest reserved co-runner can matter — `model3_smoke`
+(collected at the earlier `u=0.3`) already showed a 52% miss rate at
+tight/U0.6, direct evidence that this intensity range is not too weak to
+produce a real, even dramatic effect (though some of that specific reading's
+severity may be a data-quality artifact rather than clean interference, so
+it's suggestive rather than proof). Physical-core separation is a much more
+indirect mechanism (only shared last-level cache / memory bandwidth, no
+shared execution ports), so it's expected to be comparatively insensitive to
+competitor intensity — if it turned out to be just as sensitive as the
+sibling case, that would itself be a notable finding pointing at something
+beyond SMT sharing, not evidence the intensity was chosen wrong.
+
+The intensity is deliberately the same value for model2, and for all four
+of model3's arms — not tuned per arm — because comparing across PAIR_TYPE
+(the model3 factorial's main comparison) requires holding everything except
+the pairing itself constant; a different intensity per arm would confound
+PAIR_TYPE with co-runner load and make that comparison uninterpretable.
+
+**The capacity ceiling this creates**: for every sibling arm (model2,
+sib_res, sib_cfs), the target and co-runner share one physical core's real
+throughput, so combined reserved utilization must stay under a ~0.95
+schedulability ceiling. At `u=0.4` that caps the target's own tested
+utilization at 0.5 (`0.5 + 0.4 = 0.9`, keeping the same ~0.05 margin used
+throughout). This is a real, if unfortunate, trade-off: a more "relevant"
+co-runner intensity buys a stronger, more clearly-detectable contention
+signal at the cost of a narrower target-utilization range for the sibling
+arms specifically. The physical arms (phys_res, phys_cfs) aren't subject to
+this ceiling — target and competitor are on different cores entirely — but
+currently share the same capped range for implementation simplicity (one
+`utilizations` list per config, since PAIR_TYPE is a run_job.sh-time choice,
+not a generation-time one); extending just the physical arms to the full
+range is a possible follow-up, not yet implemented.
+
+**Why the competitor persists, and what that requires**: since intensity
+never varies across the U sweep, model3's competitor/interferer is created
+once per scale and left running for every cell in it (`run_job.sh`'s
+`place_fixed_competitor`), rather than recreated per cell — see the
+model2-sync-fix discussion for why a per-cell competitor design has its own
+race problems this avoids. The cost of that choice: the competitor now has
+to survive up to the full length of a scale's sweep (potentially ~1-2
+hours), not just one cell's few minutes. In practice it has been observed to
+exit on its own after a sustained run (~34 minutes) for a reason not yet
+pinned down — `matmul.c` itself has no internal timer or resource limit that
+would explain a fixed-duration exit, so the cause is most likely external to
+the probe process (cgroup/kubelet/scheduler-level). Rather than block on
+root-causing that, `run_job.sh` polls the competitor's pod phase throughout
+each cell's run and restarts it if it's no longer `Running` — exactly onto
+the same cpu it started on for the unreserved arm (which is commanded
+directly via taskset), or re-verified back onto the same cpu for the
+reserved arm (retried a few times, since the driver's placement isn't
+directly controllable) before resuming. A cell where the competitor dies and
+can't be brought back onto the required cpu is treated as a failed attempt
+and retried, the same as any other placement failure. Model2's neighbour is
+NOT subject to this specific issue, since it's still recreated per cell
+(each cell capped around 8 minutes at soft scale) — safely under the
+~34-minute mark where this has been observed to occur.
+
 ## Model 1 — solo baseline → Claim 0
 
 **Design**: the target runs alone, no co-runner, no shared core. Utilization

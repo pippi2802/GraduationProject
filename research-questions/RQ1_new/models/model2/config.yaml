@@ -12,13 +12,24 @@ host_path: /var/lib/rq1/model2
 image: pippina2/rq1-probe:v2
 matrix_M: 48
 headroom_frac: 0.7
-# capped at 0.8 (not the usual 0.9/0.94): target + neighbour (u=0.1, fixed)
+# capped at 0.5 (not the usual 0.9/0.94): target + neighbour (u=0.4, fixed)
 # share ONE physical core, so combined reserved utilisation must stay under a
 # safe schedulability ceiling (0.95) or every cell above that is trivially
-# infeasible (over 100% of the core's capacity at U=0.94) -- a capacity
-# over-commit, not evidence of the HT/execution-layer effect this model is
-# meant to isolate. 0.8 + 0.1 = 0.9, comfortably under 0.95.
-utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+# infeasible (over 100% of the core's capacity) -- a capacity over-commit,
+# not evidence of the HT/execution-layer effect this model is meant to
+# isolate. 0.5 + 0.4 = 0.9, comfortably under 0.95 (same ~0.05 margin as
+# before the neighbour's u was raised from 0.1 -> 0.3 -> 0.4).
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5]
 scales: { tight: 10000, soft: 100000 }
 co_runners:
-  neighbours: { count: 1, u: 0.1 }     # 1 reserved neighbour, forced onto target's sibling
+  # u raised 0.1 -> 0.3 -> 0.4 (final) to match model3's competitor reference
+  # intensity (co_runners.competitor.u) and to be "relevant" enough to cause
+  # real interference rather than a barely-measurable effect -- 0.3 already
+  # showed a 52% miss rate in model3_smoke's tight/U0.6 cell (evidence the
+  # sibling-sharing mechanism is sensitive at even that intensity, though that
+  # specific reading has its own caveats -- see METHODOLOGY.md). model2 and
+  # model3's sib_res arm both test the same phenomenon (two independently-
+  # reserved CBS claims sharing a physical core), so using the same co-runner
+  # intensity makes them a genuine cross-model confirmation of Claim 1 instead
+  # of two merely-similar, differently-parameterized setups.
+  neighbours: { count: 1, u: 0.4 }     # 1 reserved neighbour, forced onto target's sibling

@@ -145,11 +145,12 @@ filter_keep_cpu() {
 # cpu pair could be found/landed.
 place_fixed_competitor() {
   local scale="$1" first_ul="$2"
-  desired_target_cpu=""; comp_cpu=""; FIXED_COMP_FILE=""
+  desired_target_cpu=""; comp_cpu=""; FIXED_COMP_FILE=""; FIXED_INTF_FILE=""
   [ "$HAS_COMP" != 1 ] && return 0
 
   if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
     local intf="models/$MODEL/generated/_intf/$scale/$first_ul.yaml"
+    FIXED_INTF_FILE="$intf"
     [ -f "$intf" ] || { echo "[run] ERROR _intf manifest missing for $scale"; return 1; }
     # WE choose the competitor's cpu directly (taskset, no driver involved) --
     # pick the first candidate, excluding KEEP_CPU, that leaves at least one
@@ -166,6 +167,11 @@ place_fixed_competitor() {
       echo "[run] ERROR no (competitor,target) cpu pair avoiding KEEP_CPU=$KEEP_CPU for PAIR_TYPE=$PAIR_TYPE"
       return 1
     fi
+    # clean slate first -- a stale interferer from a previous, interrupted run
+    # (same scale/first_ul -> same pod name) would otherwise make this create
+    # fail silently (AlreadyExists, swallowed by the redirect), leaving
+    # comp_cpu/desired_target_cpu computed as if a fresh pod was actually made.
+    kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
     sed "s/@@INTF_CPU@@/$comp_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
     if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
           --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -177,6 +183,13 @@ place_fixed_competitor() {
   elif [ "$COMPETITOR_TYPE" = "reserved" ]; then
     FIXED_COMP_FILE="models/$MODEL/generated/_comp/$scale/$first_ul.yaml"
     [ -f "$FIXED_COMP_FILE" ] || { echo "[run] ERROR _comp manifest missing for $scale"; return 1; }
+    # defensive: a stale competitor pod from a DIFFERENT scale/name (e.g. left
+    # over from a previous, interrupted invocation of this script) wouldn't be
+    # caught by the file-based delete below (that only targets THIS scale's
+    # specific object name) -- but the label-based lookups further down would
+    # still match it, possibly picking up its stale cpu instead of the fresh
+    # pod's. Clear anything under this role first, regardless of name.
+    kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
     # the driver decides this cpu (worst-fit, uncontrolled) -- re-place if it
     # lands on KEEP_CPU, or if its PAIR_TYPE-relative target cpu would be
     # KEEP_CPU (e.g. it landed on KEEP_CPU's own sibling for PAIR_TYPE=sibling).
@@ -210,11 +223,68 @@ place_fixed_competitor() {
   echo "[run] $scale: target will be forced onto {$desired_target_cpu} for every cell (PAIR_TYPE=$PAIR_TYPE vs competitor cpu$comp_cpu)"
 }
 
+# The competitor/interferer has been observed to exit on its own after a
+# sustained run (~34 minutes seen in practice), well before a scale's full
+# sweep is done -- root cause not pinned down (matmul.c itself has no
+# internal timer/limit that would explain this; likely something external to
+# the probe process itself: cgroup/kubelet/scheduler-level, not diagnosed
+# further yet). Rather than silently losing contention for the rest of the
+# scale, run_one_cell's wait-loop polls for this and calls this to bring it
+# back. For the unreserved arm this is exact (we command its cpu directly
+# via taskset); for the reserved arm the driver could in principle re-land it
+# somewhere else, so this retries until it's back on the SAME comp_cpu the
+# scale was already set up with (the target is already running, forced onto
+# a cpu chosen relative to THAT specific comp_cpu) -- a different landing
+# would silently change the experimental condition mid-run. Returns 1 if it
+# can't get back to the same cpu; the caller treats that as a cell failure.
+restart_fixed_competitor() {
+  [ "$HAS_COMP" != 1 ] && return 0
+  if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
+    local attempt
+    for attempt in 1 2 3; do
+      kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
+      sed "s/@@INTF_CPU@@/$comp_cpu/g" "$FIXED_INTF_FILE" | kubectl create -f - >/dev/null 2>&1
+      if kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
+            --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+        echo "[run] competitor restarted on cpu$comp_cpu"; return 0
+      fi
+      echo "[run] restart attempt $attempt/3 not Ready; retrying"
+    done
+    echo "[run] ERROR could not restart unreserved competitor after 3 attempts"; return 1
+  else
+    local attempt landed comp_pod
+    for attempt in 1 2 3; do
+      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl create -f "$FIXED_COMP_FILE" >/dev/null 2>&1
+      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
+            --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+        echo "[run] restarted competitor not Ready (attempt $attempt/3); retrying"; continue
+      fi
+      comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
+      landed=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+      if [ "$landed" = "$comp_cpu" ]; then
+        echo "[run] competitor restarted, re-landed on cpu$comp_cpu as required"; return 0
+      fi
+      echo "[run] restarted competitor landed on cpu$landed, needed cpu$comp_cpu (attempt $attempt/3); retrying"
+    done
+    echo "[run] ERROR could not restart reserved competitor back onto cpu$comp_cpu after 3 attempts"
+    return 1
+  fi
+}
+
 teardown_fixed_competitor() {
   [ "$HAS_COMP" != 1 ] && return 0
-  kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
-  kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
-  [ -n "${FIXED_COMP_FILE:-}" ] && kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=false >/dev/null 2>&1
+  # blocking (--wait=true), deliberately: the next thing that happens is
+  # either the NEXT scale's place_fixed_competitor (same role=competitor/
+  # role=interferer label selector) or the sweep ending. Since the reserved
+  # arm's own pre-delete in place_fixed_competitor targets that NEXT scale's
+  # own (differently-named) manifest file, it does NOT wait for THIS scale's
+  # object to actually finish terminating -- a non-blocking delete here would
+  # leave a window where both the old (terminating) and new pod match the
+  # same label selector, and a get/wait could pick either one.
+  kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
+  kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
+  [ -n "${FIXED_COMP_FILE:-}" ] && kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
 }
 
 FAILED_CELLS=(); FAILED_FILES=()
@@ -392,15 +462,47 @@ JSON
       echo "[run] IRQ_STEER=$IRQ_STEER rtcpu=$rtcpu -> ${steer_out:-<none>}"
     fi
 
-    # wait for the target pod to Complete (Succeeded)
+    # wait for the target pod to Complete (Succeeded). For model3, also watch
+    # the fixed competitor/interferer -- it's been observed to exit on its own
+    # after a sustained run (see restart_fixed_competitor's comment), and
+    # since it's meant to persist for the WHOLE scale (many cells), a cell
+    # running late in a long scale could otherwise silently lose contention
+    # partway through its own run.
     echo "[run] running..."
+    comp_died=0
+    comp_role=""
+    [ "$HAS_COMP" = 1 ] && { comp_role="interferer"; [ "$COMPETITOR_TYPE" = "reserved" ] && comp_role="competitor"; }
     for _ in $(seq 1 1000); do
       ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" \
            -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
       [ "$ph" = "Succeeded" ] && break
       [ "$ph" = "Failed" ] && { echo "[run] target Failed"; break; }
+      if [ -n "$comp_role" ]; then
+        comp_ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" \
+             -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+        if [ "$comp_ph" != "Running" ]; then
+          # confirm before acting -- a single non-Running read can be a
+          # transient kubectl/apiserver hiccup, not a real death; restarting
+          # on a false alarm briefly kills real contention for no reason.
+          sleep 5
+          comp_ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" \
+               -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+          if [ "$comp_ph" != "Running" ]; then
+            echo "[run] WARNING competitor/interferer is '${comp_ph:-gone}' (not Running, confirmed) mid-run; attempting restart"
+            if ! restart_fixed_competitor; then
+              comp_died=1; break
+            fi
+          fi
+        fi
+      fi
       sleep 10
     done
+    if [ "$comp_died" = 1 ]; then
+      fail_reason="competitor died mid-cell and could not be restarted"
+      echo "[run] $fail_reason; retrying cell"
+      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      continue
+    fi
 
     # pull jobs.csv off the node via the agent
     kubectl exec -n "$NS" "$AGENT" -- cat "/host$HOST_PATH/$sub/target/jobs.csv" > "$out/jobs.csv" 2>/dev/null
