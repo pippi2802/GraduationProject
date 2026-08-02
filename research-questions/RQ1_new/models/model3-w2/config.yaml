@@ -14,7 +14,7 @@
 # selected via env vars at run_job.sh invocation time (see README), e.g.:
 #   PAIR_TYPE=sibling  COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs ./run_job.sh model3
 #   PAIR_TYPE=physical COMPETITOR_TYPE=reserved   OUT_TAG=_phys_res ./run_job.sh model3
-model: model3
+model: model3-w2
 namespace: rq1-model3-w2
 node_label: experiment-model=model3-w2
 host_path: /var/lib/rq1/model3-w2
