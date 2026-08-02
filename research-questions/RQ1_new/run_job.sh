@@ -29,14 +29,20 @@ cd "$(dirname "$0")"
 #               competitor
 PAIR_TYPE="${PAIR_TYPE:-sibling}"
 # model3 only: what the competitor actually is --
-#   unreserved -> CFS matmul, taskset-pinned to a fixed cpu (COMP_ANCHOR_CPU,
-#                 default 1) chosen directly -- it never goes through the
-#                 driver, so we pick its cpu ourselves               [default]
+#   unreserved -> CFS matmul, taskset-pinned to a cpu WE choose directly (it
+#                 never goes through the driver)                    [default]
 #   reserved   -> its own CBS reservation (co_runners.competitor.u); its cpu
 #                 is the driver's own (uncontrollable) choice, read back once
 #                 and used to compute the target's forced cpu
 COMPETITOR_TYPE="${COMPETITOR_TYPE:-unreserved}"
-COMP_ANCHOR_CPU="${COMP_ANCHOR_CPU:-1}"
+# the one cpu isolate.sh deliberately leaves OUTSIDE isolcpus/nohz_full/
+# rcu_nocbs, for kubelet/sshd/general OS housekeeping (isolate.sh's own
+# keep_cpu default). Never place the competitor OR the target here, and never
+# there for either's SMT sibling either -- anything sharing a physical core
+# with keep_cpu picks up whatever uncontrolled housekeeping/interrupt traffic
+# lands there, on top of (and confounded with) the intended experimental
+# contention. place_fixed_competitor enforces this for both COMPETITOR_TYPEs.
+KEEP_CPU="${KEEP_CPU:-0}"
 # suffix for the results dir so an arm doesn't overwrite another, e.g.
 # OUT_TAG=_phys_res -> results/model3_phys_res/...
 OUT_TAG="${OUT_TAG:-}"
@@ -98,12 +104,45 @@ all_cpus() {
     2>/dev/null | sed 's/^cpu//'
 }
 
+# the target cpu(s) implied by PAIR_TYPE for a given candidate competitor
+# cpu. PAIR_TYPE=sibling has exactly one valid answer (the unique SMT
+# sibling); PAIR_TYPE=physical can have MANY (any cpu that isn't the
+# candidate or its sibling) -- so this returns a space-separated LIST in
+# that case, not just the first one found. Treating "physical" as if it had
+# one correct answer would make the placement retry loop reject perfectly
+# valid landings just because they weren't the arbitrary first candidate
+# checked. Empty output means no valid target cpu exists at all (e.g.
+# PAIR_TYPE=sibling on a cpu with no SMT sibling). Does NOT know about
+# KEEP_CPU -- callers filter that out themselves (filter_keep_cpu below).
+target_cpu_for() {
+  local candidate="$1"
+  case "$PAIR_TYPE" in
+    sibling)
+      siblings_of "$candidate" | tr ' ' '\n' | grep -vx "$candidate" | head -1
+      ;;
+    physical)
+      local excl=" $(siblings_of "$candidate") $candidate " c out=""
+      for c in $(all_cpus | sort -n); do
+        case "$excl" in *" $c "*) ;; *) out="$out $c" ;; esac
+      done
+      echo "${out# }"
+      ;;
+  esac
+}
+# remove KEEP_CPU from a (possibly multi-value, space-separated) candidate
+# list -- e.g. filter_keep_cpu "0 2 3" -> "2 3". Works uniformly whether the
+# input is a single cpu (sibling case) or a list (physical case).
+filter_keep_cpu() {
+  echo "$1" | tr ' ' '\n' | grep -vx "$KEEP_CPU" | grep -v '^$' | tr '\n' ' ' | sed 's/ *$//'
+}
+
 # --- model3: place the (fixed-intensity) competitor/interferer ONCE for a
 # whole scale, and compute the target's forced cpu relative to it. Sets the
 # globals desired_target_cpu, comp_cpu, FIXED_COMP_FILE (empty for the
-# unreserved arm, which has no separate claim objects to clean up). Returns
-# 1 if the competitor never came up or no valid target cpu could be found
-# (e.g. PAIR_TYPE=sibling on a cpu with no SMT sibling).
+# unreserved arm, which has no separate claim objects to clean up). Neither
+# comp_cpu nor desired_target_cpu is ever allowed to be KEEP_CPU (see its
+# definition above). Returns 1 if the competitor never came up or no such
+# cpu pair could be found/landed.
 place_fixed_competitor() {
   local scale="$1" first_ul="$2"
   desired_target_cpu=""; comp_cpu=""; FIXED_COMP_FILE=""
@@ -112,7 +151,21 @@ place_fixed_competitor() {
   if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
     local intf="models/$MODEL/generated/_intf/$scale/$first_ul.yaml"
     [ -f "$intf" ] || { echo "[run] ERROR _intf manifest missing for $scale"; return 1; }
-    comp_cpu="$COMP_ANCHOR_CPU"
+    # WE choose the competitor's cpu directly (taskset, no driver involved) --
+    # pick the first candidate, excluding KEEP_CPU, that leaves at least one
+    # valid PAIR_TYPE-relative target cpu once KEEP_CPU is filtered out.
+    local c candidate_target
+    for c in $(all_cpus | sort -n); do
+      [ "$c" = "$KEEP_CPU" ] && continue
+      candidate_target=$(filter_keep_cpu "$(target_cpu_for "$c")")
+      if [ -n "$candidate_target" ]; then
+        comp_cpu="$c"; desired_target_cpu="$candidate_target"; break
+      fi
+    done
+    if [ -z "$comp_cpu" ]; then
+      echo "[run] ERROR no (competitor,target) cpu pair avoiding KEEP_CPU=$KEEP_CPU for PAIR_TYPE=$PAIR_TYPE"
+      return 1
+    fi
     sed "s/@@INTF_CPU@@/$comp_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
     if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
           --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -120,48 +173,41 @@ place_fixed_competitor() {
       kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found >/dev/null 2>&1
       return 1
     fi
-    echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu, running for the whole scale"
+    echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), running for the whole scale"
   elif [ "$COMPETITOR_TYPE" = "reserved" ]; then
     FIXED_COMP_FILE="models/$MODEL/generated/_comp/$scale/$first_ul.yaml"
     [ -f "$FIXED_COMP_FILE" ] || { echo "[run] ERROR _comp manifest missing for $scale"; return 1; }
-    local ok=0 attempt
-    for attempt in 1 2 3; do
+    # the driver decides this cpu (worst-fit, uncontrolled) -- re-place if it
+    # lands on KEEP_CPU, or if its PAIR_TYPE-relative target cpu would be
+    # KEEP_CPU (e.g. it landed on KEEP_CPU's own sibling for PAIR_TYPE=sibling).
+    local ok=0 attempt comp_pod landed candidate_target
+    for attempt in 1 2 3 4 5; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$FIXED_COMP_FILE" >/dev/null 2>&1
-      if kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
+      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
-        ok=1; break
+        echo "[run] reserved competitor pod not Ready ($scale, attempt $attempt/5); retrying"; continue
       fi
-      echo "[run] reserved competitor pod not Ready ($scale, attempt $attempt/3); retrying"
+      comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
+      landed=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+      if [ "$landed" = "$KEEP_CPU" ]; then
+        echo "[run] reserved competitor landed on KEEP_CPU=$KEEP_CPU ($scale, attempt $attempt/5); re-placing"; continue
+      fi
+      candidate_target=$(filter_keep_cpu "$(target_cpu_for "$landed")")
+      if [ -z "$candidate_target" ]; then
+        echo "[run] reserved competitor on cpu$landed has no usable pair avoiding KEEP_CPU=$KEEP_CPU ($scale, attempt $attempt/5); re-placing"; continue
+      fi
+      comp_cpu="$landed"; desired_target_cpu="$candidate_target"; ok=1; break
     done
     if [ "$ok" != 1 ]; then
-      echo "[run] ERROR reserved competitor never became Ready for $scale after 3 attempts"
+      echo "[run] ERROR reserved competitor never landed on a usable cpu (avoiding KEEP_CPU=$KEEP_CPU) for $scale after 5 attempts"
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found >/dev/null 2>&1
       return 1
     fi
-    local comp_pod
-    comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
-    comp_cpu=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
-    echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (driver's own choice), running for the whole scale"
+    echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), running for the whole scale"
   fi
 
-  case "$PAIR_TYPE" in
-    sibling)
-      desired_target_cpu=$(siblings_of "$comp_cpu" | tr ' ' '\n' | grep -vx "$comp_cpu" | head -1)
-      ;;
-    physical)
-      local excl=" $(siblings_of "$comp_cpu") $comp_cpu " c
-      for c in $(all_cpus | sort -n); do
-        case "$excl" in *" $c "*) ;; *) desired_target_cpu="$c"; break ;; esac
-      done
-      ;;
-  esac
-  if [ -z "$desired_target_cpu" ]; then
-    echo "[run] ERROR could not compute a valid target cpu for PAIR_TYPE=$PAIR_TYPE relative to competitor cpu$comp_cpu"
-    teardown_fixed_competitor
-    return 1
-  fi
-  echo "[run] $scale: target will be forced onto cpu$desired_target_cpu for every cell (PAIR_TYPE=$PAIR_TYPE vs competitor cpu$comp_cpu)"
+  echo "[run] $scale: target will be forced onto {$desired_target_cpu} for every cell (PAIR_TYPE=$PAIR_TYPE vs competitor cpu$comp_cpu)"
 }
 
 teardown_fixed_competitor() {
@@ -237,8 +283,25 @@ print(d.get('$key', {}).get('cv', 'NA'))
       fi
       nb_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[0].metadata.name}')
       nb_cpu=$(kubectl -n "$NS" exec "$nb_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+      # never let the neighbour (or, below, the target it forces) land on
+      # KEEP_CPU -- see its definition near the top: isolate.sh deliberately
+      # leaves that one cpu non-isolated for OS/kubelet housekeeping, so
+      # anything sharing its physical core picks up uncontrolled noise on top
+      # of the intended experimental contention.
+      if [ "$nb_cpu" = "$KEEP_CPU" ]; then
+        fail_reason="neighbour landed on KEEP_CPU=$KEEP_CPU"
+        echo "[run] $fail_reason; retrying cell"
+        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
       desired_target_cpu=$(siblings_of "$nb_cpu" | tr ' ' '\n' | grep -vx "$nb_cpu" | head -1)
       [ -z "$desired_target_cpu" ] && desired_target_cpu="$nb_cpu"   # no SMT sibling on this node
+      if [ "$desired_target_cpu" = "$KEEP_CPU" ]; then
+        fail_reason="neighbour's sibling is KEEP_CPU=$KEEP_CPU (would force target there)"
+        echo "[run] $fail_reason; retrying cell"
+        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
       sleep 5   # let the neighbour clear its own warm-up before the target starts
       echo "[run] neighbour placed+running on cpu$nb_cpu; target will be forced onto its sibling cpu$desired_target_cpu"
     fi
@@ -246,43 +309,49 @@ print(d.get('$key', {}).get('cv', 'NA'))
     # --- place the target ----------------------------------------------------
     # The driver only accepts `count` (how many cores), never WHICH ones -- so
     # there is no request we can make that targets a specific cpu directly.
-    # PIN_RTCPU (explicit, user-requested), model2's neighbour-sibling
-    # forcing, and model3's competitor-relative forcing (desired_target_cpu,
-    # computed once per scale by place_fixed_competitor) all reduce to the
-    # same thing: a SPECIFIC cpu required and checked per attempt, delete +
-    # recreate until the SMT-blind worst-fit driver happens to land there.
+    # PIN_RTCPU (explicit, user-requested), model2's neighbour-sibling forcing
+    # (exactly one valid cpu), and model3's competitor-relative forcing
+    # (desired_target_cpu, computed once per scale by place_fixed_competitor
+    # -- possibly SEVERAL valid cpus for PAIR_TYPE=physical) all reduce to the
+    # same thing: a SET of acceptable cpus (one element for PIN_RTCPU/model2),
+    # checked per attempt, delete + recreate until the SMT-blind worst-fit
+    # driver happens to land on ANY member of that set -- not cycling through
+    # trying to force one specific member per attempt, which would reject
+    # equally-valid landings just because they weren't the one currently
+    # being tried.
     if [ -n "$PIN_RTCPU" ]; then
       CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
     elif [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; then
-      CPU_CANDIDATES=("$desired_target_cpu"); FORCE_CPU=1
+      read -ra CPU_CANDIDATES <<< "$desired_target_cpu"; FORCE_CPU=1
     else
       CPU_CANDIDATES=(); FORCE_CPU=0
     fi
 
-    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; want_cpu=""
+    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
-      if [ "$FORCE_CPU" = 1 ]; then
-        want_cpu="${CPU_CANDIDATES[$(( (attempt - 1) % ${#CPU_CANDIDATES[@]} ))]}"
-      fi
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$f" >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
-        echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS${want_cpu:+, tried cpu$want_cpu})"; continue
+        echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS)"; continue
       fi
       tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
       tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
       rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
-      if [ "$FORCE_CPU" = 1 ] && [ "$rtcpu" != "$want_cpu" ]; then
-        echo "[run] target on cpu$rtcpu, wanted cpu$want_cpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+      if [ "$FORCE_CPU" = 1 ]; then
+        match=0
+        for c in "${CPU_CANDIDATES[@]}"; do [ "$rtcpu" = "$c" ] && match=1 && break; done
+        if [ "$match" != 1 ]; then
+          echo "[run] target on cpu$rtcpu, wanted one of {${CPU_CANDIDATES[*]}} ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
       fi
       placed=1; break
     done
     if [ "$placed" = 0 ]; then
-      if [ -n "$desired_target_cpu" ]; then
-        fail_reason="could not place target on cpu$desired_target_cpu after $PIN_ATTEMPTS attempts"
+      if [ "$FORCE_CPU" = 1 ]; then
+        fail_reason="could not place target on any of {${CPU_CANDIDATES[*]}} after $PIN_ATTEMPTS attempts"
       else
-        fail_reason="could not place target on cpu${PIN_RTCPU:-any} after $PIN_ATTEMPTS attempts"
+        fail_reason="could not place target after $PIN_ATTEMPTS attempts"
       fi
       echo "[run] $fail_reason; giving up on this cell"
       kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1
@@ -291,15 +360,19 @@ print(d.get('$key', {}).get('cv', 'NA'))
     fi
 
     # --- defensive sanity check, not a retry trigger -- correctness is now
-    # guaranteed BY CONSTRUCTION (the target was forced onto the co-runner's
-    # sibling/other-core above), this just catches the unexpected case loudly
-    # instead of silently trusting it.
-    if { [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; } && [ "$rtcpu" != "$desired_target_cpu" ]; then
-      fail_reason="target landed on cpu$rtcpu despite being forced to cpu$desired_target_cpu -- placement forcing did not hold"
-      echo "[run] BUG: $fail_reason; retrying cell"
-      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
-      continue
+    # guaranteed BY CONSTRUCTION (the target was forced onto a member of the
+    # co-runner-relative set above), this just catches the unexpected case
+    # loudly instead of silently trusting it.
+    if { [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; }; then
+      match=0
+      for c in "${CPU_CANDIDATES[@]}"; do [ "$rtcpu" = "$c" ] && match=1 && break; done
+      if [ "$match" != 1 ]; then
+        fail_reason="target landed on cpu$rtcpu despite being forced to one of {${CPU_CANDIDATES[*]}} -- placement forcing did not hold"
+        echo "[run] BUG: $fail_reason; retrying cell"
+        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+        [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
     fi
     [ "$HAS_NB" = 1 ] && echo "[run] neighbour on cpu$nb_cpu, target forced to sibling cpu$rtcpu -- confirmed same physical core, neighbour already running"
     [ "$HAS_COMP" = 1 ] && echo "[run] competitor fixed on cpu$comp_cpu, target forced to cpu$rtcpu -- confirmed, competitor already running for this whole scale"
