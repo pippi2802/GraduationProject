@@ -8,8 +8,12 @@ into results/<model>/figures/:
   2. cdf_delta_<scale>    CDF of (R-C)/bound
   3. cdf_alpha_<scale>    CDF of C/Q            (mark budget at 1)
   4. abs_RC_vs_U_<scale>  |R| and |C| (p50,p99) vs U
-  5. margin_vs_U_<scale>  p99 of R/D, alpha, delta vs U (break line at 1)
-plus results/<model>/summary.csv (one row per cell, same schema for every model).
+  5. margin_vs_U_<scale>  p99 of R/D, alpha, delta vs U (break line at 1,
+                          U_safe markers for p99/p999 -- see provisioning_table.csv)
+plus results/<model>/summary.csv (one row per cell, same schema for every model)
+and results/<model>/provisioning_table.csv (the empirical "how far can you
+provision before this contention condition breaks the deadline" answer --
+see provisioning_table()'s docstring).
 
 Definitions: D=P, alpha=C/Q, bound=2(P-Q), delta=(R-C)/bound.
 """
@@ -101,6 +105,66 @@ def cdf_fig(cells, col, xlabel, title, figs, name, mark_one=True):
     _save(fig, figs, name)
 
 
+def _interp_crossing(u_vals, r_vals):
+    """Highest utilisation at which r_vals (a normalized-margin metric, e.g.
+    RoverD_p99) stays <= 1, linearly interpolated between the two tested
+    points that bracket where the curve actually crosses 1 -- rather than
+    snapping to the nearest tested U, which is coarse given the sweep is only
+    tested every 0.1. Returns (U_safe, note). Assumes u_vals is sorted
+    ascending (both existing callers already sort by U first)."""
+    u_vals = np.asarray(u_vals, dtype=float); r_vals = np.asarray(r_vals, dtype=float)
+    if len(u_vals) == 0:
+        return None, "no data"
+    if r_vals[0] > 1:
+        return float(u_vals[0]), "breaks even at lowest tested U"
+    if (r_vals <= 1).all():
+        return float(u_vals[-1]), "safe across full tested range"
+    for i in range(1, len(u_vals)):
+        if r_vals[i - 1] <= 1 and r_vals[i] > 1:
+            u0, u1 = u_vals[i - 1], u_vals[i]
+            r0, r1 = r_vals[i - 1], r_vals[i]
+            frac = (1 - r0) / (r1 - r0) if r1 != r0 else 0.0
+            return round(float(u0 + frac * (u1 - u0)), 4), "interpolated crossing"
+    return float(u_vals[-1]), "non-monotonic -- verify manually"
+
+
+def provisioning_table(model, summary_df, scales):
+    """The empirical answer to "how far can I provision before this
+    contention condition breaks the deadline?" -- results/<model>/
+    provisioning_table.csv. Reframes RoverD_p99/RoverD_p999 (already in
+    summary.csv) as a design rule instead of a characterization: for each
+    scale and confidence level, U_safe is the highest utilisation (linearly
+    interpolated between tested points, see _interp_crossing) at which that
+    percentile of response times still met the deadline. margin_needed_at_
+    U_tested_max is how far past 1.0 the metric sits at the highest U
+    actually swept, i.e. how much period/budget headroom you'd need to add
+    if you provisioned at the top of the tested range anyway. This is the
+    cheap, no-new-data half of the provisioning question (see memory/thesis
+    discussion); an EVT tail fit for a confidence-bounded version is future
+    work once data collection is complete."""
+    if summary_df.empty:
+        return pd.DataFrame()
+    rows = []
+    for scale in sorted(scales):
+        d = summary_df[(summary_df.scale == scale) & (summary_df.n > 0)].sort_values("U")
+        if d.empty:
+            continue
+        for label, col in (("p99", "RoverD_p99"), ("p999", "RoverD_p999")):
+            u_safe, note = _interp_crossing(d.U.values, d[col].values)
+            rows.append({
+                "model": model, "scale": scale, "confidence": label,
+                "U_safe": u_safe, "note": note,
+                "U_tested_max": float(d.U.values[-1]),
+                "margin_needed_at_U_tested_max": round(float(d[col].values[-1]), 3),
+            })
+    out_df = pd.DataFrame(rows)
+    if not out_df.empty:
+        out = HERE / "results" / model / "provisioning_table.csv"
+        out_df.to_csv(out, index=False)
+        print(f"[result] wrote {out} ({len(out_df)} rows)")
+    return out_df
+
+
 def over_u_figs(summary_df, scale, figs):
     d = summary_df[(summary_df.scale == scale) & (summary_df.n > 0)].sort_values("U")
     if d.empty:
@@ -128,6 +192,17 @@ def over_u_figs(summary_df, scale, figs):
     ax1.axhline(1.0, color="red", ls=":", lw=1.4, alpha=0.8)
     ax1.text(d.U.min(), 1.005, "break line (=1)", color="red", fontsize=8, va="bottom")
     ax1.set_ylim(0, max(1.1, float(d[["RoverD_p99", "alpha_p99"]].max().max()) * 1.1))
+    # U_safe markers (same computation as provisioning_table.csv) -- ties the
+    # provisioning-rule numbers directly to this figure instead of leaving
+    # them only in a separate CSV.
+    if "RoverD_p999" in d:
+        for col, ls, lbl in (("RoverD_p99", "--", "U_safe (p99)"),
+                              ("RoverD_p999", "-.", "U_safe (p999)")):
+            u_safe, note = _interp_crossing(d.U.values, d[col].values)
+            if u_safe is not None and note != "safe across full tested range":
+                ax1.axvline(u_safe, color="gray", ls=ls, lw=1.2, alpha=0.7)
+                ax1.text(u_safe, ax1.get_ylim()[1], lbl, color="gray", fontsize=7,
+                          rotation=90, va="top", ha="right")
     ax1.set_ylabel("normalised margin (p99)")
     ax1.set_title(f"margins vs U ({scale}) — above 1 = guarantee breaks")
     ax1.grid(alpha=0.3)
@@ -365,6 +440,8 @@ def main() -> int:
         sanity_check(summary)
 
     tail_table(model, scales)
+    if not summary.empty:
+        provisioning_table(model, summary, scales)
 
     for scale in scales:
         c = cells.get(scale, {})

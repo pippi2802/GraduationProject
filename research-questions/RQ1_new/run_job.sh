@@ -81,9 +81,20 @@ siblings_of() {
   expand_cpuset "$(echo "$raw" | tr ',-' '  ')"
 }
 
-FAILED_CELLS=()
+FAILED_CELLS=(); FAILED_FILES=()
+# calibration-gate rejections are never retried (retrying won't fix a missing
+# or high-cv calibration entry -- the table doesn't change mid-sweep), so they
+# never enter FAILED_FILES. Kept in their own array, separate from
+# FAILED_CELLS, because FAILED_CELLS gets reset before the end-of-sweep retry
+# pass below and would otherwise silently drop these from the final report.
+SKIPPED_CELLS=()
 
-for f in "${FILES[@]}"; do
+# One cell's whole placement+run+collect cycle, as a function so a failed cell
+# can be replayed in the end-of-sweep retry pass below without duplicating this
+# logic. Shares the caller's variables (no `local`, matching the rest of this
+# script) -- each call resets them the same way each loop iteration used to.
+run_one_cell() {
+  f="$1"
   scale=$(basename "$(dirname "$f")"); ul=$(basename "$f" .yaml)   # ul like U0.5
   sub="$scale/$ul"; out="results/${MODEL}${OUT_TAG}/$scale/$ul"
   echo "[run] === $sub ($f) ==="
@@ -101,11 +112,11 @@ print(d.get('$key', {}).get('cv', 'NA'))
 " 2>/dev/null)
   if [ -z "$cv" ] || [ "$cv" = "NA" ]; then
     echo "[run] ERROR $sub: no calibration entry for $key in $TAB_NAME -- run: python calibrate.py $MODEL -- skipping"
-    FAILED_CELLS+=("$sub: not calibrated"); continue
+    SKIPPED_CELLS+=("$sub: not calibrated"); continue
   fi
   if ! python3 -c "raise SystemExit(0 if float('$cv') <= $CV_THRESHOLD else 1)" 2>/dev/null; then
     echo "[run] ERROR $sub: calibration cv=$cv > $CV_THRESHOLD (mis-calibrated K?) -- run: python calibrate.py $MODEL --force -- skipping"
-    FAILED_CELLS+=("$sub: high-cv calibration ($cv > $CV_THRESHOLD)"); continue
+    SKIPPED_CELLS+=("$sub: high-cv calibration ($cv > $CV_THRESHOLD)"); continue
   fi
 
   EXPECTED_N=$(grep -oE -- '--n-jobs [0-9]+' "$f" | head -1 | grep -oE '[0-9]+')
@@ -128,7 +139,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$nb_file" >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
-            --for=condition=Ready --timeout=60s >/dev/null 2>&1; then
+            --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
         fail_reason="neighbour pod not Ready"
         echo "[run] $fail_reason; retrying cell"
         kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
@@ -192,6 +203,17 @@ print(d.get('$key', {}).get('cv', 'NA'))
           continue
         fi
         echo "[run] target pair = $rtcpu,$sparecpu ($actual_pair, matches PAIR_TYPE=$PAIR_TYPE)"
+        # Freeze the target's own process (PID 1 in its container -- the exec
+        # chain is bash -> taskset -> matmul, no forks, so PID 1 IS matmul)
+        # before it can run a single warmup job. The competitor can only be
+        # placed once the target's spare cpu is known, so the target is
+        # necessarily created first; without this it would start accumulating
+        # warmup/measured jobs with zero contention while the competitor is
+        # still being scheduled. SIGSTOP/CONT is a hard OS-level gate, not a
+        # timing margin: the target cannot execute even one instruction until
+        # explicitly resumed below, once the competitor is confirmed running.
+        kubectl -n "$NS" exec "$tgt" -- kill -STOP 1 >/dev/null 2>&1
+        echo "[run] target paused (SIGSTOP) -- will resume once competitor is confirmed running"
       fi
       placed=1; break
     done
@@ -227,7 +249,12 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ -f "$intf" ]; then
         intf_cpu="$sparecpu"
         sed "s/@@INTF_CPU@@/$intf_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
-        echo "[run] unreserved competitor taskset to spare cpu$intf_cpu"
+        if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
+              --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+          comp_ok=0; fail_reason="unreserved competitor pod not Ready"
+        else
+          echo "[run] unreserved competitor taskset to spare cpu$intf_cpu -- confirmed running"
+        fi
       else
         echo "[run] WARN _intf manifest missing for $sub; competitor skipped"
       fi
@@ -236,7 +263,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ -f "$comp" ]; then
         kubectl create -f "$comp" >/dev/null 2>&1
         if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
-              --for=condition=Ready --timeout=60s >/dev/null 2>&1; then
+              --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
           comp_ok=0; fail_reason="reserved competitor pod not Ready"
         else
           comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
@@ -246,16 +273,29 @@ print(d.get('$key', {}).get('cv', 'NA'))
             comp_ok=0; fail_reason="reserved competitor on cpu$comp_cpu, wanted spare cpu$sparecpu"
           fi
         fi
-        if [ "$comp_ok" = 0 ]; then
-          echo "[run] $fail_reason; retrying cell"
-          kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
-          kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-          continue
-        fi
-        echo "[run] reserved competitor on spare cpu$comp_cpu -- confirmed"
+        [ "$comp_ok" = 1 ] && echo "[run] reserved competitor on spare cpu$comp_cpu -- confirmed"
       else
         echo "[run] WARN _comp manifest missing for $sub; competitor skipped"
       fi
+    fi
+
+    # target was frozen (SIGSTOP) right after its pair was confirmed, above --
+    # release it only now that the competitor is either confirmed running on
+    # the spare cpu, or genuinely absent (missing-manifest WARN cases keep
+    # comp_ok=1 so the target isn't left stuck paused). On failure, resume
+    # before deleting so pod teardown doesn't stall waiting out the default
+    # termination grace period against a stopped PID 1.
+    if [ "$HAS_COMP" = 1 ] && [ "$comp_ok" = 0 ]; then
+      echo "[run] $fail_reason; retrying cell"
+      kubectl -n "$NS" exec "$tgt" -- kill -CONT 1 >/dev/null 2>&1
+      kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      continue
+    fi
+    if [ "$HAS_COMP" = 1 ]; then
+      kubectl -n "$NS" exec "$tgt" -- kill -CONT 1 >/dev/null 2>&1
+      echo "[run] target resumed (SIGCONT)"
     fi
 
     # persist placement so co-location is a logged FACT, not an inference
@@ -310,6 +350,7 @@ JSON
   if [ "$CELL_OK" != 1 ]; then
     echo "[run] FAILED $sub after $CELL_ATTEMPTS attempt(s): $fail_reason"
     FAILED_CELLS+=("$sub: $fail_reason")
+    FAILED_FILES+=("$f")
   fi
 
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
@@ -318,13 +359,31 @@ JSON
   kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
   [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
   sleep 12   # let the driver release the claim before the next cell
-done
+}
+
+for f in "${FILES[@]}"; do run_one_cell "$f"; done
+
+# End-of-sweep retry: a cell that failed all CELL_ATTEMPTS during the main
+# pass often failed for a transient reason (cluster momentarily busy, a slow
+# competitor placement) rather than something structural -- give every failed
+# cell one more full attempt after the rest of the sweep has already run,
+# instead of just recording it as permanently lost. Only cells still failing
+# after THIS pass end up in the final FAILED list.
+if [ ${#FAILED_FILES[@]} -gt 0 ]; then
+  echo
+  echo "[run] --- ${#FAILED_FILES[@]} cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---"
+  RETRY_FILES=("${FAILED_FILES[@]}")
+  FAILED_CELLS=(); FAILED_FILES=()
+  for f in "${RETRY_FILES[@]}"; do run_one_cell "$f"; done
+fi
 
 echo
-if [ ${#FAILED_CELLS[@]} -eq 0 ]; then
+ALL_BAD_CELLS=("${SKIPPED_CELLS[@]}" "${FAILED_CELLS[@]}")
+if [ ${#ALL_BAD_CELLS[@]} -eq 0 ]; then
   echo "[run] done. all ${#FILES[@]} cell(s) collected their expected row count."
 else
-  echo "[run] done. ${#FAILED_CELLS[@]}/${#FILES[@]} cell(s) FAILED -- do not trust these until rerun:"
-  printf '  - %s\n' "${FAILED_CELLS[@]}"
+  echo "[run] done. ${#ALL_BAD_CELLS[@]}/${#FILES[@]} cell(s) did not produce valid data -- do not trust these:"
+  [ ${#SKIPPED_CELLS[@]} -gt 0 ] && printf '  - %s [not retried -- calibration issue, fix and rerun]\n' "${SKIPPED_CELLS[@]}"
+  [ ${#FAILED_CELLS[@]} -gt 0 ] && printf '  - %s [failed even after end-of-sweep retry]\n' "${FAILED_CELLS[@]}"
 fi
 echo "[run] analyze with: python result.py ${MODEL}${OUT_TAG}"
