@@ -95,9 +95,12 @@ spec:
         - |
           set -e; mkdir -p /results
           # UNRESERVED (CFS) matmul pinned to whatever cpu run_job.sh resolves at
-          # placement time (the target's spare/sibling cpu); priority 0.
+          # placement time (the target's spare/sibling cpu); priority 0. Runs
+          # until the cell is torn down (same rationale as model2's neighbour
+          # and the reserved competitor) -- it's created ONCE per scale and
+          # must persist across every cell in it, not just one.
           exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us {p} \\
-            --n-jobs 6000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
+            --n-jobs 100000000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
       volumeMounts: [{{ name: results, mountPath: /results }}]
   volumes:
     - name: results
