@@ -1,1 +1,0 @@
-{"model":"model3","scale":"soft","U":"0.4","target_pod":"model3-soft-u40","target_RT_CPUSET":"2-3","pair_type":"sibling","spare_cpu":"3","competitor_type":"unreserved","interferer_cpu":"3","reserved_competitor_cpu":"","neighbour_cpu":"","cell_attempt":1}
