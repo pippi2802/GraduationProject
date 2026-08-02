@@ -1,0 +1,28 @@
+Model1
+  What it tests: Isolated baseline, no co-tenant at all
+  What you already have reason to expect: Guarantees mostly hold, but even in full isolation there's a residual, period-sensitive tail —
+
+  short (10ms) periods occasionally breach, long (100ms) ones essentially never do. (Already run,  already interpreted.)
+  ────────────────────────────────────────
+  Model2
+  What it tests: Bounded (reserved) co-tenant sharing a physical core, low intensity
+  What you already have reason to expect: No significant additional degradation vs. running alone — H-CBS's accounting appears to
+  protect
+  against a bounded co-tenant. (Run once, being rerun now with the sync fix — should hold, worth  confirming.)
+  ────────────────────────────────────────
+  Model3, physical arms (either competitor type)
+  What it tests: Control: does physical separation alone prevent any degradation, regardless of whether the co-tenant is reserved?
+  What you already have reason to expect: Should look clean, like model1/model2 — proves the effect (if any) is specifically about
+  sharing a physical core, not just "another workload exists on the node."
+  ────────────────────────────────────────
+  Model3, sibling+reserved
+  What it tests: Same physical core, but co-tenant is also bounded — this directly replicates model2's question at a different
+  reservation size (m=2)
+  What you already have reason to expect: Should also stay clean, if model2's finding generalizes.
+  ────────────────────────────────────────
+  Model3, sibling+unreserved
+  What it tests: Same physical core, co-tenant is unbounded (ordinary best-effort CFS)
+  What you already have reason to expect: This is the one that matters. If guarantees hold in every other arm but break here, you've
+  precisely isolated where KubeDeadline's guarantee actually fails: not from isolation gaps, not from bounded co-tenancy, but
+  specifically from sharing physical execution hardware with something that isn't itself rate-limited.
+

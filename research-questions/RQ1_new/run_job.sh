@@ -16,15 +16,27 @@ SCALE="${2:-}"
 cd "$(dirname "$0")"
 
 # --- model2/model3 placement knobs ------------------------------------------
-# model3 only: how the target's OWN m=2 pair is placed --
-#   sibling  -> both cpus are the two SMT threads of ONE physical core [default]
-#   physical -> one cpu from each of two DIFFERENT physical cores
+# model3 only: how the target is placed relative to the (fixed-intensity)
+# competitor. The competitor's own utilization never changes across the U
+# sweep (co_runners.competitor.u), so it's created ONCE per scale (see
+# place_fixed_competitor below) and left running for every cell of that
+# scale -- the target (count:1, same as model1/model2's own claim) is then
+# forced onto a cpu computed once, relative to the competitor's actual
+# landed cpu --
+#   sibling  -> target's cpu is the competitor's SMT sibling (same physical
+#               core)                                              [default]
+#   physical -> target's cpu is on a DIFFERENT physical core than the
+#               competitor
 PAIR_TYPE="${PAIR_TYPE:-sibling}"
-# model3 only: what occupies the pair's spare cpu (the one the target's own
-# thread does NOT pin to) --
-#   unreserved -> CFS matmul, taskset-pinned directly                [default]
-#   reserved   -> its own CBS reservation (co_runners.competitor.u)
+# model3 only: what the competitor actually is --
+#   unreserved -> CFS matmul, taskset-pinned to a fixed cpu (COMP_ANCHOR_CPU,
+#                 default 1) chosen directly -- it never goes through the
+#                 driver, so we pick its cpu ourselves               [default]
+#   reserved   -> its own CBS reservation (co_runners.competitor.u); its cpu
+#                 is the driver's own (uncontrollable) choice, read back once
+#                 and used to compute the target's forced cpu
 COMPETITOR_TYPE="${COMPETITOR_TYPE:-unreserved}"
+COMP_ANCHOR_CPU="${COMP_ANCHOR_CPU:-1}"
 # suffix for the results dir so an arm doesn't overwrite another, e.g.
 # OUT_TAG=_phys_res -> results/model3_phys_res/...
 OUT_TAG="${OUT_TAG:-}"
@@ -80,6 +92,84 @@ siblings_of() {
   raw=$(kubectl -n "$NS" exec "$AGENT" -- cat "/sys/devices/system/cpu/cpu$1/topology/thread_siblings_list" 2>/dev/null)
   expand_cpuset "$(echo "$raw" | tr ',-' '  ')"
 }
+# every logical cpu id present on the node, one per line
+all_cpus() {
+  kubectl -n "$NS" exec "$AGENT" -- sh -c 'for d in /sys/devices/system/cpu/cpu[0-9]*; do basename "$d"; done' \
+    2>/dev/null | sed 's/^cpu//'
+}
+
+# --- model3: place the (fixed-intensity) competitor/interferer ONCE for a
+# whole scale, and compute the target's forced cpu relative to it. Sets the
+# globals desired_target_cpu, comp_cpu, FIXED_COMP_FILE (empty for the
+# unreserved arm, which has no separate claim objects to clean up). Returns
+# 1 if the competitor never came up or no valid target cpu could be found
+# (e.g. PAIR_TYPE=sibling on a cpu with no SMT sibling).
+place_fixed_competitor() {
+  local scale="$1" first_ul="$2"
+  desired_target_cpu=""; comp_cpu=""; FIXED_COMP_FILE=""
+  [ "$HAS_COMP" != 1 ] && return 0
+
+  if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
+    local intf="models/$MODEL/generated/_intf/$scale/$first_ul.yaml"
+    [ -f "$intf" ] || { echo "[run] ERROR _intf manifest missing for $scale"; return 1; }
+    comp_cpu="$COMP_ANCHOR_CPU"
+    sed "s/@@INTF_CPU@@/$comp_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
+    if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
+          --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+      echo "[run] ERROR unreserved competitor pod not Ready for $scale"
+      kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found >/dev/null 2>&1
+      return 1
+    fi
+    echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu, running for the whole scale"
+  elif [ "$COMPETITOR_TYPE" = "reserved" ]; then
+    FIXED_COMP_FILE="models/$MODEL/generated/_comp/$scale/$first_ul.yaml"
+    [ -f "$FIXED_COMP_FILE" ] || { echo "[run] ERROR _comp manifest missing for $scale"; return 1; }
+    local ok=0 attempt
+    for attempt in 1 2 3; do
+      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      kubectl create -f "$FIXED_COMP_FILE" >/dev/null 2>&1
+      if kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
+            --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+        ok=1; break
+      fi
+      echo "[run] reserved competitor pod not Ready ($scale, attempt $attempt/3); retrying"
+    done
+    if [ "$ok" != 1 ]; then
+      echo "[run] ERROR reserved competitor never became Ready for $scale after 3 attempts"
+      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found >/dev/null 2>&1
+      return 1
+    fi
+    local comp_pod
+    comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
+    comp_cpu=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
+    echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (driver's own choice), running for the whole scale"
+  fi
+
+  case "$PAIR_TYPE" in
+    sibling)
+      desired_target_cpu=$(siblings_of "$comp_cpu" | tr ' ' '\n' | grep -vx "$comp_cpu" | head -1)
+      ;;
+    physical)
+      local excl=" $(siblings_of "$comp_cpu") $comp_cpu " c
+      for c in $(all_cpus | sort -n); do
+        case "$excl" in *" $c "*) ;; *) desired_target_cpu="$c"; break ;; esac
+      done
+      ;;
+  esac
+  if [ -z "$desired_target_cpu" ]; then
+    echo "[run] ERROR could not compute a valid target cpu for PAIR_TYPE=$PAIR_TYPE relative to competitor cpu$comp_cpu"
+    teardown_fixed_competitor
+    return 1
+  fi
+  echo "[run] $scale: target will be forced onto cpu$desired_target_cpu for every cell (PAIR_TYPE=$PAIR_TYPE vs competitor cpu$comp_cpu)"
+}
+
+teardown_fixed_competitor() {
+  [ "$HAS_COMP" != 1 ] && return 0
+  kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
+  kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
+  [ -n "${FIXED_COMP_FILE:-}" ] && kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=false >/dev/null 2>&1
+}
 
 FAILED_CELLS=(); FAILED_FILES=()
 # calibration-gate rejections are never retried (retrying won't fix a missing
@@ -133,8 +223,8 @@ print(d.get('$key', {}).get('cv', 'NA'))
     # ahead of the neighbour's own startup. Confirmed in practice: without
     # this, some cells had no real contention because the neighbour wasn't up
     # yet, and others wasted whole-cell retries on "neighbour pod not Ready."
-    desired_target_cpu=""
     if [ "$HAS_NB" = 1 ]; then
+      desired_target_cpu=""
       nb_file="models/$MODEL/generated/_nb/$scale/$ul.yaml"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$nb_file" >/dev/null
@@ -155,25 +245,21 @@ print(d.get('$key', {}).get('cv', 'NA'))
 
     # --- place the target ----------------------------------------------------
     # The driver only accepts `count` (how many cores), never WHICH ones -- so
-    # there is no request we can make that targets a specific cpu or pair.
-    # PIN_RTCPU (explicit, user-requested) and model2's neighbour-sibling
-    # forcing are the only cases where a SPECIFIC cpu is required and checked
-    # per attempt. For model3's PAIR_TYPE (HAS_COMP=1, no PIN_RTCPU), do NOT
-    # gate on any particular cpu value -- comparing the driver's uncontrollable
-    # answer against a made-up "candidate" rejects it regardless of whether the
-    # actual pair was fine, wasting every attempt before the real check (does
-    # the resulting pair satisfy PAIR_TYPE) ever runs. Instead, accept whatever
-    # cpu the driver gives and let the PAIR_TYPE check below be the only thing
-    # that drives retries.
+    # there is no request we can make that targets a specific cpu directly.
+    # PIN_RTCPU (explicit, user-requested), model2's neighbour-sibling
+    # forcing, and model3's competitor-relative forcing (desired_target_cpu,
+    # computed once per scale by place_fixed_competitor) all reduce to the
+    # same thing: a SPECIFIC cpu required and checked per attempt, delete +
+    # recreate until the SMT-blind worst-fit driver happens to land there.
     if [ -n "$PIN_RTCPU" ]; then
       CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
-    elif [ "$HAS_NB" = 1 ]; then
+    elif [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; then
       CPU_CANDIDATES=("$desired_target_cpu"); FORCE_CPU=1
     else
       CPU_CANDIDATES=(); FORCE_CPU=0
     fi
 
-    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; sparecpu=""; actual_pair=""; want_cpu=""
+    placed=0; tgt=""; tgt_cpuset=""; rtcpu=""; want_cpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       if [ "$FORCE_CPU" = 1 ]; then
         want_cpu="${CPU_CANDIDATES[$(( (attempt - 1) % ${#CPU_CANDIDATES[@]} ))]}"
@@ -190,36 +276,11 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ "$FORCE_CPU" = 1 ] && [ "$rtcpu" != "$want_cpu" ]; then
         echo "[run] target on cpu$rtcpu, wanted cpu$want_cpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
       fi
-      if [ "$HAS_COMP" = 1 ]; then
-        pair=($(expand_cpuset "$tgt_cpuset"))
-        sparecpu="${pair[1]:-}"
-        if [ -z "$sparecpu" ]; then
-          echo "[run] m=2 claim only yielded one cpu ($tgt_cpuset) on cpu$rtcpu ($attempt/$PIN_ATTEMPTS); re-placing"; continue
-        fi
-        sibs_rt=" $(siblings_of "$rtcpu") "
-        case "$sibs_rt" in *" $sparecpu "*) actual_pair="sibling" ;; *) actual_pair="physical" ;; esac
-        if [ "$actual_pair" != "$PAIR_TYPE" ]; then
-          echo "[run] pair landed $actual_pair (cpus $rtcpu,$sparecpu), wanted $PAIR_TYPE ($attempt/$PIN_ATTEMPTS); re-placing"
-          continue
-        fi
-        echo "[run] target pair = $rtcpu,$sparecpu ($actual_pair, matches PAIR_TYPE=$PAIR_TYPE)"
-        # Freeze the target's own process (PID 1 in its container -- the exec
-        # chain is bash -> taskset -> matmul, no forks, so PID 1 IS matmul)
-        # before it can run a single warmup job. The competitor can only be
-        # placed once the target's spare cpu is known, so the target is
-        # necessarily created first; without this it would start accumulating
-        # warmup/measured jobs with zero contention while the competitor is
-        # still being scheduled. SIGSTOP/CONT is a hard OS-level gate, not a
-        # timing margin: the target cannot execute even one instruction until
-        # explicitly resumed below, once the competitor is confirmed running.
-        kubectl -n "$NS" exec "$tgt" -- kill -STOP 1 >/dev/null 2>&1
-        echo "[run] target paused (SIGSTOP) -- will resume once competitor is confirmed running"
-      fi
       placed=1; break
     done
     if [ "$placed" = 0 ]; then
-      if [ "$HAS_COMP" = 1 ]; then
-        fail_reason="could not find a target placement matching PAIR_TYPE=$PAIR_TYPE after $PIN_ATTEMPTS attempts"
+      if [ -n "$desired_target_cpu" ]; then
+        fail_reason="could not place target on cpu$desired_target_cpu after $PIN_ATTEMPTS attempts"
       else
         fail_reason="could not place target on cpu${PIN_RTCPU:-any} after $PIN_ATTEMPTS attempts"
       fi
@@ -229,78 +290,25 @@ print(d.get('$key', {}).get('cv', 'NA'))
       break
     fi
 
-    # --- model2: defensive sanity check, not a retry trigger -- correctness is
-    # now guaranteed BY CONSTRUCTION (the target was forced onto the
-    # neighbour's sibling above), this just catches the unexpected case loudly
+    # --- defensive sanity check, not a retry trigger -- correctness is now
+    # guaranteed BY CONSTRUCTION (the target was forced onto the co-runner's
+    # sibling/other-core above), this just catches the unexpected case loudly
     # instead of silently trusting it.
-    if [ "$HAS_NB" = 1 ] && [ "$rtcpu" != "$desired_target_cpu" ]; then
+    if { [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; } && [ "$rtcpu" != "$desired_target_cpu" ]; then
       fail_reason="target landed on cpu$rtcpu despite being forced to cpu$desired_target_cpu -- placement forcing did not hold"
       echo "[run] BUG: $fail_reason; retrying cell"
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       continue
     fi
     [ "$HAS_NB" = 1 ] && echo "[run] neighbour on cpu$nb_cpu, target forced to sibling cpu$rtcpu -- confirmed same physical core, neighbour already running"
+    [ "$HAS_COMP" = 1 ] && echo "[run] competitor fixed on cpu$comp_cpu, target forced to cpu$rtcpu -- confirmed, competitor already running for this whole scale"
 
-    # --- model3: place the competitor on the spare cpu ------------------------
-    intf_cpu=""; comp_cpu=""; comp_ok=1
-    if [ "$HAS_COMP" = 1 ] && [ "$COMPETITOR_TYPE" = "unreserved" ]; then
-      intf="models/$MODEL/generated/_intf/$scale/$ul.yaml"
-      if [ -f "$intf" ]; then
-        intf_cpu="$sparecpu"
-        sed "s/@@INTF_CPU@@/$intf_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
-        if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
-              --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
-          comp_ok=0; fail_reason="unreserved competitor pod not Ready"
-        else
-          echo "[run] unreserved competitor taskset to spare cpu$intf_cpu -- confirmed running"
-        fi
-      else
-        echo "[run] WARN _intf manifest missing for $sub; competitor skipped"
-      fi
-    elif [ "$HAS_COMP" = 1 ] && [ "$COMPETITOR_TYPE" = "reserved" ]; then
-      comp="models/$MODEL/generated/_comp/$scale/$ul.yaml"
-      if [ -f "$comp" ]; then
-        kubectl create -f "$comp" >/dev/null 2>&1
-        if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
-              --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
-          comp_ok=0; fail_reason="reserved competitor pod not Ready"
-        else
-          comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
-          comp_cpuset=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null || true)
-          comp_cpu=$(echo "$comp_cpuset" | cut -d, -f1 | cut -d- -f1)
-          if [ "$comp_cpu" != "$sparecpu" ]; then
-            comp_ok=0; fail_reason="reserved competitor on cpu$comp_cpu, wanted spare cpu$sparecpu"
-          fi
-        fi
-        [ "$comp_ok" = 1 ] && echo "[run] reserved competitor on spare cpu$comp_cpu -- confirmed"
-      else
-        echo "[run] WARN _comp manifest missing for $sub; competitor skipped"
-      fi
-    fi
-
-    # target was frozen (SIGSTOP) right after its pair was confirmed, above --
-    # release it only now that the competitor is either confirmed running on
-    # the spare cpu, or genuinely absent (missing-manifest WARN cases keep
-    # comp_ok=1 so the target isn't left stuck paused). On failure, resume
-    # before deleting so pod teardown doesn't stall waiting out the default
-    # termination grace period against a stopped PID 1.
-    if [ "$HAS_COMP" = 1 ] && [ "$comp_ok" = 0 ]; then
-      echo "[run] $fail_reason; retrying cell"
-      kubectl -n "$NS" exec "$tgt" -- kill -CONT 1 >/dev/null 2>&1
-      kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-      continue
-    fi
-    if [ "$HAS_COMP" = 1 ]; then
-      kubectl -n "$NS" exec "$tgt" -- kill -CONT 1 >/dev/null 2>&1
-      echo "[run] target resumed (SIGCONT)"
-    fi
-
-    # persist placement so co-location is a logged FACT, not an inference
+    # persist placement so co-location is a logged FACT, not an inference.
+    # model3's competitor_cpu/pair_type are fixed for the whole scale (set
+    # once by place_fixed_competitor), not re-discovered per cell.
     cat > "$out/placement.json" <<JSON
-{"model":"$MODEL","scale":"$scale","U":"${ul#U}","target_pod":"$tgt","target_RT_CPUSET":"$tgt_cpuset","pair_type":"$actual_pair","spare_cpu":"$sparecpu","competitor_type":"$COMPETITOR_TYPE","interferer_cpu":"$intf_cpu","reserved_competitor_cpu":"$comp_cpu","neighbour_cpu":"${nb_cpu:-}","cell_attempt":$cell_attempt}
+{"model":"$MODEL","scale":"$scale","U":"${ul#U}","target_pod":"$tgt","target_RT_CPUSET":"$tgt_cpuset","pair_type":"$PAIR_TYPE","competitor_type":"$COMPETITOR_TYPE","competitor_cpu":"${comp_cpu:-}","neighbour_cpu":"${nb_cpu:-}","cell_attempt":$cell_attempt}
 JSON
 
     # model4: apply the IRQ-steering arm and snapshot the RT core's interrupt count.
@@ -340,8 +348,6 @@ JSON
     fi
     fail_reason="collected $n_got/$EXPECTED_N rows"
     echo "[run] WARNING $sub: $fail_reason (attempt $cell_attempt/$CELL_ATTEMPTS)"
-    kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
-    kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
     kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
     [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
     sleep 5
@@ -353,28 +359,67 @@ JSON
     FAILED_FILES+=("$f")
   fi
 
-  kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=false >/dev/null 2>&1
-  kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=false >/dev/null 2>&1
+  # NOTE: role=interferer/competitor are NOT torn down here -- for model3 they
+  # are fixed for the whole scale (place_fixed_competitor/teardown_fixed_competitor,
+  # in the per-scale driving loop below), not recreated per cell.
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=neighbour" --ignore-not-found --wait=false >/dev/null 2>&1
   kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
   [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
   sleep 12   # let the driver release the claim before the next cell
 }
 
-for f in "${FILES[@]}"; do run_one_cell "$f"; done
+if [ "$HAS_COMP" = 1 ]; then
+  # model3: drive per-scale, not per-file -- the competitor is created once
+  # per scale (place_fixed_competitor) and must stay up for every cell of
+  # that scale, then torn down only once the scale's cells (main pass +
+  # retry) are done.
+  mapfile -t SCALES_LIST < <(for f in "${FILES[@]}"; do basename "$(dirname "$f")"; done | sort -u)
+  for scale in "${SCALES_LIST[@]}"; do
+    mapfile -t scale_files < <(printf '%s\n' "${FILES[@]}" | grep "/generated/$scale/")
+    [ ${#scale_files[@]} -eq 0 ] && continue
+    first_ul=$(basename "${scale_files[0]}" .yaml)
 
-# End-of-sweep retry: a cell that failed all CELL_ATTEMPTS during the main
-# pass often failed for a transient reason (cluster momentarily busy, a slow
-# competitor placement) rather than something structural -- give every failed
-# cell one more full attempt after the rest of the sweep has already run,
-# instead of just recording it as permanently lost. Only cells still failing
-# after THIS pass end up in the final FAILED list.
-if [ ${#FAILED_FILES[@]} -gt 0 ]; then
-  echo
-  echo "[run] --- ${#FAILED_FILES[@]} cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---"
-  RETRY_FILES=("${FAILED_FILES[@]}")
-  FAILED_CELLS=(); FAILED_FILES=()
-  for f in "${RETRY_FILES[@]}"; do run_one_cell "$f"; done
+    if ! place_fixed_competitor "$scale" "$first_ul"; then
+      echo "[run] skipping all of $scale (competitor setup failed)"
+      for f in "${scale_files[@]}"; do
+        sub="$scale/$(basename "$f" .yaml)"
+        FAILED_CELLS+=("$sub: competitor setup failed for $scale")
+      done
+      continue
+    fi
+
+    for f in "${scale_files[@]}"; do run_one_cell "$f"; done
+
+    # end-of-scale retry: same rationale as model1/2's end-of-sweep retry
+    # below, just scoped to this scale so it can reuse the still-running
+    # competitor instead of needing to recreate it.
+    if [ ${#FAILED_FILES[@]} -gt 0 ]; then
+      echo
+      echo "[run] --- ${#FAILED_FILES[@]} cell(s) failed in $scale; retrying once more (competitor still running) ---"
+      RETRY_FILES=("${FAILED_FILES[@]}")
+      FAILED_FILES=()
+      mapfile -t FAILED_CELLS < <(printf '%s\n' "${FAILED_CELLS[@]}" | grep -v "^$scale/")
+      for f in "${RETRY_FILES[@]}"; do run_one_cell "$f"; done
+    fi
+
+    teardown_fixed_competitor
+  done
+else
+  for f in "${FILES[@]}"; do run_one_cell "$f"; done
+
+  # End-of-sweep retry: a cell that failed all CELL_ATTEMPTS during the main
+  # pass often failed for a transient reason (cluster momentarily busy) rather
+  # than something structural -- give every failed cell one more full attempt
+  # after the rest of the sweep has already run, instead of just recording it
+  # as permanently lost. Only cells still failing after THIS pass end up in
+  # the final FAILED list.
+  if [ ${#FAILED_FILES[@]} -gt 0 ]; then
+    echo
+    echo "[run] --- ${#FAILED_FILES[@]} cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---"
+    RETRY_FILES=("${FAILED_FILES[@]}")
+    FAILED_CELLS=(); FAILED_FILES=()
+    for f in "${RETRY_FILES[@]}"; do run_one_cell "$f"; done
+  fi
 fi
 
 echo
