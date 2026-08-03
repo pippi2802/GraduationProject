@@ -84,20 +84,21 @@ GLOB="models/$MODEL/generated/${SCALE:+$SCALE/}"
 mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' -not -path '*/_intf/*' -not -path '*/_comp/*' -not -path '*/_nb/*' | sort)
 [ ${#FILES[@]} -eq 0 ] && { echo "ERROR: no manifests; run generate_yaml.py $MODEL"; exit 1; }
 
-# U_MAX: skip cells above a utilization cap instead of letting them fail+retry.
-# For model3's sibling arms (PAIR_TYPE=sibling), target + competitor share one
-# physical core's schedulability ceiling (~0.95), so any U beyond that minus
-# the competitor's own u is genuinely infeasible -- admission control will
-# reject it every time, burning CELL_ATTEMPTS*PIN_ATTEMPTS retries for nothing.
-# Physical arms have no such ceiling and don't need this set.
-if [ -n "${U_MAX:-}" ]; then
+# U_MIN/U_MAX: restrict which cells run instead of the whole sweep. U_MAX skips
+# cells above a utilization cap (e.g. model3 sibling arms' ~0.95 shared-core
+# ceiling, where anything beyond it is genuinely infeasible and would just
+# burn CELL_ATTEMPTS*PIN_ATTEMPTS retries for nothing). U_MIN=U_MAX=<value>
+# isolates exactly one cell -- useful for manually re-running a single cell
+# that failed a prior sweep (e.g. bad luck on driver placement) without
+# re-running everything else.
+if [ -n "${U_MIN:-}${U_MAX:-}" ]; then
   keep=()
   for f in "${FILES[@]}"; do
     u="$(basename "$f" .yaml)"; u="${u#U}"
-    awk -v u="$u" -v cap="$U_MAX" 'BEGIN{exit !(u+0<=cap+0)}' && keep+=("$f")
+    awk -v u="$u" -v lo="${U_MIN:--999}" -v hi="${U_MAX:-999}" 'BEGIN{exit !(u+0>=lo+0 && u+0<=hi+0)}' && keep+=("$f")
   done
   FILES=("${keep[@]}")
-  echo "[run] U_MAX=$U_MAX applied: ${#FILES[@]} cells remain"
+  echo "[run] U_MIN=${U_MIN:-} U_MAX=${U_MAX:-} applied: ${#FILES[@]} cells remain"
 fi
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"

@@ -1,0 +1,55 @@
+# rt-budget-seed.service - seed the node-wide H-CBS RT budget on every boot.
+#
+# The per-cgroup RT bandwidth (cpu.rt_runtime_us) on this kernel is in-memory
+# node state that a reboot zeroes, and it can only be written while global RT
+# group bandwidth is enabled. This unit re-establishes both after kubelet has
+# created kubepods.slice, so RT pods can be admitted immediately after a reboot.
+#
+# INSTALL (on the worker, as root):
+#   install -m0755 rt-budget-seed.sh /usr/local/sbin/rt-budget-seed.sh
+#   install -m0644 rt-budget-seed.service /etc/systemd/system/rt-budget-seed.service
+#   install -m0644 99-rt-budget.conf /etc/sysctl.d/99-rt-budget.conf
+#   # 99-rt-budget.conf sets a FINITE global (kernel.sched_rt_runtime_us=1000000,
+#   # period=1000000) so admission control / throttling stay ON. The ~20% reserve
+#   # for non-RT (CFS) work comes from the HCBS DEADLINE fair-server, so the RT
+#   # ceiling under kubepods is ~80% (the cap this unit seeds). -1 is NOT used.
+#   # Make sure no other drop-in overrides these back:
+#   grep -rn 'sched_rt_runtime_us' /etc/sysctl.d /etc/sysctl.conf 2>/dev/null
+#   sysctl --system
+#   systemctl daemon-reload
+#   systemctl enable --now rt-budget-seed.service
+#
+# VERIFY:
+#   systemctl status rt-budget-seed.service
+#   grep -H . /sys/fs/cgroup/kubepods.slice/cpu.rt_runtime_us
+
+[Unit]
+Description=Seed node-wide H-CBS real-time cgroup budget (reboot-safe)
+Documentation=file:///usr/local/sbin/rt-budget-seed.sh
+# kubepods.slice is created by kubelet; wait for it before seeding.
+After=kubelet.service
+Wants=kubelet.service
+# Only meaningful with cgroup v2 unified hierarchy mounted.
+ConditionPathExists=/sys/fs/cgroup/cgroup.controllers
+# Give up after 10 failures in 10 min instead of looping forever (e.g. when a
+# reboot is required to re-init the root RT budget). StartLimit* belong in [Unit].
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Tunables: RT_RUNTIME/RT_PERIOD are the node RT cap seeded into kubepods.slice
+# (Model A - only the top cap; runc grows the QoS/pod/leaf levels under it). The
+# global stays FINITE (set via 99-rt-budget.conf), so admission control remains
+# ON. 950000/1000000 = 95% matches the driver's admission threshold (Eq.1 <= 0.95).
+Environment=RT_PERIOD=1000000
+Environment=RT_RUNTIME=950000
+Environment=WAIT_SECS=120
+ExecStart=/usr/local/sbin/rt-budget-seed.sh
+# If kubepods.slice is slow to appear on a cold boot, retry a few times.
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
