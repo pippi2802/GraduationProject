@@ -42,7 +42,7 @@ headroom_frac: 0.7
 # but ONE utilizations list is shared across all 4 arms (PAIR_TYPE is a
 # run_job.sh-time choice, not a generation-time one), so it's capped
 # uniformly for now rather than adding a second, arm-specific range.
-utilizations: [0.1, 0.2, 0.3, 0.4, 0.5]
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 scales: { tight: 10000, soft: 100000 }
 co_runners:
   interferer: {}          # unreserved competitor; cpu is always resolved at run time
