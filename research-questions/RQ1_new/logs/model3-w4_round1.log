@@ -56,3 +56,5 @@ nohup: ignoring input
 [run] tight: reserved competitor landed on cpu1 (avoiding KEEP_CPU=0), running for the whole scale
 [run] tight: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
 [run] === tight/U0.1 (models/model3-w4/generated/tight/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] running...
