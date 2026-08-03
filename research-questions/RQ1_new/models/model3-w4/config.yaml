@@ -1,0 +1,49 @@
+# Model 3 — fixed-competitor, pair_type x competitor_type sweep. The
+# competitor's own utilization (co_runners.competitor.u) never changes across
+# the U sweep, so run_job.sh's place_fixed_competitor creates it ONCE per
+# scale and leaves it running for every cell of that scale, instead of
+# recreating it per cell -- this replaced an earlier design where the target
+# held a count=2 "m=2" reservation purely to reserve a spare cpu for the
+# competitor to land on, which needed both the target's OWN pair AND the
+# competitor's placement to independently land correctly every single cell
+# (compounding retry cost and requiring a SIGSTOP hack to stop the target
+# racing ahead of a per-cell competitor). Now the target is count=1 (job.yaml,
+# same as model1/2), and is simply forced onto a cpu computed once relative
+# to the competitor's own landed cpu:
+#   PAIR_TYPE=sibling  -> target's cpu is the competitor's SMT sibling (same
+#                         physical core)
+#   PAIR_TYPE=physical -> target's cpu is on a DIFFERENT physical core
+# reading the real topology from sysfs (the driver is SMT-blind, so this is
+# still a delete/recreate retry for the TARGET only, same idea as PIN_RTCPU).
+# COMPETITOR_TYPE selects what the competitor actually is:
+#   unreserved -> CFS matmul, taskset-pinned to a cpu chosen dynamically to
+#                 avoid KEEP_CPU (it never goes through the driver, so we
+#                 pick its cpu ourselves) (models/model3/generated/_intf)
+#   reserved   -> its own CBS reservation at co_runners.competitor.u; its cpu
+#                 is the driver's own (uncontrollable) choice, read back once
+#                 (models/model3/generated/_comp)
+# 2x2 sweep: PAIR_TYPE={sibling,physical} x COMPETITOR_TYPE={reserved,unreserved},
+# selected via env vars at run_job.sh invocation time (see README), e.g.:
+#   PAIR_TYPE=sibling  COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs ./run_job.sh model3
+#   PAIR_TYPE=physical COMPETITOR_TYPE=reserved   OUT_TAG=_phys_res ./run_job.sh model3
+model: model3-w4
+namespace: rq1-model3-w4
+node_label: experiment-model=model3-w4
+host_path: /var/lib/rq1/model3-w4
+image: pippina2/rq1-probe:v2
+matrix_M: 48
+headroom_frac: 0.7
+# capped at 0.5, same reasoning and same cap as model2 (see its config.yaml):
+# the sib_res/sib_cfs arms share ONE physical core between target + fixed-
+# intensity (u=0.4) competitor, so combined utilisation must stay under the
+# ~0.95 schedulability ceiling. This cap is only strictly required for the
+# sibling arms -- phys_res/phys_cfs put them on separate cores with no shared
+# capacity limit, so they could in principle sweep the full 0.1-0.94 range --
+# but ONE utilizations list is shared across all 4 arms (PAIR_TYPE is a
+# run_job.sh-time choice, not a generation-time one), so it's capped
+# uniformly for now rather than adding a second, arm-specific range.
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners:
+  interferer: {}          # unreserved competitor; cpu is always resolved at run time
+  competitor: { u: 0.4 }  # reserved competitor's own utilisation

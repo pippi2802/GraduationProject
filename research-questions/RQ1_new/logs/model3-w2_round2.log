@@ -1,0 +1,44 @@
+nohup: ignoring input
+[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-2q7p4 cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=reserved
+[run] reserved competitor on cpu1 has no usable pair avoiding KEEP_CPU=0 (soft, attempt 1/5); re-placing
+[run] reserved competitor pod not Ready (soft, attempt 2/5); retrying
+[run] soft: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), running for the whole scale
+[run] soft: target will be forced onto {2} for every cell (PAIR_TYPE=sibling vs competitor cpu3)
+[run] === soft/U0.1 (models/model3-w2/generated/soft/U0.1.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round2/soft/U0.1
+[run] === soft/U0.2 (models/model3-w2/generated/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round2/soft/U0.2
+[run] === soft/U0.3 (models/model3-w2/generated/soft/U0.3.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round2/soft/U0.3
+[run] === soft/U0.4 (models/model3-w2/generated/soft/U0.4.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round2/soft/U0.4
+[run] === soft/U0.5 (models/model3-w2/generated/soft/U0.5.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu1, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round2/soft/U0.5
+[run] === soft/U0.6 (models/model3-w2/generated/soft/U0.6.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...

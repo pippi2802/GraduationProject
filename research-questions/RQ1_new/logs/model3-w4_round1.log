@@ -1,0 +1,58 @@
+nohup: ignoring input
+[run] model=model3-w4 ns=rq1-model3-w4 agent=rq1-agent-mhh5s cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=reserved
+[run] reserved competitor landed on KEEP_CPU=0 (soft, attempt 1/5); re-placing
+[run] reserved competitor pod not Ready (soft, attempt 2/5); retrying
+[run] reserved competitor landed on KEEP_CPU=0 (soft, attempt 3/5); re-placing
+[run] soft: reserved competitor landed on cpu1 (avoiding KEEP_CPU=0), running for the whole scale
+[run] soft: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
+[run] === soft/U0.1 (models/model3-w4/generated/soft/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.1
+[run] === soft/U0.2 (models/model3-w4/generated/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.2
+[run] === soft/U0.3 (models/model3-w4/generated/soft/U0.3.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.3
+[run] === soft/U0.4 (models/model3-w4/generated/soft/U0.4.yaml) ===
+[run] target on cpu0, wanted one of {2 3} (1/8); re-placing
+[run] target on cpu0, wanted one of {2 3} (2/8); re-placing
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.4
+[run] === soft/U0.5 (models/model3-w4/generated/soft/U0.5.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.5
+[run] === soft/U0.6 (models/model3-w4/generated/soft/U0.6.yaml) ===
+[run] target on cpu0, wanted one of {2 3} (1/8); re-placing
+[run] target on cpu0, wanted one of {2 3} (2/8); re-placing
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.6
+[run] === soft/U0.7 (models/model3-w4/generated/soft/U0.7.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.7
+[run] === soft/U0.8 (models/model3-w4/generated/soft/U0.8.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.8
+[run] === soft/U0.9 (models/model3-w4/generated/soft/U0.9.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.9
+[run] === soft/U0.94 (models/model3-w4/generated/soft/U0.94.yaml) ===
+[run] target on cpu0, wanted one of {2 3} (1/8); re-placing
+[run] target on cpu0, wanted one of {2 3} (2/8); re-placing
+[run] target on cpu0, wanted one of {2 3} (3/8); re-placing
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/soft/U0.94
+[run] tight: reserved competitor landed on cpu1 (avoiding KEEP_CPU=0), running for the whole scale
+[run] tight: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
+[run] === tight/U0.1 (models/model3-w4/generated/tight/U0.1.yaml) ===
