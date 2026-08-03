@@ -1,0 +1,10 @@
+nohup: ignoring input
+[run] model=model3-w3 ns=rq1-model3-w3 agent=rq1-agent-ghd7k cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=unreserved
+[run] soft: unreserved competitor fixed on cpu1 (avoiding KEEP_CPU=0), running for the whole scale
+[run] soft: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
+[run] === soft/U0.1 (models/model3-w3/generated/soft/U0.1.yaml) ===
+[run] target on cpu1, wanted one of {2 3} (1/8); re-placing
+[run] target on cpu1, wanted one of {2 3} (2/8); re-placing
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] running...

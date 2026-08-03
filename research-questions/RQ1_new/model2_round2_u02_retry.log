@@ -1,0 +1,14 @@
+nohup: ignoring input
+[run] U_MIN=0.2 U_MAX=0.2 applied: 1 cells remain
+[run] model=model2 ns=rq1-model2 agent=rq1-agent-95sb8 cells=1 has_neighbours=1 has_competitor=0
+[run] === soft/U0.2 (models/model2/generated/soft/U0.2.yaml) ===
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] target on cpu0, wanted one of {3} (1/8); re-placing
+[run] target on cpu1, wanted one of {3} (2/8); re-placing
+[run] target on cpu0, wanted one of {3} (3/8); re-placing
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round2/soft/U0.2
+
+[run] done. all 1 cell(s) collected their expected row count.
+[run] analyze with: python result.py model2_round2
