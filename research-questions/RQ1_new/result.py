@@ -371,8 +371,11 @@ def _load_cfg_scales(name):
 
 
 def compare(a, b):
-    """Overlay pooled CDFs of two result sets (e.g. sibling vs separate core)
-    and print the C(a)/C(b) execution-time inflation per cell."""
+    """Overlay pooled CDFs of two result sets (e.g. sibling vs separate core),
+    print the C(a)/C(b) execution-time inflation per cell, and append one
+    pooled-per-scale row to results/comparisons.csv so every comparison you've
+    run lands in one table instead of only scrollback + a figure. Re-running
+    the same (comparison, scale) overwrites its row rather than duplicating."""
     sa = _load_cfg_scales(a)
     ca = load_cells(a, sa)
     cb = load_cells(b, sa)
@@ -380,6 +383,7 @@ def compare(a, b):
     print(f"[compare] {a} vs {b}  (inflation = C_med[{a}] / C_med[{b}])")
     print(f"{'scale':6} {'U':>5} {'C50_a':>10} {'C50_b':>10} {'infl':>6} "
           f"{'miss_a':>7} {'miss_b':>7}")
+    rows = []
     for scale in sa:
         A = ca.get(scale, {}); B = cb.get(scale, {})
         for u in sorted(set(A) & set(B)):
@@ -409,7 +413,43 @@ def compare(a, b):
             ax.set_ylim(0, 1.02); ax.grid(alpha=0.3)
             ax.legend(loc="lower right", fontsize=9, frameon=True)
             _save(fig, figs, f"{fname}_{scale}")
+
+        # pooled-per-scale summary row (all U combined, same pooling the
+        # cmp_RoverD/cmp_alpha figures above use) for comparisons.csv
+        C_a = np.concatenate([A[u]["C"].values for u in A]) if A else np.array([])
+        C_b = np.concatenate([B[u]["C"].values for u in B]) if B else np.array([])
+        RD_a = np.concatenate([A[u]["RoverD"].dropna().values for u in A]) if A else np.array([])
+        RD_b = np.concatenate([B[u]["RoverD"].dropna().values for u in B]) if B else np.array([])
+        miss_a = np.concatenate([A[u]["miss"].values for u in A]) if A else np.array([])
+        miss_b = np.concatenate([B[u]["miss"].values for u in B]) if B else np.array([])
+        c_med_a = float(np.median(C_a)) if len(C_a) else float("nan")
+        c_med_b = float(np.median(C_b)) if len(C_b) else float("nan")
+        rows.append({
+            "comparison": f"{a}_vs_{b}", "scale": scale,
+            "n_a": len(C_a), "n_b": len(C_b),
+            "C_med_a": c_med_a, "C_med_b": c_med_b,
+            "inflation": c_med_a / c_med_b if c_med_b else float("nan"),
+            "miss_rate_a": float(np.mean(miss_a)) if len(miss_a) else float("nan"),
+            "miss_rate_b": float(np.mean(miss_b)) if len(miss_b) else float("nan"),
+            "delta_miss_rate": (float(np.mean(miss_a)) - float(np.mean(miss_b)))
+                                if len(miss_a) and len(miss_b) else float("nan"),
+            "RoverD_p99_a": float(np.percentile(RD_a, 99)) if len(RD_a) else float("nan"),
+            "RoverD_p99_b": float(np.percentile(RD_b, 99)) if len(RD_b) else float("nan"),
+            "RoverD_p999_a": float(np.percentile(RD_a, 99.9)) if len(RD_a) else float("nan"),
+            "RoverD_p999_b": float(np.percentile(RD_b, 99.9)) if len(RD_b) else float("nan"),
+        })
+
+    out_csv = HERE / "results" / "comparisons.csv"
+    new_df = pd.DataFrame(rows)
+    if out_csv.exists():
+        old_df = pd.read_csv(out_csv)
+        key = set(zip(new_df["comparison"], new_df["scale"]))
+        old_df = old_df[~old_df.apply(lambda r: (r["comparison"], r["scale"]) in key, axis=1)]
+        new_df = pd.concat([old_df, new_df], ignore_index=True)
+    new_df.sort_values(["comparison", "scale"]).to_csv(out_csv, index=False)
+
     print(f"[compare] figures in {figs}")
+    print(f"[compare] row(s) written to {out_csv}")
     return 0
 
 

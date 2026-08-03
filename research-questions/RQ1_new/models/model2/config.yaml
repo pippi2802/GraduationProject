@@ -19,7 +19,7 @@ headroom_frac: 0.7
 # not evidence of the HT/execution-layer effect this model is meant to
 # isolate. 0.5 + 0.4 = 0.9, comfortably under 0.95 (same ~0.05 margin as
 # before the neighbour's u was raised from 0.1 -> 0.3 -> 0.4).
-utilizations: [0.1, 0.2, 0.3, 0.4, 0.5]
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 scales: { tight: 10000, soft: 100000 }
 co_runners:
   # u raised 0.1 -> 0.3 -> 0.4 (final) to match model3's competitor reference
