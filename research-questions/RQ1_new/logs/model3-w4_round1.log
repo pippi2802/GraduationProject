@@ -58,3 +58,5 @@ nohup: ignoring input
 [run] === tight/U0.1 (models/model3-w4/generated/tight/U0.1.yaml) ===
 [run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
 [run] running...
+[run] collected 5000/5000 rows -> results/model3-w4_phys_res_round1/tight/U0.1
+[run] === tight/U0.2 (models/model3-w4/generated/tight/U0.2.yaml) ===
