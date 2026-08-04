@@ -77,14 +77,34 @@ def load_cells(model, scales):
 
 def _save(fig, figs, name):
     figs.mkdir(parents=True, exist_ok=True)
-    for ext in ("png", "pdf"):
-        fig.savefig(figs / f"{name}.{ext}", bbox_inches="tight", dpi=140)
+    fig.savefig(figs / f"{name}.png", bbox_inches="tight", dpi=160)
     plt.close(fig)
+
+
+# max utilization lines to actually draw on a single CDF plot -- past this,
+# even a high-contrast qualitative palette + distinct markers becomes hard to
+# read (confirmed directly: this is what the student flagged). Rather than
+# drop information, subsample to a representative subset (always including
+# the lowest and highest tested U, evenly spaced in between) -- the vs-U
+# summary figures (over_u_figs, provisioning_table) already show the FULL
+# swept range as a single line each; these CDFs are for seeing a few
+# reference distributions' actual SHAPE, not for plotting every U at once.
+MAX_CDF_LINES = 5
+
+
+def _representative_us(us):
+    us = sorted(us)
+    if len(us) <= MAX_CDF_LINES:
+        return us
+    idx = np.linspace(0, len(us) - 1, MAX_CDF_LINES)
+    return sorted({us[int(round(i))] for i in idx})
 
 
 def cdf_fig(cells, col, xlabel, title, figs, name, mark_one=True):
     fig, ax = plt.subplots(figsize=(7.2, 4.6))
-    us = sorted(cells)
+    us = _representative_us(cells.keys())
+    if len(us) < len(cells):
+        title = f"{title} (showing {len(us)}/{len(cells)} U values)"
     for i, u in enumerate(us):
         v = np.sort(cells[u][col].dropna().values)
         if len(v) == 0:
@@ -93,9 +113,9 @@ def cdf_fig(cells, col, xlabel, title, figs, name, mark_one=True):
         color, marker = _style(i)
         # sparse markers (every ~1/8th of the curve) so lines are separable in B/W
         step = max(1, len(v) // 8)
-        ax.plot(v, y, label=f"U={u:g}", color=color, lw=1.8,
-                marker=marker, markevery=step, markersize=5, markeredgecolor="white",
-                markeredgewidth=0.4)
+        ax.plot(v, y, label=f"U={u:g}", color=color, lw=2.0,
+                marker=marker, markevery=step, markersize=6, markeredgecolor="white",
+                markeredgewidth=0.5)
     if mark_one:
         ax.axvline(1.0, color="red", ls=":", lw=1.4, alpha=0.8, zorder=1)
         ax.text(1.0, 0.02, "deadline", color="red", fontsize=8,
