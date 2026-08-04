@@ -1,0 +1,165 @@
+nohup: ignoring input
+[run] model=model2 ns=rq1-model2 agent=rq1-agent-95sb8 cells=10 has_neighbours=1 has_competitor=0
+[run] === soft/U0.1 (models/model2/generated/soft/U0.1.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 4/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] FAILED soft/U0.1 after 4 attempt(s): neighbour landed on KEEP_CPU=0
+[run] === soft/U0.2 (models/model2/generated/soft/U0.2.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour's sibling is KEEP_CPU=0 (would force target there); retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour's sibling is KEEP_CPU=0 (would force target there) ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 4/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] FAILED soft/U0.2 after 4 attempt(s): neighbour landed on KEEP_CPU=0
+[run] === soft/U0.3 (models/model2/generated/soft/U0.3.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] target on cpu0, wanted one of {3} (1/8); re-placing
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/soft/U0.3
+[run] === soft/U0.4 (models/model2/generated/soft/U0.4.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu1, wanted one of {2} (5/8); re-placing
+[run] target on cpu1, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.4 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === soft/U0.5 (models/model2/generated/soft/U0.5.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 4/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] FAILED soft/U0.5 after 4 attempt(s): neighbour landed on KEEP_CPU=0
+[run] === tight/U0.1 (models/model2/generated/tight/U0.1.yaml) ===
+[run] neighbour's sibling is KEEP_CPU=0 (would force target there); retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour's sibling is KEEP_CPU=0 (would force target there) ---
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] neighbour on cpu3, target forced to sibling cpu2 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/tight/U0.1
+[run] === tight/U0.2 (models/model2/generated/tight/U0.2.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu1, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.2 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.3 (models/model2/generated/tight/U0.3.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 4/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] FAILED tight/U0.3 after 4 attempt(s): neighbour landed on KEEP_CPU=0
+[run] === tight/U0.4 (models/model2/generated/tight/U0.4.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 4/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu1, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu1, wanted one of {2} (6/8); re-placing
+[run] target on cpu1, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.4 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.5 (models/model2/generated/tight/U0.5.yaml) ===
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu1, wanted one of {2} (2/8); re-placing
+[run] neighbour on cpu3, target forced to sibling cpu2 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/tight/U0.5
+
+[run] --- 7 cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---
+[run] === soft/U0.1 (models/model2/generated/soft/U0.1.yaml) ===
+[run] neighbour's sibling is KEEP_CPU=0 (would force target there); retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour's sibling is KEEP_CPU=0 (would force target there) ---
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 3/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] target on cpu0, wanted one of {3} (1/8); re-placing
+[run] target on cpu0, wanted one of {3} (2/8); re-placing
+[run] target on cpu1, wanted one of {3} (3/8); re-placing
+[run] target on cpu0, wanted one of {3} (4/8); re-placing
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/soft/U0.1
+[run] === soft/U0.2 (models/model2/generated/soft/U0.2.yaml) ===
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/soft/U0.2
+[run] === soft/U0.4 (models/model2/generated/soft/U0.4.yaml) ===
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/soft/U0.4
+[run] === soft/U0.5 (models/model2/generated/soft/U0.5.yaml) ===
+[run] neighbour landed on KEEP_CPU=0; retrying cell
+[run] --- retrying cell (attempt 2/4): neighbour landed on KEEP_CPU=0 ---
+[run] neighbour placed+running on cpu2; target will be forced onto its sibling cpu3
+[run] target on cpu0, wanted one of {3} (1/8); re-placing
+[run] target on cpu0, wanted one of {3} (2/8); re-placing
+[run] neighbour on cpu2, target forced to sibling cpu3 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/soft/U0.5
+[run] === tight/U0.2 (models/model2/generated/tight/U0.2.yaml) ===
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu1, wanted one of {2} (1/8); re-placing
+[run] neighbour on cpu3, target forced to sibling cpu2 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/tight/U0.2
+[run] === tight/U0.3 (models/model2/generated/tight/U0.3.yaml) ===
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu1, wanted one of {2} (2/8); re-placing
+[run] neighbour on cpu3, target forced to sibling cpu2 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/tight/U0.3
+[run] === tight/U0.4 (models/model2/generated/tight/U0.4.yaml) ===
+[run] neighbour placed+running on cpu3; target will be forced onto its sibling cpu2
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] neighbour on cpu3, target forced to sibling cpu2 -- confirmed same physical core, neighbour already running
+[run] running...
+[run] collected 5000/5000 rows -> results/model2_round4/tight/U0.4
+
+[run] done. all 10 cell(s) collected their expected row count.
+[run] analyze with: python result.py model2_round4
