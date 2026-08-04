@@ -15,6 +15,11 @@ and results/<model>/provisioning_table.csv (the empirical "how far can you
 provision before this contention condition breaks the deadline" answer --
 see provisioning_table()'s docstring).
 
+    python result.py pool <out> <src1> <src2> ...   -- combine several
+    already-analyzed result sets (e.g. multiple time-of-day rounds of the
+    same model) into one larger dataset under results/<out>/, same schema as
+    a normal run. See pool()'s docstring for what is and isn't valid to pool.
+
 Definitions: D=P, alpha=C/Q, bound=2(P-Q), delta=(R-C)/bound.
 """
 import sys
@@ -453,12 +458,104 @@ def compare(a, b):
     return 0
 
 
+def pool(model_out, sources):
+    """Pool multiple already-analyzed result sets (e.g. several time-of-day
+    rounds of the same model/arm) into one combined dataset -- writes
+    results/<model_out>/ with the same summary.csv/tail_table.csv/
+    provisioning_table.csv/figures schema as a normal single-source run, so
+    it slots into every existing convention (result.py <model_out>,
+    result.py compare <model_out> <other>, etc. all work on it unchanged).
+
+    Percentile/margin statistics (miss_rate, R/alpha/delta percentiles,
+    provisioning_table) are computed on the full concatenated per-job data --
+    valid, since each job is an independent observation regardless of which
+    round produced it, and pooling genuinely increases the sample size (4
+    rounds of 5000 = 20000 per cell) rather than just averaging 4 numbers.
+
+    longest_consecutive_miss_run is the deliberate EXCEPTION: it's a temporal
+    concept, and concatenating raw job sequences across rounds would fabricate
+    a "run" spanning the boundary between two unrelated days/times that never
+    actually happened. It's read from each source's own already-written
+    tail_table.csv instead (run `result.py <source>` on every round BEFORE
+    pooling) and reported as the max observed across sources.
+    """
+    scales = _load_cfg_scales(sources[0])
+    base_out = HERE / "results" / model_out
+    figs = base_out / "figures"
+
+    cells = {s: {} for s in scales}
+    for src in sources:
+        src_cells = load_cells(src, scales)
+        for s in scales:
+            for u, df in src_cells.get(s, {}).items():
+                cells[s].setdefault(u, []).append(df)
+    cells = {s: {u: pd.concat(dfs, ignore_index=True) for u, dfs in per_u.items()}
+             for s, per_u in cells.items()}
+
+    summary = summarize(cells)
+    if summary.empty:
+        print(f"[pool] no data found across sources: {sources}")
+        return 1
+    summary["model"] = model_out
+    base_out.mkdir(parents=True, exist_ok=True)
+    summary.to_csv(base_out / "summary.csv", index=False)
+    print(f"[pool] wrote {base_out/'summary.csv'} ({len(summary)} cells, pooled from {len(sources)} sources: {sources})")
+    sanity_check(summary)
+
+    rows = []
+    for scale, per_u in cells.items():
+        for u, df in sorted(per_u.items()):
+            if df.empty:
+                continue
+            P = scales[scale]; Q = round(u * P); bound = max(1, 2 * (P - Q))
+            n = len(df); miss = df["miss"] == 1; miss_n = int(miss.sum())
+            alpha = df.C / Q; delta = (df.R - df.C) / bound
+            max_run = 0
+            for src in sources:
+                src_tail = HERE / "results" / src / "tail_table.csv"
+                if not src_tail.exists():
+                    continue
+                td = pd.read_csv(src_tail)
+                match = td[(td.scale == scale) & (np.isclose(td.U, u))]
+                if not match.empty:
+                    max_run = max(max_run, int(match.iloc[0].longest_consecutive_miss_run))
+            rows.append({
+                "model": model_out, "scale": scale, "U": u, "n": n,
+                "miss_count": miss_n, "miss_rate": round(miss_n / n, 5) if n else 0.0,
+                "longest_consecutive_miss_run_max_across_sources": max_run,
+                "alpha_p99": round(float(alpha.quantile(.99)), 4),
+                "alpha_max": round(float(alpha.max()), 4),
+                "delta_p99": round(float(delta.quantile(.99)), 4),
+                "delta_max": round(float(delta.max()), 4),
+            })
+    tail_df = pd.DataFrame(rows)
+    if not tail_df.empty:
+        tail_df = tail_df.sort_values(["scale", "U"])
+        tail_df.to_csv(base_out / "tail_table.csv", index=False)
+        print(f"[pool] wrote {base_out/'tail_table.csv'} ({len(tail_df)} cells)")
+
+    provisioning_table(model_out, summary, scales)
+
+    for scale in scales:
+        c = cells.get(scale, {})
+        if c:
+            cdf_fig(c, "RoverD", "R / D", f"CDF of normalized Response Time ({scale}, pooled x{len(sources)})", figs, f"cdf_RoverD_{scale}")
+            cdf_fig(c, "delta", "(R−C)/bound", f"CDF of normalized Δ ({scale}, pooled)", figs, f"cdf_delta_{scale}", mark_one=False)
+            cdf_fig(c, "alpha", "α = C/Q", f"CDF of normalized α ({scale}, pooled)", figs, f"cdf_alpha_{scale}")
+        over_u_figs(summary, scale, figs)
+    cross_scale_tail_fig(summary, scales, figs)
+    print(f"[pool] figures in {figs}")
+    return 0
+
+
 def main() -> int:
     args = sys.argv[1:]
     if len(args) == 3 and args[0] == "compare":
         return compare(args[1], args[2])
+    if len(args) >= 3 and args[0] == "pool":
+        return pool(args[1], args[2:])
     if len(args) != 1:
-        print("usage: result.py <model>  |  result.py compare <A> <B>"); return 2
+        print("usage: result.py <model>  |  result.py compare <A> <B>  |  result.py pool <out> <src1> [src2 ...]"); return 2
     model = args[0]
     scales = _load_cfg_scales(model)
     base = HERE / "results" / model
