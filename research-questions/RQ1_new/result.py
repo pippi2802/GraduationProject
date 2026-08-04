@@ -250,11 +250,14 @@ ALPHA_CALIB_TOL = 0.10  # calibration targets headroom_frac (usually 0.7); flag 
 R_P50_DROP_TOL = 0.05   # a later (higher-U) cell whose R_p50 falls >5% vs the previous is suspect
 
 
-def sanity_check(summary_df):
+def sanity_check(summary_df, expected_n=EXPECTED_N):
     """Print [sanity] warnings for cells that look like data-quality problems
     rather than real phenomena: short runs, calibration drift, non-monotonic R_p50
     across the U-sweep within a scale. Doesn't change any file; just surfaces
-    what result.py already knows so it's visible every time figures are (re)made."""
+    what result.py already knows so it's visible every time figures are (re)made.
+    expected_n defaults to EXPECTED_N (one source) but pool() passes
+    EXPECTED_N * len(sources), since a pooled cell legitimately has more rows --
+    that's the whole point of pooling, not a short/incomplete run."""
     if summary_df.empty:
         return
     warned = 0
@@ -262,9 +265,9 @@ def sanity_check(summary_df):
         d = summary_df[summary_df.scale == scale].sort_values("U")
         prev_u = prev_r50 = None
         for _, row in d.iterrows():
-            if row.n != EXPECTED_N:
+            if row.n != expected_n:
                 print(f"[sanity] WARNING {row.model} {scale} U={row.U:g}: n={row.n} "
-                      f"(expected {EXPECTED_N}) -- short/incomplete run, rerun this cell")
+                      f"(expected {expected_n}) -- short/incomplete run, rerun this cell")
                 warned += 1
             if prev_r50 is not None and row.R_p50 < prev_r50 * (1 - R_P50_DROP_TOL):
                 print(f"[sanity] WARNING {row.model} {scale} U={row.U:g}: R_p50={row.R_p50:.0f} "
@@ -500,7 +503,7 @@ def pool(model_out, sources):
     base_out.mkdir(parents=True, exist_ok=True)
     summary.to_csv(base_out / "summary.csv", index=False)
     print(f"[pool] wrote {base_out/'summary.csv'} ({len(summary)} cells, pooled from {len(sources)} sources: {sources})")
-    sanity_check(summary)
+    sanity_check(summary, expected_n=EXPECTED_N * len(sources))
 
     rows = []
     for scale, per_u in cells.items():
