@@ -2,22 +2,26 @@
 """
 result.py <model> — the five RQ1 figures + a summary CSV, from the collected data.
 
-Reads results/<model>/<scale>/U<u>/jobs.csv and writes, per scale (soft AND tight),
-into results/<model>/figures/:
-  1. cdf_RoverD_<scale>   CDF of R/D            (mark deadline at 1)
-  2. cdf_delta_<scale>    CDF of (R-C)/bound
-  3. cdf_alpha_<scale>    CDF of C/Q            (mark budget at 1)
-  4. abs_RC_vs_U_<scale>  |R| and |C| (p50,p99) vs U
-  5. margin_vs_U_<scale>  p99 of R/D, alpha, delta vs U (break line at 1,
-                          U_safe markers for p99/p999 -- see provisioning_table.csv)
-plus results/<model>/summary.csv (one row per cell, same schema for every model)
-and results/<model>/provisioning_table.csv (the empirical "how far can you
-provision before this contention condition breaks the deadline" answer --
-see provisioning_table()'s docstring).
+Reads raw data from results/<model>/<scale>/U<u>/jobs.csv (written by
+run_job.sh) and writes every DERIVED artifact under analysis/<model>/ instead
+-- raw experiment output and analysis output are kept in separate trees on
+purpose, so one is never mistaken for or overwritten by the other:
+  analysis/<model>/figures/
+    1. cdf_RoverD_<scale>   CDF of R/D            (mark deadline at 1)
+    2. cdf_delta_<scale>    CDF of (R-C)/bound
+    3. cdf_alpha_<scale>    CDF of C/Q            (mark budget at 1)
+    4. abs_RC_vs_U_<scale>  |R| and |C| (p50,p99) vs U
+    5. margin_vs_U_<scale>  p99 of R/D, alpha, delta vs U (break line at 1,
+                            U_safe markers for p99/p999 -- see provisioning_table.csv)
+  analysis/<model>/summary.csv             one row per cell, same schema for every model
+  analysis/<model>/tail_table.csv          see tail_table()'s docstring
+  analysis/<model>/provisioning_table.csv  the empirical "how far can you
+    provision before this contention condition breaks the deadline" answer --
+    see provisioning_table()'s docstring.
 
     python result.py pool <out> <src1> <src2> ...   -- combine several
     already-analyzed result sets (e.g. multiple time-of-day rounds of the
-    same model) into one larger dataset under results/<out>/, same schema as
+    same model) into one larger dataset under analysis/<out>/, same schema as
     a normal run. See pool()'s docstring for what is and isn't valid to pool.
 
 Definitions: D=P, alpha=C/Q, bound=2(P-Q), delta=(R-C)/bound.
@@ -35,6 +39,12 @@ from matplotlib import cm
 from matplotlib.lines import Line2D
 
 HERE = Path(__file__).resolve().parent
+# raw experiment output (jobs.csv, placement.json -- written by run_job.sh)
+# stays under results/<model>/; every DERIVED artifact this script produces
+# (summary.csv, tail_table.csv, provisioning_table.csv, figures,
+# comparisons.csv) goes under analysis/<model>/ instead, so the two are never
+# mixed in the same directory tree.
+ANALYSIS_DIR = HERE / "analysis"
 
 # Qualitative, high-contrast palette + distinct markers so each U curve is
 # separable both in colour AND in black/white (sequential viridis made adjacent
@@ -184,7 +194,9 @@ def provisioning_table(model, summary_df, scales):
             })
     out_df = pd.DataFrame(rows)
     if not out_df.empty:
-        out = HERE / "results" / model / "provisioning_table.csv"
+        out_dir = ANALYSIS_DIR / model
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / "provisioning_table.csv"
         out_df.to_csv(out, index=False)
         print(f"[result] wrote {out} ({len(out_df)} rows)")
     return out_df
@@ -320,7 +332,7 @@ def tail_table(model, scales):
     bound, normalized) -- in ONE per-cell row, so a cell that strains more
     than one guarantee at once (the interesting case) is visible directly
     instead of requiring a manual cross-reference against summary.csv."""
-    base = HERE / "results" / model
+    base = HERE / "results" / model   # raw jobs.csv -- read-only
     rows = []
     for jobs in sorted(base.glob("*/U*/jobs.csv")):
         scale = jobs.parent.parent.name
@@ -354,7 +366,9 @@ def tail_table(model, scales):
     out_df = pd.DataFrame(rows)
     if not out_df.empty:
         out_df = out_df.sort_values(["scale", "U"])
-        out = base / "tail_table.csv"
+        out_dir = ANALYSIS_DIR / model
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / "tail_table.csv"
         out_df.to_csv(out, index=False)
         print(f"[result] wrote {out} ({len(out_df)} cells)")
     return out_df
@@ -407,7 +421,7 @@ def compare(a, b):
     sa = _load_cfg_scales(a)
     ca = load_cells(a, sa)
     cb = load_cells(b, sa)
-    figs = HERE / "results" / a / "figures"
+    figs = ANALYSIS_DIR / a / "figures"
     print(f"[compare] {a} vs {b}  (inflation = C_med[{a}] / C_med[{b}])")
     print(f"{'scale':6} {'U':>5} {'C50_a':>10} {'C50_b':>10} {'infl':>6} "
           f"{'miss_a':>7} {'miss_b':>7}")
@@ -467,7 +481,8 @@ def compare(a, b):
             "RoverD_p999_b": float(np.percentile(RD_b, 99.9)) if len(RD_b) else float("nan"),
         })
 
-    out_csv = HERE / "results" / "comparisons.csv"
+    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+    out_csv = ANALYSIS_DIR / "comparisons.csv"
     new_df = pd.DataFrame(rows)
     if out_csv.exists():
         old_df = pd.read_csv(out_csv)
@@ -503,7 +518,7 @@ def pool(model_out, sources):
     pooling) and reported as the max observed across sources.
     """
     scales = _load_cfg_scales(sources[0])
-    base_out = HERE / "results" / model_out
+    base_out = ANALYSIS_DIR / model_out
     figs = base_out / "figures"
 
     cells = {s: {} for s in scales}
@@ -535,7 +550,7 @@ def pool(model_out, sources):
             alpha = df.C / Q; delta = (df.R - df.C) / bound
             max_run = 0
             for src in sources:
-                src_tail = HERE / "results" / src / "tail_table.csv"
+                src_tail = ANALYSIS_DIR / src / "tail_table.csv"
                 if not src_tail.exists():
                     continue
                 td = pd.read_csv(src_tail)
@@ -581,13 +596,14 @@ def main() -> int:
         print("usage: result.py <model>  |  result.py compare <A> <B>  |  result.py pool <out> <src1> [src2 ...]"); return 2
     model = args[0]
     scales = _load_cfg_scales(model)
-    base = HERE / "results" / model
+    base = ANALYSIS_DIR / model   # derived outputs only -- raw jobs.csv stays under results/
     figs = base / "figures"
 
     cells = load_cells(model, scales)
     summary = summarize(cells)
     if not summary.empty:
         summary["model"] = model
+        base.mkdir(parents=True, exist_ok=True)
         summary.to_csv(base / "summary.csv", index=False)
         print(f"[result] wrote {base/'summary.csv'} ({len(summary)} cells)")
         sanity_check(summary)
