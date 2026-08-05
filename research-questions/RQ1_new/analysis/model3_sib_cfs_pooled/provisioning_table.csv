@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model3_sib_cfs_pooled,soft,p99,0.1,breaks even at lowest tested U,0.94,1.124
-model3_sib_cfs_pooled,soft,p999,0.1,breaks even at lowest tested U,0.94,1.311
-model3_sib_cfs_pooled,tight,p99,0.1,breaks even at lowest tested U,0.94,1.002
-model3_sib_cfs_pooled,tight,p999,0.1,breaks even at lowest tested U,0.94,1.002

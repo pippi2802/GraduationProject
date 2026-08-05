@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model3-w2_sib_res_pooled,soft,p99,0.1,breaks even at lowest tested U,0.94,1.611
-model3-w2_sib_res_pooled,soft,p999,0.1,breaks even at lowest tested U,0.94,1.664
-model3-w2_sib_res_pooled,tight,p99,0.1,breaks even at lowest tested U,0.94,1.782
-model3-w2_sib_res_pooled,tight,p999,0.1,breaks even at lowest tested U,0.94,2.272

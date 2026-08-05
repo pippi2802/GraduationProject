@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model3-w4_phys_res_round4,soft,p99,0.94,safe across full tested range,0.94,0.689
-model3-w4_phys_res_round4,soft,p999,0.94,safe across full tested range,0.94,0.701
-model3-w4_phys_res_round4,tight,p99,0.94,safe across full tested range,0.94,0.702
-model3-w4_phys_res_round4,tight,p999,0.94,safe across full tested range,0.94,0.734

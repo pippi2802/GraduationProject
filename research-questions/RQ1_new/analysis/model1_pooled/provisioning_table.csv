@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model1_pooled,soft,p99,0.94,safe across full tested range,0.94,0.71
-model1_pooled,soft,p999,0.5958,interpolated crossing,0.94,0.8
-model1_pooled,tight,p99,0.94,safe across full tested range,0.94,0.699
-model1_pooled,tight,p999,0.2995,interpolated crossing,0.94,0.707

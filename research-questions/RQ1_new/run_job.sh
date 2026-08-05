@@ -211,15 +211,34 @@ place_fixed_competitor() {
     # (same scale/first_ul -> same pod name) would otherwise make this create
     # fail silently (AlreadyExists, swallowed by the redirect), leaving
     # comp_cpu/desired_target_cpu computed as if a fresh pod was actually made.
-    kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
-    sed "s/@@INTF_CPU@@/$comp_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
-    if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
-          --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
-      echo "[run] ERROR unreserved competitor pod not Ready for $scale"
+    #
+    # Retry-until-actually-executing, same as the reserved branch below --
+    # Ready alone was NOT sufficient here either (found 2026-08-05: every
+    # round of the unreserved sibling arm showed the same silent-no-contention
+    # coin-flip as the reserved arms, just via a different mechanism -- a
+    # taskset-pinned CFS process can be Ready and scheduled on the right cpu
+    # while still not reliably getting real cpu time under whatever else is
+    # contending for that node's CFS runqueue at that moment).
+    local intf_ok=0 intf_attempt intf_pod
+    for intf_attempt in 1 2 3 4 5; do
+      kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
+      sed "s/@@INTF_CPU@@/$comp_cpu/g" "$intf" | kubectl create -f - >/dev/null 2>&1
+      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
+            --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
+        echo "[run] unreserved competitor pod not Ready ($scale, attempt $intf_attempt/5); retrying"; continue
+      fi
+      intf_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=interferer" -o jsonpath='{.items[0].metadata.name}')
+      if ! confirm_burning_cpu "$intf_pod"; then
+        echo "[run] unreserved competitor on cpu$comp_cpu is Ready but not consuming CPU ($scale, attempt $intf_attempt/5); retrying"; continue
+      fi
+      intf_ok=1; break
+    done
+    if [ "$intf_ok" != 1 ]; then
+      echo "[run] ERROR unreserved competitor never came up actually running for $scale after 5 attempts"
       kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found >/dev/null 2>&1
       return 1
     fi
-    echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), running for the whole scale"
+    echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), confirmed actually executing, running for the whole scale"
   elif [ "$COMPETITOR_TYPE" = "reserved" ]; then
     FIXED_COMP_FILE="models/$MODEL/generated/_comp/$scale/$first_ul.yaml"
     [ -f "$FIXED_COMP_FILE" ] || { echo "[run] ERROR _comp manifest missing for $scale"; return 1; }
@@ -287,17 +306,21 @@ place_fixed_competitor() {
 restart_fixed_competitor() {
   [ "$HAS_COMP" != 1 ] && return 0
   if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
-    local attempt
+    local attempt intf_pod
     for attempt in 1 2 3; do
       kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
       sed "s/@@INTF_CPU@@/$comp_cpu/g" "$FIXED_INTF_FILE" | kubectl create -f - >/dev/null 2>&1
-      if kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
+      if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=interferer" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
-        echo "[run] competitor restarted on cpu$comp_cpu"; return 0
+        echo "[run] restart attempt $attempt/3 not Ready; retrying"; continue
       fi
-      echo "[run] restart attempt $attempt/3 not Ready; retrying"
+      intf_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=interferer" -o jsonpath='{.items[0].metadata.name}')
+      if ! confirm_burning_cpu "$intf_pod"; then
+        echo "[run] competitor restarted on cpu$comp_cpu but not consuming CPU yet (attempt $attempt/3); retrying"; continue
+      fi
+      echo "[run] competitor restarted on cpu$comp_cpu, confirmed actually executing"; return 0
     done
-    echo "[run] ERROR could not restart unreserved competitor after 3 attempts"; return 1
+    echo "[run] ERROR could not restart unreserved competitor, actually running, after 3 attempts"; return 1
   else
     local attempt landed comp_pod
     for attempt in 1 2 3; do
@@ -368,11 +391,18 @@ print(d.get('$key', {}).get('cv', 'NA'))
 " 2>/dev/null)
   if [ -z "$cv" ] || [ "$cv" = "NA" ]; then
     echo "[run] ERROR $sub: no calibration entry for $key in $TAB_NAME -- run: python calibrate.py $MODEL -- skipping"
-    SKIPPED_CELLS+=("$sub: not calibrated"); continue
+    # NOTE: `return`, not `continue` -- run_one_cell is a FUNCTION; its own
+    # retry loop hasn't started yet at this point, so `continue` here has no
+    # enclosing loop (bash prints "continue: only meaningful in a for/while/
+    # until loop" and falls through to the rest of the function instead of
+    # skipping it -- found 2026-08-05, every mis-calibrated cell was being
+    # collected anyway despite the "skipping" message). `return` exits the
+    # function and the OUTER `for f in scale_files` loop naturally moves on.
+    SKIPPED_CELLS+=("$sub: not calibrated"); return
   fi
   if ! python3 -c "raise SystemExit(0 if float('$cv') <= $CV_THRESHOLD else 1)" 2>/dev/null; then
     echo "[run] ERROR $sub: calibration cv=$cv > $CV_THRESHOLD (mis-calibrated K?) -- run: python calibrate.py $MODEL --force -- skipping"
-    SKIPPED_CELLS+=("$sub: high-cv calibration ($cv > $CV_THRESHOLD)"); continue
+    SKIPPED_CELLS+=("$sub: high-cv calibration ($cv > $CV_THRESHOLD)"); return
   fi
 
   EXPECTED_N=$(grep -oE -- '--n-jobs [0-9]+' "$f" | head -1 | grep -oE '[0-9]+')
