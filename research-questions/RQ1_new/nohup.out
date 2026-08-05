@@ -3,3 +3,5 @@
 [run] === soft/U0.2 (models/model2/generated/soft/U0.2.yaml) ===
 [run] neighbour pod not Ready; retrying cell
 [run] --- retrying cell (attempt 2/4): neighbour pod not Ready ---
+find: ‘models/model3-w2/generated/t’: No such file or directory
+ERROR: no manifests; run generate_yaml.py model3-w2
