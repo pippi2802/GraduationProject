@@ -26,3 +26,31 @@ Model1
   precisely isolated where KubeDeadline's guarantee actually fails: not from isolation gaps, not from bounded co-tenancy, but
   specifically from sharing physical execution hardware with something that isn't itself rate-limited.
 
+
+
+
+for f in results/*_round1/*/U*/jobs.csv; do
+    cell=$(dirname "$f")
+    pj="$cell/placement.json"
+    attempt="-"; pair="-"
+    if [ -f "$pj" ]; then
+      attempt=$(grep -o '"cell_attempt":[0-9]*' "$pj" | cut -d: -f2)
+      pair=$(grep -o '"pair_type":"[a-z]*"' "$pj" | cut -d'"' -f4)
+    fi
+    grep -v '^#' "$f" | awk -F, -v cell="$cell" -v attempt="$attempt" -v pair="$pair" '
+      NR==1 { for (i=1;i<=NF;i++) col[$i]=i; next }
+      { c+=$col["C_cputime_us"]; c2+=$col["C_cputime_us"]^2; m+=$col["deadline_miss"]; rows++ }
+      END {
+        if (rows==0) {
+          print cell": NO DATA ROWS"
+        } else {
+          mean=c/rows; var=c2/rows-mean^2; sd=(var>0?sqrt(var):0); cv=sd/mean; missr=m/rows
+          flag=""
+          if (rows != 5000) flag=flag" [ROWS!=5000]"
+          if (cv > 0.05) flag=flag" [HIGH_CV]"
+          if (missr == 1) flag=flag" [ALL_MISSED]"
+          if (attempt != "-" && attempt+0 > 1) flag=flag" [RETRIED]"
+          printf "%-50s rows=%-6d cv=%-6.3f miss=%-6.3f pair=%-9s attempt=%-3s%s\n", cell, rows, cv, missr, pair, attempt, flag
+        }
+      }'
+  done | tee /tmp/round2_check.txt

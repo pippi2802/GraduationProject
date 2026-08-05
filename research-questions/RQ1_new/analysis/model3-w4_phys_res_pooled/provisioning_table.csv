@@ -1,0 +1,5 @@
+model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
+model3-w4_phys_res_pooled,soft,p99,0.94,safe across full tested range,0.94,0.727
+model3-w4_phys_res_pooled,soft,p999,0.1,breaks even at lowest tested U,0.94,0.813
+model3-w4_phys_res_pooled,tight,p99,0.4935,interpolated crossing,0.94,0.749
+model3-w4_phys_res_pooled,tight,p999,0.1,breaks even at lowest tested U,0.94,1.169

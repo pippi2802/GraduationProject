@@ -1,0 +1,5 @@
+model,scale,U_min_tested,miss_rate_at_U_min,U_safe_p99,U_safe_p999,U_safe_p99_vs_model1
+model1_pooled,soft,0.1,0.00065,0.94,0.5958,1.0
+model1_pooled,tight,0.1,0.00015,0.94,0.2995,1.0
+model2_pooled,soft,0.1,0.0978,0.1,0.1,0.10638297872340427
+model2_pooled,tight,0.1,0.0006,0.1964,0.1956,0.20893617021276595

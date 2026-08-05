@@ -1,0 +1,5 @@
+model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
+model2_round3,soft,p99,0.5,safe across full tested range,0.5,0.494
+model2_round3,soft,p999,0.5,safe across full tested range,0.5,0.497
+model2_round3,tight,p99,0.1958,interpolated crossing,0.5,0.377
+model2_round3,tight,p999,0.1955,interpolated crossing,0.5,0.384

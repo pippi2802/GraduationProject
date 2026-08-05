@@ -1,0 +1,3 @@
+model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
+model3-w2_sib_res_round2,soft,p99,0.1,breaks even at lowest tested U,0.94,1.625
+model3-w2_sib_res_round2,soft,p999,0.1,breaks even at lowest tested U,0.94,1.685

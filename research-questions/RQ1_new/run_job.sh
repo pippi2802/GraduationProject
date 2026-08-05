@@ -153,6 +153,29 @@ filter_keep_cpu() {
   echo "$1" | tr ' ' '\n' | grep -vx "$KEEP_CPU" | grep -v '^$' | tr '\n' ' ' | sed 's/ *$//'
 }
 
+# `kubectl wait --for=condition=Ready` (used for the neighbour/competitor
+# everywhere below) only proves the container process STARTED -- not that it
+# actually holds real RT bandwidth yet. Getting that is a separate step (the
+# per-pod leaf cgroup rt_runtime is grown on demand under the shared
+# kubepods.slice cap); if that grant is still in flight or lands short
+# (e.g. the previous cell's pods haven't finished releasing their share back
+# to the pool yet), the co-runner can be Ready, correctly pinned to the right
+# cpu, and still sit there barely executing -- a cell that then looks
+# deceptively clean (low/no contention) for a reason that has nothing to do
+# with the reservation actually protecting anything. Confirms real execution
+# is happening by sampling the pod's pid-1 utime+stime twice, a few seconds
+# apart, and checking it actually advanced. Returns 1 (caller should retry
+# the cell/placement) if it didn't move or couldn't be read.
+confirm_burning_cpu() {
+  local pod="$1" t0 t1
+  t0=$(kubectl -n "$NS" exec "$pod" -- awk '{print $14+$15}' /proc/1/stat 2>/dev/null) || return 1
+  [ -n "$t0" ] || return 1
+  sleep 3
+  t1=$(kubectl -n "$NS" exec "$pod" -- awk '{print $14+$15}' /proc/1/stat 2>/dev/null) || return 1
+  [ -n "$t1" ] || return 1
+  [ "$t1" -gt "$t0" ] 2>/dev/null
+}
+
 # --- model3: place the (fixed-intensity) competitor/interferer ONCE for a
 # whole scale, and compute the target's forced cpu relative to it. Sets the
 # globals desired_target_cpu, comp_cpu, FIXED_COMP_FILE (empty for the
@@ -227,14 +250,21 @@ place_fixed_competitor() {
       if [ -z "$candidate_target" ]; then
         echo "[run] reserved competitor on cpu$landed has no usable pair avoiding KEEP_CPU=$KEEP_CPU ($scale, attempt $attempt/5); re-placing"; continue
       fi
+      # Ready + correct cpu isn't enough on its own -- see confirm_burning_cpu's
+      # comment. Confirm it's actually executing before trusting it for the
+      # whole scale; a false "ok" here would silently invalidate every cell
+      # of this scale, not just one.
+      if ! confirm_burning_cpu "$comp_pod"; then
+        echo "[run] reserved competitor on cpu$landed is Ready but not consuming CPU (RT budget grant still incomplete?) ($scale, attempt $attempt/5); re-placing"; continue
+      fi
       comp_cpu="$landed"; desired_target_cpu="$candidate_target"; ok=1; break
     done
     if [ "$ok" != 1 ]; then
-      echo "[run] ERROR reserved competitor never landed on a usable cpu (avoiding KEEP_CPU=$KEEP_CPU) for $scale after 5 attempts"
+      echo "[run] ERROR reserved competitor never landed on a usable, actually-running cpu (avoiding KEEP_CPU=$KEEP_CPU) for $scale after 5 attempts"
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found >/dev/null 2>&1
       return 1
     fi
-    echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), running for the whole scale"
+    echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), confirmed actually executing, running for the whole scale"
   fi
 
   echo "[run] $scale: target will be forced onto {$desired_target_cpu} for every cell (PAIR_TYPE=$PAIR_TYPE vs competitor cpu$comp_cpu)"
@@ -280,11 +310,14 @@ restart_fixed_competitor() {
       comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
       landed=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
       if [ "$landed" = "$comp_cpu" ]; then
-        echo "[run] competitor restarted, re-landed on cpu$comp_cpu as required"; return 0
+        if ! confirm_burning_cpu "$comp_pod"; then
+          echo "[run] competitor restarted on cpu$comp_cpu but not consuming CPU yet (attempt $attempt/3); retrying"; continue
+        fi
+        echo "[run] competitor restarted, re-landed on cpu$comp_cpu, confirmed actually executing"; return 0
       fi
       echo "[run] restarted competitor landed on cpu$landed, needed cpu$comp_cpu (attempt $attempt/3); retrying"
     done
-    echo "[run] ERROR could not restart reserved competitor back onto cpu$comp_cpu after 3 attempts"
+    echo "[run] ERROR could not restart reserved competitor back onto cpu$comp_cpu, actually running, after 3 attempts"
     return 1
   fi
 }
@@ -389,8 +422,19 @@ print(d.get('$key', {}).get('cv', 'NA'))
         kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
         continue
       fi
-      sleep 5   # let the neighbour clear its own warm-up before the target starts
-      echo "[run] neighbour placed+running on cpu$nb_cpu; target will be forced onto its sibling cpu$desired_target_cpu"
+      # Ready only proves the container process started, not that it already
+      # holds real RT bandwidth (see confirm_burning_cpu's comment) -- model2
+      # recreates the neighbour fresh on EVERY cell, so this cold-start race
+      # gets a chance every single cell, not just once per scale like
+      # model3's fixed competitor. Confirm it's actually executing before
+      # trusting this cell's contention is real.
+      if ! confirm_burning_cpu "$nb_pod"; then
+        fail_reason="neighbour on cpu$nb_cpu is Ready but not consuming CPU (RT budget grant still incomplete?)"
+        echo "[run] $fail_reason; retrying cell"
+        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
+      echo "[run] neighbour placed+running on cpu$nb_cpu, confirmed actually executing; target will be forced onto its sibling cpu$desired_target_cpu"
     fi
 
     # --- place the target ----------------------------------------------------

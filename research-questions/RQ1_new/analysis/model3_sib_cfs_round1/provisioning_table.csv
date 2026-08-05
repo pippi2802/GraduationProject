@@ -1,0 +1,5 @@
+model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
+model3_sib_cfs_round1,soft,p99,0.1,breaks even at lowest tested U,0.94,0.915
+model3_sib_cfs_round1,soft,p999,0.1,breaks even at lowest tested U,0.94,0.924
+model3_sib_cfs_round1,tight,p99,0.3889,interpolated crossing,0.94,1.002
+model3_sib_cfs_round1,tight,p999,0.1,breaks even at lowest tested U,0.94,1.105
