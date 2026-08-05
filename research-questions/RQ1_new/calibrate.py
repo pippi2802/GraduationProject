@@ -56,9 +56,20 @@ def measure(cfg, K, local, rt_cpu, ns, pod, extra):
             "--n-jobs", str(PROBE_JOBS), "--warmup", str(PROBE_WARMUP),
             "--priority", "90", "--cpu", str(rt_cpu), *extra]
     if local:
-        return median_cv(run([str(BIN), *args]).stdout or "")
-    cmd = f"taskset -c {rt_cpu} /usr/local/bin/matmul " + " ".join(args)
-    return median_cv(run(["kubectl", "exec", "-n", ns, pod, "--", "bash", "-c", cmd]).stdout or "")
+        proc = run([str(BIN), *args])
+    else:
+        cmd = f"taskset -c {rt_cpu} /usr/local/bin/matmul " + " ".join(args)
+        proc = run(["kubectl", "exec", "-n", ns, pod, "--", "bash", "-c", cmd])
+    res = median_cv(proc.stdout or "")
+    if res is None:
+        # surface WHY -- median_cv() returning None (no parseable C rows)
+        # almost always means the probe crashed; calibrate.py used to
+        # discard stderr entirely here, turning a diagnosable crash (e.g.
+        # "ptrchase alloc failed") into an opaque unpack error downstream.
+        err = (proc.stderr or "").strip()
+        print(f"[calib] measure(K={K}) produced no samples"
+              + (f" -- probe stderr: {err}" if err else " -- no stderr captured"))
+    return res
 
 
 def solve_K(cfg, target, local, rt_cpu, ns, pod, extra):
@@ -68,14 +79,22 @@ def solve_K(cfg, target, local, rt_cpu, ns, pod, extra):
         raise RuntimeError("no C samples (probe failed?)")
     med, cv = res
     while med < 200.0 and K < 10**8:
-        K = max(K * 4, K + 1); med, cv = measure(cfg, K, local, rt_cpu, ns, pod, extra)
+        K = max(K * 4, K + 1)
+        res = measure(cfg, K, local, rt_cpu, ns, pod, extra)
+        if not res:
+            raise RuntimeError(f"no C samples at K={K} (probe failed? see stderr above)")
+        med, cv = res
     for _ in range(8):
         if med > 0 and abs(med - target) <= 0.03 * target:
             break
         Knew = max(1, int(round(target / (med / K))))
         if Knew == K:
             break
-        K = Knew; med, cv = measure(cfg, K, local, rt_cpu, ns, pod, extra)
+        K = Knew
+        res = measure(cfg, K, local, rt_cpu, ns, pod, extra)
+        if not res:
+            raise RuntimeError(f"no C samples at K={K} (probe failed? see stderr above)")
+        med, cv = res
     return K, med, cv
 
 
@@ -140,7 +159,12 @@ def main() -> int:
                   f"[{'OK' if cv <= CV_THRESHOLD else 'HIGH-CV'}]")
             if cv > CV_THRESHOLD:
                 failed.append(key)
-    tab_path.write_text(json.dumps(table, indent=2), encoding="utf-8")
+            # write after EVERY cell, not just once at the end -- a crash
+            # partway through (e.g. the probe failing on one specific
+            # scale/K combination) used to discard every cell already
+            # computed in this run, since the table was only ever written
+            # once, after the full double loop finished.
+            tab_path.write_text(json.dumps(table, indent=2), encoding="utf-8")
     print(f"[calib] wrote {tab_path}")
     if not args.local:
         run(["kubectl", "delete", "pod", "-n", ns, pod, "--ignore-not-found", "--wait=false"])
