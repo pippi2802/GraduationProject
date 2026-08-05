@@ -1,0 +1,12 @@
+nohup: ignoring input
+[run] model=model1 ns=rq1-model1 agent=rq1-agent-zpvss cells=20 has_neighbours=0 has_competitor=0
+[run] === soft/U0.1 (models/model1/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model1_ptrchase_round1/soft/U0.1
+[run] === soft/U0.2 (models/model1/generated/soft/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model1_ptrchase_round1/soft/U0.2
+[run] === soft/U0.3 (models/model1/generated/soft/U0.3.yaml) ===
+[run] ERROR soft/U0.3: calibration cv=0.0972 > 0.05 (mis-calibrated K?) -- run: python calibrate.py model1 --force -- skipping
+./run_job.sh: line 342: continue: only meaningful in a `for', `while', or `until' loop
+[run] running...

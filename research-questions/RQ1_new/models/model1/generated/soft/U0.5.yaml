@@ -1,5 +1,5 @@
 # BASE manifest for one model-1 cell (clean baseline: a single reserved probe).
-# generate_yaml.py stamps model1-soft-u50 50000(Q) 100000(P) 863 soft/U0.5 per
+# generate_yaml.py stamps model1-soft-u50 50000(Q) 100000(P) 528 soft/U0.5 per
 # (scale, U). Read it as a normal manifest — only those tokens change.
 ---
 apiVersion: rt.resource.example.com/v1alpha1
@@ -34,7 +34,7 @@ spec:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv || true
           if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
-          exec $PIN /usr/local/bin/matmul --M 48 --K 863 --period-us 100000 \
+          exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 528 --period-us 100000 \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
             --logfile /results/jobs.csv
       securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
