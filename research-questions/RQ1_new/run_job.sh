@@ -508,6 +508,29 @@ print(d.get('$key', {}).get('cv', 'NA'))
     [ "$HAS_NB" = 1 ] && echo "[run] neighbour on cpu$nb_cpu, target forced to sibling cpu$rtcpu -- confirmed same physical core, neighbour already running"
     [ "$HAS_COMP" = 1 ] && echo "[run] competitor fixed on cpu$comp_cpu, target forced to cpu$rtcpu -- confirmed, competitor already running for this whole scale"
 
+    # model3 only: the fixed competitor is one persistent process for the
+    # WHOLE scale (not recreated per cell), so place_fixed_competitor's own
+    # confirm_burning_cpu check (once, at scale start) does NOT prove it's
+    # still actually executing for THIS cell specifically. Observed in
+    # practice: a persistent, never-restarted competitor can still go quiet
+    # on individual cells while staying Ready/Running throughout -- most
+    # likely the target's own per-cell delete+recreate (a fresh DEADLINE
+    # reservation allocated/deallocated every cell) transiently perturbing
+    # the shared kernel RT-bandwidth accounting the competitor's leaf cgroup
+    # budget lives under. Re-check right before trusting this specific cell;
+    # retry (which recreates the target again) if it's gone quiet.
+    if [ "$HAS_COMP" = 1 ]; then
+      comp_role="interferer"; [ "$COMPETITOR_TYPE" = "reserved" ] && comp_role="competitor"
+      comp_pod_now=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+      if [ -z "$comp_pod_now" ] || ! confirm_burning_cpu "$comp_pod_now"; then
+        fail_reason="competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)"
+        echo "[run] $fail_reason; retrying cell"
+        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+        continue
+      fi
+      echo "[run] competitor re-confirmed actually executing for this cell"
+    fi
+
     # persist placement so co-location is a logged FACT, not an inference.
     # model3's competitor_cpu/pair_type are fixed for the whole scale (set
     # once by place_fixed_competitor), not re-discovered per cell.
