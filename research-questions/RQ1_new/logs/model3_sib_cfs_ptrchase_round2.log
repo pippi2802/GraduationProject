@@ -1,14 +1,14 @@
 nohup: ignoring input
 [run] model=model3 ns=rq1-model3 agent=rq1-agent-66k55 cells=20 has_neighbours=0 has_competitor=1
 [run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved
-[run] unreserved competitor on cpu2 is Ready but not consuming CPU (soft, attempt 1/5); retrying
-[run] unreserved competitor on cpu2 is Ready but not consuming CPU (soft, attempt 2/5); retrying
-[run] unreserved competitor on cpu2 is Ready but not consuming CPU (soft, attempt 3/5); retrying
-[run] unreserved competitor on cpu2 is Ready but not consuming CPU (soft, attempt 4/5); retrying
+[run] unreserved competitor pod not Ready (soft, attempt 1/5); retrying
+[run] unreserved competitor pod not Ready (soft, attempt 2/5); retrying
+[run] unreserved competitor pod not Ready (soft, attempt 3/5); retrying
+[run] unreserved competitor pod not Ready (soft, attempt 4/5); retrying
 [run] unreserved competitor pod not Ready (soft, attempt 5/5); retrying
 [run] ERROR unreserved competitor never came up actually running for soft after 5 attempts
 [run] skipping all of soft (competitor setup failed)
-[run] unreserved competitor pod not Ready (tight, attempt 1/5); retrying
+[run] unreserved competitor on cpu2 is Ready but not consuming CPU (tight, attempt 1/5); retrying
 [run] unreserved competitor on cpu2 is Ready but not consuming CPU (tight, attempt 2/5); retrying
 [run] unreserved competitor on cpu2 is Ready but not consuming CPU (tight, attempt 3/5); retrying
 [run] unreserved competitor on cpu2 is Ready but not consuming CPU (tight, attempt 4/5); retrying
@@ -37,4 +37,4 @@ nohup: ignoring input
   - tight/U0.8: competitor setup failed for tight [failed even after end-of-sweep retry]
   - tight/U0.9: competitor setup failed for tight [failed even after end-of-sweep retry]
   - tight/U0.94: competitor setup failed for tight [failed even after end-of-sweep retry]
-[run] analyze with: python result.py model3_sib_cfs_ptrchase_round1
+[run] analyze with: python result.py model3_sib_cfs_ptrchase_round2
