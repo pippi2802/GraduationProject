@@ -673,7 +673,13 @@ JSON
     # cell's contention claim can be cross-checked two independent ways.
     if [ -n "$comp_role" ]; then
       comp_subdir="intf"; [ "$COMPETITOR_TYPE" = "reserved" ] && comp_subdir="comp"
-      comp_n=$(kubectl exec -n "$NS" "$AGENT" -- sh -c "wc -l < /host$HOST_PATH/$sub/$comp_subdir/jobs.csv" 2>/dev/null)
+      # the fixed competitor/interferer is created ONCE per scale, from the
+      # scale's first cell's manifest -- its hostPath is baked to THAT cell's
+      # sub (see COMPETITOR_RESERVED/INTERFERER templates), not the current
+      # one, so every cell after the first must look there too, not at $sub
+      # (found 2026-08-06: every cell past the first logged "unknown" here
+      # since it was checking a sub the persistent pod never wrote to).
+      comp_n=$(kubectl exec -n "$NS" "$AGENT" -- sh -c "wc -l < /host$HOST_PATH/${COMP_FIXED_SUB:-$sub}/$comp_subdir/jobs.csv" 2>/dev/null)
       echo "[run] co-runner ($comp_role) own jobs.csv row count at cell end: ${comp_n:-unknown}" | tee -a "$liveness_log"
     fi
 
@@ -730,6 +736,9 @@ if [ "$HAS_COMP" = 1 ]; then
       done
       continue
     fi
+    # the fixed competitor/interferer's own jobs.csv lives under THIS sub for
+    # the whole scale, regardless of which cell run_one_cell is currently on.
+    COMP_FIXED_SUB="$scale/$first_ul"
 
     for f in "${scale_files[@]}"; do run_one_cell "$f"; done
 
