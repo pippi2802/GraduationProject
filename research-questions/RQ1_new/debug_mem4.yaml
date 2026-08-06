@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-mem4
+  namespace: rq1-model3
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    experiment-model: model3
+    tolerations:
+      - operator: Exists
+    containers:
+      - name: debug
+        image: pippina2/rq1-probe:v2
+        command: ["/bin/sh"]
+        args:
+          - "-c"
+          - "mkdir -p /results; taskset -c 2 /usr/local/bin/matmul --kind ptrchase --buf-kb 65536 --M 48 --K 1 --period-us 0 --n-jobs 1 --warmup 0 --priority 0 --cpu 2 --logfile  /results/jobs.csv; echo EXIT:$?; ls -la /results; sleep 300"
+        securityContext:
+          capabilities:
+            add: ["SYS_NICE", "IPC_LOCK"]
+          volumeMounts:
+            - name: results
+              mountPath: /results
+    volumes:
+      - name: results
+        hostPath:
+          path: /var/lib/rq1/model3/debug/intf
+          type: DirectoryOrCreate

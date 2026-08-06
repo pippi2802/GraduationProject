@@ -1,0 +1,5 @@
+[run] model=model3 ns=rq1-model3 agent=rq1-agent-w89l5 cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved
+[run] soft: unreserved competitor fixed on cpu2 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] soft: target will be forced onto {3} for every cell (PAIR_TYPE=sibling vs competitor cpu2)
+[run] === soft/U0.1 (models/model3/generated/soft/U0.1.yaml) ===
