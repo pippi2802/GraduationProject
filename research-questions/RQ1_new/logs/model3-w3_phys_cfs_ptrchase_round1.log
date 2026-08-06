@@ -1,0 +1,384 @@
+nohup: ignoring input
+[run] model=model3-w3 ns=rq1-model3-w3 agent=rq1-agent-ql9pq cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=unreserved
+[run] soft: unreserved competitor fixed on cpu1 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] soft: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
+[run] === soft/U0.1 (models/model3-w3/generated/soft/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.1 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.2 (models/model3-w3/generated/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.2 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.3 (models/model3-w3/generated/soft/U0.3.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.3 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.4 (models/model3-w3/generated/soft/U0.4.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.4 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.5 (models/model3-w3/generated/soft/U0.5.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.5 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.6 (models/model3-w3/generated/soft/U0.6.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.6 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.7 (models/model3-w3/generated/soft/U0.7.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.7 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.8 (models/model3-w3/generated/soft/U0.8.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.8 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.9 (models/model3-w3/generated/soft/U0.9.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.9 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.94 (models/model3-w3/generated/soft/U0.94.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.94 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+
+[run] --- 10 cell(s) failed in soft; retrying once more (competitor still running) ---
+[run] === soft/U0.1 (models/model3-w3/generated/soft/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.1 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.2 (models/model3-w3/generated/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.2 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.3 (models/model3-w3/generated/soft/U0.3.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.3 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.4 (models/model3-w3/generated/soft/U0.4.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.4 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.5 (models/model3-w3/generated/soft/U0.5.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.5 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.6 (models/model3-w3/generated/soft/U0.6.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.6 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.7 (models/model3-w3/generated/soft/U0.7.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.7 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.8 (models/model3-w3/generated/soft/U0.8.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.8 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.9 (models/model3-w3/generated/soft/U0.9.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.9 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] === soft/U0.94 (models/model3-w3/generated/soft/U0.94.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 2/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 3/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] --- retrying cell (attempt 4/4): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) ---
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?); retrying cell
+[run] FAILED soft/U0.94 after 4 attempt(s): competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)
+[run] tight: unreserved competitor fixed on cpu1 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
+[run] === tight/U0.1 (models/model3-w3/generated/tight/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.1
+[run] === tight/U0.2 (models/model3-w3/generated/tight/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.2
+[run] === tight/U0.3 (models/model3-w3/generated/tight/U0.3.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.3
+[run] === tight/U0.4 (models/model3-w3/generated/tight/U0.4.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.4
+[run] === tight/U0.5 (models/model3-w3/generated/tight/U0.5.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.5
+[run] === tight/U0.6 (models/model3-w3/generated/tight/U0.6.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.6
+[run] === tight/U0.7 (models/model3-w3/generated/tight/U0.7.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.7
+[run] === tight/U0.8 (models/model3-w3/generated/tight/U0.8.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.8
+[run] === tight/U0.9 (models/model3-w3/generated/tight/U0.9.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.9
+[run] === tight/U0.94 (models/model3-w3/generated/tight/U0.94.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/tight/U0.94
+
+[run] --- 10 cell(s) failed in tight; retrying once more (competitor still running) ---
+[run] === soft/U0.1 (models/model3-w3/generated/soft/U0.1.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.1
+[run] === soft/U0.2 (models/model3-w3/generated/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.2
+[run] === soft/U0.3 (models/model3-w3/generated/soft/U0.3.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.3
+[run] === soft/U0.4 (models/model3-w3/generated/soft/U0.4.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.4
+[run] === soft/U0.5 (models/model3-w3/generated/soft/U0.5.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.5
+[run] === soft/U0.6 (models/model3-w3/generated/soft/U0.6.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.6
+[run] === soft/U0.7 (models/model3-w3/generated/soft/U0.7.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.7
+[run] === soft/U0.8 (models/model3-w3/generated/soft/U0.8.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.8
+[run] === soft/U0.9 (models/model3-w3/generated/soft/U0.9.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.9
+[run] === soft/U0.94 (models/model3-w3/generated/soft/U0.94.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.94
+
+[run] done. 10/20 cell(s) did not produce valid data -- do not trust these:
+  - soft/U0.1: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.2: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.3: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.4: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.5: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.6: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.7: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.8: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.9: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+  - soft/U0.94: competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?) [failed even after end-of-sweep retry]
+[run] analyze with: python result.py model3-w3_phys_cfs_ptrchase_round1

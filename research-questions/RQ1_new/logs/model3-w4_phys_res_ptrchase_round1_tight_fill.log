@@ -1,0 +1,10 @@
+[run] model=model3-w4 ns=rq1-model3-w4 agent=rq1-agent-dqls4 cells=10 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=reserved
+[run] tight: reserved competitor landed on cpu2 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {1} for every cell (PAIR_TYPE=physical vs competitor cpu2)
+[run] === tight/U0.1 (models/model3-w4/generated/tight/U0.1.yaml) ===
+[run] ERROR tight/U0.1: calibration cv=0.0941 > 0.05 (mis-calibrated K?) -- run: python calibrate.py model3-w4 --force -- skipping
+[run] === tight/U0.2 (models/model3-w4/generated/tight/U0.2.yaml) ===
+[run] target on cpu3, wanted one of {1} (1/8); re-placing
+[run] target on cpu3, wanted one of {1} (2/8); re-placing
+[run] target on cpu0, wanted one of {1} (3/8); re-placing
