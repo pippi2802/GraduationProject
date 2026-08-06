@@ -101,6 +101,7 @@ spec:
           # must persist across every cell in it, not just one.
           exec taskset -c {cpu} /usr/local/bin/matmul --M 48 --K {k} --period-us {p} \\
             --n-jobs 100000000 --warmup 200 --priority 0 --cpu {cpu} --seed 20260713 --logfile /results/jobs.csv
+      securityContext: {{ capabilities: {{ add: ["SYS_NICE","IPC_LOCK"] }} }}
       volumeMounts: [{{ name: results, mountPath: /results }}]
   volumes:
     - name: results
