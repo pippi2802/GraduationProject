@@ -32,7 +32,7 @@ spec:
           if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
           # reserved competitor: runs until the cell is torn down, contending for
           # the target's whole run (same rationale as model2's neighbour).
-          exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 42 --period-us 10000 \
+          exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 41 --period-us 10000 \
             --n-jobs 100000000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
       securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
