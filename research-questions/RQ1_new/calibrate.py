@@ -18,6 +18,7 @@ import os
 import statistics
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -153,8 +154,14 @@ def main() -> int:
             Q = int(round(u * P))
             target = int(round(cfg["headroom_frac"] * Q))
             K, med, cv = solve_K(cfg, target, args.local, args.rt_cpu, ns, pod, extra)
+            # calibrated_at: recorded so cv-vs-time-of-day (e.g. a suspected
+            # morning/afternoon noise difference on shared cloud infra) can be
+            # checked directly from the table later, instead of reconstructing
+            # it after the fact from git history (unreliable -- file renames
+            # break blame/log --follow).
             table[key] = {"K": K, "median_C_us": round(med, 1), "cv": round(cv, 4),
-                          "target_us": target, "Q_us": Q, "scale": scale, "u": u}
+                          "target_us": target, "Q_us": Q, "scale": scale, "u": u,
+                          "calibrated_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
             print(f"[calib] {key}: K={K} medC={med:.0f} (target {target}) cv={cv:.4f} "
                   f"[{'OK' if cv <= CV_THRESHOLD else 'HIGH-CV'}]")
             if cv > CV_THRESHOLD:
