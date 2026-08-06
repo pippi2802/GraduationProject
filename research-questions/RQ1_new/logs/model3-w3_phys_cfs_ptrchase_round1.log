@@ -9,3 +9,6 @@
 [run] co-runner (interferer) own jobs.csv row count at cell end: 5832
 [run] collected 5000/5000 rows -> results/model3-w3_phys_cfs_ptrchase_round1/soft/U0.1
 [run] === soft/U0.2 (models/model3-w3/generated_ptrchase/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu1, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
