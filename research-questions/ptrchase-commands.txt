@@ -1,0 +1,36 @@
+nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model1 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model1 &&
+    WORKLOAD=ptrchase OUT_TAG=_ptrchase_round3 nohup ./run_job.sh model1 > logs/model1_ptrchase_round3.log 2>&1 &
+
+  # model2
+  nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model2 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model2 &&
+    WORKLOAD=ptrchase OUT_TAG=_ptrchase_round1 COLOCATE=1 ./run_job.sh model2
+  ' > logs/model2_ptrchase_round1.log 2>&1 &
+
+  # model3 arms
+  nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model3 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model3 &&
+    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 nohup ./run_job.sh model3 > logs/model3_sib_cfs_ptrchase_round2.log 2>&1 &
+
+    WORKLOAD=ptrchase BUF_KB=65536 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round1 ./run_job.sh model3 > logs/model3_sib_cfs_ptrchase_round1.log 2>&1 &
+
+  nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model3-w2 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model3-w2 &&
+    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_ptrchase_round2 nohup ./run_job.sh model3-w2 > logs/model3-w2_sib_res_ptrchase_round2.log 2>&1 &
+
+  nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model3-w3 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model3-w3 &&
+    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=unreserved OUT_TAG=_phys_cfs_ptrchase_round2 nohup ./run_job.sh model3-w3 > logs/model3-w3_phys_cfs_ptrchase_round2.log 2>&1 &
+
+    nohup bash -c '
+    WORKLOAD=ptrchase python3 calibrate.py model3-w4 &&
+    WORKLOAD=ptrchase python3 generate_yaml.py model3-w4 &&
+    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round2 nohup ./run_job.sh model3-w4 > logs/model3-w4_phys_res_ptrchase_round2.log 2>&1 &
+
+WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round1 ./run_job.sh model3-w4 tight > logs/model3-w4_phys_res_ptrchase_round1_tight_fill.log 2>&1 &

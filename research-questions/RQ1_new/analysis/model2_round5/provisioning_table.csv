@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model2_round5,soft,p99,0.1,breaks even at lowest tested U,0.4,1.004
-model2_round5,soft,p999,0.1,breaks even at lowest tested U,0.4,1.006
-model2_round5,tight,p99,0.1997,interpolated crossing,0.4,1.003
-model2_round5,tight,p999,0.1989,interpolated crossing,0.4,1.006

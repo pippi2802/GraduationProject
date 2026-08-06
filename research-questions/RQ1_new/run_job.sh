@@ -176,6 +176,14 @@ confirm_burning_cpu() {
   [ "$t1" -gt "$t0" ] 2>/dev/null
 }
 
+# Single-sample cputime read (utime+stime, clock ticks), no internal sleep --
+# unlike confirm_burning_cpu this is cheap enough to call every poll iteration
+# of the mid-run watch loop; the caller compares consecutive samples itself to
+# detect a stall. Echoes the value, or nothing on failure (caller must check).
+pod_cputime() {
+  kubectl -n "$NS" exec "$1" -- awk '{print $14+$15}' /proc/1/stat 2>/dev/null
+}
+
 # --- model3: place the (fixed-intensity) competitor/interferer ONCE for a
 # whole scale, and compute the target's forced cpu relative to it. Sets the
 # globals desired_target_cpu, comp_cpu, FIXED_COMP_FILE (empty for the
@@ -586,30 +594,59 @@ JSON
     comp_died=0
     comp_role=""
     [ "$HAS_COMP" = 1 ] && { comp_role="interferer"; [ "$COMPETITOR_TYPE" = "reserved" ] && comp_role="competitor"; }
-    for _ in $(seq 1 1000); do
+    # continuous liveness audit: found 2026-08-05 that a pre-cell (or even
+    # once-per-scale) burning-cpu check is NOT sufficient -- a competitor can
+    # pass that check and then go quiet for most of a long cell's duration
+    # without ANYTHING noticing, since phase stays "Running" throughout (this
+    # is exactly what explained round5 disagreeing with round4 despite both
+    # using the same fixed harness). Poll every ~2s instead of 10s, and check
+    # actual cputime progress (not just pod phase) every single poll -- 2
+    # consecutive stalled samples (~4-6s of zero cpu progress) triggers the
+    # same restart path as a genuinely dead pod. Every sample (stalled or not)
+    # is appended to $out/corunner_liveness.log so a cell's contention can be
+    # AUDITED after the fact, not just trusted from a final pass/fail.
+    comp_last_cputime=""; comp_stall_count=0
+    liveness_log="$out/corunner_liveness.log"; : > "$liveness_log"
+    for _ in $(seq 1 5000); do
       ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" \
            -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
       [ "$ph" = "Succeeded" ] && break
       [ "$ph" = "Failed" ] && { echo "[run] target Failed"; break; }
       if [ -n "$comp_role" ]; then
+        comp_pod_now=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
         comp_ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" \
              -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
-        if [ "$comp_ph" != "Running" ]; then
-          # confirm before acting -- a single non-Running read can be a
-          # transient kubectl/apiserver hiccup, not a real death; restarting
-          # on a false alarm briefly kills real contention for no reason.
-          sleep 5
-          comp_ph=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=$comp_role" \
-               -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
-          if [ "$comp_ph" != "Running" ]; then
-            echo "[run] WARNING competitor/interferer is '${comp_ph:-gone}' (not Running, confirmed) mid-run; attempting restart"
-            if ! restart_fixed_competitor; then
-              comp_died=1; break
-            fi
+        stalled=0
+        if [ "$comp_ph" != "Running" ] || [ -z "$comp_pod_now" ]; then
+          stalled=1
+          echo "$(date -u +%FT%TZ) phase=${comp_ph:-gone} cputime=NA stall_count=NA -- not Running" >> "$liveness_log"
+        else
+          cur=$(pod_cputime "$comp_pod_now")
+          if [ -z "$cur" ]; then
+            stalled=1
+            echo "$(date -u +%FT%TZ) phase=$comp_ph cputime=read_failed" >> "$liveness_log"
+          elif [ -n "$comp_last_cputime" ] && [ "$cur" -le "$comp_last_cputime" ] 2>/dev/null; then
+            stalled=1
+            echo "$(date -u +%FT%TZ) phase=$comp_ph cputime=$cur (no advance since $comp_last_cputime)" >> "$liveness_log"
+          else
+            echo "$(date -u +%FT%TZ) phase=$comp_ph cputime=$cur" >> "$liveness_log"
           fi
+          comp_last_cputime="$cur"
+        fi
+        if [ "$stalled" = 1 ]; then
+          comp_stall_count=$((comp_stall_count + 1))
+        else
+          comp_stall_count=0
+        fi
+        if [ "$comp_stall_count" -ge 2 ]; then
+          echo "[run] WARNING competitor/interferer stalled ($comp_stall_count consecutive checks, no cpu progress or not Running) mid-run; attempting restart"
+          if ! restart_fixed_competitor; then
+            comp_died=1; break
+          fi
+          comp_last_cputime=""; comp_stall_count=0
         fi
       fi
-      sleep 10
+      sleep 2
     done
     if [ "$comp_died" = 1 ]; then
       fail_reason="competitor died mid-cell and could not be restarted"
@@ -622,6 +659,19 @@ JSON
     kubectl exec -n "$NS" "$AGENT" -- cat "/host$HOST_PATH/$sub/target/jobs.csv" > "$out/jobs.csv" 2>/dev/null
     total_lines=$(wc -l < "$out/jobs.csv" 2>/dev/null || echo 0)
     n_got=$(( total_lines >= 2 ? total_lines - 2 : 0 ))   # minus '#'-comment + header
+
+    # corroborating end-of-cell check: pull the co-runner's OWN job log (it
+    # writes one continuously the whole time it runs, same as the target) and
+    # record its row count -- a co-runner that was genuinely active the whole
+    # cell should show roughly (elapsed_seconds / its own period) rows. Not a
+    # pass/fail gate on its own (the continuous cputime check above is the
+    # stronger signal) -- just another line in the same audit trail so a
+    # cell's contention claim can be cross-checked two independent ways.
+    if [ -n "$comp_role" ]; then
+      comp_subdir="intf"; [ "$COMPETITOR_TYPE" = "reserved" ] && comp_subdir="comp"
+      comp_n=$(kubectl exec -n "$NS" "$AGENT" -- sh -c "wc -l < /host$HOST_PATH/$sub/$comp_subdir/jobs.csv" 2>/dev/null)
+      echo "[run] co-runner ($comp_role) own jobs.csv row count at cell end: ${comp_n:-unknown}" | tee -a "$liveness_log"
+    fi
 
     if [ -n "$IRQ_STEER" ] && [ -n "$rtcpu" ]; then
       irq_after=$(kubectl -n "$NS" exec "$AGENT" -- awk -v c=$((rtcpu + 2)) 'NR>1{s+=$c} END{print s+0}' /proc/interrupts 2>/dev/null)

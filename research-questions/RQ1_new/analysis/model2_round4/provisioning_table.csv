@@ -1,5 +1,0 @@
-model,scale,confidence,U_safe,note,U_tested_max,margin_needed_at_U_tested_max
-model2_round4,soft,p99,0.3979,interpolated crossing,0.5,1.019
-model2_round4,soft,p999,0.2981,interpolated crossing,0.5,1.02
-model2_round4,tight,p99,0.1997,interpolated crossing,0.5,1.023
-model2_round4,tight,p999,0.1996,interpolated crossing,0.5,1.035
