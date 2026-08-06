@@ -62,3 +62,6 @@
 [run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
 [run] competitor re-confirmed actually executing for this cell
 [run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: unknown
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round6/soft/U0.9
+[run] === soft/U0.94 (models/model3-w2/generated/soft/U0.94.yaml) ===
