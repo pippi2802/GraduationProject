@@ -174,7 +174,12 @@ def main() -> int:
     cr = cfg.get("co_runners") or {}
     lk, _, lv = cfg["node_label"].partition("=")
     ns, image, host = cfg["namespace"], cfg["image"], cfg["host_path"]
-    out_root = MODELS / model / "generated"
+    # separate output tree per workload -- generate_yaml.py used to always
+    # write to models/<model>/generated/ regardless of WORKLOAD, so switching
+    # a model between matmul and ptrchase silently clobbered whichever set of
+    # manifests wasn't just regenerated (found 2026-08-06: a matmul rerun
+    # overwrote ptrchase's manifests mid-investigation, and vice versa).
+    out_root = MODELS / model / ("generated" if workload == "matmul" else f"generated_{workload}")
 
     n = 0
     for scale, P in cfg["scales"].items():

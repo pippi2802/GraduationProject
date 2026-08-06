@@ -66,6 +66,10 @@ CELL_ATTEMPTS="${CELL_ATTEMPTS:-4}"
 CV_THRESHOLD="${CV_THRESHOLD:-0.05}"
 WORKLOAD_KIND="${WORKLOAD:-matmul}"
 TAB_NAME="k_table.json"; [ "$WORKLOAD_KIND" != "matmul" ] && TAB_NAME="k_table.$WORKLOAD_KIND.json"
+# must match generate_yaml.py's out_root exactly -- separate tree per
+# workload so a matmul run and a ptrchase run for the same model never
+# silently overwrite each other's manifests.
+GEN_DIR="generated"; [ "$WORKLOAD_KIND" != "matmul" ] && GEN_DIR="generated_$WORKLOAD_KIND"
 
 read -r NS HOST_PATH HAS_NB HAS_COMP < <(python3 - "$MODEL" <<'PY'
 import sys, yaml
@@ -79,8 +83,8 @@ PY
 AGENT=$(kubectl -n "$NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
 [ -z "$AGENT" ] && { echo "ERROR: no node agent; run node-prep/apply.sh $MODEL"; exit 1; }
 
-GLOB="models/$MODEL/generated/${SCALE:+$SCALE/}"
-[ -n "$SCALE" ] && GLOB="models/$MODEL/generated/$SCALE" || GLOB="models/$MODEL/generated"
+GLOB="models/$MODEL/$GEN_DIR/${SCALE:+$SCALE/}"
+[ -n "$SCALE" ] && GLOB="models/$MODEL/$GEN_DIR/$SCALE" || GLOB="models/$MODEL/$GEN_DIR"
 mapfile -t FILES < <(find "$GLOB" -name 'U*.yaml' -not -path '*/_intf/*' -not -path '*/_comp/*' -not -path '*/_nb/*' | sort)
 [ ${#FILES[@]} -eq 0 ] && { echo "ERROR: no manifests; run generate_yaml.py $MODEL"; exit 1; }
 
@@ -197,7 +201,7 @@ place_fixed_competitor() {
   [ "$HAS_COMP" != 1 ] && return 0
 
   if [ "$COMPETITOR_TYPE" = "unreserved" ]; then
-    local intf="models/$MODEL/generated/_intf/$scale/$first_ul.yaml"
+    local intf="models/$MODEL/$GEN_DIR/_intf/$scale/$first_ul.yaml"
     FIXED_INTF_FILE="$intf"
     [ -f "$intf" ] || { echo "[run] ERROR _intf manifest missing for $scale"; return 1; }
     # WE choose the competitor's cpu directly (taskset, no driver involved) --
@@ -248,7 +252,7 @@ place_fixed_competitor() {
     fi
     echo "[run] $scale: unreserved competitor fixed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), confirmed actually executing, running for the whole scale"
   elif [ "$COMPETITOR_TYPE" = "reserved" ]; then
-    FIXED_COMP_FILE="models/$MODEL/generated/_comp/$scale/$first_ul.yaml"
+    FIXED_COMP_FILE="models/$MODEL/$GEN_DIR/_comp/$scale/$first_ul.yaml"
     [ -f "$FIXED_COMP_FILE" ] || { echo "[run] ERROR _comp manifest missing for $scale"; return 1; }
     # defensive: a stale competitor pod from a DIFFERENT scale/name (e.g. left
     # over from a previous, interrupted invocation of this script) wouldn't be
@@ -429,7 +433,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
     # yet, and others wasted whole-cell retries on "neighbour pod not Ready."
     if [ "$HAS_NB" = 1 ]; then
       desired_target_cpu=""
-      nb_file="models/$MODEL/generated/_nb/$scale/$ul.yaml"
+      nb_file="models/$MODEL/$GEN_DIR/_nb/$scale/$ul.yaml"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       kubectl create -f "$nb_file" >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
@@ -714,7 +718,7 @@ if [ "$HAS_COMP" = 1 ]; then
   # retry) are done.
   mapfile -t SCALES_LIST < <(for f in "${FILES[@]}"; do basename "$(dirname "$f")"; done | sort -u)
   for scale in "${SCALES_LIST[@]}"; do
-    mapfile -t scale_files < <(printf '%s\n' "${FILES[@]}" | grep "/generated/$scale/")
+    mapfile -t scale_files < <(printf '%s\n' "${FILES[@]}" | grep "/$GEN_DIR/$scale/")
     [ ${#scale_files[@]} -eq 0 ] && continue
     first_ul=$(basename "${scale_files[0]}" .yaml)
 
