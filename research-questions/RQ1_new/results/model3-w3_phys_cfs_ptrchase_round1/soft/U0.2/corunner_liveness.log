@@ -218,3 +218,12 @@
 2026-08-06T13:51:50Z phase=Running cputime=33329
 2026-08-06T13:51:52Z phase=Running cputime=33394
 2026-08-06T13:51:54Z phase=Running cputime=33456
+2026-08-06T13:51:56Z phase=Running cputime=33517
+2026-08-06T13:51:59Z phase=Running cputime=33582
+2026-08-06T13:52:01Z phase=Running cputime=33644
+2026-08-06T13:52:03Z phase=Running cputime=33709
+2026-08-06T13:52:05Z phase=Running cputime=33770
+2026-08-06T13:52:08Z phase=Running cputime=33835
+2026-08-06T13:52:10Z phase=Running cputime=33900
+2026-08-06T13:52:12Z phase=Running cputime=33965
+[run] co-runner (interferer) own jobs.csv row count at cell end: unknown
