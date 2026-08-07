@@ -1,0 +1,193 @@
+nohup: ignoring input
+[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-4tt4g cells=10 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=reserved
+[run] tight: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {2} for every cell (PAIR_TYPE=sibling vs competitor cpu3)
+[run] === tight/U0.1 (models/model3-w2/generated/tight/U0.1.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 21364
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round6/tight/U0.1
+[run] === tight/U0.2 (models/model3-w2/generated/tight/U0.2.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 63352
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round6/tight/U0.2
+[run] === tight/U0.3 (models/model3-w2/generated/tight/U0.3.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target not Ready (attempt 3/8)
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 110487
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round6/tight/U0.3
+[run] === tight/U0.4 (models/model3-w2/generated/tight/U0.4.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.4 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.5 (models/model3-w2/generated/tight/U0.5.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target not Ready (attempt 2/8)
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.5 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.6 (models/model3-w2/generated/tight/U0.6.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target not Ready (attempt 3/8)
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.6 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.7 (models/model3-w2/generated/tight/U0.7.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.7 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.8 (models/model3-w2/generated/tight/U0.8.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target not Ready (attempt 8/8)
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.8 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.9 (models/model3-w2/generated/tight/U0.9.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.9 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.94 (models/model3-w2/generated/tight/U0.94.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.94 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+
+[run] --- 7 cell(s) failed in tight; retrying once more (competitor still running) ---
+[run] === tight/U0.4 (models/model3-w2/generated/tight/U0.4.yaml) ===
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 598976
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round6/tight/U0.4
+[run] === tight/U0.5 (models/model3-w2/generated/tight/U0.5.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.5 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.6 (models/model3-w2/generated/tight/U0.6.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.6 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.7 (models/model3-w2/generated/tight/U0.7.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target not Ready (attempt 4/8)
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target not Ready (attempt 6/8)
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+Error from server (AlreadyExists): error when creating "models/model3-w2/generated/tight/U0.7.yaml": object is being deleted: pods "model3-w2-tight-u70" already exists
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.7 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.8 (models/model3-w2/generated/tight/U0.8.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target not Ready (attempt 5/8)
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.8 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.9 (models/model3-w2/generated/tight/U0.9.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.9 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.94 (models/model3-w2/generated/tight/U0.94.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target not Ready (attempt 2/8)
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target not Ready (attempt 4/8)
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.94 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+
+[run] done. 6/10 cell(s) did not produce valid data -- do not trust these:
+  - tight/U0.5: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+  - tight/U0.6: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+  - tight/U0.7: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+  - tight/U0.8: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+  - tight/U0.9: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+  - tight/U0.94: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+[run] analyze with: python result.py model3-w2_sib_res_round6
