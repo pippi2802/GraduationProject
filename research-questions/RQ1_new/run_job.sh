@@ -190,6 +190,61 @@ pod_cputime() {
   kubectl -n "$NS" exec "$1" -- awk '{print $14+$15}' /proc/1/stat 2>/dev/null
 }
 
+# A QoS slice's cpu.rt_period_us is ONE shared, file-wide value for the WHOLE
+# QoS class on that node -- not per-cell, not per-model. Once ANY pod is
+# admitted at a given period, that period sticks; a later pod requesting a
+# DIFFERENT period (e.g. a tight-scale cell, period 10000, after an earlier
+# soft-scale cell left it at 100000) collides with it: the kernel rejects the
+# new period while any existing per-cpu runtime entry there would now exceed
+# it, and every subsequent admission on that node fails with EINVAL until
+# it's reset -- found 2026-08-07, cost real time re-diagnosing the same thing
+# across three different nodes by hand. This resets it automatically, once
+# per scale, before anything for that scale is created.
+#
+# Which slice: every model's target today has no requests/limits set at all,
+# so every model is BestEffort in practice (confirmed: every pod describe
+# this whole session shows QoS Class: BestEffort) -- kubepods-besteffort.slice
+# is the right default, but it's NOT hardcoded assuming that stays true.
+# Override with QOS_SLICE if a model ever runs Burstable instead (fs2/cpu.go's
+# own ancestor chain is: BestEffort -> kubepods-besteffort.slice, Burstable ->
+# kubepods-burstable.slice, Guaranteed -> no intermediate slice at all, sits
+# directly under kubepods.slice -- which already has its own protected floor
+# from today's runc fix, so Guaranteed pods aren't exposed to this specific
+# problem the same way and don't need this function at all).
+QOS_SLICE="${QOS_SLICE:-kubepods-besteffort.slice}"
+QOS_CG="/sys/fs/cgroup/kubepods.slice/$QOS_SLICE"
+#
+# Only ever touches the QoS slice -- never root/kubepods (those stay at their
+# manual node-level seed from rt-budget-seed.sh). Safe write order: zero
+# runtime FIRST (always legal at any current period, kernel rejects a period
+# drop while a nonzero runtime would exceed it), THEN write the new period.
+#
+# Since every model owns its node exclusively (one nodeSelector per model,
+# confirmed no cross-model node sharing), it's safe to check only THIS
+# namespace's own pods before resetting -- if anything here is still alive,
+# skip and warn instead of forcing it, since that means a previous scale's
+# teardown hasn't actually finished yet, not that it's safe to proceed.
+ensure_qos_period() {
+  local want="$1" cur alive
+  cur=$(kubectl -n "$NS" exec "$AGENT" -- cat "$QOS_CG/cpu.rt_period_us" 2>/dev/null)
+  [ "$cur" = "$want" ] && return 0
+  alive=$(kubectl -n "$NS" get pods --no-headers 2>/dev/null | grep -v "^rq1-agent" | grep -v '\bCompleted\b' | wc -l)
+  if [ "${alive:-0}" -gt 0 ]; then
+    echo "[run] WARNING $QOS_SLICE period is ${cur:-unreadable}, need $want, but $alive pod(s) still alive in $NS -- not resetting (previous teardown may still be in flight); this scale may fail admission"
+    return 1
+  fi
+  echo "[run] $QOS_SLICE period mismatch (have ${cur:-unreadable}, need $want) -- resetting"
+  kubectl -n "$NS" exec "$AGENT" -- sh -c "echo '0 0 0 0' > $QOS_CG/cpu.rt_runtime_us" 2>&1 | sed 's/^/[run] /'
+  kubectl -n "$NS" exec "$AGENT" -- sh -c "echo $want > $QOS_CG/cpu.rt_period_us" 2>&1 | sed 's/^/[run] /'
+  local newcur
+  newcur=$(kubectl -n "$NS" exec "$AGENT" -- cat "$QOS_CG/cpu.rt_period_us" 2>/dev/null)
+  if [ "$newcur" != "$want" ]; then
+    echo "[run] WARNING $QOS_SLICE period still $newcur after reset attempt -- something else may be live on this node; cells on this scale may fail"
+    return 1
+  fi
+  echo "[run] $QOS_SLICE period now $newcur, runtime cleared"
+}
+
 # --- model3: place the (fixed-intensity) competitor/interferer ONCE for a
 # whole scale, and compute the target's forced cpu relative to it. Sets the
 # globals desired_target_cpu, comp_cpu, FIXED_COMP_FILE (empty for the
@@ -748,6 +803,8 @@ if [ "$HAS_COMP" = 1 ]; then
     mapfile -t scale_files < <(printf '%s\n' "${FILES[@]}" | grep "/$GEN_DIR/$scale/")
     [ ${#scale_files[@]} -eq 0 ] && continue
     first_ul=$(basename "${scale_files[0]}" .yaml)
+    scale_period=$(grep -oE -- '--period-us [0-9]+' "${scale_files[0]}" | head -1 | grep -oE '[0-9]+')
+    [ -n "$scale_period" ] && ensure_qos_period "$scale_period"
 
     if ! place_fixed_competitor "$scale" "$first_ul"; then
       echo "[run] skipping all of $scale (competitor setup failed)"
@@ -778,7 +835,20 @@ if [ "$HAS_COMP" = 1 ]; then
     teardown_fixed_competitor
   done
 else
-  for f in "${FILES[@]}"; do run_one_cell "$f"; done
+  # same besteffort-period reset as the HAS_COMP path above, just scoped per
+  # scale instead of per (scale, first_ul) since there's no fixed competitor
+  # here to hang the check off of -- track the scale of the previous file and
+  # reset whenever it changes (and once at the very start).
+  prev_scale=""
+  for f in "${FILES[@]}"; do
+    scale=$(basename "$(dirname "$f")")
+    if [ "$scale" != "$prev_scale" ]; then
+      scale_period=$(grep -oE -- '--period-us [0-9]+' "$f" | head -1 | grep -oE '[0-9]+')
+      [ -n "$scale_period" ] && ensure_qos_period "$scale_period"
+      prev_scale="$scale"
+    fi
+    run_one_cell "$f"
+  done
 
   # End-of-sweep retry: a cell that failed all CELL_ATTEMPTS during the main
   # pass often failed for a transient reason (cluster momentarily busy) rather
