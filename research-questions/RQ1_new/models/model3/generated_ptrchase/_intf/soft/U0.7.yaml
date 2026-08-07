@@ -21,8 +21,9 @@ spec:
           # until the cell is torn down (same rationale as model2's neighbour
           # and the reserved competitor) -- it's created ONCE per scale and
           # must persist across every cell in it, not just one.
-          exec taskset -c @@INTF_CPU@@ /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 422 --period-us 100000 \
+          exec taskset -c @@INTF_CPU@@ /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 417 --period-us 100000 \
             --n-jobs 100000000 --warmup 200 --priority 0 --cpu @@INTF_CPU@@ --seed 20260713 --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
       volumeMounts: [{ name: results, mountPath: /results }]
   volumes:
     - name: results

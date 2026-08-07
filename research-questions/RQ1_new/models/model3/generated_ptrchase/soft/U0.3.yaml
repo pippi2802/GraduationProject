@@ -40,7 +40,7 @@ spec:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv || true
           if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
-          exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 312 --period-us 100000 \
+          exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 319 --period-us 100000 \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
             --logfile /results/jobs.csv
       securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
