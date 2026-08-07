@@ -1,12 +1,19 @@
-# BASE manifest for one model-4 cell (target on a reserved core). IRQ steering is a
-# NODE action (steer device IRQs away/onto the RT core) applied before the sweep —
-# the manifest is identical for the off/on arms. Run the sweep once per arm and keep
-# the two result trees (e.g. results/model4 -> results/model4-off | -off).
+# BASE manifest for one model-4 cell. count:2 -- the target claims TWO logical
+# cpus in one reservation (not two independent count:1 claims); run_job.sh
+# then forces the driver's landed pair onto two DISTINCT PHYSICAL cores (see
+# config.yaml's comment) via the same delete/recreate-until-landed retry as
+# PIN_RTCPU/model2/model3, just checking a pairwise topology relationship
+# instead of a single "not on KEEP_CPU" condition.
+#
+# RT_CPUSET here holds BOTH claimed cpus (e.g. "2,3"); taskset restricts the
+# whole process to that pair (outer mask) and matmul's --threads 2 --cpu-list
+# env then pins each of its 2 worker pthreads to one cpu within it (inner,
+# per-thread pinning) -- the two are complementary, not conflicting.
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq1-model4, name: "@@NAME@@-params" }
-spec: { count: 1, runtime: @@RUNTIME@@, period: @@PERIOD@@ }
+spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@ }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
@@ -28,13 +35,13 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: probe
-      image: pippina2/rq1-probe:v2
+      image: pippina2/rq1-probe:v3
       imagePullPolicy: IfNotPresent
       command: ["/bin/bash","-c"]
       args:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv || true
-          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--threads 2 --cpu-list env"; else PIN=""; CPU="--threads 2 --cpu-list 0,1"; fi
           exec $PIN /usr/local/bin/matmul --M 48 --K @@K@@ --period-us @@PERIOD@@ \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
             --logfile /results/jobs.csv

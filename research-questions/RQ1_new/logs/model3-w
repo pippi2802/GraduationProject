@@ -1,6 +1,0 @@
-[run] model=model3-w3 ns=rq1-model3-w3 agent=rq1-agent-vg4jd cells=20 has_neighbours=0 has_competitor=1
-[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=unreserved
-[run] soft: unreserved competitor fixed on cpu1 (avoiding KEEP_CPU=0), running for the whole scale
-[run] soft: target will be forced onto {2 3} for every cell (PAIR_TYPE=physical vs competitor cpu1)
-[run] === soft/U0.1 (models/model3-w3/generated/soft/U0.1.yaml) ===
-[run] target not Ready (attempt 1/8)

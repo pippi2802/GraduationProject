@@ -1,19 +1,37 @@
-# Model 4 — IRQ steering. Does steering device interrupts onto the RT core inflate
-# the delay layer (R - C)? Two arms with IDENTICAL manifests: off (device IRQs
-# steered AWAY from the RT core) and on (steered ONTO it). The steering itself is a
-# node-level action applied by the agent / a privileged step before each arm — the
-# harness measures both arms and records which; the reservation is identical so any
-# R-tail difference is a pure IRQ effect. NOTE (stated limitation): in an Azure
-# guest many IRQs are managed and cannot be steered; if no interrupt CPU-time lands
-# on the RT core, model4 is a documented negative result, not a failure.
+# Model 4 — intra-reservation multithread. model1 established that a single
+# H-CBS reservation delivers bounded R/tardiness for a sequential, single-
+# threaded periodic task. model4 asks whether that same guarantee survives
+# when the reservation's OWN workload is split across two threads running
+# CONCURRENTLY (not sequentially) on two of its own claimed cores, instead of
+# an external competitor contending from outside (that's model3's question).
+#
+# Design (deliberately simple -- see model3's own retreat from a compounded
+# two-entity placement problem for why): the target claims count=2 (job.yaml).
+# Every period releases a BATCH of 2 independent fixed-K jobs (matmul.c
+# --threads 2 --cpu-list env), one pthread per claimed cpu, joined before the
+# batch is logged as one row -- see matmul.c's batch-mode comment for the
+# C/R/nonvol_ctxt combination rule. The two claimed cpus are ALWAYS forced
+# onto two DISTINCT PHYSICAL cores (never two SMT siblings of one core) --
+# sibling placement was model3's single biggest source of debugging pain
+# (races, SIGSTOP hacks) and isn't the question model4 is asking, so it's not
+# swept here; run_job.sh's placement retry enforces physical-only by
+# construction (target_threads: 2 below).
+#
+# Same utilizations/headroom_frac/scales as model1 -- K is calibrated the same
+# way (one thread's own K-rep unit against the SAME per-core Q/P budget every
+# claimed cpu gets under H-CBS), so model4's numbers are directly comparable
+# to model1's at matched U, and model1's own k_table.json calibration formula
+# applies unchanged here (do re-run calibrate.py after any node reboot/
+# reallocation regardless -- see node-prep/README.md).
 model: model4
 namespace: rq1-model4
 node_label: experiment-model=model4
 host_path: /var/lib/rq1/model4
-image: pippina2/rq1-probe:v2
+image: pippina2/rq1-probe:v3
 
+target_threads: 2                       # model4 only: batch size == claimed cpu count
 matrix_M: 48
 headroom_frac: 0.7
 utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 scales: { tight: 10000, soft: 100000 }
-co_runners: {}                          # IRQ steering is a node action; run twice (off/on)
+co_runners: {}                          # no external competitor -- contention is the reservation's OWN 2nd thread

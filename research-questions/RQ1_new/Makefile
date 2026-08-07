@@ -2,7 +2,7 @@
 # for the cluster (see build.sh).
 CC      ?= cc
 CFLAGS  ?= -O2 -std=c11 -Wall -Wextra
-LDFLAGS ?=
+LDFLAGS ?= -lpthread
 
 matmul: matmul.c
 	$(CC) $(CFLAGS) -o $@ matmul.c $(LDFLAGS)

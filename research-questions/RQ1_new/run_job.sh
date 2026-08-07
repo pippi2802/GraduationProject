@@ -71,13 +71,14 @@ TAB_NAME="k_table.json"; [ "$WORKLOAD_KIND" != "matmul" ] && TAB_NAME="k_table.$
 # silently overwrite each other's manifests.
 GEN_DIR="generated"; [ "$WORKLOAD_KIND" != "matmul" ] && GEN_DIR="generated_$WORKLOAD_KIND"
 
-read -r NS HOST_PATH HAS_NB HAS_COMP < <(python3 - "$MODEL" <<'PY'
+read -r NS HOST_PATH HAS_NB HAS_COMP MT_THREADS < <(python3 - "$MODEL" <<'PY'
 import sys, yaml
 c = yaml.safe_load(open(f"models/{sys.argv[1]}/config.yaml"))
 cr = c.get("co_runners") or {}
 print(c["namespace"], c["host_path"],
       int(bool(cr.get("neighbours"))),
-      int("interferer" in cr or "competitor" in cr))
+      int("interferer" in cr or "competitor" in cr),
+      int(c.get("target_threads") or 0))
 PY
 )
 AGENT=$(kubectl -n "$NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
@@ -106,6 +107,7 @@ if [ -n "${U_MIN:-}${U_MAX:-}" ]; then
 fi
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"
+[ "$MT_THREADS" -gt 1 ] 2>/dev/null && echo "[run] model4: target_threads=$MT_THREADS, forcing the claimed pair onto two DISTINCT PHYSICAL cores"
 
 # "0-3"/"0,2" -> "0 1 2 3" / "0 2"
 expand_cpuset() {
@@ -516,6 +518,25 @@ print(d.get('$key', {}).get('cv', 'NA'))
         for c in "${CPU_CANDIDATES[@]}"; do [ "$rtcpu" = "$c" ] && match=1 && break; done
         if [ "$match" != 1 ]; then
           echo "[run] target on cpu$rtcpu, wanted one of {${CPU_CANDIDATES[*]}} ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
+      fi
+      # model4: the driver is SMT-blind and only sees "count=2", never WHICH
+      # two cpus -- reject a landing whose pair are SMT siblings of the same
+      # physical core (or includes KEEP_CPU) and retry, same delete/recreate
+      # technique as everything else here, just checking a pairwise topology
+      # relationship instead of membership in a candidate set.
+      if [ "$MT_THREADS" -gt 1 ] 2>/dev/null; then
+        mt_cpus=$(expand_cpuset "$tgt_cpuset")
+        mt_n=$(echo $mt_cpus | wc -w)
+        if [ "$mt_n" -ne "$MT_THREADS" ]; then
+          echo "[run] target RT_CPUSET=$tgt_cpuset resolved to $mt_n cpu(s), need $MT_THREADS ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
+        mt_c1=$(echo $mt_cpus | cut -d' ' -f1); mt_c2=$(echo $mt_cpus | cut -d' ' -f2)
+        if echo " $(siblings_of "$mt_c1") " | grep -q " $mt_c2 "; then
+          echo "[run] target pair {$mt_c1,$mt_c2} are SMT siblings, need distinct physical cores ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
+        if [ "$mt_c1" = "$KEEP_CPU" ] || [ "$mt_c2" = "$KEEP_CPU" ]; then
+          echo "[run] target pair {$mt_c1,$mt_c2} includes KEEP_CPU=$KEEP_CPU ($attempt/$PIN_ATTEMPTS); re-placing"; continue
         fi
       fi
       placed=1; break

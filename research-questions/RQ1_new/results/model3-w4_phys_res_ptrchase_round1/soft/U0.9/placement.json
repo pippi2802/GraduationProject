@@ -1,1 +1,1 @@
-{"model":"model3-w4","scale":"soft","U":"0.9","target_pod":"model3-w4-soft-u90","target_RT_CPUSET":"1","pair_type":"physical","competitor_type":"reserved","competitor_cpu":"3","neighbour_cpu":"","cell_attempt":1}
+{"model":"model3-w4","scale":"soft","U":"0.9","target_pod":"model3-w4-soft-u90","target_RT_CPUSET":"2","pair_type":"physical","competitor_type":"reserved","competitor_cpu":"1","neighbour_cpu":"","cell_attempt":1}

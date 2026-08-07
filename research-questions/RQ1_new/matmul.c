@@ -34,10 +34,24 @@
 //
 // Output: CSV to --logfile (or stdout). One '#'-commented header then one row/job
 // (after --warmup). Columns match config.yaml per_job_columns.
+//
+// BATCH/MULTITHREAD MODE (--threads N, N>1, model4):
+//   Every period releases a BATCH of N independent fixed-K jobs instead of one.
+//   N persistent worker threads (each pinned to one cpu from --cpu-list, one
+//   thread per reservation core) are woken together at the release instant via
+//   a barrier, each does its own K-rep unit on its own private A/B/Cm (or
+//   ptrchase buffer), and the batch is logged as ONE row once every worker has
+//   finished (a second barrier) -- C_cputime_us is the MAX across threads (the
+//   critical-path thread, consistent with R being release-to-LAST-finish),
+//   nonvol_ctxt is the SUM (total preemption events across the whole batch).
+//   Row schema is otherwise identical to the single-thread case, so the
+//   existing calibrate.py/run_job.sh/result.py pipeline needs no changes.
+//   --threads 1 (default) is byte-for-byte the original single-thread path.
 // =============================================================================
 #define _GNU_SOURCE
 #include <errno.h>
 #include <getopt.h>
+#include <pthread.h>
 #include <sched.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -113,14 +127,96 @@ static long involuntary_ctxt(void) {
     return -1;
 }
 
+// ---- batch/multithread mode (--threads N) -------------------------------------
+// "cpu-list" is a comma list of ints and/or "a-b" ranges (or "env" to read
+// RT_CPUSET, the same driver-provided env var --cpu env already reads), e.g.
+// "2,3" or "2-3". Expanded left-to-right; the first `threads` entries are used
+// (one cpu per worker), matching the reservation's claimed cpuset order.
+static int parse_cpu_list(const char *spec, int *out, int max_out) {
+    char buf[256];
+    strncpy(buf, spec, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = 0;
+    int n = 0;
+    char *save = NULL;
+    char *tok = strtok_r(buf, ",", &save);
+    while (tok && n < max_out) {
+        char *dash = strchr(tok, '-');
+        if (dash) {
+            int a = atoi(tok), b = atoi(dash + 1);
+            for (int c = a; c <= b && n < max_out; c++) out[n++] = c;
+        } else {
+            out[n++] = atoi(tok);
+        }
+        tok = strtok_r(NULL, ",", &save);
+    }
+    return n;
+}
+
+typedef struct {
+    int cpu, kind, M, K, priority, warmup;
+    long buf_kb;
+    double *A, *B, *Cm;
+    size_t *cbuf, cbuf_n, chase_pos;
+    pthread_barrier_t *bar_start, *bar_done;
+    volatile int64_t C_ns;
+    volatile long nv_delta;
+    volatile int stop;
+} worker_t;
+
+static void *worker_main(void *arg) {
+    worker_t *w = (worker_t *)arg;
+    if (w->cpu >= 0) {
+        cpu_set_t set; CPU_ZERO(&set); CPU_SET(w->cpu, &set);
+        if (sched_setaffinity(0, sizeof(set), &set) != 0)
+            fprintf(stderr, "[matmul] WARN worker sched_setaffinity(cpu=%d): %s\n",
+                    w->cpu, strerror(errno));
+    }
+    if (w->priority > 0) {
+        struct sched_param sp; memset(&sp, 0, sizeof(sp));
+        sp.sched_priority = w->priority;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
+            fprintf(stderr, "[matmul] WARN worker sched_setscheduler(FIFO,%d): %s\n",
+                    w->priority, strerror(errno));
+    }
+    // un-timed self-warmup, same rationale as the single-thread path -- fault
+    // in pages / warm caches before this worker starts taking part in any
+    // barrier-synchronized (timed) batch.
+    for (int i = 0; i < w->warmup; i++) {
+        if (w->kind == KIND_PTRCHASE)
+            w->chase_pos = ptrchase(w->cbuf, w->chase_pos, (long)w->K * PTRCHASE_HOPS_PER_K);
+        else
+            for (int k = 0; k < w->K; k++) matmul(w->A, w->B, w->Cm, w->M);
+    }
+    for (;;) {
+        pthread_barrier_wait(w->bar_start);
+        if (w->stop) return NULL;
+        long nv0 = involuntary_ctxt();
+        struct timespec c0, c1;
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c0);
+        if (w->kind == KIND_PTRCHASE)
+            w->chase_pos = ptrchase(w->cbuf, w->chase_pos, (long)w->K * PTRCHASE_HOPS_PER_K);
+        else
+            for (int k = 0; k < w->K; k++) matmul(w->A, w->B, w->Cm, w->M);
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c1);
+        long nv1 = involuntary_ctxt();
+        w->C_ns = ts_ns(&c1) - ts_ns(&c0);
+        w->nv_delta = (nv0 >= 0 && nv1 >= 0) ? (nv1 - nv0) : 0;
+        pthread_barrier_wait(w->bar_done);
+    }
+}
+
 static void usage(const char *p) {
     fprintf(stderr,
         "usage: %s --M <int> --K <int> --period-us <int> --n-jobs <int>\n"
         "          [--kind matmul|ptrchase] [--buf-kb <int>]\n"
         "          [--warmup <int>] [--priority <int>] [--cpu <int|env>]\n"
         "          [--seed <uint>] [--logfile <path>] [--no-lock-pages]\n"
+        "          [--threads <int> --cpu-list <c0,c1,...|env>]\n"
         "  --kind ptrchase  memory/LLC-bound random pointer chase (--buf-kb working set).\n"
-        "  --cpu env  reads RT_CPUSET (first cpu) for affinity; else no pinning.\n",
+        "  --cpu env  reads RT_CPUSET (first cpu) for affinity; else no pinning.\n"
+        "  --threads N  batch/multithread mode (model4): every period releases a\n"
+        "               batch of N jobs run concurrently, one per --cpu-list entry.\n"
+        "  --cpu-list env  reads RT_CPUSET (comma/range list), one cpu per thread.\n",
         p);
 }
 
@@ -134,6 +230,8 @@ int main(int argc, char **argv) {
     int kind = KIND_MATMUL;       // matmul (FP, in-cache) | ptrchase (memory/LLC)
     long buf_kb = 131072;         // ptrchase working set in KB (>> LLC); default 128 MB
     const char *logfile = NULL;
+    int threads = 1;              // 1 = original single-thread path, unchanged
+    char cpu_list_spec[256] = "";
 
     static struct option opts[] = {
         {"M", required_argument, 0, 'M'},
@@ -148,6 +246,8 @@ int main(int argc, char **argv) {
         {"no-lock-pages", no_argument, 0, 'L'},
         {"kind", required_argument, 0, 1001},
         {"buf-kb", required_argument, 0, 1002},
+        {"threads", required_argument, 0, 1003},
+        {"cpu-list", required_argument, 0, 1004},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}};
     int ci;
@@ -164,6 +264,8 @@ int main(int argc, char **argv) {
         case 'L': lock_pages = 0; break;
         case 1001: kind = (strcmp(optarg, "ptrchase") == 0) ? KIND_PTRCHASE : KIND_MATMUL; break;
         case 1002: buf_kb = atol(optarg); break;
+        case 1003: threads = atoi(optarg); break;
+        case 1004: strncpy(cpu_list_spec, optarg, sizeof(cpu_list_spec) - 1); break;
         case 'c':
             if (strcmp(optarg, "env") == 0) {
                 const char *e = getenv("RT_CPUSET");
@@ -175,7 +277,27 @@ int main(int argc, char **argv) {
         case 'h': default: usage(argv[0]); return 2;
         }
     }
-    if (M < 1 || K < 1 || n_jobs < 1) { usage(argv[0]); return 2; }
+    if (M < 1 || K < 1 || n_jobs < 1 || threads < 1) { usage(argv[0]); return 2; }
+    int cpu_ids[64];
+    int n_cpu_ids = 0;
+    if (threads > 1) {
+        if (threads > 64) { fprintf(stderr, "[matmul] --threads too large (max 64)\n"); return 2; }
+        if (!cpu_list_spec[0]) { fprintf(stderr, "[matmul] --threads %d requires --cpu-list\n", threads); return 2; }
+        const char *spec = cpu_list_spec;
+        char envbuf[256];
+        if (strcmp(cpu_list_spec, "env") == 0) {
+            const char *e = getenv("RT_CPUSET");
+            if (!e || !*e) { fprintf(stderr, "[matmul] --cpu-list env but RT_CPUSET unset\n"); return 2; }
+            strncpy(envbuf, e, sizeof(envbuf) - 1); envbuf[sizeof(envbuf) - 1] = 0;
+            spec = envbuf;
+        }
+        n_cpu_ids = parse_cpu_list(spec, cpu_ids, 64);
+        if (n_cpu_ids < threads) {
+            fprintf(stderr, "[matmul] --cpu-list resolved %d cpu(s), need %d for --threads %d\n",
+                    n_cpu_ids, threads, threads);
+            return 2;
+        }
+    }
 
     // --- affinity (best effort; KubeDeadline usually pins already) --------------
     if (cpu >= 0) {
@@ -195,13 +317,18 @@ int main(int argc, char **argv) {
     if (lock_pages && mlockall(MCL_CURRENT | MCL_FUTURE) != 0)
         fprintf(stderr, "[matmul] WARN mlockall: %s\n", strerror(errno));
 
+    uint64_t st = seed ? seed : 0x9e3779b97f4a7c15ULL;
+    FILE *out = stdout;
+    if (logfile) { out = fopen(logfile, "w"); if (!out) { perror("fopen"); return 1; } }
+
+    if (threads <= 1) {
+    // =========================== single-thread path ===========================
     // --- allocate + init A,B,C ONCE (outside the hot loop) ----------------------
     size_t nelem = (size_t)M * M;
     double *A = aligned_alloc(64, nelem * sizeof(double));
     double *B = aligned_alloc(64, nelem * sizeof(double));
     double *Cm = aligned_alloc(64, nelem * sizeof(double));
     if (!A || !B || !Cm) { fprintf(stderr, "[matmul] alloc failed\n"); return 1; }
-    uint64_t st = seed ? seed : 0x9e3779b97f4a7c15ULL;
     fill_matrix(A, (int)nelem, &st);
     fill_matrix(B, (int)nelem, &st);
     matmul(A, B, Cm, M);            // touch pages / warm caches before timing
@@ -219,8 +346,6 @@ int main(int argc, char **argv) {
         build_cycle(cbuf, cbuf_n, &st);   // touches every page (warm)
     }
 
-    FILE *out = stdout;
-    if (logfile) { out = fopen(logfile, "w"); if (!out) { perror("fopen"); return 1; } }
     fprintf(out, "# probe kind=%s M=%d K=%d buf_kb=%ld period_us=%lld priority=%d "
                  "cpu=%d seed=%llu n_jobs=%ld warmup=%d\n",
             kind == KIND_PTRCHASE ? "ptrchase" : "matmul", M, K,
@@ -302,5 +427,119 @@ int main(int argc, char **argv) {
     if (out != stdout) fclose(out);
     (void)sink;
     free(A); free(B); free(Cm); free(cbuf);
+
+    } else {
+    // ============================ batch/multithread path (model4) =============
+    worker_t workers[64];
+    pthread_t tid[64];
+    pthread_barrier_t bar_start, bar_done;
+    pthread_barrier_init(&bar_start, NULL, (unsigned)threads + 1);
+    pthread_barrier_init(&bar_done, NULL, (unsigned)threads + 1);
+    size_t nelem = (size_t)M * M;
+    for (int t = 0; t < threads; t++) {
+        worker_t *w = &workers[t];
+        memset(w, 0, sizeof(*w));
+        w->cpu = cpu_ids[t]; w->kind = kind; w->M = M; w->K = K;
+        w->priority = priority; w->warmup = warmup; w->buf_kb = buf_kb;
+        w->bar_start = &bar_start; w->bar_done = &bar_done;
+        uint64_t tst = st + (uint64_t)(t + 1) * 0x9e3779b97f4a7c15ULL;  // per-thread deterministic offset
+        if (kind == KIND_PTRCHASE) {
+            size_t bytes = (size_t)(buf_kb > 0 ? buf_kb : 131072) * 1024;
+            w->cbuf_n = bytes / sizeof(size_t);
+            if (w->cbuf_n < 2) w->cbuf_n = 2;
+            w->cbuf = aligned_alloc(64, w->cbuf_n * sizeof(size_t));
+            if (!w->cbuf) { fprintf(stderr, "[probe] ptrchase alloc failed (buf_kb=%ld, thread %d)\n", buf_kb, t); return 1; }
+            build_cycle(w->cbuf, w->cbuf_n, &tst);
+        } else {
+            w->A = aligned_alloc(64, nelem * sizeof(double));
+            w->B = aligned_alloc(64, nelem * sizeof(double));
+            w->Cm = aligned_alloc(64, nelem * sizeof(double));
+            if (!w->A || !w->B || !w->Cm) { fprintf(stderr, "[matmul] alloc failed (thread %d)\n", t); return 1; }
+            fill_matrix(w->A, (int)nelem, &tst);
+            fill_matrix(w->B, (int)nelem, &tst);
+            matmul(w->A, w->B, w->Cm, M);
+        }
+        if (pthread_create(&tid[t], NULL, worker_main, w) != 0) {
+            fprintf(stderr, "[matmul] pthread_create failed (thread %d)\n", t); return 1;
+        }
+    }
+
+    fprintf(out, "# probe kind=%s M=%d K=%d buf_kb=%ld period_us=%lld priority=%d "
+                 "threads=%d seed=%llu n_jobs=%ld warmup=%d\n",
+            kind == KIND_PTRCHASE ? "ptrchase" : "matmul", M, K,
+            (kind == KIND_PTRCHASE ? buf_kb : 0L),
+            (long long)(period_ns / 1000), priority,
+            threads, (unsigned long long)seed, n_jobs, warmup);
+    fprintf(out, "%s\n", CSV_HEADER);
+
+    // warmup batches: each worker does its own internal --warmup rounds before
+    // ever reaching bar_start (see worker_main), so these rounds just let the
+    // ALREADY-warmed-up workers run a few more untimed, unlogged batches while
+    // main settles into the barrier rendezvous itself.
+    for (int w = 0; w < warmup; w++) {
+        pthread_barrier_wait(&bar_start);
+        pthread_barrier_wait(&bar_done);
+    }
+
+    struct timespec now, t_start, t_finish, next;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    int64_t next_ns = ts_ns(&now) + period_ns;
+
+    for (long i = 0; i < n_jobs; i++) {
+        ns_to_ts(next_ns, &next);
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
+        int64_t release_ns = next_ns;
+
+        pthread_barrier_wait(&bar_start);          // release the whole batch together
+        clock_gettime(CLOCK_MONOTONIC, &t_start);
+        pthread_barrier_wait(&bar_done);            // wait for the LAST thread to finish
+        clock_gettime(CLOCK_MONOTONIC, &t_finish);
+
+        int64_t C_ns = 0; long nv = 0;
+        for (int t = 0; t < threads; t++) {
+            if (workers[t].C_ns > C_ns) C_ns = workers[t].C_ns;  // critical-path thread
+            nv += workers[t].nv_delta;                            // total preemptions in the batch
+        }
+
+        int64_t start_ns = ts_ns(&t_start);
+        int64_t finish_ns = ts_ns(&t_finish);
+        int64_t R_ns = finish_ns - release_ns;
+        int64_t delay_ns = R_ns - C_ns;
+        int64_t dispatch_ns = start_ns - release_ns;
+        int64_t midjob_ns = (finish_ns - start_ns) - C_ns;
+        int64_t slack_ns = period_ns - R_ns;
+        int miss = (R_ns > period_ns) ? 1 : 0;
+        int64_t tard_ns = miss ? (R_ns - period_ns) : 0;
+
+        next_ns += period_ns;
+        long skipped = 0;
+        if (period_ns > 0 && next_ns <= finish_ns) {
+            int64_t behind = finish_ns - next_ns;
+            skipped = (long)(behind / period_ns) + 1;
+            next_ns += (int64_t)skipped * period_ns;
+        }
+
+        fprintf(out,
+            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld\n",
+            i,
+            release_ns / 1000.0, start_ns / 1000.0, finish_ns / 1000.0,
+            C_ns / 1000.0, R_ns / 1000.0, delay_ns / 1000.0,
+            dispatch_ns / 1000.0, midjob_ns / 1000.0, slack_ns / 1000.0,
+            miss, tard_ns / 1000.0, nv, K, M, skipped);
+    }
+    if (out != stdout) fclose(out);
+
+    // signal stop and release the workers one last time so they exit; each
+    // returns right after bar_start on seeing w->stop, no matching bar_done.
+    for (int t = 0; t < threads; t++) workers[t].stop = 1;
+    pthread_barrier_wait(&bar_start);
+    for (int t = 0; t < threads; t++) {
+        pthread_join(tid[t], NULL);
+        free(workers[t].A); free(workers[t].B); free(workers[t].Cm); free(workers[t].cbuf);
+    }
+    pthread_barrier_destroy(&bar_start);
+    pthread_barrier_destroy(&bar_done);
+    }
+
     return 0;
 }
