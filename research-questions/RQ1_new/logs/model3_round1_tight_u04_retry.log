@@ -1,0 +1,20 @@
+nohup: ignoring input
+[run] U_MIN=0.4 U_MAX=0.4 applied: 1 cells remain
+[run] model=model3 ns=rq1-model3 agent=rq1-agent-wlb64 cells=1 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved
+[run] tight: unreserved competitor fixed on cpu2 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {3} for every cell (PAIR_TYPE=sibling vs competitor cpu2)
+[run] === tight/U0.4 (models/model3/generated/tight/U0.4.yaml) ===
+[run] target on cpu1, wanted one of {3} (1/8); re-placing
+[run] target on cpu0, wanted one of {3} (2/8); re-placing
+[run] target on cpu1, wanted one of {3} (3/8); re-placing
+[run] target on cpu1, wanted one of {3} (4/8); re-placing
+[run] target on cpu0, wanted one of {3} (5/8); re-placing
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (interferer) own jobs.csv row count at cell end: 24087
+[run] collected 5000/5000 rows -> results/model3_round1/tight/U0.4
+
+[run] done. all 1 cell(s) collected their expected row count.
+[run] analyze with: python result.py model3_round1
