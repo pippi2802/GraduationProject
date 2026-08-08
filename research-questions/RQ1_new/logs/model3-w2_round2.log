@@ -226,3 +226,22 @@ nohup: ignoring input
 [run] FAILED tight/U0.5 after 4 attempt(s): could not place target on any of {2} after 8 attempts
 [run] === tight/U0.6 (models/model3-w2/generated/tight/U0.6.yaml) ===
 [run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+[run] target not Ready (attempt 7/8)
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+Error from server (NotFound): error when creating "models/model3-w2/generated/tight/U0.6.yaml": namespaces "rq1-model3-w2" not found
+[run] target not Ready (attempt 8/8)
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.6 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.7 (models/model3-w2/generated/tight/U0.7.yaml) ===
+[run] target on cpu3, wanted one of {2} (1/8); re-placing
+[run] target on cpu3, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
