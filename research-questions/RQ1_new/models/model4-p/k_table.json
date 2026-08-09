@@ -1,12 +1,13 @@
 {
   "tight-U0.1": {
     "K": 17,
-    "median_C_us": 715.8,
-    "cv": 0.0837,
+    "median_C_us": 688.6,
+    "cv": 0.0232,
     "target_us": 700,
     "Q_us": 1000,
     "scale": "tight",
-    "u": 0.1
+    "u": 0.1,
+    "calibrated_at": "2026-08-09T10:26:47+00:00"
   },
   "tight-U0.2": {
     "K": 33,

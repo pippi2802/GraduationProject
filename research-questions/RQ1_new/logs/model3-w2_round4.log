@@ -1,57 +1,53 @@
 nohup: ignoring input
-[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-2q7p4 cells=20 has_neighbours=0 has_competitor=1
+[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-k84mk cells=20 has_neighbours=0 has_competitor=1
 [run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=reserved
-nohup: ignoring input
-[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-jvg2k cells=20 has_neighbours=0 has_competitor=1
-[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=reserved
+[run] kubepods-besteffort.slice period mismatch (have 0, need 100000) -- resetting
+[run] kubepods-besteffort.slice period now 100000, runtime cleared
 [run] reserved competitor on cpu1 has no usable pair avoiding KEEP_CPU=0 (soft, attempt 1/5); re-placing
-[run] soft: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), running for the whole scale
+[run] reserved competitor on cpu1 has no usable pair avoiding KEEP_CPU=0 (soft, attempt 2/5); re-placing
+[run] soft: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
 [run] soft: target will be forced onto {2} for every cell (PAIR_TYPE=sibling vs competitor cpu3)
 [run] === soft/U0.1 (models/model3-w2/generated/soft/U0.1.yaml) ===
 [run] target on cpu0, wanted one of {2} (1/8); re-placing
 [run] target on cpu0, wanted one of {2} (2/8); re-placing
 [run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
 [run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.1
+[run] co-runner (competitor) own jobs.csv row count at cell end: 10673
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.1
 [run] === soft/U0.2 (models/model3-w2/generated/soft/U0.2.yaml) ===
 [run] target on cpu0, wanted one of {2} (1/8); re-placing
-[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.2
-[run] === soft/U0.3 (models/model3-w2/generated/soft/U0.3.yaml) ===
-[run] target on cpu1, wanted one of {2} (1/8); re-placing
 [run] target on cpu0, wanted one of {2} (2/8); re-placing
-[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu1, wanted one of {2} (5/8); re-placing
 [run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.3
+[run] co-runner (competitor) own jobs.csv row count at cell end: 17807
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.2
+[run] === soft/U0.3 (models/model3-w2/generated/soft/U0.3.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 23507
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.3
 [run] === soft/U0.4 (models/model3-w2/generated/soft/U0.4.yaml) ===
 [run] target on cpu0, wanted one of {2} (1/8); re-placing
-[run] target on cpu1, wanted one of {2} (2/8); re-placing
-[run] target on cpu0, wanted one of {2} (3/8); re-placing
-[run] target on cpu0, wanted one of {2} (4/8); re-placing
-[run] target on cpu0, wanted one of {2} (5/8); re-placing
-[run] target on cpu0, wanted one of {2} (6/8); re-placing
-[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.4
-[run] === soft/U0.5 (models/model3-w2/generated/soft/U0.5.yaml) ===
-[run] target on cpu0, wanted one of {2} (1/8); re-placing
 [run] target on cpu0, wanted one of {2} (2/8); re-placing
-[run] target on cpu0, wanted one of {2} (3/8); re-placing
-[run] target on cpu1, wanted one of {2} (4/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
 [run] target on cpu1, wanted one of {2} (5/8); re-placing
-[run] target on cpu0, wanted one of {2} (6/8); re-placing
-[run] target on cpu0, wanted one of {2} (7/8); re-placing
-[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.5
-[run] === soft/U0.6 (models/model3-w2/generated/soft/U0.6.yaml) ===
-[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.6
-[run] === soft/U0.7 (models/model3-w2/generated/soft/U0.7.yaml) ===
+[run] target on cpu1, wanted one of {2} (6/8); re-placing
+[run] target on cpu1, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.4 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === soft/U0.5 (models/model3-w2/generated/soft/U0.5.yaml) ===
 [run] target on cpu1, wanted one of {2} (1/8); re-placing
 [run] target on cpu0, wanted one of {2} (2/8); re-placing
 [run] target on cpu0, wanted one of {2} (3/8); re-placing
@@ -59,89 +55,210 @@ nohup: ignoring input
 [run] target on cpu0, wanted one of {2} (5/8); re-placing
 [run] target on cpu0, wanted one of {2} (6/8); re-placing
 [run] target on cpu0, wanted one of {2} (7/8); re-placing
-[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.7
-[run] === soft/U0.8 (models/model3-w2/generated/soft/U0.8.yaml) ===
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.5 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === soft/U0.6 (models/model3-w2/generated/soft/U0.6.yaml) ===
 [run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
 [run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.8
-[run] === soft/U0.9 (models/model3-w2/generated/soft/U0.9.yaml) ===
+[run] co-runner (competitor) own jobs.csv row count at cell end: 37399
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.6
+[run] === soft/U0.7 (models/model3-w2/generated/soft/U0.7.yaml) ===
 [run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.9
-[run] === soft/U0.94 (models/model3-w2/generated/soft/U0.94.yaml) ===
+[run] co-runner (competitor) own jobs.csv row count at cell end: 42758
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.7
+[run] === soft/U0.8 (models/model3-w2/generated/soft/U0.8.yaml) ===
 [run] target on cpu0, wanted one of {2} (1/8); re-placing
 [run] target on cpu0, wanted one of {2} (2/8); re-placing
 [run] target on cpu1, wanted one of {2} (3/8); re-placing
 [run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/soft/U0.94
-[run] reserved competitor landed on KEEP_CPU=0 (tight, attempt 1/5); re-placing
-[run] tight: reserved competitor landed on cpu2 (avoiding KEEP_CPU=0), running for the whole scale
-[run] tight: target will be forced onto {3} for every cell (PAIR_TYPE=sibling vs competitor cpu2)
-[run] === tight/U0.1 (models/model3-w2/generated/tight/U0.1.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] target on cpu0, wanted one of {3} (2/8); re-placing
-[run] target on cpu1, wanted one of {3} (3/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] co-runner (competitor) own jobs.csv row count at cell end: 49175
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.8
+[run] === soft/U0.9 (models/model3-w2/generated/soft/U0.9.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
 [run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.1
-[run] === tight/U0.2 (models/model3-w2/generated/tight/U0.2.yaml) ===
-[run] target on cpu1, wanted one of {3} (1/8); re-placing
-[run] target on cpu1, wanted one of {3} (2/8); re-placing
-[run] target on cpu0, wanted one of {3} (3/8); re-placing
-[run] target on cpu0, wanted one of {3} (4/8); re-placing
-[run] target on cpu0, wanted one of {3} (5/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.2
-[run] === tight/U0.3 (models/model3-w2/generated/tight/U0.3.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.3
-[run] === tight/U0.4 (models/model3-w2/generated/tight/U0.4.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] target on cpu0, wanted one of {3} (2/8); re-placing
-[run] target on cpu0, wanted one of {3} (3/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.4
-[run] === tight/U0.5 (models/model3-w2/generated/tight/U0.5.yaml) ===
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.5
-[run] === tight/U0.6 (models/model3-w2/generated/tight/U0.6.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.6
-[run] === tight/U0.7 (models/model3-w2/generated/tight/U0.7.yaml) ===
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.7
-[run] === tight/U0.8 (models/model3-w2/generated/tight/U0.8.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.8
-[run] === tight/U0.9 (models/model3-w2/generated/tight/U0.9.yaml) ===
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.9
-[run] === tight/U0.94 (models/model3-w2/generated/tight/U0.94.yaml) ===
-[run] target on cpu0, wanted one of {3} (1/8); re-placing
-[run] target on cpu0, wanted one of {3} (2/8); re-placing
-[run] target on cpu0, wanted one of {3} (3/8); re-placing
-[run] target on cpu0, wanted one of {3} (4/8); re-placing
-[run] target on cpu0, wanted one of {3} (5/8); re-placing
-[run] target on cpu0, wanted one of {3} (6/8); re-placing
-[run] target on cpu0, wanted one of {3} (7/8); re-placing
-[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
-[run] running...
-[run] collected 5000/5000 rows -> results/model3-w2_sib_res_round4/tight/U0.94
+[run] co-runner (competitor) own jobs.csv row count at cell end: 56343
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.9
+[run] === soft/U0.94 (models/model3-w2/generated/soft/U0.94.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu1, wanted one of {2} (2/8); re-placing
+[run] target on cpu1, wanted one of {2} (3/8); re-placing
+[run] target on cpu1, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu1, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.94 after 4 attempt(s): could not place target on any of {2} after 8 attempts
 
-[run] done. all 20 cell(s) collected their expected row count.
-[run] analyze with: python result.py model3-w2_sib_res_round4
+[run] --- 3 cell(s) failed in soft; retrying once more (competitor still running) ---
+[run] === soft/U0.4 (models/model3-w2/generated/soft/U0.4.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 65150
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.4
+[run] === soft/U0.5 (models/model3-w2/generated/soft/U0.5.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu1, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.5 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === soft/U0.94 (models/model3-w2/generated/soft/U0.94.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 73888
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.94
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] reserved competitor on cpu1 has no usable pair avoiding KEEP_CPU=0 (tight, attempt 1/5); re-placing
+[run] tight: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {2} for every cell (PAIR_TYPE=sibling vs competitor cpu3)
+[run] === tight/U0.1 (models/model3-w2/generated/tight/U0.1.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.1 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.2 (models/model3-w2/generated/tight/U0.2.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 43455
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.2
+[run] === tight/U0.3 (models/model3-w2/generated/tight/U0.3.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 68596
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.3
+[run] === tight/U0.4 (models/model3-w2/generated/tight/U0.4.yaml) ===
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 75693
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.4
+[run] === tight/U0.5 (models/model3-w2/generated/tight/U0.5.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 100617
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.5
+[run] === tight/U0.6 (models/model3-w2/generated/tight/U0.6.yaml) ===
+[run] target on cpu1, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 118681
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.6
+[run] === tight/U0.7 (models/model3-w2/generated/tight/U0.7.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 136430
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.7
+[run] === tight/U0.8 (models/model3-w2/generated/tight/U0.8.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu0, wanted one of {2} (4/8); re-placing
+[run] target on cpu0, wanted one of {2} (5/8); re-placing
+[run] target on cpu0, wanted one of {2} (6/8); re-placing
+[run] target on cpu0, wanted one of {2} (7/8); re-placing
+[run] target on cpu0, wanted one of {2} (8/8); re-placing
+[run] could not place target on any of {2} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.8 after 4 attempt(s): could not place target on any of {2} after 8 attempts
+[run] === tight/U0.9 (models/model3-w2/generated/tight/U0.9.yaml) ===
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 173738
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.9
+[run] === tight/U0.94 (models/model3-w2/generated/tight/U0.94.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] target on cpu1, wanted one of {2} (4/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 195310
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.94
+
+[run] --- 3 cell(s) failed in tight; retrying once more (competitor still running) ---
+[run] === soft/U0.5 (models/model3-w2/generated/soft/U0.5.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] target on cpu0, wanted one of {2} (2/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 256306
+[run] collected 5000/5000 rows -> results/model3-w2_round4/soft/U0.5
+[run] === tight/U0.1 (models/model3-w2/generated/tight/U0.1.yaml) ===
+[run] target on cpu0, wanted one of {2} (1/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 266785
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.1
+[run] === tight/U0.8 (models/model3-w2/generated/tight/U0.8.yaml) ===
+[run] target on cpu1, wanted one of {2} (1/8); re-placing
+[run] target on cpu1, wanted one of {2} (2/8); re-placing
+[run] target on cpu0, wanted one of {2} (3/8); re-placing
+[run] competitor fixed on cpu3, target forced to cpu2 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 284637
+[run] collected 5000/5000 rows -> results/model3-w2_round4/tight/U0.8
+
+[run] done. 1/20 cell(s) did not produce valid data -- do not trust these:
+  - soft/U0.5: could not place target on any of {2} after 8 attempts [failed even after end-of-sweep retry]
+[run] analyze with: python result.py model3-w2_round4
