@@ -1,0 +1,16 @@
+# Model 4-m -- same design as model4 (see models/model4/config.yaml for the
+# full rationale); split onto its own node/namespace so matmul and ptrchase
+# can run concurrently on two different physical nodes instead of sequentially
+# on one (model4-m = matmul here, model4-p = ptrchase on a separate node).
+model: model4-m
+namespace: rq1-model4-m
+node_label: experiment-model=model4-m
+host_path: /var/lib/rq1/model4-m
+image: pippina2/rq1-probe:v3
+
+target_threads: 2                       # model4 only: batch size == claimed cpu count
+matrix_M: 48
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners: {}                          # no external competitor -- contention is the reservation's OWN 2nd thread
