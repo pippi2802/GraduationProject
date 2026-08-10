@@ -33,7 +33,23 @@ spec:
       args:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv || true
-          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--threads 2 --cpu-list env"; else PIN=""; CPU="--threads 2 --cpu-list 0,1"; fi
+          # the driver is SMT-blind and does not guarantee its RT_CPUSET range
+          # is low-to-high (found 2026-08-09: "3-2" instead of "2-3" broke both
+          # taskset, which rejects a reversed range outright, and matmul's own
+          # --cpu-list range expansion, which silently resolves to zero cpus
+          # when start>end) -- normalize to a sorted comma list before either
+          # ever sees it.
+          if [ -n "$RT_CPUSET" ]; then
+            RT_CPUSET=$(echo "$RT_CPUSET" | tr ',' '\n' | while read -r p; do
+              case "$p" in
+                *-*) a="${p%-*}"; b="${p#*-}"; if [ "$a" -le "$b" ]; then seq "$a" "$b"; else seq "$b" "$a"; fi ;;
+                *) echo "$p" ;;
+              esac
+            done | sort -n | paste -sd, -)
+            PIN="taskset -c $RT_CPUSET"; CPU="--threads 2 --cpu-list env"
+          else
+            PIN=""; CPU="--threads 2 --cpu-list 0,1"
+          fi
           exec $PIN /usr/local/bin/matmul --kind ptrchase --buf-kb 131072 --M 48 --K 477 --period-us 100000 \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
             --logfile /results/jobs.csv

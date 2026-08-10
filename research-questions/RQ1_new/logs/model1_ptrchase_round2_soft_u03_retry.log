@@ -1,0 +1,9 @@
+nohup: ignoring input
+[run] U_MIN=0.3 U_MAX=0.3 applied: 1 cells remain
+[run] model=model1 ns=rq1-model1 agent=rq1-agent-ff8cx cells=1 has_neighbours=0 has_competitor=0
+[run] === soft/U0.3 (models/model1/generated_ptrchase/soft/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model1_round2/soft/U0.3
+
+[run] done. all 1 cell(s) collected their expected row count.
+[run] analyze with: python result.py model1_round2

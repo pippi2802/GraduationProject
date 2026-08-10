@@ -1,0 +1,60 @@
+nohup: ignoring input
+[run] U_MIN=0.3 U_MAX=0.94 applied: 8 cells remain
+[run] model=model3-w4 ns=rq1-model3-w4 agent=rq1-agent-5rq8r cells=8 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=physical COMPETITOR_TYPE=reserved
+[run] tight: reserved competitor landed on cpu3 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {1} for every cell (PAIR_TYPE=physical vs competitor cpu3)
+[run] === tight/U0.3 (models/model3-w4/generated/tight/U0.3.yaml) ===
+[run] target on cpu2, wanted one of {1} (1/8); re-placing
+[run] target on cpu2, wanted one of {1} (2/8); re-placing
+[run] target on cpu2, wanted one of {1} (3/8); re-placing
+[run] target on cpu2, wanted one of {1} (4/8); re-placing
+[run] target on cpu2, wanted one of {1} (5/8); re-placing
+[run] target on cpu2, wanted one of {1} (6/8); re-placing
+[run] target on cpu2, wanted one of {1} (7/8); re-placing
+[run] target on cpu2, wanted one of {1} (8/8); re-placing
+[run] could not place target on any of {1} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.3 after 4 attempt(s): could not place target on any of {1} after 8 attempts
+[run] === tight/U0.4 (models/model3-w4/generated/tight/U0.4.yaml) ===
+[run] target on cpu2, wanted one of {1} (1/8); re-placing
+[run] target on cpu2, wanted one of {1} (2/8); re-placing
+[run] target on cpu2, wanted one of {1} (3/8); re-placing
+[run] target on cpu2, wanted one of {1} (4/8); re-placing
+[run] target on cpu2, wanted one of {1} (5/8); re-placing
+[run] target on cpu2, wanted one of {1} (6/8); re-placing
+[run] target on cpu2, wanted one of {1} (7/8); re-placing
+[run] target on cpu2, wanted one of {1} (8/8); re-placing
+[run] could not place target on any of {1} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.4 after 4 attempt(s): could not place target on any of {1} after 8 attempts
+[run] === tight/U0.5 (models/model3-w4/generated/tight/U0.5.yaml) ===
+[run] target on cpu2, wanted one of {1} (1/8); re-placing
+[run] target on cpu2, wanted one of {1} (2/8); re-placing
+[run] target on cpu2, wanted one of {1} (3/8); re-placing
+[run] target on cpu2, wanted one of {1} (4/8); re-placing
+[run] target on cpu2, wanted one of {1} (5/8); re-placing
+[run] target on cpu2, wanted one of {1} (6/8); re-placing
+[run] target on cpu2, wanted one of {1} (7/8); re-placing
+[run] target on cpu2, wanted one of {1} (8/8); re-placing
+[run] could not place target on any of {1} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.5 after 4 attempt(s): could not place target on any of {1} after 8 attempts
+[run] === tight/U0.6 (models/model3-w4/generated/tight/U0.6.yaml) ===
+[run] target on cpu2, wanted one of {1} (1/8); re-placing
+[run] target on cpu2, wanted one of {1} (2/8); re-placing
+[run] target on cpu2, wanted one of {1} (3/8); re-placing
+[run] target on cpu2, wanted one of {1} (4/8); re-placing
+[run] target on cpu2, wanted one of {1} (5/8); re-placing
+[run] target on cpu2, wanted one of {1} (6/8); re-placing
+[run] target on cpu2, wanted one of {1} (7/8); re-placing
+[run] target on cpu2, wanted one of {1} (8/8); re-placing
+[run] could not place target on any of {1} after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.6 after 4 attempt(s): could not place target on any of {1} after 8 attempts
+[run] === tight/U0.7 (models/model3-w4/generated/tight/U0.7.yaml) ===
+[run] target on cpu2, wanted one of {1} (1/8); re-placing
+[run] target on cpu2, wanted one of {1} (2/8); re-placing
+[run] target on cpu2, wanted one of {1} (3/8); re-placing
+[run] target on cpu2, wanted one of {1} (4/8); re-placing
+[run] target on cpu2, wanted one of {1} (5/8); re-placing
+[run] target on cpu2, wanted one of {1} (6/8); re-placing
+[run] target on cpu2, wanted one of {1} (7/8); re-placing
+[run] target on cpu2, wanted one of {1} (8/8); re-placing
+[run] could not place target on any of {1} after 8 attempts; giving up on this cell
