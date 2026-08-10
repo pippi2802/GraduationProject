@@ -1,0 +1,17 @@
+nohup: ignoring input
+[run] U_MIN=0.94 U_MAX=0.94 applied: 1 cells remain
+[run] model=model3 ns=rq1-model3 agent=rq1-agent-fhlv7 cells=1 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved
+[run] kubepods-besteffort.slice period mismatch (have 0, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] unreserved competitor pod not Ready (tight, attempt 1/5); retrying
+[run] unreserved competitor pod not Ready (tight, attempt 2/5); retrying
+[run] unreserved competitor pod not Ready (tight, attempt 3/5); retrying
+[run] unreserved competitor pod not Ready (tight, attempt 4/5); retrying
+[run] unreserved competitor pod not Ready (tight, attempt 5/5); retrying
+[run] ERROR unreserved competitor never came up actually running for tight after 5 attempts
+[run] skipping all of tight (competitor setup failed)
+
+[run] done. 1/1 cell(s) did not produce valid data -- do not trust these:
+  - tight/U0.94: competitor setup failed for tight [failed even after end-of-sweep retry]
+[run] analyze with: python result.py model3_sib_cfs_round3
