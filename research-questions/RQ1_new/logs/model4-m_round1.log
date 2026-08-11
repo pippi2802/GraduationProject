@@ -1,5 +1,5 @@
 nohup: ignoring input
-[run] model=model4-m ns=rq1-model4-m agent=rq1-agent-qqfbd cells=20 has_neighbours=0 has_competitor=0
+[run] model=model4-m ns=rq1-model4-m agent=rq1-agent-mwbrp cells=20 has_neighbours=0 has_competitor=0
 [run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
 [run] kubepods-besteffort.slice period mismatch (have 0, need 100000) -- resetting
 [run] kubepods-besteffort.slice period now 100000, runtime cleared
@@ -7,33 +7,33 @@ nohup: ignoring input
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (4/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (7/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
 [run] could not place target after 8 attempts; giving up on this cell
 [run] FAILED soft/U0.1 after 4 attempt(s): could not place target after 8 attempts
 [run] === soft/U0.2 (models/model4-m/generated/soft/U0.2.yaml) ===
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (5/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (2/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (4/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
 [run] could not place target after 8 attempts; giving up on this cell
 [run] FAILED soft/U0.2 after 4 attempt(s): could not place target after 8 attempts
 [run] === soft/U0.3 (models/model4-m/generated/soft/U0.3.yaml) ===
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (1/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
+[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (3/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (4/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (8/8); re-placing
 [run] could not place target after 8 attempts; giving up on this cell
 [run] FAILED soft/U0.3 after 4 attempt(s): could not place target after 8 attempts
 [run] === soft/U0.4 (models/model4-m/generated/soft/U0.4.yaml) ===
@@ -44,100 +44,8 @@ nohup: ignoring input
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
+[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (8/8); re-placing
 [run] could not place target after 8 attempts; giving up on this cell
 [run] FAILED soft/U0.4 after 4 attempt(s): could not place target after 8 attempts
 [run] === soft/U0.5 (models/model4-m/generated/soft/U0.5.yaml) ===
 [run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.5 after 4 attempt(s): could not place target after 8 attempts
-[run] === soft/U0.6 (models/model4-m/generated/soft/U0.6.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.6 after 4 attempt(s): could not place target after 8 attempts
-[run] === soft/U0.7 (models/model4-m/generated/soft/U0.7.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.7 after 4 attempt(s): could not place target after 8 attempts
-[run] === soft/U0.8 (models/model4-m/generated/soft/U0.8.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.8 after 4 attempt(s): could not place target after 8 attempts
-[run] === soft/U0.9 (models/model4-m/generated/soft/U0.9.yaml) ===
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.9 after 4 attempt(s): could not place target after 8 attempts
-[run] === soft/U0.94 (models/model4-m/generated/soft/U0.94.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.94 after 4 attempt(s): could not place target after 8 attempts
-[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
-[run] kubepods-besteffort.slice period now 10000, runtime cleared
-[run] === tight/U0.1 (models/model4-m/generated/tight/U0.1.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.1 after 4 attempt(s): could not place target after 8 attempts
-[run] === tight/U0.2 (models/model4-m/generated/tight/U0.2.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (4/8); re-placing
-[run] target RT_CPUSET=3-2 resolved to 0 cpu(s), need 2 (5/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.2 after 4 attempt(s): could not place target after 8 attempts
-[run] === tight/U0.3 (models/model4-m/generated/tight/U0.3.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
