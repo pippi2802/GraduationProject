@@ -1,0 +1,8 @@
+[run] U_MIN=0.7 U_MAX=0.7 applied: 1 cells remain
+[run] model=model4-p ns=rq1-model4-p agent=rq1-agent-7pzm6 cells=1 has_neighbours=0 has_competitor=0
+[run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
+[run] === soft/U0.7 (models/model4-p/generated_ptrchase/soft/U0.7.yaml) ===
+[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
+Error from server (AlreadyExists): error when creating "models/model4-p/generated_ptrchase/soft/U0.7.yaml": object is being deleted: pods "model4-p-soft-u70" already exists
+[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
+Error from server (AlreadyExists): error when creating "models/model4-p/generated_ptrchase/soft/U0.7.yaml": object is being deleted: pods "model4-p-soft-u70" already exists
