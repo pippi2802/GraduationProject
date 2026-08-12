@@ -5,7 +5,14 @@
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq1-model4-p, name: "@@NAME@@-params" }
-spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@ }
+# requestedCpus pins the pair directly to two distinct physical cores (1 and
+# 3 -- siblings are (0,1)/(2,3) on this hardware, cpu0 stays excluded since
+# it's KEEP_CPU). Same fix as model4-m 2026-08-12: replaces the old
+# delete/recreate-until-landed retry loop, validated end-to-end there
+# (driver correctly allocates [1,3], containerd/cgroup/run_job.sh's own
+# verification all agree -- see that day's backlog for the three-bug chain
+# this uncovered and fixed).
+spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@, requestedCpus: [1, 3] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
