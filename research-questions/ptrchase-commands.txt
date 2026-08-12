@@ -1,36 +1,113 @@
 nohup bash -c '
     WORKLOAD=ptrchase python3 calibrate.py model1 &&
     WORKLOAD=ptrchase python3 generate_yaml.py model1 &&
-    WORKLOAD=ptrchase OUT_TAG=_ptrchase_round3 nohup ./run_job.sh model1 > logs/model1_ptrchase_round3.log 2>&1 &
+    WORKLOAD=ptrchase OUT_TAG=_ptrchase_round4 nohup ./run_job.sh model1 > logs/model1_ptrchase_round4.log 2>&1 &
 
-  # model2
-  nohup bash -c '
-    WORKLOAD=ptrchase python3 calibrate.py model2 &&
-    WORKLOAD=ptrchase python3 generate_yaml.py model2 &&
-    WORKLOAD=ptrchase OUT_TAG=_ptrchase_round1 COLOCATE=1 ./run_job.sh model2
-  ' > logs/model2_ptrchase_round1.log 2>&1 &
 
   # model3 arms
   nohup bash -c '
-    WORKLOAD=ptrchase python3 calibrate.py model3 &&
-    WORKLOAD=ptrchase python3 generate_yaml.py model3 &&
-    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 nohup ./run_job.sh model3 > logs/model3_sib_cfs_ptrchase_round2.log 2>&1 &
-
-    WORKLOAD=ptrchase BUF_KB=65536 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round1 ./run_job.sh model3 > logs/model3_sib_cfs_ptrchase_round1.log 2>&1 &
+    WORKLOAD=ptrchase python3 calibrate.py model3 
+    WORKLOAD=ptrchase python3 generate_yaml.py model3 
+    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round4 nohup ./run_job.sh model3 > logs/model3_sib_cfs_ptrchase_round4.log 2>&1 &
 
   nohup bash -c '
     WORKLOAD=ptrchase python3 calibrate.py model3-w2 &&
     WORKLOAD=ptrchase python3 generate_yaml.py model3-w2 &&
-    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_ptrchase_round2 nohup ./run_job.sh model3-w2 > logs/model3-w2_sib_res_ptrchase_round2.log 2>&1 &
+    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_ptrchase_round4 nohup ./run_job.sh model3-w2 > logs/model3-w2_sib_res_ptrchase_round4.log 2>&1 &
 
   nohup bash -c '
     WORKLOAD=ptrchase python3 calibrate.py model3-w3 &&
     WORKLOAD=ptrchase python3 generate_yaml.py model3-w3 &&
-    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=unreserved OUT_TAG=_phys_cfs_ptrchase_round2 nohup ./run_job.sh model3-w3 > logs/model3-w3_phys_cfs_ptrchase_round2.log 2>&1 &
+    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=unreserved OUT_TAG=_phys_cfs_ptrchase_round4 nohup ./run_job.sh model3-w3 > logs/model3-w3_phys_cfs_ptrchase_round4.log 2>&1 &
 
     nohup bash -c '
     WORKLOAD=ptrchase python3 calibrate.py model3-w4 &&
     WORKLOAD=ptrchase python3 generate_yaml.py model3-w4 &&
-    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round2 nohup ./run_job.sh model3-w4 > logs/model3-w4_phys_res_ptrchase_round2.log 2>&1 &
+    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round4 nohup ./run_job.sh model3-w4 > logs/model3-w4_phys_res_ptrchase_round4.log 2>&1 &
 
 WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round1 ./run_job.sh model3-w4 tight > logs/model3-w4_phys_res_ptrchase_round1_tight_fill.log 2>&1 &
+
+
+
+
+
+
+
+---- Model3 -w2 ---
+
+OUT_TAG=_round4 PAIR_TYPE=sibling COMPETITOR_TYPE=reserved nohup ./run_job.sh model3-w2 > logs/model3-w2_round4.log 2>&1 &
+
+
+---- Model3 ---
+OUT_TAG=_round4 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved nohup ./run_job.sh model3 > logs/model3_round4.log 2>&1 &
+
+
+
+WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=unreserved OUT_TAG=_phys_cfs_ptrchase_round1 ./run_job.sh model3-w3 > logs/model3-w3_phys_cfs_ptrchase_round1.log 2>&1 &
+
+
+
+
+
+U_MIN=0.6 WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_ptrchase_round2_tight.log 2>&1 &
+
+
+
+    WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_ptrchase_round2 nohup ./run_job.sh model3-w2 tight > logs/model3-w2_sib_res_ptrchase_round2_tight.log 2>&1 &
+
+
+
+nohup ./run_job.sh model4-m > logs/model4-m_round1.log 2>&1 &
+                                                               
+WORKLOAD=ptrchase nohup ./run_job.sh model4-p > logs/model4-p_round3.log 2>&1 &
+
+
+--- EXECUTED ---
+ model1 — ptrchase round2, soft, U0.3 only:
+  U_MIN=0.3 U_MAX=0.3 WORKLOAD=ptrchase OUT_TAG=_round2 \
+    nohup ./run_job.sh model1 soft > logs/model1_ptrchase_round2_soft_u03_retry.log 2>&1 &
+  disown
+
+  model3 (sib_cfs) — four separate gaps, run one after another:
+  U_MIN=0.2 U_MAX=0.94 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_round2 \
+    nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_round2_tight_retry.log 2>&1 &
+  disown
+
+U_MIN=0.4 U_MAX=0.4 PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_round1 \
+    nohup ./run_job.sh model3-w2 soft > logs/model3-w2_sib_res_round1_soft_u04_retry.log 2>&1 &
+  disown
+
+    model3-w4 (phys_res) — independent namespace, safe to run alongside all of the above:
+  U_MIN=0.3 U_MAX=0.94 PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_round2 \
+    nohup ./run_job.sh model3-w4 tight > logs/model3-w4_phys_res_round2_tight_retry.log 2>&1 &
+  disown
+
+  U_MIN=0.94 U_MAX=0.94 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_round3 \
+    nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_round3_tight_u94_retry.log 2>&1 &
+  disown
+
+    U_MIN=0.4 U_MAX=0.94 PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_round2 \
+    nohup ./run_job.sh model3-w2 tight > logs/model3-w2_sib_res_round2_tight_retry.log 2>&1 &
+  disown
+  
+  U_MIN=0.2 U_MAX=0.2 PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_round4 \
+    nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_round4_tight_u02_retry.log 2>&1 &
+  disown
+  
+--- TODO ----
+
+
+  U_MIN=0.2 U_MAX=0.2 WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 \
+    nohup ./run_job.sh model3 soft > logs/model3_sib_cfs_ptrchase_round2_soft_u02_retry.log 2>&1 &
+  disown
+
+  model3-w2 (sib_res):
+  
+
+  U_MIN=0.2 U_MAX=0.2 PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_round3 \
+    nohup ./run_job.sh model3-w2 soft > logs/model3-w2_sib_res_round3_soft_u02_retry.log 2>&1 &
+  disown
+  U_MIN=0.8 U_MAX=0.8 WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_ptrchase_round3 \
+    nohup ./run_job.sh model3-w2 soft > logs/model3-w2_sib_res_ptrchase_round3_soft_u08_retry.log 2>&1 &
+  disown
+

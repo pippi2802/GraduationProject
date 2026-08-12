@@ -18,6 +18,7 @@ Raw (non-normalized) counterparts, requested alongside the normalized ones:
   R_wall_us - C_cputime_us  (raw added latency, microseconds)
 """
 from pathlib import Path
+import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,9 +26,18 @@ from matplotlib.lines import Line2D
 
 HERE = Path(__file__).resolve().parent
 CLEAN = HERE / "clean_data"
+RESULTS = HERE.parent / "results"
 
 # scale -> period (P), microseconds. Same values as every model's config.yaml.
 PERIOD_US = {"tight": 10_000, "soft": 100_000}
+
+# Matches a results/ round directory name, e.g. "model3-w2_sib_res_ptrchase_round4".
+NAME_RE = re.compile(
+    r"^(?P<model>model\d(?:-w\d)?)"
+    r"(?:_(?P<arm>sib_cfs|sib_res|phys_cfs|phys_res))?"
+    r"(?:_(?P<workload>ptrchase))?"
+    r"_round(?P<round>\d+)$"
+)
 
 # Qualitative, colorblind-considered, high-contrast palette -- reused as-is
 # from result.py (already validated there for this exact purpose: distinct
@@ -41,16 +51,44 @@ def style(i):
     return PALETTE[i % len(PALETTE)], MARKERS[i % len(MARKERS)]
 
 
-def load_model(model: str) -> pd.DataFrame:
-    """Load clean_data/<model>.csv and attach derived columns. Empty
-    DataFrame (with a printed warning) if the model has nothing valid
-    pooled yet -- see clean_data/MANIFEST.json for why."""
+def all_rounds(model: str, kind: str = "matmul") -> list[str]:
+    """Every round directory in results/ matching this model+kind, found by
+    globbing the directory name against NAME_RE -- NOT filtered by any
+    per-round validity audit. As of 2026-08-10 this notebook pools
+    everything collected for a model/kind, on the working assumption that a
+    co-runner was actually running whenever placed there, rather than the
+    round-by-round liveness audit build_clean_dataset.py/ROUND_STATUS used
+    to apply (that module still exists and still works, just isn't the data
+    source this notebook reads from anymore -- see the intro markdown)."""
+    out = []
+    for d in sorted(RESULTS.glob(f"{model}_*round*")):
+        m = NAME_RE.match(d.name)
+        if not m or m.group("model") != model:
+            continue
+        workload = m.group("workload") or "matmul"
+        if workload != kind:
+            continue
+        out.append(d.name)
+    return out
+
+
+def load_model(model: str, kind: str = "matmul") -> pd.DataFrame:
+    """Load clean_data/<model>.csv (curated, ROUND_STATUS-filtered, built by
+    build_clean_dataset.py) and attach derived columns, filtered to one
+    workload kind. REVERTED 2026-08-11 back to the curated source: the
+    naive-joined approach (clean_data/<model>_<kind>_joined.csv, used
+    2026-08-10 evening) pools every round found in results/ with no
+    liveness/coin-flip exclusion, which reintroduces exactly the
+    contamination the model3-w2 round-merge fix removed. Rerun
+    build_clean_dataset.py after collecting/merging new rounds."""
     f = CLEAN / f"{model}.csv"
     if not f.exists():
-        print(f"[analysis_lib] {model}: no clean_data/{model}.csv -- "
-              f"nothing valid pooled yet (check clean_data/MANIFEST.json)")
+        print(f"[analysis_lib] {model}: no clean_data/{model}.csv -- nothing valid pooled yet (check clean_data/MANIFEST.json)")
         return pd.DataFrame()
     df = pd.read_csv(f)
+    if "kind" not in df.columns:
+        return pd.DataFrame()
+    df = df[df["kind"] == kind].reset_index(drop=True)
     df["P"] = df["scale"].map(PERIOD_US)
     df["Q"] = (df["U"] * df["P"]).round()
     df["bound"] = (2 * (df["P"] - df["Q"])).clip(lower=1)
@@ -58,7 +96,23 @@ def load_model(model: str) -> pd.DataFrame:
     df["delta"] = (df["R_wall_us"] - df["C_cputime_us"]) / df["bound"]
     df["RoverD"] = df["R_wall_us"] / df["P"]
     df["added_latency_us"] = df["R_wall_us"] - df["C_cputime_us"]  # raw delta
+    # ms counterparts -- display unit for every raw-time plot/table below
+    # (alpha/delta/RoverD stay unitless ratios, untouched). Source data and
+    # config.yaml periods stay in microseconds; only presentation changes.
+    df["R_wall_ms"] = df["R_wall_us"] / 1000
+    df["C_cputime_ms"] = df["C_cputime_us"] / 1000
+    df["added_latency_ms"] = df["added_latency_us"] / 1000
     return df
+
+
+def load_model_both(model: str) -> pd.DataFrame:
+    """Both kinds concatenated, `kind` column intact -- used only by Section
+    C's direct matmul-vs-ptrchase comparison."""
+    frames = [load_model(model, k) for k in ("matmul", "ptrchase")]
+    frames = [d for d in frames if not d.empty]
+    if not frames:
+        return pd.DataFrame()
+    return pd.concat(frames, ignore_index=True)
 
 
 # ---------------------------------------------------------------------------
@@ -66,18 +120,18 @@ def load_model(model: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 def descriptives_table(df: pd.DataFrame) -> pd.DataFrame:
-    """Basic descriptives for R and C, per scale. A table, not a plot --
+    """Basic descriptives for R and C (ms), per scale. A table, not a plot --
     exact numbers are more useful here than a picture."""
     rows = []
     for scale, g in df.groupby("scale"):
-        for col, label in [("R_wall_us", "R (response)"), ("C_cputime_us", "C (execution)")]:
+        for col, label in [("R_wall_ms", "R (response, ms)"), ("C_cputime_ms", "C (execution, ms)")]:
             s = g[col]
             rows.append({
                 "scale": scale, "metric": label, "n": len(s),
-                "mean": round(s.mean(), 1), "std": round(s.std(), 1),
-                "min": round(s.min(), 1), "p50": round(s.median(), 1),
-                "p95": round(s.quantile(.95), 1), "p99": round(s.quantile(.99), 1),
-                "p999": round(s.quantile(.999), 1), "max": round(s.max(), 1),
+                "mean": round(s.mean(), 3), "std": round(s.std(), 3),
+                "min": round(s.min(), 3), "p50": round(s.median(), 3),
+                "p95": round(s.quantile(.95), 3), "p99": round(s.quantile(.99), 3),
+                "p999": round(s.quantile(.999), 3), "max": round(s.max(), 3),
             })
     return pd.DataFrame(rows)
 
@@ -122,19 +176,21 @@ def budget_overrun_table(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["scale", "U"])
 
 
-def round_stability_table(model: str) -> pd.DataFrame:
-    """Per-round miss_rate/C_p50 side by side, straight from the INCLUDED
-    rounds' raw jobs.csv (not the pooled file) -- this is the exact check
-    that caught the coin-flip bug earlier: a round whose numbers don't match
-    its siblings at the same U is the tell. Embedded here as a standing QA
-    check, not a one-off script, since the pooled CSV alone can't show this
-    (pooling is precisely what hides it)."""
+def round_stability_table(model: str, kind: str = "matmul") -> pd.DataFrame:
+    """Per-round miss_rate/C_p50 side by side, straight from EVERY round
+    found in results/ for this model+kind (via all_rounds -- no per-round
+    exclusion applied, see load_model). Still worth keeping as a standing
+    QA check even without the audit: a round whose numbers don't match its
+    siblings at the same U is exactly the coin-flip tell, and this is the
+    only place that's visible (the pooled CSV alone hides it)."""
     import build_clean_dataset as bcd
-    rows_status = bcd.ROUND_STATUS.get(model, [])
-    included = [r for r, ok, _ in rows_status if ok]
+    included = all_rounds(model, kind)
     frames = []
     for r in included:
         d = bcd.load_round(model, r)
+        if d.empty:
+            continue
+        d = d[d["kind"] == kind]
         if d.empty:
             continue
         d["P"] = d["scale"].map(PERIOD_US)
@@ -156,19 +212,22 @@ def round_stability_table(model: str) -> pd.DataFrame:
     return piv_miss.join(piv_c)
 
 
-def longest_miss_run_table(model: str) -> pd.DataFrame:
+def longest_miss_run_table(model: str, kind: str = "matmul") -> pd.DataFrame:
     """Longest run of CONSECUTIVE missed deadlines, per scale/U -- a
     temporal statistic, so (per result.py's pool() docstring) computed
     per-round on that round's own job_index-ordered sequence, then MAXED
-    across included rounds -- never concatenate raw sequences across rounds
-    for this one, that would fabricate a run spanning a boundary between two
+    across every round found (all_rounds -- no per-round exclusion, see
+    load_model) -- never concatenate raw sequences across rounds for this
+    one, that would fabricate a run spanning a boundary between two
     unrelated collection times that never actually happened."""
     import build_clean_dataset as bcd
-    rows_status = bcd.ROUND_STATUS.get(model, [])
-    included = [r for r, ok, _ in rows_status if ok]
+    included = all_rounds(model, kind)
     best = {}
     for r in included:
         d = bcd.load_round(model, r)
+        if d.empty:
+            continue
+        d = d[d["kind"] == kind]
         if d.empty:
             continue
         for (scale, u), g in d.groupby(["scale", "U"]):
@@ -182,6 +241,58 @@ def longest_miss_run_table(model: str) -> pd.DataFrame:
             best[key] = max(best.get(key, 0), maxrun)
     rows = [{"scale": s, "U": u, "longest_consecutive_miss_run": v} for (s, u), v in best.items()]
     return pd.DataFrame(rows).sort_values(["scale", "U"])
+
+
+def data_quality_table(model: str, kind: str = "matmul", expected_n: int = 5000) -> pd.DataFrame:
+    """Per round found (all_rounds -- no per-round exclusion, see
+    load_model): row-count / dtype / physical-sanity checks straight from
+    that round's raw jobs.csv (not the pooled file, same reasoning as
+    round_stability_table -- pooling would hide which specific round+cell a
+    problem came from). Flags, per cell: n != expected_n, duplicate
+    job_index, NaN in R/C/deadline_miss, C<=0, or R < C (physically
+    impossible -- wall response time can't be shorter than the execution
+    time it contains, a sign of a corrupted/misaligned row).
+
+    Note this only catches CORRUPTED rows, not the liveness/coin-flip issue
+    (a co-runner that's Ready but not actually consuming CPU) -- that
+    produces perfectly well-formed rows with an understated C, invisible to
+    these checks. As of 2026-08-10 this notebook doesn't re-verify that
+    per round; see the intro markdown for why."""
+    import build_clean_dataset as bcd
+    included = all_rounds(model, kind)
+    out = []
+    for r in included:
+        d = bcd.load_round(model, r)
+        if d.empty:
+            out.append({"round": r, "cells": 0, "bad_cells": 0, "issues": "no data found"})
+            continue
+        d = d[d["kind"] == kind]
+        if d.empty:
+            continue
+        n_cells = 0
+        bad_cells = 0
+        issues = []
+        for (scale, u), g in d.groupby(["scale", "U"]):
+            n_cells += 1
+            cell_issues = []
+            if len(g) != expected_n:
+                cell_issues.append(f"n={len(g)} (expected {expected_n})")
+            if g["job_index"].duplicated().any():
+                cell_issues.append("duplicate job_index")
+            for col in ["R_wall_us", "C_cputime_us", "deadline_miss"]:
+                if g[col].isna().any():
+                    cell_issues.append(f"NaN in {col}")
+            n_r_lt_c = int((g["R_wall_us"] < g["C_cputime_us"]).sum())
+            if n_r_lt_c:
+                cell_issues.append(f"R<C in {n_r_lt_c} job(s)")
+            if (g["C_cputime_us"] <= 0).any():
+                cell_issues.append("C<=0 present")
+            if cell_issues:
+                bad_cells += 1
+                issues.append(f"{scale}/U{u}: " + "; ".join(cell_issues))
+        out.append({"round": r, "cells": n_cells, "bad_cells": bad_cells,
+                     "issues": " | ".join(issues) if issues else ""})
+    return pd.DataFrame(out)
 
 
 def preemption_table(df: pd.DataFrame, threshold_us: float = 100.0) -> pd.DataFrame:
@@ -292,7 +403,7 @@ def miss_rate_vs_u(df: pd.DataFrame):
 
 
 def rc_percentiles_vs_u(df: pd.DataFrame):
-    """p50 and p99 of R and C together, vs U -- same unit (microseconds),
+    """p50 and p99 of R and C together, vs U -- same unit (milliseconds),
     so one y-axis, two colors for R/C and linestyle for p50/p99 (never a
     second y-axis for a second metric of the same unit)."""
     scales = sorted(df["scale"].unique(), key=lambda s: PERIOD_US[s])
@@ -303,13 +414,62 @@ def rc_percentiles_vs_u(df: pd.DataFrame):
         r50, r99, c50, c99 = [], [], [], []
         for u in us:
             gu = g[g.U == u]
-            r50.append(gu["R_wall_us"].median()); r99.append(gu["R_wall_us"].quantile(.99))
-            c50.append(gu["C_cputime_us"].median()); c99.append(gu["C_cputime_us"].quantile(.99))
+            r50.append(gu["R_wall_ms"].median()); r99.append(gu["R_wall_ms"].quantile(.99))
+            c50.append(gu["C_cputime_ms"].median()); c99.append(gu["C_cputime_ms"].quantile(.99))
         ax.plot(us, r50, color=PALETTE[0], marker=MARKERS[0], label="R p50")
         ax.plot(us, r99, color=PALETTE[0], marker=MARKERS[0], linestyle="--", alpha=0.6, label="R p99")
         ax.plot(us, c50, color=PALETTE[1], marker=MARKERS[1], label="C p50")
         ax.plot(us, c99, color=PALETTE[1], marker=MARKERS[1], linestyle="--", alpha=0.6, label="C p99")
-        ax.set_xlabel("U"); ax.set_ylabel("microseconds"); ax.set_title(f"R and C vs U -- {scale}")
+        ax.set_xlabel("U"); ax.set_ylabel("milliseconds"); ax.set_title(f"R and C vs U -- {scale}")
+        ax.grid(alpha=0.25); ax.legend(fontsize=9)
+    fig.tight_layout()
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Section C: matmul vs ptrchase (workload / "kind") comparison
+# ---------------------------------------------------------------------------
+
+def kind_comparison_table(df: pd.DataFrame) -> pd.DataFrame:
+    """Side-by-side matmul vs ptrchase, per scale/U, for a model whose
+    pooled data contains both kinds (load_model called without a `kind`
+    filter). Includes the C_p50 ratio ptrchase/matmul -- the headline number
+    for "is this arm's contention mechanism more or less felt by a
+    memory-latency-bound workload than a compute-bound one"."""
+    rows = []
+    for (scale, u, kind), g in df.groupby(["scale", "U", "kind"]):
+        rows.append({
+            "scale": scale, "U": u, "kind": kind, "n": len(g),
+            "miss_rate": round(g["deadline_miss"].mean(), 4),
+            "C_p50_ms": round(g["C_cputime_ms"].median(), 3),
+        })
+    long = pd.DataFrame(rows)
+    if long.empty:
+        return long
+    piv = long.pivot_table(index=["scale", "U"], columns="kind", values=["miss_rate", "C_p50_ms"])
+    piv.columns = [f"{a}_{b}" for a, b in piv.columns]
+    if "C_p50_ms_matmul" in piv.columns and "C_p50_ms_ptrchase" in piv.columns:
+        piv["C_p50_ratio_ptrchase_over_matmul"] = (piv["C_p50_ms_ptrchase"] / piv["C_p50_ms_matmul"]).round(3)
+    return piv.reset_index().sort_values(["scale", "U"])
+
+
+def plot_kind_comparison(df: pd.DataFrame, col: str, ylabel: str, title: str):
+    """p50 of `col` vs U, one line per kind (matmul/ptrchase), one panel per
+    scale -- direct visual comparison, not a stability band (that's what
+    plot_vs_u is for on a single kind); the point here is the GAP between
+    the two lines, not the spread within one."""
+    scales = sorted(df["scale"].unique(), key=lambda s: PERIOD_US[s])
+    kinds = sorted(df["kind"].unique())
+    fig, axes = plt.subplots(1, len(scales), figsize=(6 * len(scales), 4.2), squeeze=False)
+    for ax, scale in zip(axes[0], scales):
+        g = df[df.scale == scale]
+        for i, kind in enumerate(kinds):
+            gk = g[g.kind == kind]
+            us = sorted(gk["U"].unique())
+            p50s = [gk[gk.U == u][col].median() for u in us]
+            c, m = style(i)
+            ax.plot(us, p50s, color=c, marker=m, markersize=6, linewidth=2, label=kind)
+        ax.set_xlabel("U"); ax.set_ylabel(ylabel); ax.set_title(f"{title} -- {scale}")
         ax.grid(alpha=0.25); ax.legend(fontsize=9)
     fig.tight_layout()
     return fig

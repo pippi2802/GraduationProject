@@ -29,7 +29,7 @@ Model1
 
 
 
-for f in results/*_round1/*/U*/jobs.csv; do
+for f in results/*_round5/*/U*/jobs.csv; do
     cell=$(dirname "$f")
     pj="$cell/placement.json"
     attempt="-"; pair="-"
@@ -54,3 +54,9 @@ for f in results/*_round1/*/U*/jobs.csv; do
         }
       }'
   done | tee /tmp/round2_check.txt
+PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_round5 nohup ./run_job.sh model3 >> logs/model3_round5.log 2>&1 &
+
+
+
+PAIR_TYPE=sibling COMPETITOR_TYPE=reserved OUT_TAG=_sib_res_round5 nohup ./run_job.sh model3-w2 >> logs/model3-w2_round5.log 2>&1 &
+

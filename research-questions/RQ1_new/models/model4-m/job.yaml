@@ -5,7 +5,14 @@
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq1-model4-m, name: "@@NAME@@-params" }
-spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@ }
+# requestedCpus pins the pair directly to two distinct physical cores (1 and
+# 3 -- siblings are (0,1)/(2,3) on this hardware, cpu0 stays excluded since
+# it's KEEP_CPU, reserved non-isolated for OS/kubelet use across the whole
+# harness). Replaces the old delete/recreate-until-landed retry loop in
+# run_job.sh, which was hitting the dra-rt-controller worst-fit leak
+# (unbounded retries on the same wrong cpu, never converging) -- v1.0.0
+# driver required (adds RtClaimParametersSpec.requestedCpus support).
+spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@, requestedCpus: [1, 3] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate

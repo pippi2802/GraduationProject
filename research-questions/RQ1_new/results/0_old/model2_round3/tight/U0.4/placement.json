@@ -1,0 +1,1 @@
+{"model":"model2","scale":"tight","U":"0.4","target_pod":"model2-tight-u40","target_RT_CPUSET":"3","pair_type":"sibling","competitor_type":"unreserved","competitor_cpu":"","neighbour_cpu":"2","cell_attempt":2}
