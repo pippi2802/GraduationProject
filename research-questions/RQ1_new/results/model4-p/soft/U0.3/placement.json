@@ -1,1 +1,1 @@
-{"model":"model4-p","scale":"soft","U":"0.3","target_pod":"model4-p-soft-u30","target_RT_CPUSET":"1-2","pair_type":"sibling","competitor_type":"unreserved","competitor_cpu":"","neighbour_cpu":"","cell_attempt":1}
+{"model":"model4-p","scale":"soft","U":"0.3","target_pod":"model4-p-soft-u30","target_RT_CPUSET":"1-3","pair_type":"sibling","competitor_type":"unreserved","competitor_cpu":"","neighbour_cpu":"","cell_attempt":1}
