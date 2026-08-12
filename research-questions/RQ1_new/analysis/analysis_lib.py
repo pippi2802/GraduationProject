@@ -473,3 +473,195 @@ def plot_kind_comparison(df: pd.DataFrame, col: str, ylabel: str, title: str):
         ax.grid(alpha=0.25); ax.legend(fontsize=9)
     fig.tight_layout()
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Section D: one table/figure per thesis claim
+# ---------------------------------------------------------------------------
+
+def noise_floor_table(df: pd.DataFrame) -> pd.DataFrame:
+    """Coefficient of variation (std/mean) of C and R per scale/U -- Claim 0's
+    evidence. Small and roughly flat across U is the signature of
+    irreducible IaaS/hypervisor noise, as opposed to a real contention
+    effect (which shows elevated tails and a threshold-crossing miss rate,
+    not just a slightly wider spread around the same median)."""
+    rows = []
+    for (scale, u), g in df.groupby(["scale", "U"]):
+        for col, label in [("C_cputime_ms", "C"), ("R_wall_ms", "R")]:
+            s = g[col]
+            rows.append({
+                "scale": scale, "U": u, "metric": label,
+                "mean_ms": round(s.mean(), 3), "std_ms": round(s.std(), 3),
+                "cv": round(s.std() / s.mean(), 4) if s.mean() else None,
+            })
+    return pd.DataFrame(rows).sort_values(["scale", "U", "metric"])
+
+
+def arm_comparison_table(models: list, kind: str = "matmul") -> pd.DataFrame:
+    """Miss rate and alpha side by side across several models/arms, same
+    workload kind -- Claim 2's evidence for the physical-vs-sibling,
+    reserved-vs-unreserved decomposition. One row per (scale,U), one
+    miss/alpha column pair per arm."""
+    frames = []
+    for m in models:
+        df = load_model(m, kind=kind)
+        if df.empty:
+            continue
+        g = df.groupby(["scale", "U"]).agg(miss=("deadline_miss", "mean"), Cp50=("C_cputime_us", "median")).reset_index()
+        g["Q"] = (g["U"] * g["scale"].map(PERIOD_US)).round()
+        g["alpha"] = (g["Cp50"] / g["Q"]).round(3)
+        g["arm"] = m
+        frames.append(g[["scale", "U", "arm", "miss", "alpha"]])
+    if not frames:
+        return pd.DataFrame()
+    long = pd.concat(frames, ignore_index=True)
+    piv = long.pivot_table(index=["scale", "U"], columns="arm", values=["miss", "alpha"])
+    piv.columns = [f"{a}_{b}" for a, b in piv.columns]
+    return piv.reset_index().sort_values(["scale", "U"])
+
+
+def plot_arm_comparison(models: list, kind: str, col: str, ylabel: str, title: str):
+    """One line per arm/model vs U, one panel per scale -- Claim 2's figure:
+    physical arms should sit flat/low throughout, sibling arms should show
+    real movement, distinguishing "shares a physical core" from "another
+    workload merely exists on the node"."""
+    frames = {}
+    for m in models:
+        df = load_model(m, kind=kind)
+        if not df.empty:
+            frames[m] = df
+    if not frames:
+        return None
+    scales = sorted(set().union(*[set(d["scale"].unique()) for d in frames.values()]), key=lambda s: PERIOD_US[s])
+    fig, axes = plt.subplots(1, len(scales), figsize=(6.5 * len(scales), 4.5), squeeze=False)
+    for ax, scale in zip(axes[0], scales):
+        for i, (m, d) in enumerate(frames.items()):
+            g = d[d.scale == scale]
+            if g.empty:
+                continue
+            us = sorted(g["U"].unique())
+            vals = [g[g.U == u][col].mean() for u in us]
+            c, mk = style(i)
+            ax.plot(us, vals, color=c, marker=mk, markersize=6, linewidth=2, label=m)
+        ax.set_xlabel("U"); ax.set_ylabel(ylabel); ax.set_title(f"{title} -- {scale}")
+        ax.grid(alpha=0.25); ax.legend(fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def severity_table(model: str, kind: str = "matmul") -> pd.DataFrame:
+    """Miss rate, alpha, and longest consecutive miss run together --
+    Claim 3's evidence that misses cluster exactly where alpha crosses 1
+    (a throttling cliff), not scattered randomly across U."""
+    df = load_model(model, kind=kind)
+    if df.empty:
+        return df
+    g = df.groupby(["scale", "U"]).agg(n=("deadline_miss", "size"), miss=("deadline_miss", "mean"), Cp50=("C_cputime_us", "median")).reset_index()
+    g["Q"] = (g["U"] * g["scale"].map(PERIOD_US)).round()
+    g["alpha"] = (g["Cp50"] / g["Q"]).round(3)
+    burst = longest_miss_run_table(model, kind=kind)
+    if burst.empty:
+        g["longest_consecutive_miss_run"] = None
+        return g[["scale", "U", "n", "miss", "alpha", "longest_consecutive_miss_run"]]
+    merged = g.merge(burst, on=["scale", "U"], how="left")
+    return merged[["scale", "U", "n", "miss", "alpha", "longest_consecutive_miss_run"]]
+
+
+def plot_noise_floor(df: pd.DataFrame, metric: str = "C"):
+    """Coefficient of variation vs U, one line per scale -- Claim 0's
+    figure. Flat and small across the whole sweep is the noise-floor
+    signature; a rising or spiking line would instead look like a real
+    effect creeping in."""
+    t = noise_floor_table(df)
+    t = t[t["metric"] == metric]
+    scales = sorted(t["scale"].unique(), key=lambda s: PERIOD_US[s])
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    for i, scale in enumerate(scales):
+        g = t[t.scale == scale].sort_values("U")
+        c, m = style(i)
+        ax.plot(g["U"], g["cv"], color=c, marker=m, markersize=6, linewidth=2, label=scale)
+    ax.set_xlabel("U"); ax.set_ylabel(f"coefficient of variation ({metric})")
+    ax.set_title(f"Claim 0: noise floor, {metric}, model1 solo baseline")
+    ax.grid(alpha=0.25); ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def plot_round_stability(model: str, kind: str = "matmul"):
+    """Miss rate vs U, one line per round -- Claim 1's figure. A round that
+    stands apart from the others (rather than every round tracking closely)
+    is the visual signature of a per-round admission failure, not a smooth
+    per-U effect."""
+    t = round_stability_table(model, kind=kind)
+    if t.empty:
+        return None
+    miss_cols = [c for c in t.columns if not str(c).startswith("C_p50")]
+    t = t[miss_cols].reset_index()
+    scales = sorted(t["scale"].unique(), key=lambda s: PERIOD_US[s])
+    fig, axes = plt.subplots(1, len(scales), figsize=(7 * len(scales), 4.5), squeeze=False)
+    for ax, scale in zip(axes[0], scales):
+        g = t[t.scale == scale].sort_values("U")
+        for i, col in enumerate([c for c in miss_cols if c not in ("scale", "U")]):
+            c, m = style(i)
+            ax.plot(g["U"], g[col], color=c, marker=m, markersize=6, linewidth=2, label=col)
+        ax.set_xlabel("U"); ax.set_ylabel("deadline miss rate"); ax.set_ylim(-0.02, 1.02)
+        ax.set_title(f"Claim 1: {model} ({kind}) per-round miss rate -- {scale}")
+        ax.grid(alpha=0.25); ax.legend(fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def plot_severity(model: str, kind: str = "matmul"):
+    """Miss rate and longest-consecutive-miss-run vs U side by side, same
+    x-axis -- Claim 3's figure. The two lines rising and falling together
+    is the visual case that misses are concentrated bursts tied to the same
+    utilization levels, not scattered independent events."""
+    t = severity_table(model, kind=kind)
+    if t.empty:
+        return None
+    scales = sorted(t["scale"].unique(), key=lambda s: PERIOD_US[s])
+    fig, axes = plt.subplots(len(scales), 2, figsize=(12, 4.2 * len(scales)), squeeze=False)
+    for row, scale in enumerate(scales):
+        g = t[t.scale == scale].sort_values("U")
+        ax1, ax2 = axes[row]
+        ax1.plot(g["U"], g["miss"], color=PALETTE[0], marker=MARKERS[0], markersize=6, linewidth=2)
+        ax1.set_xlabel("U"); ax1.set_ylabel("deadline miss rate"); ax1.set_ylim(-0.02, 1.02)
+        ax1.set_title(f"miss rate -- {scale}"); ax1.grid(alpha=0.25)
+        ax2.plot(g["U"], g["longest_consecutive_miss_run"], color=PALETTE[1], marker=MARKERS[1], markersize=6, linewidth=2)
+        ax2.set_xlabel("U"); ax2.set_ylabel("longest consecutive miss run (jobs)")
+        ax2.set_title(f"longest miss burst -- {scale}"); ax2.grid(alpha=0.25)
+    fig.suptitle(f"Claim 3: {model} ({kind}), miss rate vs. burst length")
+    fig.tight_layout()
+    return fig
+
+
+def plot_safe_margin(models: list, kind: str, percentile: float = 0.99):
+    """p99 (or p999) of R/D vs U, one line per arm, one panel per scale, with
+    a reference line at 1 -- Claim 4's figure. Where a line crosses the
+    reference line is exactly the U_safe number in the table; seeing it as
+    a crossing point makes the threshold concrete instead of an abstract
+    single number."""
+    frames = {}
+    for m in models:
+        df = load_model(m, kind=kind)
+        if not df.empty:
+            frames[m] = df
+    if not frames:
+        return None
+    scales = sorted(set().union(*[set(d["scale"].unique()) for d in frames.values()]), key=lambda s: PERIOD_US[s])
+    fig, axes = plt.subplots(1, len(scales), figsize=(7 * len(scales), 4.5), squeeze=False)
+    for ax, scale in zip(axes[0], scales):
+        for i, (m, d) in enumerate(frames.items()):
+            g = d[d.scale == scale]
+            if g.empty:
+                continue
+            us = sorted(g["U"].unique())
+            vals = [g[g.U == u]["RoverD"].quantile(percentile) for u in us]
+            c, mk = style(i)
+            ax.plot(us, vals, color=c, marker=mk, markersize=6, linewidth=2, label=m)
+        ax.axhline(1, color="#7f7f7f", linewidth=1.5, linestyle=":", label="R/D = 1 (deadline)")
+        ax.set_xlabel("U"); ax.set_ylabel(f"R/D, p{int(percentile*100)}")
+        ax.set_title(f"Claim 4: safe margin ({kind}) -- {scale}")
+        ax.grid(alpha=0.25); ax.legend(fontsize=8)
+    fig.tight_layout()
+    return fig

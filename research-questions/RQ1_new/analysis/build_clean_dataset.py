@@ -56,16 +56,23 @@ ROUND_STATUS = {
         # across U at the same magnitude as rounds 1-5 did).
     ],
     "model3": [  # sib_cfs: sibling, unreserved interferer
-        ("model3_sib_cfs_round1", False, "pre-fix: unreserved interferer had NO liveness check at all until 2026-08-05 -- coin-flip confirmed in every one of the 4 existing rounds"),
-        ("model3_sib_cfs_round3", False, "same"),
-        # round2/round4 below are POST-FIX reruns that overwrote the old
-        # pre-fix directories of the same name (see backlog 2026-08-07) --
-        # NOT the same data as the "same" rows above.
-        ("model3_sib_cfs_round2", True, "post-fix rerun, tight only. Placement verified correct+consistent across every cell (checked placement.json for U0.4/0.5/0.8 directly). miss_rate looks spiky at first glance (0.4%@U0.4 -> 100%@U0.5 -> 5%@U0.6 -> 0.5%@U0.7 -> 75%@U0.8) but this tracks alpha=C/Q crossing 1, not a coin-flip: C_p50 rises smoothly with U while Q shrinks per-cell headroom, so alpha crosses ~1 right around U0.5 and again hovers at ~1 at U0.8 -- exactly where H-CBS throttling makes miss rate hypersensitive to small C jitter. 2026-08-10 audit.", ),
-        ("model3_sib_cfs_round4", True, "post-fix rerun, soft only, and only 2/10 U cells completed (U0.1, U0.2) -- highly partial, include what exists per the same convention as model3-w4's incomplete high-U tight cells; both completed cells verified clean (near-baseline miss rate, correct placement). 2026-08-10 audit.", ),
-        # round1/round3 still only exist as the old pre-fix data (not
-        # present locally to re-audit); leave excluded. Rerun+add if ever
-        # collected post-fix.
+        # CORRECTED 2026-08-12: this whole section was wrong. The bare
+        # "model3_round1-4" directories (no "_sib_cfs_" in the name) are the
+        # SAME current design (confirmed via matching placement.json schema,
+        # same as the model3-w2 dual-naming resolution 2026-08-11) -- not
+        # legacy/pre-fix data as previously assumed here. They were simply
+        # never checked because the ROUND_STATUS entries only ever
+        # referenced the "_sib_cfs_" name. round1 was already complete
+        # (20/20). round2 was missing exactly the 8 tight cells that
+        # "model3_sib_cfs_round2" (a full tight-scale rerun) covers --
+        # merged the same way as model3-w2's round2, then deleted the now-
+        # redundant "_sib_cfs_round2"/"_sib_cfs_round4" directories
+        # (round4's rerun was redundant with round1, never actually filled
+        # round4's real gap anyway, per the 2026-08-11 investigation).
+        ("model3_round1", True, "complete, 20/20 cells, verified via alpha=C/Q crossing check (2026-08-10): every cell's miss/no-miss outcome tracks alpha crossing 1 cleanly, no coin-flip residue."),
+        ("model3_round2", True, "merged 2026-08-12: base soft cells (all 10) + full tight-scale redo (the old model3_sib_cfs_round2, which had already been alpha-crossing verified on 2026-08-10: miss_rate spikes at U0.5/U0.8 track alpha crossing 1, not a coin-flip, placement.json checked correct for the affected cells)."),
+        ("model3_round3", True, "19/20 cells, missing only tight/U0.94 -- no rerun available to fill it. Not a validity problem for the cells that did complete, same convention as model3-w4's incomplete high-U tight cells."),
+        ("model3_round4", True, "19/20 cells, missing only tight/U0.2 -- no rerun available to fill it (the old model3_sib_cfs_round4's 2 cells were soft/U0.1-0.2, redundant with round1, never actually matched this gap)."),
         ("model3_sib_cfs_ptrchase_round1", True, "ptrchase kind, post-fix. All 4 rounds mutually consistent (no coin-flip) and near-identical to model1 baseline at every U -- essentially zero measurable SMT-sibling inflation for ptrchase under an unreserved interferer. Plausible real effect (see model3-w2_sib_res_ptrchase note) rather than a dead interferer: cross-check against the RESERVED-competitor sibling arm (model3-w2_sib_res_ptrchase) shows a small but non-zero inflation, so the interferer mechanism does register on ptrchase, just weakly. 2026-08-10 audit.", ),
         ("model3_sib_cfs_ptrchase_round2", True, "same"),
         ("model3_sib_cfs_ptrchase_round3", True, "same"),
