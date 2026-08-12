@@ -110,9 +110,15 @@ echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$
 [ "$MT_THREADS" -gt 1 ] 2>/dev/null && echo "[run] model4: target_threads=$MT_THREADS, forcing the claimed pair onto two DISTINCT PHYSICAL cores"
 
 # "0-3"/"0,2" -> "0 1 2 3" / "0 2"
+# CORRECTED 2026-08-12: hyphen here is the driver's plain delimiter (see the
+# same fix in every model4*/job.yaml's own RT_CPUSET normalization), never a
+# range -- treat it exactly like a comma. The other caller (siblings_of)
+# already strips hyphens to spaces before calling this, so that caller's
+# behavior is unaffected either way; this only changes the mt_cpus check
+# below, which was the one actually reading a driver-supplied cpuset.
 expand_cpuset() {
-  echo "$1" | tr ',' '\n' | while read -r p; do
-    case "$p" in *-*) seq "${p%-*}" "${p#*-}" ;; "") ;; *) echo "$p" ;; esac
+  echo "$1" | tr ',-' '\n\n' | while read -r p; do
+    case "$p" in "") ;; *) echo "$p" ;; esac
   done | tr '\n' ' '
 }
 # space-separated sibling set (includes the cpu itself) for a given logical cpu
