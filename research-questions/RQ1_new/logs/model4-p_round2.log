@@ -1,170 +1,70 @@
 nohup: ignoring input
-[run] model=model4-p ns=rq1-model4-p agent=rq1-agent-5wjzr cells=20 has_neighbours=0 has_competitor=0
+[run] model=model4-p ns=rq1-model4-p agent=rq1-agent-2kq5m cells=20 has_neighbours=0 has_competitor=0
 [run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
 [run] kubepods-besteffort.slice period mismatch (have 10000, need 100000) -- resetting
 [run] kubepods-besteffort.slice period now 100000, runtime cleared
 [run] === soft/U0.1 (models/model4-p/generated_ptrchase/soft/U0.1.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (6/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.1
 [run] === soft/U0.2 (models/model4-p/generated_ptrchase/soft/U0.2.yaml) ===
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.2
 [run] === soft/U0.3 (models/model4-p/generated_ptrchase/soft/U0.3.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED soft/U0.3 after 4 attempt(s): could not place target after 8 attempts
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-p/soft/U0.3
 [run] === soft/U0.4 (models/model4-p/generated_ptrchase/soft/U0.4.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target not Ready (attempt 3/8)
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (4/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.4
 [run] === soft/U0.5 (models/model4-p/generated_ptrchase/soft/U0.5.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (7/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.5
 [run] === soft/U0.6 (models/model4-p/generated_ptrchase/soft/U0.6.yaml) ===
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.6
 [run] === soft/U0.7 (models/model4-p/generated_ptrchase/soft/U0.7.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.7
 [run] === soft/U0.8 (models/model4-p/generated_ptrchase/soft/U0.8.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.8
 [run] === soft/U0.9 (models/model4-p/generated_ptrchase/soft/U0.9.yaml) ===
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.9
 [run] === soft/U0.94 (models/model4-p/generated_ptrchase/soft/U0.94.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/soft/U0.94
 [run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
 [run] kubepods-besteffort.slice period now 10000, runtime cleared
 [run] === tight/U0.1 (models/model4-p/generated_ptrchase/tight/U0.1.yaml) ===
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (3/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.1
 [run] === tight/U0.2 (models/model4-p/generated_ptrchase/tight/U0.2.yaml) ===
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.2
 [run] === tight/U0.3 (models/model4-p/generated_ptrchase/tight/U0.3.yaml) ===
-[run] target not Ready (attempt 1/8)
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target not Ready (attempt 4/8)
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.3
 [run] === tight/U0.4 (models/model4-p/generated_ptrchase/tight/U0.4.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target not Ready (attempt 3/8)
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.4
 [run] === tight/U0.5 (models/model4-p/generated_ptrchase/tight/U0.5.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.5
 [run] === tight/U0.6 (models/model4-p/generated_ptrchase/tight/U0.6.yaml) ===
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (1/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.6
 [run] === tight/U0.7 (models/model4-p/generated_ptrchase/tight/U0.7.yaml) ===
-[run] target not Ready (attempt 1/8)
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target not Ready (attempt 5/8)
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (6/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.7
 [run] === tight/U0.8 (models/model4-p/generated_ptrchase/tight/U0.8.yaml) ===
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.8 after 4 attempt(s): could not place target after 8 attempts
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-p/tight/U0.8
 [run] === tight/U0.9 (models/model4-p/generated_ptrchase/tight/U0.9.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
 [run] running...
 [run] collected 5000/5000 rows -> results/model4-p/tight/U0.9
 [run] === tight/U0.94 (models/model4-p/generated_ptrchase/tight/U0.94.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (3/8); re-placing
-[run] target RT_CPUSET= resolved to 0 cpu(s), need 2 (4/8); re-placing
-[run] target pair {2,3} are SMT siblings, need distinct physical cores (5/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (6/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (7/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (8/8); re-placing
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.94 after 4 attempt(s): could not place target after 8 attempts
-
-[run] --- 3 cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---
-[run] === soft/U0.3 (models/model4-p/generated_ptrchase/soft/U0.3.yaml) ===
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (1/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (2/8); re-placing
-[run] target pair {0,1} are SMT siblings, need distinct physical cores (3/8); re-placing
 [run] running...
-[run] collected 5000/5000 rows -> results/model4-p/soft/U0.3
-[run] === tight/U0.8 (models/model4-p/generated_ptrchase/tight/U0.8.yaml) ===
-[run] target not Ready (attempt 1/8)
-[run] target not Ready (attempt 2/8)
-[run] target not Ready (attempt 3/8)
-[run] target not Ready (attempt 4/8)
-[run] target not Ready (attempt 5/8)
-[run] target not Ready (attempt 6/8)
-[run] target not Ready (attempt 7/8)
-[run] target not Ready (attempt 8/8)
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.8 after 4 attempt(s): could not place target after 8 attempts
-[run] === tight/U0.94 (models/model4-p/generated_ptrchase/tight/U0.94.yaml) ===
-[run] target not Ready (attempt 1/8)
-[run] target not Ready (attempt 2/8)
-[run] target not Ready (attempt 3/8)
-[run] target not Ready (attempt 4/8)
-[run] target not Ready (attempt 5/8)
-[run] target not Ready (attempt 6/8)
-[run] target not Ready (attempt 7/8)
-[run] target not Ready (attempt 8/8)
-[run] could not place target after 8 attempts; giving up on this cell
-[run] FAILED tight/U0.94 after 4 attempt(s): could not place target after 8 attempts
+[run] collected 5000/5000 rows -> results/model4-p/tight/U0.94
 
-[run] done. 2/20 cell(s) did not produce valid data -- do not trust these:
-  - tight/U0.8: could not place target after 8 attempts [failed even after end-of-sweep retry]
-  - tight/U0.94: could not place target after 8 attempts [failed even after end-of-sweep retry]
+[run] done. all 20 cell(s) collected their expected row count.
 [run] analyze with: python result.py model4-p

@@ -1,0 +1,25 @@
+nohup: ignoring input
+[run] model=model4-m ns=rq1-model4-m agent=rq1-agent-5kjns cells=20 has_neighbours=0 has_competitor=0
+[run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
+[run] kubepods-besteffort.slice period mismatch (have 10000, need 100000) -- resetting
+[run] kubepods-besteffort.slice period now 100000, runtime cleared
+[run] === soft/U0.1 (models/model4-m/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.1
+[run] === soft/U0.2 (models/model4-m/generated/soft/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.2
+[run] === soft/U0.3 (models/model4-m/generated/soft/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.3
+[run] === soft/U0.4 (models/model4-m/generated/soft/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.4
+[run] === soft/U0.5 (models/model4-m/generated/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.5
+[run] === soft/U0.6 (models/model4-m/generated/soft/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-m/soft/U0.6
+[run] === soft/U0.7 (models/model4-m/generated/soft/U0.7.yaml) ===
+[run] running...
