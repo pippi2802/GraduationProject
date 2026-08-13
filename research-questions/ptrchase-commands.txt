@@ -23,11 +23,12 @@ nohup bash -c '
     nohup bash -c '
     WORKLOAD=ptrchase python3 calibrate.py model3-w4 &&
     WORKLOAD=ptrchase python3 generate_yaml.py model3-w4 &&
-    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round4 nohup ./run_job.sh model3-w4 > logs/model3-w4_phys_res_ptrchase_round4.log 2>&1 &
+    WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round2 nohup ./run_job.sh model3-w4 tight > logs/model3-w4_phys_res_ptrchase_round2.log 2>&1 &
 
 WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_phys_res_ptrchase_round1 ./run_job.sh model3-w4 tight > logs/model3-w4_phys_res_ptrchase_round1_tight_fill.log 2>&1 &
 
 
+PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT_TAG=_round2 nohup ./run_job.sh model3-w4 tight > logs/model3-w4_round2.log 2>&1 &
 
 
 
@@ -48,8 +49,7 @@ WORKLOAD=ptrchase PAIR_TYPE=physical COMPETITOR_TYPE=unreserved OUT_TAG=_phys_cf
 
 
 
-
-U_MIN=0.6 WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_ptrchase_round2_tight.log 2>&1 &
+ WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs_ptrchase_round2 nohup ./run_job.sh model3 tight > logs/model3_sib_cfs_ptrchase_round2_tight.log 2>&1 &
 
 
 
@@ -57,9 +57,9 @@ U_MIN=0.6 WORKLOAD=ptrchase PAIR_TYPE=sibling COMPETITOR_TYPE=unreserved OUT_TAG
 
 
 
-nohup ./run_job.sh model4-m > logs/model4-m_round1.log 2>&1 &
+nohup ./run_job.sh model4-m > logs/model4-m_round2.log 2>&1 &
                                                                
-WORKLOAD=ptrchase nohup ./run_job.sh model4-p > logs/model4-p_round3.log 2>&1 &
+WORKLOAD=ptrchase nohup ./run_job.sh model4-p > logs/model4-p_round2.log 2>&1 &
 
 
 --- EXECUTED ---
