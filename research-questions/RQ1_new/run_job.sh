@@ -354,6 +354,7 @@ place_fixed_competitor() {
     local ok=0 attempt comp_pod landed candidate_target
     for attempt in 1 2 3 4 5; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      sleep 2   # controller cleanup lag under concurrent load, see target's own note
       sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -424,6 +425,7 @@ restart_fixed_competitor() {
     local attempt landed comp_pod
     for attempt in 1 2 3; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      sleep 2   # controller cleanup lag under concurrent load, see target's own note
       sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -526,6 +528,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       # instead of worst-fit + delete/recreate-until-landed, every cell.
       : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      sleep 2   # controller cleanup lag under concurrent load, see target's own note
       sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -597,6 +600,16 @@ print(d.get('$key', {}).get('cv', 'NA'))
     placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      # 2026-08-14: found under 4-models-in-parallel load that --wait=true
+      # returning is not sufficient -- the dra-rt-driver controller's own
+      # cleanup (releasing the cpu, removing its finalizer) can lag behind
+      # the object actually disappearing from etcd when its reconcile queue
+      # is backlogged (observed as repeated "AlreadyExists" on recreate,
+      # traced to 409 "object has been modified"/finalizer-removal conflicts
+      # in the controller's own log). A short breather here costs almost
+      # nothing when placement succeeds first try, and saves whole cells
+      # from exhausting PIN_ATTEMPTS on a race that a moment's wait avoids.
+      sleep 2
       sed "s/@@REQUESTED_CPUS@@/$tgt_hint/g" "$f" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
