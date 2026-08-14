@@ -13,8 +13,14 @@
 #   PAIR_TYPE=sibling  -> target's cpu is the competitor's SMT sibling (same
 #                         physical core)
 #   PAIR_TYPE=physical -> target's cpu is on a DIFFERENT physical core
-# reading the real topology from sysfs (the driver is SMT-blind, so this is
-# still a delete/recreate retry for the TARGET only, same idea as PIN_RTCPU).
+# reading the real topology from sysfs. 2026-08-14: both the competitor and
+# the target are now given this cpu as a requestedCpus HINT (dra-rt-driver
+# v1.0.3+) instead of relying purely on worst-fit + delete/recreate-until-
+# landed -- the retry loop is still there as a safety net (every attempt
+# still verifies the actual landed cpu), it should just converge on attempt
+# 1 now. The driver itself is still SMT-blind (it has no notion of "give me
+# a sibling pair"); run_job.sh computes the actual cpu number from sysfs
+# topology and hands it a concrete request, same as PIN_RTCPU always did.
 # COMPETITOR_TYPE selects what the competitor actually is:
 #   unreserved -> CFS matmul, taskset-pinned to a cpu chosen dynamically to
 #                 avoid KEEP_CPU (it never goes through the driver, so we

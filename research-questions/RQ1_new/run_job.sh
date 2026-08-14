@@ -165,6 +165,28 @@ filter_keep_cpu() {
   echo "$1" | tr ' ' '\n' | grep -vx "$KEEP_CPU" | grep -v '^$' | tr '\n' ' ' | sed 's/ *$//'
 }
 
+# Deterministically pick a fixed cpu (avoiding KEEP_CPU) that also has a
+# valid PAIR_TYPE-relative pair partner (also avoiding KEEP_CPU). Topology
+# never changes cell to cell, so this always returns the same answer -- used
+# as a requestedCpus HINT (2026-08-14) so the driver lands the
+# neighbour/competitor there on the first attempt instead of worst-fit +
+# delete/recreate-until-landed. Same selection the unreserved-competitor
+# branch already did ad hoc; factored out so model2's neighbour and the
+# reserved competitor can reuse it too. Empty output means no valid cpu
+# exists at all on this node for the current PAIR_TYPE (caller's existing
+# error handling covers that, same as before this hint existed).
+pick_paired_cpu() {
+  local c candidate_target
+  for c in $(all_cpus | sort -n); do
+    [ "$c" = "$KEEP_CPU" ] && continue
+    candidate_target=$(filter_keep_cpu "$(target_cpu_for "$c")")
+    if [ -n "$candidate_target" ]; then
+      echo "$c"; return 0
+    fi
+  done
+  return 1
+}
+
 # `kubectl wait --for=condition=Ready` (used for the neighbour/competitor
 # everywhere below) only proves the container process STARTED -- not that it
 # actually holds real RT bandwidth yet. Getting that is a separate step (the
@@ -268,16 +290,10 @@ place_fixed_competitor() {
     FIXED_INTF_FILE="$intf"
     [ -f "$intf" ] || { echo "[run] ERROR _intf manifest missing for $scale"; return 1; }
     # WE choose the competitor's cpu directly (taskset, no driver involved) --
-    # pick the first candidate, excluding KEEP_CPU, that leaves at least one
-    # valid PAIR_TYPE-relative target cpu once KEEP_CPU is filtered out.
-    local c candidate_target
-    for c in $(all_cpus | sort -n); do
-      [ "$c" = "$KEEP_CPU" ] && continue
-      candidate_target=$(filter_keep_cpu "$(target_cpu_for "$c")")
-      if [ -n "$candidate_target" ]; then
-        comp_cpu="$c"; desired_target_cpu="$candidate_target"; break
-      fi
-    done
+    # pick_paired_cpu already finds the first candidate, excluding KEEP_CPU,
+    # that leaves at least one valid PAIR_TYPE-relative target cpu.
+    comp_cpu=$(pick_paired_cpu) || comp_cpu=""
+    [ -n "$comp_cpu" ] && desired_target_cpu=$(filter_keep_cpu "$(target_cpu_for "$comp_cpu")")
     if [ -z "$comp_cpu" ]; then
       echo "[run] ERROR no (competitor,target) cpu pair avoiding KEEP_CPU=$KEEP_CPU for PAIR_TYPE=$PAIR_TYPE"
       return 1
@@ -324,21 +340,29 @@ place_fixed_competitor() {
     # still match it, possibly picking up its stale cpu instead of the fresh
     # pod's. Clear anything under this role first, regardless of name.
     kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
-    # the driver decides this cpu (worst-fit, uncontrolled) -- re-place if it
-    # lands on KEEP_CPU, or if its PAIR_TYPE-relative target cpu would be
-    # KEEP_CPU (e.g. it landed on KEEP_CPU's own sibling for PAIR_TYPE=sibling).
+    # requestedCpus HINT (2026-08-14): pick the cpu deterministically upfront
+    # (same selection as the unreserved branch) and ask the driver for it
+    # directly, instead of accepting worst-fit's uncontrolled choice and
+    # retrying until it happens to land somewhere usable. The retry loop
+    # stays as a safety net (Ready/burning-cpu/landed-cpu are all still
+    # verified every attempt) -- it should just converge on attempt 1 now.
+    local hint_cpu; hint_cpu=$(pick_paired_cpu) || hint_cpu=""
+    if [ -z "$hint_cpu" ]; then
+      echo "[run] ERROR no (competitor,target) cpu pair avoiding KEEP_CPU=$KEEP_CPU for PAIR_TYPE=$PAIR_TYPE"
+      return 1
+    fi
     local ok=0 attempt comp_pod landed candidate_target
     for attempt in 1 2 3 4 5; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl create -f "$FIXED_COMP_FILE" >/dev/null 2>&1
+      sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
         echo "[run] reserved competitor pod not Ready ($scale, attempt $attempt/5); retrying"; continue
       fi
       comp_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=competitor" -o jsonpath='{.items[0].metadata.name}')
       landed=$(kubectl -n "$NS" exec "$comp_pod" -- printenv RT_CPUSET 2>/dev/null | cut -d, -f1 | cut -d- -f1)
-      if [ "$landed" = "$KEEP_CPU" ]; then
-        echo "[run] reserved competitor landed on KEEP_CPU=$KEEP_CPU ($scale, attempt $attempt/5); re-placing"; continue
+      if [ "$landed" != "$hint_cpu" ]; then
+        echo "[run] reserved competitor landed on cpu$landed, wanted cpu$hint_cpu ($scale, attempt $attempt/5); re-placing"; continue
       fi
       candidate_target=$(filter_keep_cpu "$(target_cpu_for "$landed")")
       if [ -z "$candidate_target" ]; then
@@ -400,7 +424,7 @@ restart_fixed_competitor() {
     local attempt landed comp_pod
     for attempt in 1 2 3; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl create -f "$FIXED_COMP_FILE" >/dev/null 2>&1
+      sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
         echo "[run] restarted competitor not Ready (attempt $attempt/3); retrying"; continue
@@ -497,8 +521,12 @@ print(d.get('$key', {}).get('cv', 'NA'))
     if [ "$HAS_NB" = 1 ]; then
       desired_target_cpu=""
       nb_file="models/$MODEL/$GEN_DIR/_nb/$scale/$ul.yaml"
+      # requestedCpus HINT (2026-08-14): computed once, cached, same idea as
+      # model3's fixed competitor -- lands the neighbour deterministically
+      # instead of worst-fit + delete/recreate-until-landed, every cell.
+      : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl create -f "$nb_file" >/dev/null
+      sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
         fail_reason="neighbour pod not Ready"
@@ -543,18 +571,19 @@ print(d.get('$key', {}).get('cv', 'NA'))
     fi
 
     # --- place the target ----------------------------------------------------
-    # The driver only accepts `count` (how many cores), never WHICH ones -- so
-    # there is no request we can make that targets a specific cpu directly.
     # PIN_RTCPU (explicit, user-requested), model2's neighbour-sibling forcing
     # (exactly one valid cpu), and model3's competitor-relative forcing
     # (desired_target_cpu, computed once per scale by place_fixed_competitor
     # -- possibly SEVERAL valid cpus for PAIR_TYPE=physical) all reduce to the
-    # same thing: a SET of acceptable cpus (one element for PIN_RTCPU/model2),
-    # checked per attempt, delete + recreate until the SMT-blind worst-fit
-    # driver happens to land on ANY member of that set -- not cycling through
-    # trying to force one specific member per attempt, which would reject
-    # equally-valid landings just because they weren't the one currently
-    # being tried.
+    # same thing: a SET of acceptable cpus (one element for PIN_RTCPU/model2).
+    # requestedCpus HINT (2026-08-14): CPU_CANDIDATES, comma-joined, is passed
+    # straight to the driver via job.yaml's @@REQUESTED_CPUS@@ placeholder --
+    # len==1 pins exactly that cpu, len>1 (PAIR_TYPE=physical) lets the driver
+    # score just those candidates and pick the best one (RequestedCpus'
+    # documented "any of these N" mode). The delete+recreate retry loop stays
+    # as a safety net (still verifies the actual landed cpu every attempt) --
+    # it should just converge on attempt 1 now instead of needing worst-fit to
+    # stumble onto a member of the set by chance.
     if [ -n "$PIN_RTCPU" ]; then
       CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
     elif [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; then
@@ -562,11 +591,13 @@ print(d.get('$key', {}).get('cv', 'NA'))
     else
       CPU_CANDIDATES=(); FORCE_CPU=0
     fi
+    tgt_hint=""
+    [ "$FORCE_CPU" = 1 ] && tgt_hint=$(IFS=,; echo "${CPU_CANDIDATES[*]}")
 
     placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-      kubectl create -f "$f" >/dev/null
+      sed "s/@@REQUESTED_CPUS@@/$tgt_hint/g" "$f" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
         echo "[run] target not Ready (attempt $attempt/$PIN_ATTEMPTS)"; continue

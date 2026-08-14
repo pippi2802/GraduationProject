@@ -34,7 +34,7 @@ NEIGHBOUR = """---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: {{ namespace: {ns}, name: "{name}-nb{i}-params" }}
-spec: {{ count: 1, runtime: {nbq}, period: {p} }}
+spec: {{ count: 1, runtime: {nbq}, period: {p}, requestedCpus: [@@REQUESTED_CPUS@@] }}
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
@@ -110,14 +110,17 @@ spec:
 
 # Reserved competitor (model3, COMPETITOR_TYPE=reserved): its own CBS reservation
 # at co_runners.competitor.u, generated as a SEPARATE file (like INTERFERER) since
-# it must only be instantiated for the reserved arm. Unlike INTERFERER it has no
-# cpu placeholder -- like any RT-DRA claim, its placement comes from the driver,
-# so run_job.sh places it with the same retry-until-landed technique as the target.
+# it must only be instantiated for the reserved arm. Like the target and
+# NEIGHBOUR, it carries an @@REQUESTED_CPUS@@ placeholder (2026-08-14) --
+# run_job.sh's place_fixed_competitor substitutes it with a deterministically
+# chosen cpu (avoiding KEEP_CPU, with a valid PAIR_TYPE-relative pair partner)
+# before creating it, via the dra-rt-driver's RequestedCpus support, instead
+# of the old worst-fit + delete/recreate-until-landed retry.
 COMPETITOR_RESERVED = """---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: {{ namespace: {ns}, name: "{name}-comp-params" }}
-spec: {{ count: 1, runtime: {cq}, period: {p} }}
+spec: {{ count: 1, runtime: {cq}, period: {p}, requestedCpus: [@@REQUESTED_CPUS@@] }}
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate

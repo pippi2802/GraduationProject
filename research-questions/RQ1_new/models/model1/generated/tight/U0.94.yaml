@@ -5,7 +5,7 @@
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq1-model1, name: "model1-tight-u94-params" }
-spec: { count: 1, runtime: 9400, period: 10000 }
+spec: { count: 1, runtime: 9400, period: 10000, requestedCpus: [@@REQUESTED_CPUS@@] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
