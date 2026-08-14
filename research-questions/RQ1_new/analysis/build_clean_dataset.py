@@ -15,7 +15,7 @@ re-derived automatically -- if you rerun the audit (or collect new,
 post-fix rounds), update ROUND_STATUS below and rerun this script.
 
 Each output row is one job (one line of one cell's jobs.csv), tagged with
-model / scale / U / round (source) / kind (matmul|ptrchase), so the notebook
+model / scale / U / round (source) / kind (matmul|primes), so the notebook
 can group by whichever of those it needs -- pooling itself doesn't collapse
 anything, it just concatenates validated rounds so percentile/distribution
 stats have the full available sample size (summing independent per-job
@@ -40,10 +40,10 @@ ROUND_STATUS = {
         ("model1_round2", True, "same"),
         ("model1_round3", True, "same"),
         ("model1_round4", True, "same"),
-        ("model1_ptrchase_round1", True, "solo baseline, ptrchase kind; verified clean (near-0% miss, matches matmul rounds' shape, no coin-flip) -- 2026-08-10 audit"),
-        ("model1_ptrchase_round2", True, "same"),
-        ("model1_ptrchase_round3", True, "same"),
-        ("model1_ptrchase_round4", True, "same"),
+        # ptrchase-kind rounds removed 2026-08-14: ptrchase workload retired,
+        # replaced by primes (trial-division primality, genuinely
+        # data-dependent). All ptrchase result data deleted; see
+        # backlog/2026-08-14.md. Primes rounds go here once collected.
     ],
     "model2": [
         ("model2_round1", False, "pre-fix: neighbour recreated every cell, no liveness check -- coin-flip confirmed (miss_rate flips 0%<->100% at same U across rounds)"),
@@ -73,10 +73,7 @@ ROUND_STATUS = {
         ("model3_round2", True, "merged 2026-08-12: base soft cells (all 10) + full tight-scale redo (the old model3_sib_cfs_round2, which had already been alpha-crossing verified on 2026-08-10: miss_rate spikes at U0.5/U0.8 track alpha crossing 1, not a coin-flip, placement.json checked correct for the affected cells)."),
         ("model3_round3", True, "19/20 cells, missing only tight/U0.94 -- no rerun available to fill it. Not a validity problem for the cells that did complete, same convention as model3-w4's incomplete high-U tight cells."),
         ("model3_round4", True, "19/20 cells, missing only tight/U0.2 -- no rerun available to fill it (the old model3_sib_cfs_round4's 2 cells were soft/U0.1-0.2, redundant with round1, never actually matched this gap)."),
-        ("model3_sib_cfs_ptrchase_round1", True, "ptrchase kind, post-fix. All 4 rounds mutually consistent (no coin-flip) and near-identical to model1 baseline at every U -- essentially zero measurable SMT-sibling inflation for ptrchase under an unreserved interferer. Plausible real effect (see model3-w2_sib_res_ptrchase note) rather than a dead interferer: cross-check against the RESERVED-competitor sibling arm (model3-w2_sib_res_ptrchase) shows a small but non-zero inflation, so the interferer mechanism does register on ptrchase, just weakly. 2026-08-10 audit.", ),
-        ("model3_sib_cfs_ptrchase_round2", True, "same"),
-        ("model3_sib_cfs_ptrchase_round3", True, "same"),
-        ("model3_sib_cfs_ptrchase_round4", True, "same"),
+        # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
     ],
     "model3-w2": [  # sib_res: sibling, reserved competitor
         # UPDATED 2026-08-11: the old "model3-w2_sib_res_round1-4" directories
@@ -94,30 +91,21 @@ ROUND_STATUS = {
         ("model3-w2_round2", True, "merged 2026-08-11: base soft cells + a full tight-scale redo (old sib_res_round2 rerun, per explicit choice to use the newer tight collection wholesale). Verified clean via alpha-crossing check -- the earlier flat 100% miss from U0.4-0.94 tight is explained (alpha 1.29-1.57 throughout that range, saturated throttling, not a stuck/broken run)."),
         ("model3-w2_round3", True, "merged 2026-08-11: base + its 1-cell gap-fill (soft/U0.2) from the old sib_res_round3 rerun. Verified clean via alpha-crossing check."),
         ("model3-w2_round4", True, "left untouched 2026-08-11 (its own sib_res_round4 rerun didn't match this round's actual gap, discarded rather than merged) -- already complete 20/20 as base data."),
-        ("model3-w2_sib_res_ptrchase_round1", True, "ptrchase kind, post-fix. Cross-round comparison (all 4 rounds) shows consistent C_p50 and miss_rate at every U -- no coin-flip. Inflation vs model1 baseline is MUCH smaller than matmul's ~1.8-2.1x (roughly 1.0-1.1x) -- plausible real effect (ptrchase is memory-latency-bound, SMT hides its stalls far better than a compute-bound sibling), not a liveness bug: C is clearly non-zero-inflated, just mildly so. 2026-08-10 audit.", ),
-        ("model3-w2_sib_res_ptrchase_round2", True, "same"),
-        ("model3-w2_sib_res_ptrchase_round3", True, "same"),
-        ("model3-w2_sib_res_ptrchase_round4", True, "same; note U0.1/tight shows 90% miss and U0.4/soft shows 3.4% miss -- both track alpha=C/Q crossing ~1 at those specific cells (small Q at low U leaves little headroom), same mechanism as model3_sib_cfs_round2, not an anomaly."),
+        # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
     ],
     "model3-w3": [  # phys_cfs: physical, unreserved interferer -- control, near-0 miss expected regardless of interferer liveness subtleties
         ("model3-w3_phys_cfs_round1", True, "physical placement control: near-0% miss is the correct reading whether or not the interferer's liveness was ever ambiguous -- outcome is unaffected either way"),
         ("model3-w3_phys_cfs_round2", True, "same"),
         ("model3-w3_phys_cfs_round3", True, "same"),
         ("model3-w3_phys_cfs_round4", True, "same"),
-        ("model3-w3_phys_cfs_ptrchase_round1", True, "ptrchase kind, physical placement control -- same reasoning as matmul control rounds, verified near-0% miss and consistent C_p50 across all 4 rounds. 2026-08-10 audit."),
-        ("model3-w3_phys_cfs_ptrchase_round2", True, "same"),
-        ("model3-w3_phys_cfs_ptrchase_round3", True, "same"),
-        ("model3-w3_phys_cfs_ptrchase_round4", True, "same"),
+        # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
     ],
     "model3-w4": [  # phys_res: physical, reserved competitor -- control
         ("model3-w4_phys_res_round1", True, "physical placement control, same reasoning as w3; some high-U tight cells incomplete (admission ceiling, not a validity problem for the cells that did complete)"),
         ("model3-w4_phys_res_round2", True, "same"),
         ("model3-w4_phys_res_round3", True, "same"),
         ("model3-w4_phys_res_round4", True, "same"),
-        ("model3-w4_phys_res_ptrchase_round1", True, "ptrchase kind, physical placement control -- same reasoning as matmul control rounds, verified near-0% miss and consistent C_p50 across all 4 rounds. 2026-08-10 audit."),
-        ("model3-w4_phys_res_ptrchase_round2", True, "same"),
-        ("model3-w4_phys_res_ptrchase_round3", True, "same"),
-        ("model3-w4_phys_res_ptrchase_round4", True, "same"),
+        # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
     ],
 }
 

@@ -39,7 +39,7 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: probe
-      image: pippina2/rq1-probe:v2
+      image: pippina2/rq1-probe:v4
       imagePullPolicy: IfNotPresent
       command: ["/bin/bash","-c"]
       args:

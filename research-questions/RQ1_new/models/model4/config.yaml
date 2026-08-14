@@ -27,7 +27,7 @@ model: model4
 namespace: rq1-model4
 node_label: experiment-model=model4
 host_path: /var/lib/rq1/model4
-image: pippina2/rq1-probe:v3
+image: pippina2/rq1-probe:v4
 
 target_threads: 2                       # model4 only: batch size == claimed cpu count
 matrix_M: 48

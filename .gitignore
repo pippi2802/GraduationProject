@@ -13,3 +13,6 @@ research-questions/RQ1_new/echo
 
 research-questions/RQ1_new/.venv
 research-questions/RQ1_new/analysis/clean_data
+
+# compiled probe binary (regenerable via `make`)
+research-questions/RQ1_new/matmul

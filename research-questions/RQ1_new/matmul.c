@@ -32,6 +32,21 @@
 //     release is a job that could not be started on time -> counted as a miss by the
 //     analysis, while the completed jobs keep a bounded, meaningful R.
 //
+// WORKLOAD KINDS:
+//   matmul  data-independent control flow, tiny in-cache working set, execution-
+//           port-bound (dense FP loop). Per-job work is exactly K reps of a fixed
+//           MxM multiply -- deterministic op count, near-zero intrinsic variance.
+//   primes  trial-division primality test over a deterministic (seeded) stream of
+//           candidate integers -- genuinely DATA-DEPENDENT control flow (early
+//           exit on first factor found, so per-candidate cost varies with the
+//           candidate's own value) while staying fully reproducible: the
+//           candidate stream is generated from the same fixed --seed as matmul's
+//           matrices, so a given K always tests the exact same sequence of
+//           candidates, in the same order, every run. Per-job work is K batches
+//           of PRIMES_CANDS_PER_K candidates; integer-divide/branch-predictor
+//           bound rather than FP-execution-port bound. Replaces the earlier
+//           ptrchase (memory/LLC pointer-chase) kind, removed 2026-08-14.
+//
 // Output: CSV to --logfile (or stdout). One '#'-commented header then one row/job
 // (after --warmup). Columns match config.yaml per_job_columns.
 //
@@ -40,7 +55,7 @@
 //   N persistent worker threads (each pinned to one cpu from --cpu-list, one
 //   thread per reservation core) are woken together at the release instant via
 //   a barrier, each does its own K-rep unit on its own private A/B/Cm (or
-//   ptrchase buffer), and the batch is logged as ONE row once every worker has
+//   candidate-stream state), and the batch is logged as ONE row once every worker has
 //   finished (a second barrier) -- C_cputime_us is the MAX across threads (the
 //   critical-path thread, consistent with R being release-to-LAST-finish),
 //   nonvol_ctxt is the SUM (total preemption events across the whole batch).
@@ -67,8 +82,14 @@ static const char *CSV_HEADER =
     "dispatch_latency_us,mid_job_preempt_us,slack_us,deadline_miss,tardiness_us,"
     "nonvol_ctxt,K_reps,matrix_M,skipped_before";
 
-enum { KIND_MATMUL, KIND_PTRCHASE };
-#define PTRCHASE_HOPS_PER_K 512   // hops per K-unit; calibration tunes K
+enum { KIND_MATMUL, KIND_PRIMES };
+#define PRIMES_CANDS_PER_K 1024     // candidates tested per K-unit; calibration tunes K
+// Candidates are odd integers drawn (deterministically, from --seed) out of this
+// range. Large enough that trial division is real integer-divide work (worst
+// case ~sqrt(hi) odd divisors for an actual prime), small enough that a single
+// candidate's worst case stays well under a tight-scale (10ms) period.
+#define PRIMES_CAND_LO 1000003ULL
+#define PRIMES_CAND_HI 2000003ULL
 
 static inline int64_t ts_ns(const struct timespec *t) {
     return (int64_t)t->tv_sec * 1000000000LL + (int64_t)t->tv_nsec;
@@ -102,23 +123,41 @@ static void matmul(const double *restrict A, const double *restrict B,
     }
 }
 
-// ---- memory-bound kernel: pointer chase over a buffer >> LLC -----------------
-// A single random cycle (Sattolo) means idx = buf[idx] visits every slot in an
-// unpredictable order, defeating the HW prefetcher: on a buffer larger than the
-// LLC nearly every hop is a last-level-cache / DRAM miss, so execution time C is
-// dominated by SHARED cache + memory-bandwidth latency -- the resource neither
-// Kubernetes nor the DRA driver partitions. Deterministic from --seed.
-static void build_cycle(size_t *buf, size_t n, uint64_t *state) {
-    for (size_t i = 0; i < n; i++) buf[i] = i;
-    for (size_t i = n - 1; i > 0; i--) {          // Sattolo -> one Hamiltonian cycle
-        uint64_t x = *state; x ^= x << 13; x ^= x >> 7; x ^= x << 17; *state = x;
-        size_t j = (size_t)(x % i);               // 0 <= j < i
-        size_t t = buf[i]; buf[i] = buf[j]; buf[j] = t;
-    }
+// ---- data-dependent kernel: trial-division primality over a candidate stream --
+// Each candidate gets real trial division (idx = 3,5,7,... up to sqrt(cand)),
+// EARLY EXIT on the first factor found -- genuinely data-dependent control flow
+// (a composite with a small factor is cheap; a prime pays the full sqrt(cand)
+// trial), unlike matmul's fixed-iteration loop. Reproducibility comes from the
+// candidate stream itself being deterministic (seeded xorshift64, same as
+// matmul's A/B fill): a given K always tests the same candidates, in the same
+// order, every run -- so total op count for that K is fixed run-to-run even
+// though it is not a fixed closed-form count independent of the data.
+static inline uint64_t next_candidate(uint64_t *state) {
+    uint64_t x = *state;
+    x ^= x << 13; x ^= x >> 7; x ^= x << 17;
+    *state = x;
+    uint64_t span = PRIMES_CAND_HI - PRIMES_CAND_LO;
+    uint64_t v = PRIMES_CAND_LO + (x % span);
+    return v | 1ULL;   // force odd
 }
-static size_t ptrchase(const size_t *restrict buf, size_t pos, long hops) {
-    for (long h = 0; h < hops; h++) pos = buf[pos];
-    return pos;
+static inline int is_prime_trial(uint64_t n) {
+    if (n < 2) return 0;
+    if (n % 2 == 0) return n == 2;
+    for (uint64_t d = 3; d * d <= n; d += 2) {
+        if (n % d == 0) return 0;   // early exit: composite, first factor found
+    }
+    return 1;
+}
+// One K-unit = PRIMES_CANDS_PER_K candidates tested. Returns a sink value
+// (count of primes found) so the compiler cannot dead-code-eliminate the loop.
+static long primes_batch(uint64_t *state, long k_units) {
+    long primes_found = 0;
+    long total = k_units * PRIMES_CANDS_PER_K;
+    for (long i = 0; i < total; i++) {
+        uint64_t cand = next_candidate(state);
+        if (is_prime_trial(cand)) primes_found++;
+    }
+    return primes_found;
 }
 
 static long involuntary_ctxt(void) {
@@ -154,9 +193,8 @@ static int parse_cpu_list(const char *spec, int *out, int max_out) {
 
 typedef struct {
     int cpu, kind, M, K, priority, warmup;
-    long buf_kb;
     double *A, *B, *Cm;
-    size_t *cbuf, cbuf_n, chase_pos;
+    uint64_t prime_state;
     pthread_barrier_t *bar_start, *bar_done;
     volatile int64_t C_ns;
     volatile long nv_delta;
@@ -182,8 +220,8 @@ static void *worker_main(void *arg) {
     // in pages / warm caches before this worker starts taking part in any
     // barrier-synchronized (timed) batch.
     for (int i = 0; i < w->warmup; i++) {
-        if (w->kind == KIND_PTRCHASE)
-            w->chase_pos = ptrchase(w->cbuf, w->chase_pos, (long)w->K * PTRCHASE_HOPS_PER_K);
+        if (w->kind == KIND_PRIMES)
+            primes_batch(&w->prime_state, w->K);
         else
             for (int k = 0; k < w->K; k++) matmul(w->A, w->B, w->Cm, w->M);
     }
@@ -193,8 +231,8 @@ static void *worker_main(void *arg) {
         long nv0 = involuntary_ctxt();
         struct timespec c0, c1;
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c0);
-        if (w->kind == KIND_PTRCHASE)
-            w->chase_pos = ptrchase(w->cbuf, w->chase_pos, (long)w->K * PTRCHASE_HOPS_PER_K);
+        if (w->kind == KIND_PRIMES)
+            primes_batch(&w->prime_state, w->K);
         else
             for (int k = 0; k < w->K; k++) matmul(w->A, w->B, w->Cm, w->M);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c1);
@@ -208,11 +246,14 @@ static void *worker_main(void *arg) {
 static void usage(const char *p) {
     fprintf(stderr,
         "usage: %s --M <int> --K <int> --period-us <int> --n-jobs <int>\n"
-        "          [--kind matmul|ptrchase] [--buf-kb <int>]\n"
+        "          [--kind matmul|primes] [--buf-kb <int>]\n"
         "          [--warmup <int>] [--priority <int>] [--cpu <int|env>]\n"
         "          [--seed <uint>] [--logfile <path>] [--no-lock-pages]\n"
         "          [--threads <int> --cpu-list <c0,c1,...|env>]\n"
-        "  --kind ptrchase  memory/LLC-bound random pointer chase (--buf-kb working set).\n"
+        "  --kind primes   trial-division primality test over a deterministic\n"
+        "                  candidate stream -- data-dependent (early-exit) control\n"
+        "                  flow, integer-divide/branch-predictor bound. --buf-kb\n"
+        "                  is accepted but unused (kept for cli compatibility).\n"
         "  --cpu env  reads RT_CPUSET (first cpu) for affinity; else no pinning.\n"
         "  --threads N  batch/multithread mode (model4): every period releases a\n"
         "               batch of N jobs run concurrently, one per --cpu-list entry.\n"
@@ -227,8 +268,8 @@ int main(int argc, char **argv) {
     uint64_t seed = 20260713ULL;
     int cpu = -1;                 // -1 => no explicit pinning (driver/taskset did it)
     int lock_pages = 1;
-    int kind = KIND_MATMUL;       // matmul (FP, in-cache) | ptrchase (memory/LLC)
-    long buf_kb = 131072;         // ptrchase working set in KB (>> LLC); default 128 MB
+    int kind = KIND_MATMUL;       // matmul (FP, in-cache) | primes (data-dependent, integer-divide)
+    long buf_kb = 131072;         // accepted but unused by primes; kept for cli compatibility
     const char *logfile = NULL;
     int threads = 1;              // 1 = original single-thread path, unchanged
     char cpu_list_spec[256] = "";
@@ -262,7 +303,7 @@ int main(int argc, char **argv) {
         case 's': seed = strtoull(optarg, NULL, 10); break;
         case 'o': logfile = optarg; break;
         case 'L': lock_pages = 0; break;
-        case 1001: kind = (strcmp(optarg, "ptrchase") == 0) ? KIND_PTRCHASE : KIND_MATMUL; break;
+        case 1001: kind = (strcmp(optarg, "primes") == 0) ? KIND_PRIMES : KIND_MATMUL; break;
         case 1002: buf_kb = atol(optarg); break;
         case 1003: threads = atoi(optarg); break;
         case 1004: strncpy(cpu_list_spec, optarg, sizeof(cpu_list_spec) - 1); break;
@@ -278,6 +319,7 @@ int main(int argc, char **argv) {
         }
     }
     if (M < 1 || K < 1 || n_jobs < 1 || threads < 1) { usage(argv[0]); return 2; }
+    (void)buf_kb;  // accepted for cli compatibility; unused by any current --kind
     int cpu_ids[64];
     int n_cpu_ids = 0;
     if (threads > 1) {
@@ -334,22 +376,14 @@ int main(int argc, char **argv) {
     matmul(A, B, Cm, M);            // touch pages / warm caches before timing
     volatile double sink = 0.0;
 
-    // memory-bound kernel: build one random cycle over a buffer >> LLC so every
-    // hop is a cache/DRAM miss. Uses the same seed stream (deterministic).
-    size_t *cbuf = NULL; size_t cbuf_n = 0, chase_pos = 0;
-    if (kind == KIND_PTRCHASE) {
-        size_t bytes = (size_t)(buf_kb > 0 ? buf_kb : 131072) * 1024;
-        cbuf_n = bytes / sizeof(size_t);
-        if (cbuf_n < 2) cbuf_n = 2;
-        cbuf = aligned_alloc(64, cbuf_n * sizeof(size_t));
-        if (!cbuf) { fprintf(stderr, "[probe] ptrchase alloc failed (buf_kb=%ld)\n", buf_kb); return 1; }
-        build_cycle(cbuf, cbuf_n, &st);   // touches every page (warm)
-    }
+    // data-dependent kernel: candidate stream state, seeded from the same
+    // deterministic seed as A/B (continues across warmup+jobs -> never repeats
+    // within a run, but identical run-to-run for the same --seed).
+    uint64_t prime_state = st;
 
-    fprintf(out, "# probe kind=%s M=%d K=%d buf_kb=%ld period_us=%lld priority=%d "
+    fprintf(out, "# probe kind=%s M=%d K=%d period_us=%lld priority=%d "
                  "cpu=%d seed=%llu n_jobs=%ld warmup=%d\n",
-            kind == KIND_PTRCHASE ? "ptrchase" : "matmul", M, K,
-            (kind == KIND_PTRCHASE ? buf_kb : 0L),
+            kind == KIND_PRIMES ? "primes" : "matmul", M, K,
             (long long)(period_ns / 1000), priority, cpu,
             (unsigned long long)seed, n_jobs, warmup);
     fprintf(out, "%s\n", CSV_HEADER);
@@ -359,9 +393,8 @@ int main(int argc, char **argv) {
     // transients BEFORE anchoring the metronome, so a slow first job cannot poison
     // every subsequent release. These jobs are neither timed nor logged.
     for (long w = 0; w < warmup; w++) {
-        if (kind == KIND_PTRCHASE) {
-            chase_pos = ptrchase(cbuf, chase_pos, (long)K * PTRCHASE_HOPS_PER_K);
-            sink += (double)chase_pos;
+        if (kind == KIND_PRIMES) {
+            sink += (double)primes_batch(&prime_state, K);
         } else {
             for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
             sink += Cm[0];
@@ -381,9 +414,8 @@ int main(int argc, char **argv) {
         clock_gettime(CLOCK_MONOTONIC, &t_start);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc0);
 
-        if (kind == KIND_PTRCHASE) {
-            chase_pos = ptrchase(cbuf, chase_pos, (long)K * PTRCHASE_HOPS_PER_K);
-            sink += (double)chase_pos;
+        if (kind == KIND_PRIMES) {
+            sink += (double)primes_batch(&prime_state, K);
         } else {
             for (int k = 0; k < K; k++) { matmul(A, B, Cm, M); }
             sink += Cm[0];
@@ -426,7 +458,7 @@ int main(int argc, char **argv) {
     }
     if (out != stdout) fclose(out);
     (void)sink;
-    free(A); free(B); free(Cm); free(cbuf);
+    free(A); free(B); free(Cm);
 
     } else {
     // ============================ batch/multithread path (model4) =============
@@ -440,16 +472,11 @@ int main(int argc, char **argv) {
         worker_t *w = &workers[t];
         memset(w, 0, sizeof(*w));
         w->cpu = cpu_ids[t]; w->kind = kind; w->M = M; w->K = K;
-        w->priority = priority; w->warmup = warmup; w->buf_kb = buf_kb;
+        w->priority = priority; w->warmup = warmup;
         w->bar_start = &bar_start; w->bar_done = &bar_done;
         uint64_t tst = st + (uint64_t)(t + 1) * 0x9e3779b97f4a7c15ULL;  // per-thread deterministic offset
-        if (kind == KIND_PTRCHASE) {
-            size_t bytes = (size_t)(buf_kb > 0 ? buf_kb : 131072) * 1024;
-            w->cbuf_n = bytes / sizeof(size_t);
-            if (w->cbuf_n < 2) w->cbuf_n = 2;
-            w->cbuf = aligned_alloc(64, w->cbuf_n * sizeof(size_t));
-            if (!w->cbuf) { fprintf(stderr, "[probe] ptrchase alloc failed (buf_kb=%ld, thread %d)\n", buf_kb, t); return 1; }
-            build_cycle(w->cbuf, w->cbuf_n, &tst);
+        if (kind == KIND_PRIMES) {
+            w->prime_state = tst;
         } else {
             w->A = aligned_alloc(64, nelem * sizeof(double));
             w->B = aligned_alloc(64, nelem * sizeof(double));
@@ -464,10 +491,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    fprintf(out, "# probe kind=%s M=%d K=%d buf_kb=%ld period_us=%lld priority=%d "
+    fprintf(out, "# probe kind=%s M=%d K=%d period_us=%lld priority=%d "
                  "threads=%d seed=%llu n_jobs=%ld warmup=%d\n",
-            kind == KIND_PTRCHASE ? "ptrchase" : "matmul", M, K,
-            (kind == KIND_PTRCHASE ? buf_kb : 0L),
+            kind == KIND_PRIMES ? "primes" : "matmul", M, K,
             (long long)(period_ns / 1000), priority,
             threads, (unsigned long long)seed, n_jobs, warmup);
     fprintf(out, "%s\n", CSV_HEADER);
@@ -535,7 +561,7 @@ int main(int argc, char **argv) {
     pthread_barrier_wait(&bar_start);
     for (int t = 0; t < threads; t++) {
         pthread_join(tid[t], NULL);
-        free(workers[t].A); free(workers[t].B); free(workers[t].Cm); free(workers[t].cbuf);
+        free(workers[t].A); free(workers[t].B); free(workers[t].Cm);
     }
     pthread_barrier_destroy(&bar_start);
     pthread_barrier_destroy(&bar_done);

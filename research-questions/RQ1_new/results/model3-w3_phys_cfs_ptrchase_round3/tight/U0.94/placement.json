@@ -1,1 +1,0 @@
-{"model":"model3-w3","scale":"tight","U":"0.94","target_pod":"model3-w3-tight-u94","target_RT_CPUSET":"2","pair_type":"physical","competitor_type":"unreserved","competitor_cpu":"1","neighbour_cpu":"","cell_attempt":1}

@@ -1,12 +1,12 @@
 # Model 4-m -- same design as model4 (see models/model4/config.yaml for the
-# full rationale); split onto its own node/namespace so matmul and ptrchase
+# full rationale); split onto its own node/namespace so matmul and primes
 # can run concurrently on two different physical nodes instead of sequentially
-# on one (model4-m = matmul here, model4-p = ptrchase on a separate node).
+# on one (model4-m = matmul here, model4-p = primes on a separate node).
 model: model4-m
 namespace: rq1-model4-m
 node_label: experiment-model=model4-m
 host_path: /var/lib/rq1/model4-m
-image: pippina2/rq1-probe:v3
+image: pippina2/rq1-probe:v4
 
 target_threads: 2                       # model4 only: batch size == claimed cpu count
 matrix_M: 48

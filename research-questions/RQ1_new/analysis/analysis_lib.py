@@ -31,11 +31,11 @@ RESULTS = HERE.parent / "results"
 # scale -> period (P), microseconds. Same values as every model's config.yaml.
 PERIOD_US = {"tight": 10_000, "soft": 100_000}
 
-# Matches a results/ round directory name, e.g. "model3-w2_sib_res_ptrchase_round4".
+# Matches a results/ round directory name, e.g. "model3-w2_sib_res_primes_round4".
 NAME_RE = re.compile(
     r"^(?P<model>model\d(?:-w\d)?)"
     r"(?:_(?P<arm>sib_cfs|sib_res|phys_cfs|phys_res))?"
-    r"(?:_(?P<workload>ptrchase))?"
+    r"(?:_(?P<workload>primes))?"
     r"_round(?P<round>\d+)$"
 )
 
@@ -107,8 +107,8 @@ def load_model(model: str, kind: str = "matmul") -> pd.DataFrame:
 
 def load_model_both(model: str) -> pd.DataFrame:
     """Both kinds concatenated, `kind` column intact -- used only by Section
-    C's direct matmul-vs-ptrchase comparison."""
-    frames = [load_model(model, k) for k in ("matmul", "ptrchase")]
+    C's direct matmul-vs-primes comparison."""
+    frames = [load_model(model, k) for k in ("matmul", "primes")]
     frames = [d for d in frames if not d.empty]
     if not frames:
         return pd.DataFrame()
@@ -427,15 +427,15 @@ def rc_percentiles_vs_u(df: pd.DataFrame):
 
 
 # ---------------------------------------------------------------------------
-# Section C: matmul vs ptrchase (workload / "kind") comparison
+# Section C: matmul vs primes (workload / "kind") comparison
 # ---------------------------------------------------------------------------
 
 def kind_comparison_table(df: pd.DataFrame) -> pd.DataFrame:
-    """Side-by-side matmul vs ptrchase, per scale/U, for a model whose
+    """Side-by-side matmul vs primes, per scale/U, for a model whose
     pooled data contains both kinds (load_model called without a `kind`
-    filter). Includes the C_p50 ratio ptrchase/matmul -- the headline number
+    filter). Includes the C_p50 ratio primes/matmul -- the headline number
     for "is this arm's contention mechanism more or less felt by a
-    memory-latency-bound workload than a compute-bound one"."""
+    data-dependent, integer-divide-bound workload than a compute-bound one"."""
     rows = []
     for (scale, u, kind), g in df.groupby(["scale", "U", "kind"]):
         rows.append({
@@ -448,13 +448,13 @@ def kind_comparison_table(df: pd.DataFrame) -> pd.DataFrame:
         return long
     piv = long.pivot_table(index=["scale", "U"], columns="kind", values=["miss_rate", "C_p50_ms"])
     piv.columns = [f"{a}_{b}" for a, b in piv.columns]
-    if "C_p50_ms_matmul" in piv.columns and "C_p50_ms_ptrchase" in piv.columns:
-        piv["C_p50_ratio_ptrchase_over_matmul"] = (piv["C_p50_ms_ptrchase"] / piv["C_p50_ms_matmul"]).round(3)
+    if "C_p50_ms_matmul" in piv.columns and "C_p50_ms_primes" in piv.columns:
+        piv["C_p50_ratio_primes_over_matmul"] = (piv["C_p50_ms_primes"] / piv["C_p50_ms_matmul"]).round(3)
     return piv.reset_index().sort_values(["scale", "U"])
 
 
 def plot_kind_comparison(df: pd.DataFrame, col: str, ylabel: str, title: str):
-    """p50 of `col` vs U, one line per kind (matmul/ptrchase), one panel per
+    """p50 of `col` vs U, one line per kind (matmul/primes), one panel per
     scale -- direct visual comparison, not a stability band (that's what
     plot_vs_u is for on a single kind); the point here is the GAP between
     the two lines, not the spread within one."""

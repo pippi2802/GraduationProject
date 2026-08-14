@@ -36,11 +36,13 @@ python generate_yaml.py model4
 ./run_job.sh model4 soft
 ./run_job.sh model4 tight
 
-WORKLOAD=ptrchase python calibrate.py model4      # ptrchase: fresh calibration, no
-                                                   # existing table for this kind
-WORKLOAD=ptrchase python generate_yaml.py model4
-WORKLOAD=ptrchase ./run_job.sh model4 soft
-WORKLOAD=ptrchase ./run_job.sh model4 tight
+CV_THRESHOLD=0.3 WORKLOAD=primes python calibrate.py model4  # primes: genuinely
+                                                   # data-dependent (early-exit), so
+                                                   # intrinsic cv is much higher than
+                                                   # matmul's -- pass a looser threshold
+WORKLOAD=primes python generate_yaml.py model4
+CV_THRESHOLD=0.3 WORKLOAD=primes ./run_job.sh model4 soft
+CV_THRESHOLD=0.3 WORKLOAD=primes ./run_job.sh model4 tight
 
 python result.py model4                           # per-model summary/figures
 python result.py compare model4 model1            # direct model4-vs-model1 comparison

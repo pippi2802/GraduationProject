@@ -1,9 +1,0 @@
-nohup: ignoring input
-[run] U_MIN=0.3 U_MAX=0.3 applied: 1 cells remain
-[run] model=model1 ns=rq1-model1 agent=rq1-agent-zj7j6 cells=1 has_neighbours=0 has_competitor=0
-[run] === soft/U0.3 (models/model1/generated/soft/U0.3.yaml) ===
-[run] ERROR soft/U0.3: calibration cv=0.0972 > 0.05 (mis-calibrated K?) -- run: python calibrate.py model1 --force -- skipping
-
-[run] done. 1/1 cell(s) did not produce valid data -- do not trust these:
-  - soft/U0.3: high-cv calibration (0.0972 > 0.05) [not retried -- calibration issue, fix and rerun]
-[run] analyze with: python result.py model1_ptrchase_round3

@@ -30,7 +30,7 @@ model: model3-w3
 namespace: rq1-model3-w3
 node_label: experiment-model=model3-w3
 host_path: /var/lib/rq1/model3-w3
-image: pippina2/rq1-probe:v2
+image: pippina2/rq1-probe:v4
 matrix_M: 48
 headroom_frac: 0.7
 # capped at 0.5, same reasoning and same cap as model2 (see its config.yaml):

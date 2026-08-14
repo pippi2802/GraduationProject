@@ -22,11 +22,14 @@ Proof of placement (per cell):
 cat results/model3/soft/U0.5/placement.json   # target_RT_CPUSET, interferer_cpu, interferer_on_sibling
 ```
 
-**Memory-contention variant (optional):** run the same experiment with the memory/LLC
-workload to test the cache/bandwidth boundary (any model supports it):
+**Data-dependent variant (optional):** run the same experiment with the primes
+workload (trial-division primality, genuinely data-dependent/early-exit control
+flow, integer-divide/branch-predictor bound -- any model supports it). Its
+intrinsic per-job cv is much higher than matmul's (~0.1-0.3 vs ~0.02-0.04), so
+pass a looser CV_THRESHOLD:
 ```bash
-WORKLOAD=ptrchase BUF_KB=131072 python calibrate.py model3
-WORKLOAD=ptrchase BUF_KB=131072 python generate_yaml.py model3
-INTF_PLACEMENT=separate OUT_TAG=_mem_sep ./run_job.sh model3    # memory hog on a SEPARATE core
-python result.py model3_mem_sep
+CV_THRESHOLD=0.3 WORKLOAD=primes python calibrate.py model3
+WORKLOAD=primes python generate_yaml.py model3
+CV_THRESHOLD=0.3 INTF_PLACEMENT=separate OUT_TAG=_primes_sep ./run_job.sh model3    # on a SEPARATE core
+python result.py model3_primes_sep
 ```

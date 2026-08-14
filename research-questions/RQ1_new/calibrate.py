@@ -25,7 +25,13 @@ import yaml
 
 HERE = Path(__file__).resolve().parent
 BIN = HERE / "matmul"
-CV_THRESHOLD = 0.02
+# env-overridable, same convention as run_job.sh's own CV_THRESHOLD -- needed
+# because genuinely data-dependent workloads (primes) have a much higher
+# intrinsic per-job cv than a fixed-iteration-count one (matmul); see
+# backlog/2026-08-13.md and 2026-08-14 for the measured floor (~0.1-0.3 vs
+# matmul's ~0.02-0.04) and why it can't be batch-averaged away at RT-scale
+# periods without a workload-specific threshold.
+CV_THRESHOLD = float(os.environ.get("CV_THRESHOLD", 0.02))
 PROBE_JOBS, PROBE_WARMUP = 400, 100
 
 

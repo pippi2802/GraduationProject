@@ -10,7 +10,7 @@ so we keep only the guarantee metrics (R, C) and their normalized forms.
 
 ## Files (all flat at the top)
 ```
-matmul.c  Makefile  Dockerfile  build.sh   the ONE probe: --kind matmul (FP) | ptrchase (memory/LLC)
+matmul.c  Makefile  Dockerfile  build.sh   the ONE probe: --kind matmul (FP) | primes (data-dependent)
 generate_yaml.py    models/<m>/job.yaml + k_table.json -> models/<m>/generated/<scale>/U<u>.yaml
 run_job.sh          loop the generated manifests: create -> validate placement -> wait ->
                      pull jobs.csv -> validate row count -> delete (auto-retries + reports failures)
@@ -78,14 +78,19 @@ competitor placement, exact row count) and retries automatically up to
 printed at the end — check it before treating a sweep as done.
 
 ### Choose the workload (any model)
-`matmul` (default, FP/in-cache) or `ptrchase` (memory/LLC-bound). Set `WORKLOAD` for
-calibrate **and** generate: it uses a separate `k_table.<kind>.json` and injects the
-kernel into every probe (target + co-runners). Keep results apart with `OUT_TAG`:
+`matmul` (default, FP/in-cache, execution-port-bound) or `primes` (trial-division
+primality test over a deterministic candidate stream -- genuinely data-dependent,
+early-exit control flow, integer-divide/branch-predictor bound; intrinsic per-job
+cv is much higher than matmul's, ~0.1-0.3 rather than ~0.02-0.04 -- pass a looser
+`CV_THRESHOLD` when calibrating/running it, see calibrate.py/run_job.sh). Set
+`WORKLOAD` for calibrate **and** generate: it uses a separate `k_table.<kind>.json`
+and injects the kernel into every probe (target + co-runners). Keep results apart
+with `OUT_TAG`:
 ```bash
-WORKLOAD=ptrchase BUF_KB=131072 python calibrate.py model3     # 128 MB working set >> LLC
-WORKLOAD=ptrchase BUF_KB=131072 python generate_yaml.py model3
-OUT_TAG=_mem ./run_job.sh model3                               # -> results/model3_mem/
-python result.py model3_mem
+CV_THRESHOLD=0.3 WORKLOAD=primes python calibrate.py model3
+WORKLOAD=primes python generate_yaml.py model3
+CV_THRESHOLD=0.3 OUT_TAG=_primes ./run_job.sh model3           # -> results/model3_primes/
+python result.py model3_primes
 ```
 
 ### model2 — two containers, one physical core
