@@ -189,6 +189,43 @@ wait_manifest_gone() {
   return 1
 }
 
+# 2026-08-15: wait_manifest_gone only confirms the pod/claim OBJECTS are
+# gone from the Kubernetes API -- traced through the driver's actual Go
+# source (cmd/dra-rt-kubeletplugin/state.go's Unprepare(), driver.go's
+# NodeUnprepareResources) and found that is NOT the same moment the cpu is
+# actually released. Kubelet calls the driver's NodeUnprepareResources (the
+# thing that decrements NodeAllocationState.spec.allocatedUtilToCpu, the
+# real headroom accounting allocate() checks) as a LATER, separate node-
+# level step, after the pod object can already be gone from etcd. A retry
+# can therefore see "object gone" and request the same cpu again while the
+# driver still considers it committed -- explains landings on the wrong cpu
+# under heavy concurrent load instead of the one just hinted. This polls
+# the driver's own bookkeeping directly: NodeAllocationState is named after
+# the node itself, namespace dra-rt-driver (confirmed via `kubectl get
+# nodeallocationstates -A`). NODE_NAME is resolved once and cached (matches
+# this model's fixed nodeSelector, same "experiment-model=<model>" label
+# every config.yaml already uses).
+wait_cpu_free() {
+  local cpu="$1" i util
+  : "${NODE_NAME:=$(kubectl get nodes -l "experiment-model=$MODEL" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)}"
+  [ -z "$NODE_NAME" ] && return 0   # couldn't resolve node -- don't block on this alone
+  for i in $(seq 1 20); do
+    util=$(kubectl -n dra-rt-driver get nodeallocationstates "$NODE_NAME" \
+             -o jsonpath="{.spec.allocatedUtilToCpu.cpus['$cpu'].util}" 2>/dev/null)
+    { [ -z "$util" ] || [ "$util" = "0" ]; } && return 0
+    sleep 1
+  done
+  return 1
+}
+# Same check for every cpu in a space- or comma-separated hint list (the
+# target's requestedCpus can be multiple candidates for PAIR_TYPE=physical).
+wait_cpus_free() {
+  local c
+  for c in $(echo "$1" | tr ',' ' '); do
+    wait_cpu_free "$c"
+  done
+}
+
 # Deterministically pick a fixed cpu (avoiding KEEP_CPU) that also has a
 # valid PAIR_TYPE-relative pair partner (also avoiding KEEP_CPU). Topology
 # never changes cell to cell, so this always returns the same answer -- used
@@ -379,6 +416,7 @@ place_fixed_competitor() {
     for attempt in 1 2 3 4 5; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
       wait_manifest_gone "$FIXED_COMP_FILE"
+      wait_cpus_free "$hint_cpu"
       sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -450,6 +488,7 @@ restart_fixed_competitor() {
     for attempt in 1 2 3; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
       wait_manifest_gone "$FIXED_COMP_FILE"
+      wait_cpus_free "$comp_cpu"
       sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -553,6 +592,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       wait_manifest_gone "$nb_file"
+      wait_cpus_free "$NB_HINT_CPU"
       sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -630,6 +670,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       # template, AND pod, not just the pod). wait_manifest_gone polls the
       # actual state instead of guessing a fixed delay.
       wait_manifest_gone "$f"
+      wait_cpus_free "$tgt_hint"
       sed "s/@@REQUESTED_CPUS@@/$tgt_hint/g" "$f" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
