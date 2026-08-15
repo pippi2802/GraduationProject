@@ -189,6 +189,27 @@ wait_manifest_gone() {
   return 1
 }
 
+# 2026-08-15: THE actual bug behind every AlreadyExists this whole session.
+# `kubectl delete -f <file>` parses the RAW file from disk -- unlike the
+# create path (always piped through sed to fill in @@REQUESTED_CPUS@@ /
+# @@INTF_CPU@@ first), every `kubectl delete -f "$f"` call was reading the
+# file with the literal, never-substituted placeholder still in it.
+# `requestedCpus: [@@REQUESTED_CPUS@@]` is not valid YAML/JSON, so delete
+# failed to even PARSE the file -- a totally different failure from "not
+# found" (which --ignore-not-found does nothing for), silently swallowed by
+# `>/dev/null 2>&1` everywhere. Meaning: delete-before-recreate has not
+# actually been deleting anything, all session, for any model using
+# requestedCpus. Found by finally running the exact delete command by hand
+# and seeing the real stderr instead of it going to /dev/null. The
+# substituted value doesn't matter for a delete (it only needs to identify
+# kind/name/namespace, not the requestedCpus contents), so a fixed
+# placeholder value is fine. Replaces every bare `kubectl delete -f "$X"`
+# in this script.
+delete_manifest() {
+  sed -e 's/@@REQUESTED_CPUS@@/0/g' -e 's/@@INTF_CPU@@/0/g' "$1" | \
+    kubectl delete -f - --ignore-not-found --wait=true >/dev/null 2>&1
+}
+
 # 2026-08-15: wait_manifest_gone only confirms the pod/claim OBJECTS are
 # gone from the Kubernetes API -- traced through the driver's actual Go
 # source (cmd/dra-rt-kubeletplugin/state.go's Unprepare(), driver.go's
@@ -414,7 +435,7 @@ place_fixed_competitor() {
     fi
     local ok=0 attempt comp_pod landed candidate_target
     for attempt in 1 2 3 4 5; do
-      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$FIXED_COMP_FILE"
       wait_manifest_gone "$FIXED_COMP_FILE"
       wait_cpus_free "$hint_cpu"
       sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
@@ -442,7 +463,7 @@ place_fixed_competitor() {
     done
     if [ "$ok" != 1 ]; then
       echo "[run] ERROR reserved competitor never landed on a usable, actually-running cpu (avoiding KEEP_CPU=$KEEP_CPU) for $scale after 5 attempts"
-      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found >/dev/null 2>&1
+      delete_manifest "$FIXED_COMP_FILE"
       return 1
     fi
     echo "[run] $scale: reserved competitor landed on cpu$comp_cpu (avoiding KEEP_CPU=$KEEP_CPU), confirmed actually executing, running for the whole scale"
@@ -486,7 +507,7 @@ restart_fixed_competitor() {
   else
     local attempt landed comp_pod
     for attempt in 1 2 3; do
-      kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$FIXED_COMP_FILE"
       wait_manifest_gone "$FIXED_COMP_FILE"
       wait_cpus_free "$comp_cpu"
       sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
@@ -521,7 +542,7 @@ teardown_fixed_competitor() {
   # same label selector, and a get/wait could pick either one.
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=interferer" --ignore-not-found --wait=true >/dev/null 2>&1
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=competitor" --ignore-not-found --wait=true >/dev/null 2>&1
-  [ -n "${FIXED_COMP_FILE:-}" ] && kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
+  [ -n "${FIXED_COMP_FILE:-}" ] && delete_manifest "$FIXED_COMP_FILE"
 }
 
 FAILED_CELLS=(); FAILED_FILES=()
@@ -590,7 +611,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       # model3's fixed competitor -- lands the neighbour deterministically
       # instead of worst-fit + delete/recreate-until-landed, every cell.
       : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
-      kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$nb_file"
       wait_manifest_gone "$nb_file"
       wait_cpus_free "$NB_HINT_CPU"
       sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
@@ -598,7 +619,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
         fail_reason="neighbour pod not Ready"
         echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$nb_file"
         continue
       fi
       nb_pod=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=neighbour" -o jsonpath='{.items[0].metadata.name}')
@@ -611,7 +632,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ "$nb_cpu" = "$KEEP_CPU" ]; then
         fail_reason="neighbour landed on KEEP_CPU=$KEEP_CPU"
         echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$nb_file"
         continue
       fi
       desired_target_cpu=$(siblings_of "$nb_cpu" | tr ' ' '\n' | grep -vx "$nb_cpu" | head -1)
@@ -619,7 +640,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ "$desired_target_cpu" = "$KEEP_CPU" ]; then
         fail_reason="neighbour's sibling is KEEP_CPU=$KEEP_CPU (would force target there)"
         echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$nb_file"
         continue
       fi
       # Ready only proves the container process started, not that it already
@@ -631,7 +652,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if ! confirm_burning_cpu "$nb_pod"; then
         fail_reason="neighbour on cpu$nb_cpu is Ready but not consuming CPU (RT budget grant still incomplete?)"
         echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$nb_file"
         continue
       fi
       echo "[run] neighbour placed+running on cpu$nb_cpu, confirmed actually executing; target will be forced onto its sibling cpu$desired_target_cpu"
@@ -663,7 +684,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
 
     placed=0; tgt=""; tgt_cpuset=""; rtcpu=""
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
-      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$f"
       # 2026-08-14: found under 4-models-in-parallel load that --wait=true
       # returning is not sufficient -- confirmed directly via "AlreadyExists:
       # object is being deleted" on the very next create (params, claim
@@ -714,8 +735,8 @@ print(d.get('$key', {}).get('cv', 'NA'))
         fail_reason="could not place target after $PIN_ATTEMPTS attempts"
       fi
       echo "[run] $fail_reason; giving up on this cell"
-      kubectl delete -f "$f" --ignore-not-found >/dev/null 2>&1
-      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found >/dev/null 2>&1
+      delete_manifest "$f"
+      [ "$HAS_NB" = 1 ] && delete_manifest "$nb_file"
       break
     fi
 
@@ -729,8 +750,8 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ "$match" != 1 ]; then
         fail_reason="target landed on cpu$rtcpu despite being forced to one of {${CPU_CANDIDATES[*]}} -- placement forcing did not hold"
         echo "[run] BUG: $fail_reason; retrying cell"
-        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-        [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$f"
+        [ "$HAS_NB" = 1 ] && delete_manifest "$nb_file"
         continue
       fi
     fi
@@ -754,7 +775,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       if [ -z "$comp_pod_now" ] || ! confirm_burning_cpu "$comp_pod_now"; then
         fail_reason="competitor not consuming CPU for this cell (Ready/Running but quiet -- transient RT-bandwidth perturbation?)"
         echo "[run] $fail_reason; retrying cell"
-        kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+        delete_manifest "$f"
         continue
       fi
       echo "[run] competitor re-confirmed actually executing for this cell"
@@ -842,7 +863,7 @@ JSON
     if [ "$comp_died" = 1 ]; then
       fail_reason="competitor died mid-cell and could not be restarted"
       echo "[run] $fail_reason; retrying cell"
-      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$f"
       continue
     fi
 
@@ -889,14 +910,14 @@ JSON
       # cell would keep "holding" that exact cpu and block every cell after
       # it -- this was harmless under the old worst-fit placement (which
       # just used a different free cpu instead), not under a fixed hint.
-      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+      delete_manifest "$f"
+      [ "$HAS_NB" = 1 ] && delete_manifest "$nb_file"
       CELL_OK=1; break
     fi
     fail_reason="collected $n_got/$EXPECTED_N rows"
     echo "[run] WARNING $sub: $fail_reason (attempt $cell_attempt/$CELL_ATTEMPTS)"
-    kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-    [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+    delete_manifest "$f"
+    [ "$HAS_NB" = 1 ] && delete_manifest "$nb_file"
     sleep 5
   done
 
@@ -910,8 +931,8 @@ JSON
   # are fixed for the whole scale (place_fixed_competitor/teardown_fixed_competitor,
   # in the per-scale driving loop below), not recreated per cell.
   kubectl -n "$NS" delete pod -l "app=$MODEL,role=neighbour" --ignore-not-found --wait=false >/dev/null 2>&1
-  kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
-  [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
+  delete_manifest "$f"
+  [ "$HAS_NB" = 1 ] && delete_manifest "$nb_file"
   sleep 12   # let the driver release the claim before the next cell
 }
 
