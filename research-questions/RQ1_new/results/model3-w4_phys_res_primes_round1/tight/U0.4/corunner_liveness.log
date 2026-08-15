@@ -1,0 +1,24 @@
+2026-08-15T13:09:03Z phase=Running cputime=6234
+2026-08-15T13:09:06Z phase=Running cputime=6297
+2026-08-15T13:09:08Z phase=Running cputime=6359
+2026-08-15T13:09:10Z phase=Running cputime=6421
+2026-08-15T13:09:12Z phase=Running cputime=6484
+2026-08-15T13:09:15Z phase=Running cputime=6546
+2026-08-15T13:09:17Z phase=Running cputime=6609
+2026-08-15T13:09:19Z phase=Running cputime=6672
+2026-08-15T13:09:21Z phase=Running cputime=6734
+2026-08-15T13:09:24Z phase=Running cputime=6797
+2026-08-15T13:09:26Z phase=Running cputime=6860
+2026-08-15T13:09:28Z phase=Running cputime=6923
+2026-08-15T13:09:30Z phase=Running cputime=6986
+2026-08-15T13:09:33Z phase=Running cputime=7048
+2026-08-15T13:09:35Z phase=Running cputime=7110
+2026-08-15T13:09:37Z phase=Running cputime=7174
+2026-08-15T13:09:39Z phase=Running cputime=7237
+2026-08-15T13:09:42Z phase=Running cputime=7299
+2026-08-15T13:09:44Z phase=Running cputime=7362
+2026-08-15T13:09:46Z phase=Running cputime=7424
+2026-08-15T13:09:48Z phase=Running cputime=7486
+2026-08-15T13:09:51Z phase=Running cputime=7550
+2026-08-15T13:09:53Z phase=Running cputime=7611
+[run] co-runner (competitor) own jobs.csv row count at cell end: 27375
