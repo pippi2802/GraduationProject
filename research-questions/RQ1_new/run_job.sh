@@ -165,6 +165,30 @@ filter_keep_cpu() {
   echo "$1" | tr ' ' '\n' | grep -vx "$KEEP_CPU" | grep -v '^$' | tr '\n' ' ' | sed 's/ *$//'
 }
 
+# 2026-08-14: `kubectl delete -f <manifest> --wait=true` was found (under
+# 4-models-parallel load) to sometimes return before EVERY object it deletes
+# is actually gone -- direct evidence: "AlreadyExists: object is being
+# deleted" on the very next create, for the RtClaimParameters and
+# ResourceClaimTemplate as well as the Pod, not just the Pod. This matters
+# beyond just avoiding the error: the driver only releases a cpu from its
+# own NodeAllocationState bookkeeping once the underlying (auto-generated)
+# ResourceClaim is actually gone, so recreating too early risks the driver
+# treating the retry as a genuinely new admission against still-committed
+# capacity -- plausible explanation for target landings observed on the
+# wrong cpu (worst-fit fallback) instead of the requested one. Polls with
+# `kubectl get -f` against the SAME manifest delete just used, which checks
+# every object it declares (params + claim template + pod) in one call, not
+# just the pod. Returns 1 if still present after ~15s -- caller's own outer
+# retry loop already handles that, unchanged from before this existed.
+wait_manifest_gone() {
+  local file="$1" i
+  for i in $(seq 1 15); do
+    [ -z "$(kubectl get -f "$file" -o name 2>/dev/null)" ] && return 0
+    sleep 1
+  done
+  return 1
+}
+
 # Deterministically pick a fixed cpu (avoiding KEEP_CPU) that also has a
 # valid PAIR_TYPE-relative pair partner (also avoiding KEEP_CPU). Topology
 # never changes cell to cell, so this always returns the same answer -- used
@@ -354,7 +378,7 @@ place_fixed_competitor() {
     local ok=0 attempt comp_pod landed candidate_target
     for attempt in 1 2 3 4 5; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
-      sleep 2   # controller cleanup lag under concurrent load, see target's own note
+      wait_manifest_gone "$FIXED_COMP_FILE"
       sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -425,7 +449,7 @@ restart_fixed_competitor() {
     local attempt landed comp_pod
     for attempt in 1 2 3; do
       kubectl delete -f "$FIXED_COMP_FILE" --ignore-not-found --wait=true >/dev/null 2>&1
-      sleep 2   # controller cleanup lag under concurrent load, see target's own note
+      wait_manifest_gone "$FIXED_COMP_FILE"
       sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -528,7 +552,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       # instead of worst-fit + delete/recreate-until-landed, every cell.
       : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
       kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
-      sleep 2   # controller cleanup lag under concurrent load, see target's own note
+      wait_manifest_gone "$nb_file"
       sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
             --for=condition=Ready --timeout=150s >/dev/null 2>&1; then
@@ -601,15 +625,11 @@ print(d.get('$key', {}).get('cv', 'NA'))
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
       # 2026-08-14: found under 4-models-in-parallel load that --wait=true
-      # returning is not sufficient -- the dra-rt-driver controller's own
-      # cleanup (releasing the cpu, removing its finalizer) can lag behind
-      # the object actually disappearing from etcd when its reconcile queue
-      # is backlogged (observed as repeated "AlreadyExists" on recreate,
-      # traced to 409 "object has been modified"/finalizer-removal conflicts
-      # in the controller's own log). A short breather here costs almost
-      # nothing when placement succeeds first try, and saves whole cells
-      # from exhausting PIN_ATTEMPTS on a race that a moment's wait avoids.
-      sleep 2
+      # returning is not sufficient -- confirmed directly via "AlreadyExists:
+      # object is being deleted" on the very next create (params, claim
+      # template, AND pod, not just the pod). wait_manifest_gone polls the
+      # actual state instead of guessing a fixed delay.
+      wait_manifest_gone "$f"
       sed "s/@@REQUESTED_CPUS@@/$tgt_hint/g" "$f" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
             --for=condition=Ready --timeout=120s >/dev/null 2>&1; then
