@@ -880,6 +880,17 @@ JSON
 
     if [ "$n_got" -eq "$EXPECTED_N" ]; then
       echo "[run] collected $n_got/$EXPECTED_N rows -> $out"
+      # 2026-08-15: MUST delete the target (+ neighbour) now, not leave it
+      # Completed-but-undeleted like before -- a DRA claim's cpu is only
+      # released by the driver when the POD OBJECT is deleted, not when its
+      # container merely exits. requestedCpus hard-pins every cell in this
+      # scale to the SAME specific cpu (desired_target_cpu doesn't change
+      # across U values), so a completed-but-lingering pod from an earlier
+      # cell would keep "holding" that exact cpu and block every cell after
+      # it -- this was harmless under the old worst-fit placement (which
+      # just used a different free cpu instead), not under a fixed hint.
+      kubectl delete -f "$f" --ignore-not-found --wait=true >/dev/null 2>&1
+      [ "$HAS_NB" = 1 ] && kubectl delete -f "$nb_file" --ignore-not-found --wait=true >/dev/null 2>&1
       CELL_OK=1; break
     fi
     fail_reason="collected $n_got/$EXPECTED_N rows"
