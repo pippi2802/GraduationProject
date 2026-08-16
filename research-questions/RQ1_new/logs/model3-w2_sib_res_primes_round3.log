@@ -1,0 +1,134 @@
+nohup: ignoring input
+[run] model=model3-w2 ns=rq1-model3-w2 agent=rq1-agent-hz9r4 cells=20 has_neighbours=0 has_competitor=1
+[run] model3 arm: PAIR_TYPE=sibling COMPETITOR_TYPE=reserved
+[run] kubepods-besteffort.slice period mismatch (have 0, need 100000) -- resetting
+[run] kubepods-besteffort.slice period now 100000, runtime cleared
+[run] soft: reserved competitor landed on cpu2 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] soft: target will be forced onto {3} for every cell (PAIR_TYPE=sibling vs competitor cpu2)
+[run] === soft/U0.1 (models/model3-w2/generated_primes/soft/U0.1.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 5128
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.1
+[run] === soft/U0.2 (models/model3-w2/generated_primes/soft/U0.2.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 10426
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.2
+[run] === soft/U0.3 (models/model3-w2/generated_primes/soft/U0.3.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 15751
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.3
+[run] === soft/U0.4 (models/model3-w2/generated_primes/soft/U0.4.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 21076
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.4
+[run] === soft/U0.5 (models/model3-w2/generated_primes/soft/U0.5.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 26435
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.5
+[run] === soft/U0.6 (models/model3-w2/generated_primes/soft/U0.6.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 31716
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.6
+[run] === soft/U0.7 (models/model3-w2/generated_primes/soft/U0.7.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 34507
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.7
+[run] === soft/U0.8 (models/model3-w2/generated_primes/soft/U0.8.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 39832
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.8
+[run] === soft/U0.9 (models/model3-w2/generated_primes/soft/U0.9.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 42599
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.9
+[run] === soft/U0.94 (models/model3-w2/generated_primes/soft/U0.94.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 45357
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/soft/U0.94
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] tight: reserved competitor landed on cpu2 (avoiding KEEP_CPU=0), confirmed actually executing, running for the whole scale
+[run] tight: target will be forced onto {3} for every cell (PAIR_TYPE=sibling vs competitor cpu2)
+[run] === tight/U0.1 (models/model3-w2/generated_primes/tight/U0.1.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 11146
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.1
+[run] === tight/U0.2 (models/model3-w2/generated_primes/tight/U0.2.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 18560
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.2
+[run] === tight/U0.3 (models/model3-w2/generated_primes/tight/U0.3.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 25637
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.3
+[run] === tight/U0.4 (models/model3-w2/generated_primes/tight/U0.4.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 32524
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.4
+[run] === tight/U0.5 (models/model3-w2/generated_primes/tight/U0.5.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 37264
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.5
+[run] === tight/U0.6 (models/model3-w2/generated_primes/tight/U0.6.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 44147
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.6
+[run] === tight/U0.7 (models/model3-w2/generated_primes/tight/U0.7.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 51168
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.7
+[run] === tight/U0.8 (models/model3-w2/generated_primes/tight/U0.8.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 58227
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.8
+[run] === tight/U0.9 (models/model3-w2/generated_primes/tight/U0.9.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 62773
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.9
+[run] === tight/U0.94 (models/model3-w2/generated_primes/tight/U0.94.yaml) ===
+[run] competitor fixed on cpu2, target forced to cpu3 -- confirmed, competitor already running for this whole scale
+[run] competitor re-confirmed actually executing for this cell
+[run] running...
+[run] co-runner (competitor) own jobs.csv row count at cell end: 67282
+[run] collected 5000/5000 rows -> results/model3-w2_sib_res_primes_round3/tight/U0.94
+
+[run] done. all 20 cell(s) collected their expected row count.
+[run] analyze with: python result.py model3-w2_sib_res_primes_round3
