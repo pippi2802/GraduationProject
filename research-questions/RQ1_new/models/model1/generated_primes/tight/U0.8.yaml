@@ -1,0 +1,47 @@
+# BASE manifest for one model-1 cell (clean baseline: a single reserved probe).
+# generate_yaml.py stamps model1-tight-u80 8000(Q) 10000(P) 76 tight/U0.8 per
+# (scale, U). Read it as a normal manifest — only those tokens change.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model1, name: "model1-tight-u80-params" }
+spec: { count: 1, runtime: 8000, period: 10000 }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model1, name: "model1-tight-u80-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model1-tight-u80-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model1
+  name: "model1-tight-u80"
+  labels: { app: model1, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model1 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v2
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results; rm -f /results/jobs.csv || true
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/matmul --kind primes --buf-kb 131072 --M 48 --K 76 --period-us 10000 \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
+            --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model1-tight-u80-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model1/tight/U0.8/target, type: DirectoryOrCreate }

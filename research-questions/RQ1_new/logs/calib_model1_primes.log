@@ -1,0 +1,23 @@
+nohup: ignoring input
+[calib] workload=primes buf_kb=131072
+[calib] tight-U0.1: K=9 medC=666 (target 700) cv=0.0089 [OK]
+[calib] tight-U0.2: K=19 medC=1405 (target 1400) cv=0.0068 [OK]
+[calib] tight-U0.3: K=29 medC=2143 (target 2100) cv=0.0063 [OK]
+[calib] tight-U0.4: K=38 medC=2809 (target 2800) cv=0.0057 [OK]
+[calib] tight-U0.5: K=48 medC=3548 (target 3500) cv=0.0046 [OK]
+[calib] tight-U0.6: K=57 medC=4216 (target 4200) cv=0.0057 [OK]
+[calib] tight-U0.7: K=67 medC=4955 (target 4900) cv=0.0047 [OK]
+[calib] tight-U0.8: K=76 medC=5638 (target 5600) cv=0.0095 [OK]
+[calib] tight-U0.9: K=86 medC=6360 (target 6300) cv=0.0046 [OK]
+[calib] tight-U0.94: K=89 medC=6581 (target 6580) cv=0.0032 [OK]
+[calib] soft-U0.1: K=94 medC=6953 (target 7000) cv=0.0033 [OK]
+[calib] soft-U0.2: K=190 medC=14050 (target 14000) cv=0.0025 [OK]
+[calib] soft-U0.3: K=281 medC=20786 (target 21000) cv=0.0024 [OK]
+[calib] soft-U0.4: K=381 medC=28182 (target 28000) cv=0.0019 [OK]
+[calib] soft-U0.5: K=476 medC=35214 (target 35000) cv=0.0018 [OK]
+[calib] soft-U0.6: K=571 medC=42237 (target 42000) cv=0.0017 [OK]
+[calib] soft-U0.7: K=666 medC=49267 (target 49000) cv=0.0012 [OK]
+[calib] soft-U0.8: K=761 medC=56294 (target 56000) cv=0.0014 [OK]
+[calib] soft-U0.9: K=857 medC=63391 (target 63000) cv=0.0012 [OK]
+[calib] soft-U0.94: K=894 medC=66135 (target 65800) cv=0.0013 [OK]
+[calib] wrote /home/azureuser/GraduationProject/research-questions/RQ1_new/models/model1/k_table.primes.json
