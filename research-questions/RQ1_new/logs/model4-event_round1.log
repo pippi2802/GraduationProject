@@ -1,0 +1,51 @@
+nohup: ignoring input
+[run] model=model4-event ns=rq1-model4-event agent=rq1-agent-l22lr cells=20 has_neighbours=0 has_competitor=0
+[run] *** WORKLOAD=matmul (GEN_DIR=generated, k_table=k_table.json) -- confirm this is what you meant to run ***
+[run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
+[run] === soft/U0.1 (models/model4-event/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] WARNING soft/U0.1: collected 4999/5000 rows (attempt 1/4)
+[run] --- retrying cell (attempt 2/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.1: collected 4999/5000 rows (attempt 2/4)
+[run] --- retrying cell (attempt 3/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.1: collected 4994/5000 rows (attempt 3/4)
+[run] --- retrying cell (attempt 4/4): collected 4994/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.1: collected 4999/5000 rows (attempt 4/4)
+[run] FAILED soft/U0.1 after 4 attempt(s): collected 4999/5000 rows
+[run] === soft/U0.2 (models/model4-event/generated/soft/U0.2.yaml) ===
+[run] running...
+[run] WARNING soft/U0.2: collected 4998/5000 rows (attempt 1/4)
+[run] --- retrying cell (attempt 2/4): collected 4998/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.2: collected 4999/5000 rows (attempt 2/4)
+[run] --- retrying cell (attempt 3/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.2: collected 4699/5000 rows (attempt 3/4)
+[run] --- retrying cell (attempt 4/4): collected 4699/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.2: collected 4934/5000 rows (attempt 4/4)
+[run] FAILED soft/U0.2 after 4 attempt(s): collected 4934/5000 rows
+[run] === soft/U0.3 (models/model4-event/generated/soft/U0.3.yaml) ===
+[run] running...
+[run] WARNING soft/U0.3: collected 4999/5000 rows (attempt 1/4)
+[run] --- retrying cell (attempt 2/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.3: collected 4998/5000 rows (attempt 2/4)
+[run] --- retrying cell (attempt 3/4): collected 4998/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.3: collected 4999/5000 rows (attempt 3/4)
+[run] --- retrying cell (attempt 4/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.3: collected 4999/5000 rows (attempt 4/4)
+[run] FAILED soft/U0.3 after 4 attempt(s): collected 4999/5000 rows
+[run] === soft/U0.4 (models/model4-event/generated/soft/U0.4.yaml) ===
+[run] running...
+[run] WARNING soft/U0.4: collected 4999/5000 rows (attempt 1/4)
+[run] --- retrying cell (attempt 2/4): collected 4999/5000 rows ---
+[run] running...
+[run] WARNING soft/U0.4: collected 4986/5000 rows (attempt 2/4)
+[run] --- retrying cell (attempt 3/4): collected 4986/5000 rows ---
+[run] running...

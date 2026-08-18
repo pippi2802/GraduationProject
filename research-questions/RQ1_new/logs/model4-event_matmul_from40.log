@@ -1,0 +1,29 @@
+nohup: ignoring input
+[run] U_MIN=0.4 U_MAX= applied: 7 cells remain
+[run] model=model4-event ns=rq1-model4-event agent=rq1-agent-l22lr cells=7 has_neighbours=0 has_competitor=0
+[run] *** WORKLOAD=matmul (GEN_DIR=generated, k_table=k_table.json) -- confirm this is what you meant to run ***
+[run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
+[run] === soft/U0.4 (models/model4-event/generated/soft/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.4
+[run] === soft/U0.5 (models/model4-event/generated/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.5
+[run] === soft/U0.6 (models/model4-event/generated/soft/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.6
+[run] === soft/U0.7 (models/model4-event/generated/soft/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.7
+[run] === soft/U0.8 (models/model4-event/generated/soft/U0.8.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.8
+[run] === soft/U0.9 (models/model4-event/generated/soft/U0.9.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.9
+[run] === soft/U0.94 (models/model4-event/generated/soft/U0.94.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-event/soft/U0.94
+
+[run] done. all 7 cell(s) collected their expected row count.
+[run] analyze with: python result.py model4-event

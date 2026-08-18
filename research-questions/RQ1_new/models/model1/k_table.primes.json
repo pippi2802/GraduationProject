@@ -1,202 +1,202 @@
 {
   "tight-U0.1": {
-    "K": 9,
-    "median_C_us": 665.8,
-    "cv": 0.0089,
+    "K": 2,
+    "median_C_us": 763.6,
+    "cv": 0.0449,
     "target_us": 700,
     "Q_us": 1000,
     "scale": "tight",
     "u": 0.1,
-    "calibrated_at": "2026-08-14T12:39:10+00:00"
+    "calibrated_at": "2026-08-18T17:41:40+00:00"
   },
   "tight-U0.2": {
-    "K": 19,
-    "median_C_us": 1404.6,
-    "cv": 0.0068,
+    "K": 4,
+    "median_C_us": 1524.5,
+    "cv": 0.045,
     "target_us": 1400,
     "Q_us": 2000,
     "scale": "tight",
     "u": 0.2,
-    "calibrated_at": "2026-08-14T12:39:11+00:00"
+    "calibrated_at": "2026-08-18T17:41:41+00:00"
   },
   "tight-U0.3": {
-    "K": 29,
-    "median_C_us": 2143.4,
-    "cv": 0.0063,
+    "K": 6,
+    "median_C_us": 2290.1,
+    "cv": 0.0261,
     "target_us": 2100,
     "Q_us": 3000,
     "scale": "tight",
     "u": 0.3,
-    "calibrated_at": "2026-08-14T12:39:13+00:00"
+    "calibrated_at": "2026-08-18T17:41:43+00:00"
   },
   "tight-U0.4": {
-    "K": 38,
-    "median_C_us": 2808.9,
-    "cv": 0.0057,
+    "K": 7,
+    "median_C_us": 2668.4,
+    "cv": 0.0237,
     "target_us": 2800,
     "Q_us": 4000,
     "scale": "tight",
     "u": 0.4,
-    "calibrated_at": "2026-08-14T12:39:15+00:00"
+    "calibrated_at": "2026-08-18T17:41:45+00:00"
   },
   "tight-U0.5": {
-    "K": 48,
-    "median_C_us": 3548.2,
-    "cv": 0.0046,
+    "K": 9,
+    "median_C_us": 3428.7,
+    "cv": 0.021,
     "target_us": 3500,
     "Q_us": 5000,
     "scale": "tight",
     "u": 0.5,
-    "calibrated_at": "2026-08-14T12:39:17+00:00"
+    "calibrated_at": "2026-08-18T17:41:47+00:00"
   },
   "tight-U0.6": {
-    "K": 57,
-    "median_C_us": 4216.3,
-    "cv": 0.0057,
+    "K": 11,
+    "median_C_us": 4192.9,
+    "cv": 0.0267,
     "target_us": 4200,
     "Q_us": 6000,
     "scale": "tight",
     "u": 0.6,
-    "calibrated_at": "2026-08-14T12:39:20+00:00"
+    "calibrated_at": "2026-08-18T17:41:50+00:00"
   },
   "tight-U0.7": {
-    "K": 67,
-    "median_C_us": 4954.8,
-    "cv": 0.0047,
+    "K": 13,
+    "median_C_us": 4950.8,
+    "cv": 0.0175,
     "target_us": 4900,
     "Q_us": 7000,
     "scale": "tight",
     "u": 0.7,
-    "calibrated_at": "2026-08-14T12:39:23+00:00"
+    "calibrated_at": "2026-08-18T17:41:53+00:00"
   },
   "tight-U0.8": {
-    "K": 76,
-    "median_C_us": 5638.2,
-    "cv": 0.0095,
+    "K": 15,
+    "median_C_us": 5711.2,
+    "cv": 0.0173,
     "target_us": 5600,
     "Q_us": 8000,
     "scale": "tight",
     "u": 0.8,
-    "calibrated_at": "2026-08-14T12:39:26+00:00"
+    "calibrated_at": "2026-08-18T17:41:56+00:00"
   },
   "tight-U0.9": {
-    "K": 86,
-    "median_C_us": 6359.6,
-    "cv": 0.0046,
+    "K": 17,
+    "median_C_us": 6473.9,
+    "cv": 0.0166,
     "target_us": 6300,
     "Q_us": 9000,
     "scale": "tight",
     "u": 0.9,
-    "calibrated_at": "2026-08-14T12:39:30+00:00"
+    "calibrated_at": "2026-08-18T17:42:00+00:00"
   },
   "tight-U0.94": {
-    "K": 89,
-    "median_C_us": 6581.0,
-    "cv": 0.0032,
+    "K": 17,
+    "median_C_us": 6470.9,
+    "cv": 0.0151,
     "target_us": 6580,
     "Q_us": 9400,
     "scale": "tight",
     "u": 0.94,
-    "calibrated_at": "2026-08-14T12:39:34+00:00"
+    "calibrated_at": "2026-08-18T17:42:04+00:00"
   },
   "soft-U0.1": {
-    "K": 94,
-    "median_C_us": 6953.0,
-    "cv": 0.0033,
+    "K": 18,
+    "median_C_us": 6848.2,
+    "cv": 0.015,
     "target_us": 7000,
     "Q_us": 10000,
     "scale": "soft",
     "u": 0.1,
-    "calibrated_at": "2026-08-14T12:39:38+00:00"
+    "calibrated_at": "2026-08-18T17:42:12+00:00"
   },
   "soft-U0.2": {
-    "K": 190,
-    "median_C_us": 14050.3,
-    "cv": 0.0025,
+    "K": 37,
+    "median_C_us": 14094.5,
+    "cv": 0.0105,
     "target_us": 14000,
     "Q_us": 20000,
     "scale": "soft",
     "u": 0.2,
-    "calibrated_at": "2026-08-14T12:39:45+00:00"
+    "calibrated_at": "2026-08-18T17:42:19+00:00"
   },
   "soft-U0.3": {
-    "K": 281,
-    "median_C_us": 20785.7,
-    "cv": 0.0024,
+    "K": 55,
+    "median_C_us": 20931.1,
+    "cv": 0.0087,
     "target_us": 21000,
     "Q_us": 30000,
     "scale": "soft",
     "u": 0.3,
-    "calibrated_at": "2026-08-14T12:39:56+00:00"
+    "calibrated_at": "2026-08-18T17:42:31+00:00"
   },
   "soft-U0.4": {
-    "K": 381,
-    "median_C_us": 28181.5,
-    "cv": 0.0019,
+    "K": 74,
+    "median_C_us": 28157.7,
+    "cv": 0.0071,
     "target_us": 28000,
     "Q_us": 40000,
     "scale": "soft",
     "u": 0.4,
-    "calibrated_at": "2026-08-14T12:40:11+00:00"
+    "calibrated_at": "2026-08-18T17:42:45+00:00"
   },
   "soft-U0.5": {
-    "K": 476,
-    "median_C_us": 35214.1,
-    "cv": 0.0018,
+    "K": 93,
+    "median_C_us": 35392.1,
+    "cv": 0.006,
     "target_us": 35000,
     "Q_us": 50000,
     "scale": "soft",
     "u": 0.5,
-    "calibrated_at": "2026-08-14T12:40:30+00:00"
+    "calibrated_at": "2026-08-18T17:43:04+00:00"
   },
   "soft-U0.6": {
-    "K": 571,
-    "median_C_us": 42237.2,
-    "cv": 0.0017,
+    "K": 110,
+    "median_C_us": 41889.6,
+    "cv": 0.006,
     "target_us": 42000,
     "Q_us": 60000,
     "scale": "soft",
     "u": 0.6,
-    "calibrated_at": "2026-08-14T12:40:51+00:00"
+    "calibrated_at": "2026-08-18T17:43:26+00:00"
   },
   "soft-U0.7": {
-    "K": 666,
-    "median_C_us": 49266.5,
-    "cv": 0.0012,
+    "K": 130,
+    "median_C_us": 49504.3,
+    "cv": 0.0057,
     "target_us": 49000,
     "Q_us": 70000,
     "scale": "soft",
     "u": 0.7,
-    "calibrated_at": "2026-08-14T12:41:17+00:00"
+    "calibrated_at": "2026-08-18T17:43:52+00:00"
   },
   "soft-U0.8": {
-    "K": 761,
-    "median_C_us": 56293.9,
-    "cv": 0.0014,
+    "K": 148,
+    "median_C_us": 56356.2,
+    "cv": 0.005,
     "target_us": 56000,
     "Q_us": 80000,
     "scale": "soft",
     "u": 0.8,
-    "calibrated_at": "2026-08-14T12:41:46+00:00"
+    "calibrated_at": "2026-08-18T17:44:21+00:00"
   },
   "soft-U0.9": {
-    "K": 857,
-    "median_C_us": 63390.7,
-    "cv": 0.0012,
+    "K": 167,
+    "median_C_us": 63598.8,
+    "cv": 0.0049,
     "target_us": 63000,
     "Q_us": 90000,
     "scale": "soft",
     "u": 0.9,
-    "calibrated_at": "2026-08-14T12:42:19+00:00"
+    "calibrated_at": "2026-08-18T17:44:55+00:00"
   },
   "soft-U0.94": {
-    "K": 894,
-    "median_C_us": 66135.3,
-    "cv": 0.0013,
+    "K": 173,
+    "median_C_us": 65879.9,
+    "cv": 0.0307,
     "target_us": 65800,
     "Q_us": 94000,
     "scale": "soft",
     "u": 0.94,
-    "calibrated_at": "2026-08-14T12:42:53+00:00"
+    "calibrated_at": "2026-08-18T17:45:30+00:00"
   }
 }
