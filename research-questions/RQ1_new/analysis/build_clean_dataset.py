@@ -74,6 +74,25 @@ ROUND_STATUS = {
         ("model3_round3", True, "19/20 cells, missing only tight/U0.94 -- no rerun available to fill it. Not a validity problem for the cells that did complete, same convention as model3-w4's incomplete high-U tight cells."),
         ("model3_round4", True, "19/20 cells, missing only tight/U0.2 -- no rerun available to fill it (the old model3_sib_cfs_round4's 2 cells were soft/U0.1-0.2, redundant with round1, never actually matched this gap)."),
         # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
+        # primes kind, 2026-08-16: all 4 rounds validated structurally (20/20
+        # cells, 5000 rows, correct kind, no dup/non-monotonic job_index, no
+        # cross-cell contamination in placement.json) and via the alpha=C/Q
+        # crossing check -- 160/160 cells across model3+model3-w2 combined
+        # match the outcome alpha predicts, zero exceptions. Round-to-round
+        # miss_rate DOES flip between ~0% and ~100% at the same nominal U far
+        # more than matmul ever showed -- this is real, not a coin-flip bug:
+        # primes' intrinsic per-job cv (~0.1-0.3, data-dependent early-exit
+        # trial division) is wide enough that the same U straddles alpha=1
+        # differently round to round under sibling contention. See
+        # backlog/2026-08-14.md and 2026-08-15/16 chat for the full audit
+        # (also cross-checked against nonvol_ctxt/mid_job_preempt_us: exactly
+        # 1 involuntary context switch on 98.3% of alpha>=1 jobs, duration
+        # scaling with the period -- the H-CBS budget-exhaustion signature,
+        # not scheduler noise).
+        ("model3_sib_cfs_primes_round1", True, "validated 2026-08-16, see above"),
+        ("model3_sib_cfs_primes_round2", True, "validated 2026-08-16, see above"),
+        ("model3_sib_cfs_primes_round3", True, "validated 2026-08-16, see above"),
+        ("model3_sib_cfs_primes_round4", True, "validated 2026-08-16, see above"),
     ],
     "model3-w2": [  # sib_res: sibling, reserved competitor
         # UPDATED 2026-08-11: the old "model3-w2_sib_res_round1-4" directories
@@ -92,6 +111,12 @@ ROUND_STATUS = {
         ("model3-w2_round3", True, "merged 2026-08-11: base + its 1-cell gap-fill (soft/U0.2) from the old sib_res_round3 rerun. Verified clean via alpha-crossing check."),
         ("model3-w2_round4", True, "left untouched 2026-08-11 (its own sib_res_round4 rerun didn't match this round's actual gap, discarded rather than merged) -- already complete 20/20 as base data."),
         # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
+        # primes kind, 2026-08-16: same validation as model3's primes rounds
+        # above (structural + alpha-crossing check combined across both).
+        ("model3-w2_sib_res_primes_round1", True, "validated 2026-08-16, see model3's primes note above"),
+        ("model3-w2_sib_res_primes_round2", True, "validated 2026-08-16, see model3's primes note above"),
+        ("model3-w2_sib_res_primes_round3", True, "validated 2026-08-16, see model3's primes note above"),
+        ("model3-w2_sib_res_primes_round4", True, "validated 2026-08-16, see model3's primes note above"),
     ],
     "model3-w3": [  # phys_cfs: physical, unreserved interferer -- control, near-0 miss expected regardless of interferer liveness subtleties
         ("model3-w3_phys_cfs_round1", True, "physical placement control: near-0% miss is the correct reading whether or not the interferer's liveness was ever ambiguous -- outcome is unaffected either way"),
@@ -99,6 +124,17 @@ ROUND_STATUS = {
         ("model3-w3_phys_cfs_round3", True, "same"),
         ("model3-w3_phys_cfs_round4", True, "same"),
         # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
+        # primes kind, 2026-08-16: validated structurally (20/20 cells each,
+        # correct kind/placement). Physical-separation control: essentially
+        # zero miss across all 4 rounds (mean miss_rate 0.0001, alpha_p50
+        # stays 0.63-0.78 throughout) and near-zero preemption signal
+        # (nonvol_ctxt=0.00, mid_job_preempt_us~1.3us mean across 400k jobs
+        # pooled with w4) -- confirms the sibling-arm coin-flip behavior is
+        # specifically an SMT-sharing effect, not residual system noise.
+        ("model3-w3_phys_cfs_primes_round1", True, "validated 2026-08-16, see note above"),
+        ("model3-w3_phys_cfs_primes_round2", True, "validated 2026-08-16, see note above"),
+        ("model3-w3_phys_cfs_primes_round3", True, "validated 2026-08-16, see note above"),
+        ("model3-w3_phys_cfs_primes_round4", True, "validated 2026-08-16, see note above"),
     ],
     "model3-w4": [  # phys_res: physical, reserved competitor -- control
         ("model3-w4_phys_res_round1", True, "physical placement control, same reasoning as w3; some high-U tight cells incomplete (admission ceiling, not a validity problem for the cells that did complete)"),
@@ -106,6 +142,13 @@ ROUND_STATUS = {
         ("model3-w4_phys_res_round3", True, "same"),
         ("model3-w4_phys_res_round4", True, "same"),
         # ptrchase-kind rounds removed 2026-08-14 (see model1 note above).
+        # primes kind, 2026-08-16: same validation as model3-w3's primes
+        # rounds above (physical-separation control, pooled preemption stats
+        # computed together with w3).
+        ("model3-w4_phys_res_primes_round1", True, "validated 2026-08-16, see model3-w3's primes note above"),
+        ("model3-w4_phys_res_primes_round2", True, "validated 2026-08-16, see model3-w3's primes note above"),
+        ("model3-w4_phys_res_primes_round3", True, "validated 2026-08-16, see model3-w3's primes note above"),
+        ("model3-w4_phys_res_primes_round4", True, "validated 2026-08-16, see model3-w3's primes note above"),
     ],
 }
 

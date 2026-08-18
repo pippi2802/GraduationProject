@@ -83,6 +83,18 @@ static const char *CSV_HEADER =
     "nonvol_ctxt,K_reps,matrix_M,skipped_before";
 
 enum { KIND_MATMUL, KIND_PRIMES };
+enum { ACT_PERIODIC, ACT_EVENT };
+// ACT_EVENT: release is NOT a precomputed clock_nanosleep schedule -- it is
+// stamped by a separate trigger-generator thread the instant it decides to
+// fire, and the target thread is woken by that trigger via a condition
+// variable (a real, async OS wakeup path: futex-based block/wake, the same
+// dispatch mechanism a hardware interrupt or external event delivery would
+// exercise) rather than a timer it computed for itself. Everything else
+// (CSV schema, K-unit compute, warmup, seed determinism) is identical to
+// the periodic path so the two are directly comparable via the SAME
+// dispatch_latency_us column: periodic measures release-computed-in-
+// advance to actually-started; event measures trigger-sent to actually-
+// started. requires exactly --threads 2 (target + generator).
 #define PRIMES_CANDS_PER_K 1024     // candidates tested per K-unit; calibration tunes K
 // Candidates are odd integers drawn (deterministically, from --seed) out of this
 // range. Large enough that trial division is real integer-divide work (worst
@@ -166,27 +178,117 @@ static long involuntary_ctxt(void) {
     return -1;
 }
 
+// ---- event-triggered activation (--activation event) --------------------------
+// Deterministic uniform [0,1) draw from the same xorshift64 stream used
+// everywhere else in this file, so trigger timing is reproducible given
+// --seed like everything else.
+static inline double uniform01(uint64_t *state) {
+    uint64_t x = *state;
+    x ^= x << 13; x ^= x >> 7; x ^= x << 17;
+    *state = x;
+    return (double)(x >> 11) / (double)(1ULL << 53);
+}
+
+// Shared trigger channel between the generator thread and the target thread.
+// A condition variable is a real async OS wakeup path (futex-based
+// block/wake under the hood) -- the target genuinely blocks until signaled,
+// it does not poll. The generator embeds ITS OWN send timestamp in the
+// shared state before signaling, so latency is computed from the same
+// clock/host with no synchronization skew between two separate timestamp
+// sources.
+typedef struct {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    volatile int ready;
+    volatile int stop;
+    volatile int64_t send_ns;
+} trigger_t;
+
+typedef struct {
+    trigger_t *trig;
+    int cpu, priority;
+    long n_jobs;
+    int64_t period_ns;      // mean inter-trigger interval
+    uint64_t seed_state;
+} generator_args_t;
+
+// Fires n_jobs triggers at intervals uniformly jittered around period_ns
+// (range [0.5, 1.5) x period_ns, mean = period_ns) -- bounded rather than a
+// true unbounded-tail Poisson process, so total experiment duration stays
+// predictable while still being genuinely non-periodic. Sleeps via
+// clock_nanosleep the same way the periodic path schedules releases, the
+// difference is WHERE the resulting timestamp goes: here it is handed to
+// another thread as a trigger, not consumed as this thread's own release.
+static void *generator_main(void *arg) {
+    generator_args_t *g = (generator_args_t *)arg;
+    if (g->cpu >= 0) {
+        cpu_set_t set; CPU_ZERO(&set); CPU_SET(g->cpu, &set);
+        if (sched_setaffinity(0, sizeof(set), &set) != 0)
+            fprintf(stderr, "[matmul] WARN generator sched_setaffinity(cpu=%d): %s\n",
+                    g->cpu, strerror(errno));
+    }
+    if (g->priority > 0) {
+        struct sched_param sp; memset(&sp, 0, sizeof(sp));
+        sp.sched_priority = g->priority;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
+            fprintf(stderr, "[matmul] WARN generator sched_setscheduler(FIFO,%d): %s\n",
+                    g->priority, strerror(errno));
+    }
+    struct timespec now, next;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    int64_t next_ns = ts_ns(&now) + g->period_ns;
+    for (long i = 0; i < g->n_jobs; i++) {
+        ns_to_ts(next_ns, &next);
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
+        struct timespec fired; clock_gettime(CLOCK_MONOTONIC, &fired);
+        int64_t send_ns = ts_ns(&fired);
+        pthread_mutex_lock(&g->trig->mutex);
+        g->trig->send_ns = send_ns;
+        g->trig->ready = 1;
+        pthread_cond_signal(&g->trig->cond);
+        pthread_mutex_unlock(&g->trig->mutex);
+        // Schedule advances from the PLANNED time (next_ns), not the actual
+        // observed wake time (send_ns) -- matching the periodic path's own
+        // convention exactly (next_ns += period_ns there). Using send_ns here
+        // was the bug: it let real OS wakeup noise leak into and compound
+        // within the seeded schedule itself, breaking run-to-run
+        // reproducibility at the same --seed. send_ns is still what gets
+        // reported to the target as the actual release timestamp -- only the
+        // SCHEDULE's own advancement must stay deterministic.
+        double jitter = 0.5 + uniform01(&g->seed_state);   // [0.5, 1.5)
+        next_ns = next_ns + (int64_t)(g->period_ns * jitter);
+    }
+    pthread_mutex_lock(&g->trig->mutex);
+    g->trig->stop = 1;
+    pthread_cond_signal(&g->trig->cond);
+    pthread_mutex_unlock(&g->trig->mutex);
+    return NULL;
+}
+
 // ---- batch/multithread mode (--threads N) -------------------------------------
-// "cpu-list" is a comma list of ints and/or "a-b" ranges (or "env" to read
-// RT_CPUSET, the same driver-provided env var --cpu env already reads), e.g.
-// "2,3" or "2-3". Expanded left-to-right; the first `threads` entries are used
-// (one cpu per worker), matching the reservation's claimed cpuset order.
+// "cpu-list" is a list of cpu ids separated by EITHER comma or hyphen (or
+// "env" to read RT_CPUSET, the same driver-provided env var --cpu env
+// already reads), e.g. "2,3" or "2-3" -- both mean the same two cpus, never
+// a range. This matches the driver's own CDI convention exactly (see
+// cmd/dra-rt-kubeletplugin/cdi.go's WriteCgroupToCDI and containerd's
+// ExtractCDI): hyphen is ALWAYS a plain delimiter there, same as comma,
+// regardless of whether the ids are numerically consecutive. Treating it as
+// a numeric range here was the exact bug already found and fixed in
+// job.yaml/run_job.sh's own cpuset handling (2026-08-12, the requestedCpus
+// [1,3] investigation) -- fixed at the source here too so no caller needs
+// to pre-normalize RT_CPUSET in a shell wrapper before passing it through.
+// Expanded left-to-right; the first `threads` entries are used (one cpu per
+// worker), matching the reservation's claimed cpuset order.
 static int parse_cpu_list(const char *spec, int *out, int max_out) {
     char buf[256];
     strncpy(buf, spec, sizeof(buf) - 1);
     buf[sizeof(buf) - 1] = 0;
     int n = 0;
     char *save = NULL;
-    char *tok = strtok_r(buf, ",", &save);
+    char *tok = strtok_r(buf, ",-", &save);   // comma AND hyphen are both plain delimiters
     while (tok && n < max_out) {
-        char *dash = strchr(tok, '-');
-        if (dash) {
-            int a = atoi(tok), b = atoi(dash + 1);
-            for (int c = a; c <= b && n < max_out; c++) out[n++] = c;
-        } else {
-            out[n++] = atoi(tok);
-        }
-        tok = strtok_r(NULL, ",", &save);
+        out[n++] = atoi(tok);
+        tok = strtok_r(NULL, ",-", &save);
     }
     return n;
 }
@@ -257,7 +359,11 @@ static void usage(const char *p) {
         "  --cpu env  reads RT_CPUSET (first cpu) for affinity; else no pinning.\n"
         "  --threads N  batch/multithread mode (model4): every period releases a\n"
         "               batch of N jobs run concurrently, one per --cpu-list entry.\n"
-        "  --cpu-list env  reads RT_CPUSET (comma/range list), one cpu per thread.\n",
+        "  --cpu-list env  reads RT_CPUSET (comma/range list), one cpu per thread.\n"
+        "  --activation periodic|event  (model4) periodic: release is a precomputed\n"
+        "               clock_nanosleep schedule, same as every other model. event:\n"
+        "               release is an async trigger from a second thread (requires\n"
+        "               --threads 2 -- cpu-list[0]=target, cpu-list[1]=generator).\n",
         p);
 }
 
@@ -273,6 +379,7 @@ int main(int argc, char **argv) {
     const char *logfile = NULL;
     int threads = 1;              // 1 = original single-thread path, unchanged
     char cpu_list_spec[256] = "";
+    int activation = ACT_PERIODIC; // model4: periodic (default) | event
 
     static struct option opts[] = {
         {"M", required_argument, 0, 'M'},
@@ -289,6 +396,7 @@ int main(int argc, char **argv) {
         {"buf-kb", required_argument, 0, 1002},
         {"threads", required_argument, 0, 1003},
         {"cpu-list", required_argument, 0, 1004},
+        {"activation", required_argument, 0, 1005},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}};
     int ci;
@@ -307,6 +415,7 @@ int main(int argc, char **argv) {
         case 1002: buf_kb = atol(optarg); break;
         case 1003: threads = atoi(optarg); break;
         case 1004: strncpy(cpu_list_spec, optarg, sizeof(cpu_list_spec) - 1); break;
+        case 1005: activation = (strcmp(optarg, "event") == 0) ? ACT_EVENT : ACT_PERIODIC; break;
         case 'c':
             if (strcmp(optarg, "env") == 0) {
                 const char *e = getenv("RT_CPUSET");
@@ -340,6 +449,10 @@ int main(int argc, char **argv) {
             return 2;
         }
     }
+    if (activation == ACT_EVENT && threads != 2) {
+        fprintf(stderr, "[matmul] --activation event requires --threads 2 (target + generator), got %d\n", threads);
+        return 2;
+    }
 
     // --- affinity (best effort; KubeDeadline usually pins already) --------------
     if (cpu >= 0) {
@@ -363,7 +476,125 @@ int main(int argc, char **argv) {
     FILE *out = stdout;
     if (logfile) { out = fopen(logfile, "w"); if (!out) { perror("fopen"); return 1; } }
 
-    if (threads <= 1) {
+    if (activation == ACT_EVENT) {
+    // ============================ event-triggered path (model4) ================
+    // Target (cpu_ids[0]) does the same compute as the periodic single-thread
+    // path; the difference is purely how release_ns is obtained. A generator
+    // thread (cpu_ids[1]) fires triggers per generator_main's own schedule and
+    // stamps its OWN send time into the shared trigger_t; the target blocks on
+    // a condition variable (a real async block/wake, not a poll) until signaled,
+    // then reads that stamp back as release_ns.
+    //
+    // Backpressure note: the trigger channel holds exactly one pending trigger
+    // (a ready flag + one timestamp, not a queue). If the target is still busy
+    // computing when the generator fires again, the new send_ns simply
+    // overwrites the old one -- the target sees only the LATEST trigger once it
+    // next checks, and any trigger(s) that arrived while it was busy are
+    // silently coalesced, not individually recorded. skipped_before is always 0
+    // here (unlike the periodic path's explicit catch-up counter) -- this is a
+    // real, deliberate difference in how backlog is handled between the two
+    // activation modes, not a missing feature; interpret dispatch_latency_us
+    // accordingly if the target is ever found running close to saturation.
+    size_t nelem = (size_t)M * M;
+    double *A = aligned_alloc(64, nelem * sizeof(double));
+    double *B = aligned_alloc(64, nelem * sizeof(double));
+    double *Cm = aligned_alloc(64, nelem * sizeof(double));
+    if (!A || !B || !Cm) { fprintf(stderr, "[matmul] alloc failed\n"); return 1; }
+    fill_matrix(A, (int)nelem, &st);
+    fill_matrix(B, (int)nelem, &st);
+    matmul(A, B, Cm, M);
+    uint64_t prime_state = st;
+    volatile double sink = 0.0;
+
+    trigger_t trig; memset(&trig, 0, sizeof(trig));
+    pthread_mutex_init(&trig.mutex, NULL);
+    pthread_cond_init(&trig.cond, NULL);
+
+    if (cpu_ids[0] >= 0) {
+        cpu_set_t set; CPU_ZERO(&set); CPU_SET(cpu_ids[0], &set);
+        if (sched_setaffinity(0, sizeof(set), &set) != 0)
+            fprintf(stderr, "[matmul] WARN target sched_setaffinity(cpu=%d): %s\n", cpu_ids[0], strerror(errno));
+    }
+    if (priority > 0) {
+        struct sched_param sp; memset(&sp, 0, sizeof(sp));
+        sp.sched_priority = priority;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
+            fprintf(stderr, "[matmul] WARN target sched_setscheduler(FIFO,%d): %s\n", priority, strerror(errno));
+    }
+    if (lock_pages && mlockall(MCL_CURRENT | MCL_FUTURE) != 0)
+        fprintf(stderr, "[matmul] WARN mlockall: %s\n", strerror(errno));
+
+    // un-timed warmup on the target only, before the generator thread (and
+    // therefore the metronome) starts at all -- same rationale as every other
+    // kind: fault in pages / warm caches before anything timed begins.
+    for (int w = 0; w < warmup; w++) {
+        if (kind == KIND_PRIMES) sink += (double)primes_batch(&prime_state, K);
+        else { for (int k = 0; k < K; k++) matmul(A, B, Cm, M); sink += Cm[0]; }
+    }
+
+    generator_args_t gargs = { &trig, cpu_ids[1], priority, n_jobs, period_ns,
+                                st + 0x9e3779b97f4a7c15ULL };
+    pthread_t gtid;
+    if (pthread_create(&gtid, NULL, generator_main, &gargs) != 0) {
+        fprintf(stderr, "[matmul] pthread_create (generator) failed\n"); return 1;
+    }
+
+    fprintf(out, "# probe kind=%s activation=event M=%d K=%d period_us=%lld priority=%d "
+                 "target_cpu=%d generator_cpu=%d seed=%llu n_jobs=%ld warmup=%d\n",
+            kind == KIND_PRIMES ? "primes" : "matmul", M, K,
+            (long long)(period_ns / 1000), priority, cpu_ids[0], cpu_ids[1],
+            (unsigned long long)seed, n_jobs, warmup);
+    fprintf(out, "%s\n", CSV_HEADER);
+
+    for (long i = 0; i < n_jobs; i++) {
+        pthread_mutex_lock(&trig.mutex);
+        while (!trig.ready && !trig.stop) pthread_cond_wait(&trig.cond, &trig.mutex);
+        int stopped = trig.stop;
+        int64_t release_ns = trig.send_ns;
+        trig.ready = 0;
+        pthread_mutex_unlock(&trig.mutex);
+        if (stopped) break;
+
+        long nv0 = involuntary_ctxt();
+        struct timespec t_start, t_finish, cc0, cc1;
+        clock_gettime(CLOCK_MONOTONIC, &t_start);
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc0);
+
+        if (kind == KIND_PRIMES) sink += (double)primes_batch(&prime_state, K);
+        else { for (int k = 0; k < K; k++) matmul(A, B, Cm, M); sink += Cm[0]; }
+
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc1);
+        clock_gettime(CLOCK_MONOTONIC, &t_finish);
+        long nv1 = involuntary_ctxt();
+
+        int64_t start_ns = ts_ns(&t_start);
+        int64_t finish_ns = ts_ns(&t_finish);
+        int64_t C_ns = ts_ns(&cc1) - ts_ns(&cc0);
+        int64_t R_ns = finish_ns - release_ns;
+        int64_t delay_ns = R_ns - C_ns;
+        int64_t dispatch_ns = start_ns - release_ns;   // the release-jitter metric
+        int64_t midjob_ns = (finish_ns - start_ns) - C_ns;
+        int64_t slack_ns = period_ns - R_ns;
+        int miss = (R_ns > period_ns) ? 1 : 0;
+        int64_t tard_ns = miss ? (R_ns - period_ns) : 0;
+        long nv = (nv0 >= 0 && nv1 >= 0) ? (nv1 - nv0) : -1;
+
+        fprintf(out,
+            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld\n",
+            i,
+            release_ns / 1000.0, start_ns / 1000.0, finish_ns / 1000.0,
+            C_ns / 1000.0, R_ns / 1000.0, delay_ns / 1000.0,
+            dispatch_ns / 1000.0, midjob_ns / 1000.0, slack_ns / 1000.0,
+            miss, tard_ns / 1000.0, nv, K, M, 0L);
+    }
+    if (out != stdout) fclose(out);
+    (void)sink;
+    pthread_join(gtid, NULL);
+    pthread_mutex_destroy(&trig.mutex);
+    pthread_cond_destroy(&trig.cond);
+    free(A); free(B); free(Cm);
+
+    } else if (threads <= 1) {
     // =========================== single-thread path ===========================
     // --- allocate + init A,B,C ONCE (outside the hot loop) ----------------------
     size_t nelem = (size_t)M * M;

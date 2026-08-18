@@ -1,0 +1,49 @@
+# Ad-hoc debug pod to test --activation event for real, on real cluster
+# hardware, before building the full harness wiring. Reuses model4-m's
+# existing namespace/node (already isolated, no new node-prep needed).
+# Not part of the generate_yaml.py pipeline -- apply/delete by hand.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model4-m, name: "model4-debug-params" }
+spec: { count: 2, runtime: 700000, period: 1000000, requestedCpus: [1, 3] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model4-m, name: "model4-debug-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model4-debug-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model4-m
+  name: "model4-debug"
+  labels: { app: model4-debug, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model4-m }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v6
+      imagePullPolicy: Always
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          echo "RT_CPUSET=$RT_CPUSET"
+          exec /usr/local/bin/matmul --kind matmul --M 48 --K 50 --period-us 100000 \
+            --n-jobs 200 --warmup 20 --priority 90 --seed 20260713 \
+            --threads 2 --cpu-list env --activation event \
+            --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model4-debug-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model4-debug, type: DirectoryOrCreate }

@@ -549,6 +549,43 @@ def plot_arm_comparison(models: list, kind: str, col: str, ylabel: str, title: s
     return fig
 
 
+def preemption_table(models: list, kind: str = "matmul") -> pd.DataFrame:
+    """Direct, per-job preemption evidence for the physical-vs-SMT claim --
+    complements the alpha-crossing statistical check (Claim 1/2) with a
+    mechanistic one. nonvol_ctxt (involuntary context switches, from
+    getrusage's ru_nivcsw) and mid_job_preempt_us (wall-clock time between
+    start and finish not spent executing) are logged per job by the probe
+    itself, not inferred. Splits each arm into a "protected" regime
+    (alpha<0.85) and a "throttled" regime (alpha>=1.0) -- physical arms
+    should show near-zero preemption in BOTH regimes (they rarely/never
+    reach the throttled one at all); sibling arms should show a large jump
+    between the two, evidencing that the coin-flip miss behaviour tracks a
+    real SMT-driven preemption mechanism, not measurement noise. 2026-08-16:
+    validated this exact split against model3's primes data -- physical
+    arms ~0.00 nonvol_ctxt / ~1.5us mid_job_preempt_us throughout; sibling
+    arms jump from ~0.00-0.02 / a few hundred us (protected) to ~1.0 /
+    tens of milliseconds (throttled), with the count (~1 per job) and
+    duration (scaling with the period) matching a single H-CBS budget-
+    exhaustion suspend-and-resume event, not scattered scheduler noise."""
+    rows = []
+    for model in models:
+        df = load_model(model, kind=kind)
+        if df.empty:
+            continue
+        for regime, mask in [("protected (alpha<0.85)", df["alpha"] < 0.85),
+                              ("throttled (alpha>=1.0)", df["alpha"] >= 1.0)]:
+            g = df[mask]
+            if g.empty:
+                continue
+            rows.append({
+                "model": model, "regime": regime, "n_jobs": len(g),
+                "nonvol_ctxt_mean": round(g["nonvol_ctxt"].mean(), 3),
+                "mid_job_preempt_us_mean": round(g["mid_job_preempt_us"].mean(), 1),
+                "mid_job_preempt_us_median": round(g["mid_job_preempt_us"].median(), 1),
+            })
+    return pd.DataFrame(rows)
+
+
 def severity_table(model: str, kind: str = "matmul") -> pd.DataFrame:
     """Miss rate, alpha, and longest consecutive miss run together --
     Claim 3's evidence that misses cluster exactly where alpha crosses 1

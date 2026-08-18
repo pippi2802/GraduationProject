@@ -106,6 +106,13 @@ if [ -n "${U_MIN:-}${U_MAX:-}" ]; then
   echo "[run] U_MIN=${U_MIN:-} U_MAX=${U_MAX:-} applied: ${#FILES[@]} cells remain"
 fi
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
+# 2026-08-18: printed WORKLOAD_KIND prominently -- this has bitten Silvia
+# twice now (model1's whole "primes" round1-4 turned out to be matmul, an
+# earlier model3 cell the same way): OUT_TAG is just a label she chooses,
+# it never enforced or reflected which WORKLOAD env var actually ran. This
+# line makes a wrong/missing WORKLOAD impossible to miss at a glance instead
+# of only discoverable later by grepping jobs.csv headers after the fact.
+echo "[run] *** WORKLOAD=$WORKLOAD_KIND (GEN_DIR=$GEN_DIR, k_table=$TAB_NAME) -- confirm this is what you meant to run ***"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"
 [ "$MT_THREADS" -gt 1 ] 2>/dev/null && echo "[run] model4: target_threads=$MT_THREADS, forcing the claimed pair onto two DISTINCT PHYSICAL cores"
 
