@@ -1,0 +1,202 @@
+{
+  "tight-U0.1": {
+    "K": 2,
+    "median_C_us": 779.1,
+    "cv": 0.0466,
+    "target_us": 700,
+    "Q_us": 1000,
+    "scale": "tight",
+    "u": 0.1,
+    "calibrated_at": "2026-08-18T19:35:48+00:00"
+  },
+  "tight-U0.2": {
+    "K": 4,
+    "median_C_us": 1551.9,
+    "cv": 0.037,
+    "target_us": 1400,
+    "Q_us": 2000,
+    "scale": "tight",
+    "u": 0.2,
+    "calibrated_at": "2026-08-18T19:35:49+00:00"
+  },
+  "tight-U0.3": {
+    "K": 5,
+    "median_C_us": 1934.0,
+    "cv": 0.0333,
+    "target_us": 2100,
+    "Q_us": 3000,
+    "scale": "tight",
+    "u": 0.3,
+    "calibrated_at": "2026-08-18T19:35:50+00:00"
+  },
+  "tight-U0.4": {
+    "K": 7,
+    "median_C_us": 2708.8,
+    "cv": 0.0284,
+    "target_us": 2800,
+    "Q_us": 4000,
+    "scale": "tight",
+    "u": 0.4,
+    "calibrated_at": "2026-08-18T19:35:52+00:00"
+  },
+  "tight-U0.5": {
+    "K": 9,
+    "median_C_us": 3478.4,
+    "cv": 0.0249,
+    "target_us": 3500,
+    "Q_us": 5000,
+    "scale": "tight",
+    "u": 0.5,
+    "calibrated_at": "2026-08-18T19:35:54+00:00"
+  },
+  "tight-U0.6": {
+    "K": 11,
+    "median_C_us": 4267.8,
+    "cv": 0.0238,
+    "target_us": 4200,
+    "Q_us": 6000,
+    "scale": "tight",
+    "u": 0.6,
+    "calibrated_at": "2026-08-18T19:35:57+00:00"
+  },
+  "tight-U0.7": {
+    "K": 13,
+    "median_C_us": 5029.3,
+    "cv": 0.0228,
+    "target_us": 4900,
+    "Q_us": 7000,
+    "scale": "tight",
+    "u": 0.7,
+    "calibrated_at": "2026-08-18T19:36:00+00:00"
+  },
+  "tight-U0.8": {
+    "K": 14,
+    "median_C_us": 5408.9,
+    "cv": 0.0212,
+    "target_us": 5600,
+    "Q_us": 8000,
+    "scale": "tight",
+    "u": 0.8,
+    "calibrated_at": "2026-08-18T19:36:06+00:00"
+  },
+  "tight-U0.9": {
+    "K": 16,
+    "median_C_us": 6188.9,
+    "cv": 0.0198,
+    "target_us": 6300,
+    "Q_us": 9000,
+    "scale": "tight",
+    "u": 0.9,
+    "calibrated_at": "2026-08-18T19:36:10+00:00"
+  },
+  "tight-U0.94": {
+    "K": 17,
+    "median_C_us": 6574.6,
+    "cv": 0.02,
+    "target_us": 6580,
+    "Q_us": 9400,
+    "scale": "tight",
+    "u": 0.94,
+    "calibrated_at": "2026-08-18T19:36:14+00:00"
+  },
+  "soft-U0.1": {
+    "K": 18,
+    "median_C_us": 6975.4,
+    "cv": 0.0184,
+    "target_us": 7000,
+    "Q_us": 10000,
+    "scale": "soft",
+    "u": 0.1,
+    "calibrated_at": "2026-08-18T19:36:18+00:00"
+  },
+  "soft-U0.2": {
+    "K": 36,
+    "median_C_us": 13942.3,
+    "cv": 0.0138,
+    "target_us": 14000,
+    "Q_us": 20000,
+    "scale": "soft",
+    "u": 0.2,
+    "calibrated_at": "2026-08-18T19:36:25+00:00"
+  },
+  "soft-U0.3": {
+    "K": 54,
+    "median_C_us": 20877.2,
+    "cv": 0.0117,
+    "target_us": 21000,
+    "Q_us": 30000,
+    "scale": "soft",
+    "u": 0.3,
+    "calibrated_at": "2026-08-18T19:36:36+00:00"
+  },
+  "soft-U0.4": {
+    "K": 73,
+    "median_C_us": 28284.0,
+    "cv": 0.0103,
+    "target_us": 28000,
+    "Q_us": 40000,
+    "scale": "soft",
+    "u": 0.4,
+    "calibrated_at": "2026-08-18T19:36:51+00:00"
+  },
+  "soft-U0.5": {
+    "K": 91,
+    "median_C_us": 35223.7,
+    "cv": 0.0085,
+    "target_us": 35000,
+    "Q_us": 50000,
+    "scale": "soft",
+    "u": 0.5,
+    "calibrated_at": "2026-08-18T19:37:09+00:00"
+  },
+  "soft-U0.6": {
+    "K": 109,
+    "median_C_us": 42178.7,
+    "cv": 0.0081,
+    "target_us": 42000,
+    "Q_us": 60000,
+    "scale": "soft",
+    "u": 0.6,
+    "calibrated_at": "2026-08-18T19:37:31+00:00"
+  },
+  "soft-U0.7": {
+    "K": 127,
+    "median_C_us": 49170.6,
+    "cv": 0.0082,
+    "target_us": 49000,
+    "Q_us": 70000,
+    "scale": "soft",
+    "u": 0.7,
+    "calibrated_at": "2026-08-18T19:37:56+00:00"
+  },
+  "soft-U0.8": {
+    "K": 145,
+    "median_C_us": 56225.3,
+    "cv": 0.0071,
+    "target_us": 56000,
+    "Q_us": 80000,
+    "scale": "soft",
+    "u": 0.8,
+    "calibrated_at": "2026-08-18T19:38:25+00:00"
+  },
+  "soft-U0.9": {
+    "K": 164,
+    "median_C_us": 63438.3,
+    "cv": 0.0071,
+    "target_us": 63000,
+    "Q_us": 90000,
+    "scale": "soft",
+    "u": 0.9,
+    "calibrated_at": "2026-08-18T19:38:58+00:00"
+  },
+  "soft-U0.94": {
+    "K": 170,
+    "median_C_us": 65965.4,
+    "cv": 0.007,
+    "target_us": 65800,
+    "Q_us": 94000,
+    "scale": "soft",
+    "u": 0.94,
+    "calibrated_at": "2026-08-18T19:39:32+00:00"
+  }
+}

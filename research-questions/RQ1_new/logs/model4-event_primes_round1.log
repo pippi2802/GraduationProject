@@ -1,0 +1,69 @@
+nohup: ignoring input
+[run] model=model4-event ns=rq1-model4-event agent=rq1-agent-g4hhz cells=20 has_neighbours=0 has_competitor=0
+[run] *** WORKLOAD=primes (GEN_DIR=generated_primes, k_table=k_table.primes.json) -- confirm this is what you meant to run ***
+[run] model4: target_threads=2, forcing the claimed pair onto two DISTINCT PHYSICAL cores
+[run] === soft/U0.1 (models/model4-event/generated_primes/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.1
+[run] === soft/U0.2 (models/model4-event/generated_primes/soft/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.2
+[run] === soft/U0.3 (models/model4-event/generated_primes/soft/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.3
+[run] === soft/U0.4 (models/model4-event/generated_primes/soft/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.4
+[run] === soft/U0.5 (models/model4-event/generated_primes/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.5
+[run] === soft/U0.6 (models/model4-event/generated_primes/soft/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.6
+[run] === soft/U0.7 (models/model4-event/generated_primes/soft/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.7
+[run] === soft/U0.8 (models/model4-event/generated_primes/soft/U0.8.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.8
+[run] === soft/U0.9 (models/model4-event/generated_primes/soft/U0.9.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.9
+[run] === soft/U0.94 (models/model4-event/generated_primes/soft/U0.94.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/soft/U0.94
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] === tight/U0.1 (models/model4-event/generated_primes/tight/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.1
+[run] === tight/U0.2 (models/model4-event/generated_primes/tight/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.2
+[run] === tight/U0.3 (models/model4-event/generated_primes/tight/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.3
+[run] === tight/U0.4 (models/model4-event/generated_primes/tight/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.4
+[run] === tight/U0.5 (models/model4-event/generated_primes/tight/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.5
+[run] === tight/U0.6 (models/model4-event/generated_primes/tight/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.6
+[run] === tight/U0.7 (models/model4-event/generated_primes/tight/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.7
+[run] === tight/U0.8 (models/model4-event/generated_primes/tight/U0.8.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.8
+[run] === tight/U0.9 (models/model4-event/generated_primes/tight/U0.9.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.9
+[run] === tight/U0.94 (models/model4-event/generated_primes/tight/U0.94.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/model4-eventprimes_round1/tight/U0.94
+
+[run] done. all 20 cell(s) collected their expected row count.
+[run] analyze with: python result.py model4-eventprimes_round1
