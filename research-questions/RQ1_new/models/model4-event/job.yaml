@@ -1,0 +1,59 @@
+# BASE manifest for one model4-event cell -- target (cpu 1) + generator
+# (cpu 3) claimed together, release is an async trigger from the generator
+# thread instead of a precomputed schedule. See
+# models/model4-periodic/job.yaml for the control arm this is compared
+# against, and matmul.c's --activation event for the mechanism itself.
+# @@K@@ comes from THIS model's own calibrate.py run (matmul.c's --threads/
+# --activation don't need any calibrate.py changes -- K's relationship to
+# execution time is a pure compute-kernel property, independent of how the
+# job gets released, so the existing single-thread-periodic calibration
+# measurement already produces the correct K).
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq1-model4-event, name: "@@NAME@@-params" }
+spec: { count: 2, runtime: @@RUNTIME@@, period: @@PERIOD@@, requestedCpus: [1, 3] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq1-model4-event, name: "@@NAME@@-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "@@NAME@@-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq1-model4-event
+  name: "@@NAME@@"
+  labels: { app: model4-event, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: model4-p }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1-probe:v6
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results; rm -f /results/jobs.csv || true
+          if [ -n "$RT_CPUSET" ]; then
+            RT_CPUSET=$(echo "$RT_CPUSET" | tr '-' ',' | tr ',' '\n' | grep -v '^$' | sort -n | paste -sd, -)
+            PIN="taskset -c $RT_CPUSET"; CPU="--threads 2 --cpu-list env"
+          else
+            PIN=""; CPU="--threads 2 --cpu-list 1,3"
+          fi
+          exec $PIN /usr/local/bin/matmul --M 48 --K @@K@@ --period-us @@PERIOD@@ \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 $CPU \
+            --activation event --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "@@NAME@@-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1/model4-event/@@SUB@@/target, type: DirectoryOrCreate }

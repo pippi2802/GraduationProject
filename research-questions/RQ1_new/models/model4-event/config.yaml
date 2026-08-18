@@ -1,0 +1,26 @@
+# Model 4 (new, 2026-08-18) -- event-triggered arm. See
+# models/model4-periodic/config.yaml for the full rationale; this is the
+# other side of the comparison. Target (cpu 1) blocks on an async
+# condition-variable trigger from a generator thread (cpu 3) instead of
+# computing its own release schedule -- see matmul.c's --activation event
+# for the mechanism. requestedCpus=[1,3] reused deliberately: same
+# non-consecutive, physically-separated pair already validated for the old
+# model4-m/model4-p (topology (0,1)/(2,3) on this node), chosen here so
+# target and generator do NOT share a physical core -- this experiment is
+# about dispatch/wakeup latency, not SMT contention, and sharing a core
+# would introduce that as an unwanted confound.
+model: model4-event
+namespace: rq1-model4-event
+node_label: experiment-model=model4-p
+host_path: /var/lib/rq1/model4-event
+image: pippina2/rq1-probe:v6
+
+target_threads: 2                       # reuses run_job.sh's existing model4
+                                         # "verify 2 distinct physical cores"
+                                         # check -- placement-agnostic to what
+                                         # each thread actually does
+matrix_M: 48
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners: {}

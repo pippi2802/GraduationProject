@@ -1,0 +1,20 @@
+# Model 4 (new, 2026-08-18) -- periodic arm. Completely unrelated to the
+# retired old model4-m/model4-p (IRQ steering, self-contention) -- this is
+# purely about the ACTIVATION mechanism: release is a precomputed
+# clock_nanosleep schedule, the same mechanism every other model already
+# uses. This is the baseline/control side of the periodic-vs-event-triggered
+# release-jitter comparison; model4-event is the other arm. Reuses the
+# already-isolated model4-m node (node-prep/isolation already done there),
+# fresh namespace since this is a genuinely new experiment, not a rename of
+# the old one.
+model: model4-periodic
+namespace: rq1-model4-periodic
+node_label: experiment-model=model4-m
+host_path: /var/lib/rq1/model4-periodic
+image: pippina2/rq1-probe:v6
+
+matrix_M: 48
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales: { tight: 10000, soft: 100000 }
+co_runners: {}
