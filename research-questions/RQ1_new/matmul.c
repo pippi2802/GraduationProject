@@ -200,25 +200,32 @@ typedef struct {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     volatile int ready;
-    volatile int stop;
+    volatile int target_done;
     volatile int64_t send_ns;
 } trigger_t;
 
 typedef struct {
     trigger_t *trig;
     int cpu, priority;
-    long n_jobs;
     int64_t period_ns;      // mean inter-trigger interval
     uint64_t seed_state;
 } generator_args_t;
 
-// Fires n_jobs triggers at intervals uniformly jittered around period_ns
-// (range [0.5, 1.5) x period_ns, mean = period_ns) -- bounded rather than a
-// true unbounded-tail Poisson process, so total experiment duration stays
+// Fires triggers at intervals uniformly jittered around period_ns (range
+// [0.5, 1.5) x period_ns, mean = period_ns) -- bounded rather than a true
+// unbounded-tail Poisson process, so total experiment duration stays
 // predictable while still being genuinely non-periodic. Sleeps via
 // clock_nanosleep the same way the periodic path schedules releases, the
 // difference is WHERE the resulting timestamp goes: here it is handed to
 // another thread as a trigger, not consumed as this thread's own release.
+//
+// Runs until the TARGET says it has serviced n_jobs distinct triggers
+// (trig->target_done), not until a fixed fire count -- the trigger channel
+// is single-slot (see below), so any fire that lands while the target is
+// still busy is silently coalesced and never individually seen. A fixed
+// "fire n_jobs times then stop" bound was the original design and undercounts
+// the target's real job count by exactly however many fires got coalesced
+// away, causing early exit before n_jobs rows were ever logged.
 static void *generator_main(void *arg) {
     generator_args_t *g = (generator_args_t *)arg;
     if (g->cpu >= 0) {
@@ -237,12 +244,13 @@ static void *generator_main(void *arg) {
     struct timespec now, next;
     clock_gettime(CLOCK_MONOTONIC, &now);
     int64_t next_ns = ts_ns(&now) + g->period_ns;
-    for (long i = 0; i < g->n_jobs; i++) {
+    for (;;) {
         ns_to_ts(next_ns, &next);
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
         struct timespec fired; clock_gettime(CLOCK_MONOTONIC, &fired);
         int64_t send_ns = ts_ns(&fired);
         pthread_mutex_lock(&g->trig->mutex);
+        if (g->trig->target_done) { pthread_mutex_unlock(&g->trig->mutex); break; }
         g->trig->send_ns = send_ns;
         g->trig->ready = 1;
         pthread_cond_signal(&g->trig->cond);
@@ -258,10 +266,6 @@ static void *generator_main(void *arg) {
         double jitter = 0.5 + uniform01(&g->seed_state);   // [0.5, 1.5)
         next_ns = next_ns + (int64_t)(g->period_ns * jitter);
     }
-    pthread_mutex_lock(&g->trig->mutex);
-    g->trig->stop = 1;
-    pthread_cond_signal(&g->trig->cond);
-    pthread_mutex_unlock(&g->trig->mutex);
     return NULL;
 }
 
@@ -532,7 +536,7 @@ int main(int argc, char **argv) {
         else { for (int k = 0; k < K; k++) matmul(A, B, Cm, M); sink += Cm[0]; }
     }
 
-    generator_args_t gargs = { &trig, cpu_ids[1], priority, n_jobs, period_ns,
+    generator_args_t gargs = { &trig, cpu_ids[1], priority, period_ns,
                                 st + 0x9e3779b97f4a7c15ULL };
     pthread_t gtid;
     if (pthread_create(&gtid, NULL, generator_main, &gargs) != 0) {
@@ -548,12 +552,10 @@ int main(int argc, char **argv) {
 
     for (long i = 0; i < n_jobs; i++) {
         pthread_mutex_lock(&trig.mutex);
-        while (!trig.ready && !trig.stop) pthread_cond_wait(&trig.cond, &trig.mutex);
-        int stopped = trig.stop;
+        while (!trig.ready) pthread_cond_wait(&trig.cond, &trig.mutex);
         int64_t release_ns = trig.send_ns;
         trig.ready = 0;
         pthread_mutex_unlock(&trig.mutex);
-        if (stopped) break;
 
         long nv0 = involuntary_ctxt();
         struct timespec t_start, t_finish, cc0, cc1;
@@ -589,6 +591,9 @@ int main(int argc, char **argv) {
     }
     if (out != stdout) fclose(out);
     (void)sink;
+    pthread_mutex_lock(&trig.mutex);
+    trig.target_done = 1;
+    pthread_mutex_unlock(&trig.mutex);
     pthread_join(gtid, NULL);
     pthread_mutex_destroy(&trig.mutex);
     pthread_cond_destroy(&trig.cond);

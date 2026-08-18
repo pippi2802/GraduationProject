@@ -13,7 +13,7 @@ model: model4-event
 namespace: rq1-model4-event
 node_label: experiment-model=model4-p
 host_path: /var/lib/rq1/model4-event
-image: pippina2/rq1-probe:v6
+image: pippina2/rq1-probe:v7
 
 target_threads: 2                       # reuses run_job.sh's existing model4
                                          # "verify 2 distinct physical cores"

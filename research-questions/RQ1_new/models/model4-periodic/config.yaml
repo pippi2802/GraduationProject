@@ -11,7 +11,7 @@ model: model4-periodic
 namespace: rq1-model4-periodic
 node_label: experiment-model=model4-m
 host_path: /var/lib/rq1/model4-periodic
-image: pippina2/rq1-probe:v6
+image: pippina2/rq1-probe:v7
 
 matrix_M: 48
 headroom_frac: 0.7
