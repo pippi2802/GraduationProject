@@ -1,5 +1,6 @@
 nohup: ignoring input
-[run] model=model1 ns=rq1-model1 agent=rq1-agent-qvhwd cells=20 has_neighbours=0 has_competitor=0
+[run] model=model1 ns=rq1-model1 agent=rq1-agent-ztqvw cells=20 has_neighbours=0 has_competitor=0
+[run] *** WORKLOAD=primes (GEN_DIR=generated_primes, k_table=k_table.primes.json) -- confirm this is what you meant to run ***
 [run] kubepods-besteffort.slice period mismatch (have 10000, need 100000) -- resetting
 [run] kubepods-besteffort.slice period now 100000, runtime cleared
 [run] === soft/U0.1 (models/model1/generated_primes/soft/U0.1.yaml) ===
