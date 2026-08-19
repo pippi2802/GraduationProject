@@ -1,0 +1,1 @@
+{"model":"model4-periodic","scale":"soft","U":"0.9","target_pod":"model4-periodic-soft-u90","target_RT_CPUSET":"1","pair_type":"sibling","competitor_type":"unreserved","competitor_cpu":"","neighbour_cpu":"","cell_attempt":1}
