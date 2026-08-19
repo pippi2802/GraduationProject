@@ -44,6 +44,18 @@ ROUND_STATUS = {
         # replaced by primes (trial-division primality, genuinely
         # data-dependent). All ptrchase result data deleted; see
         # backlog/2026-08-14.md. Primes rounds go here once collected.
+        # primes kind, 2026-08-19: first 3 collection attempts hit real bugs
+        # (generated_primes/ staleness baking in a pre-primes-support image;
+        # then a stale K=190 baked into the manifest from before this node's
+        # isolcpus/nohz_full got applied, producing C~5x the calibration
+        # target) -- both root-caused and fixed, then recalibrated fresh and
+        # regenerated; verified via C_cputime_us matching the new calibration
+        # target before trusting the round. All 4 rounds 20/20 cells, single
+        # kind=primes throughout, no short cells.
+        ("model1_primes_round1", True, "post-fix, verified clean"),
+        ("model1_primes_round2", True, "post-fix, verified clean"),
+        ("model1_primes_round3", True, "post-fix, verified clean"),
+        ("model1_primes_round4", True, "post-fix, verified clean"),
     ],
     "model2": [
         ("model2_round1", False, "pre-fix: neighbour recreated every cell, no liveness check -- coin-flip confirmed (miss_rate flips 0%<->100% at same U across rounds)"),
@@ -149,6 +161,37 @@ ROUND_STATUS = {
         ("model3-w4_phys_res_primes_round2", True, "validated 2026-08-16, see model3-w3's primes note above"),
         ("model3-w4_phys_res_primes_round3", True, "validated 2026-08-16, see model3-w3's primes note above"),
         ("model3-w4_phys_res_primes_round4", True, "validated 2026-08-16, see model3-w3's primes note above"),
+    ],
+    # model4 -- new 2026-08-18/19 design, periodic-vs-event-triggered
+    # activation. Two separate keys (not two workload kinds under one, the
+    # way model3-family splits) since periodic and event are the two arms
+    # of the comparison itself, running on separate nodes/namespaces.
+    # Directory naming is inconsistent (primes rounds are missing the
+    # underscore before "primes", e.g. "model4-eventprimes_round1" not
+    # "model4-event_primes_round1") -- cosmetic only, load_round() reads
+    # kind from each jobs.csv's own header comment, not from the directory
+    # name, so this doesn't affect correctness.
+    "model4-periodic": [
+        ("model4-periodic_round1", True, "20/20 cells, kind=matmul throughout, no short cells"),
+        ("model4-periodic_round2", True, "same"),
+        ("model4-periodic_round3", True, "same"),
+        ("model4-periodic_round4", True, "same"),
+        ("model4-periodicprimes_round1", True, "20/20 cells, kind=primes throughout, no short cells"),
+        ("model4-periodicprimes_round2", True, "same"),
+        ("model4-periodicprimes_round3", True, "same"),
+        ("model4-periodicprimes_round4", True, "same"),
+    ],
+    "model4-event": [
+        ("model4-event_round1", True, "20/20 cells, kind=matmul; soft/U0.2 (4934/5000) and soft/U0.4 (4986/5000) slightly short -- collected across the 2026-08-19 trigger-coalescing bugfix transition (see matmul.c generator/target fix); rounds 2-4 below confirm 5000/5000 on every cell post-fix, so this round's shortfall (<2% of two cells) is left in rather than discarded, not excluded"),
+        ("model4-event_round2", True, "20/20 cells, kind=matmul, no short cells (post-fix)"),
+        ("model4-event_round3", True, "same"),
+        ("model4-event_round4", True, "same"),
+        ("model4-eventprimes_round1", True, "20/20 cells, kind=primes throughout, no short cells"),
+        ("model4-eventprimes_round2", True, "same"),
+        ("model4-eventprimes_round3", True, "same"),
+        ("model4-eventprimes_round4", True, "same"),
+        # "model4-event" (bare, no round suffix) is a 1-cell debug leftover,
+        # not a real round -- deliberately not included.
     ],
 }
 
