@@ -18,5 +18,5 @@ CV_THRESHOLD=0.3 WORKLOAD=primes PAIR_TYPE=physical COMPETITOR_TYPE=reserved OUT
 
 
 
-CV_THRESHOLD=0.3 WORKLOAD=primes OUT_TAG=_primes_round1 nohup ./run_job.sh model1 > logs/model1_primes_round1.log 2>&1 &
-  pgrep -af run_job.sh
+ CV_THRESHOLD=0.3 WORKLOAD=primes OUT_TAG=_primes_round1 nohup ./run_job.sh model1 > logs/model1_primes_round1.log 2>&1 &
+

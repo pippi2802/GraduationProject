@@ -3,11 +3,11 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location":           { "value": "swedencentral" },
-    "clusterName":        { "value": "rt-cluster" },
+    "clusterName":        { "value": "test-cluster" },
     "environment":        { "value": "dev" },
 
     "controlPlaneCount":  { "value": 1 },
-    "workerNodeCount":    { "value": 2 },
+    "workerNodeCount":    { "value": 1 },
     "controlPlaneVmSize": { "value": "Standard_D4ds_v5" },
     "workerVmSize":       { "value": "Standard_D4ds_v5" },
     "zones":              { "value": [1, 2, 3] },

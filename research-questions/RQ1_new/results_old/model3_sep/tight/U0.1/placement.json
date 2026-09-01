@@ -1,1 +1,0 @@
-{"model":"model3","scale":"tight","U":"0.1","placement_mode":"separate","target_pod":"model3-tight-u10","target_RT_CPUSET":"2","interferer_cpu":"0","thread_siblings_list":"2-3","interferer_on_sibling":"false"}

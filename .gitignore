@@ -10,16 +10,16 @@ __pycache__/
 # and silently kept getting reused by run_job.sh across every subsequent
 # model1 primes attempt, since run_job.sh has no way to know the manifests
 # on disk are stale -- it just reads whatever's there.
-research-questions/RQ1_new/models/*/generated/
-research-questions/RQ1_new/models/*/generated_*/
+research-questions/RQ1/models/*/generated/
+research-questions/RQ1/models/*/generated_*/
 
 # stray shell-redirect artifacts occasionally created by mistyped loops
-research-questions/RQ1_new/awk
-research-questions/RQ1_new/done
-research-questions/RQ1_new/echo
+research-questions/RQ1/awk
+research-questions/RQ1/done
+research-questions/RQ1/echo
 
-research-questions/RQ1_new/.venv
-research-questions/RQ1_new/analysis/clean_data
+research-questions/RQ1/.venv
+research-questions/RQ1/analysis/clean_data
 
 # compiled probe binary (regenerable via `make`)
-research-questions/RQ1_new/matmul
+research-questions/RQ1/matmul

@@ -1,0 +1,62 @@
+# Node agent: (1) PINS CPU FREQUENCY, (2) mounts the host results path so the
+# sweep can read jobs.csv off the node. One per model node (nodeSelector).
+# Rendered + applied by apply.sh (fills @@NS@@ / @@LK@@ / @@LV@@ / @@HOST_PATH@@).
+apiVersion: v1
+kind: Namespace
+metadata: { name: "@@NS@@" }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: "@@NS@@"
+  name: rq1-agent
+  labels: { app: rq1-agent }
+spec:
+  selector: { matchLabels: { app: rq1-agent } }
+  template:
+    metadata: { labels: { app: rq1-agent } }
+    spec:
+      hostPID: true
+      nodeSelector: { "@@LK@@": "@@LV@@" }
+      tolerations: [{ operator: Exists }]
+      containers:
+        - name: agent
+          image: ubuntu:24.04
+          securityContext: { privileged: true }
+          command: ["/bin/bash","-c"]
+          env:
+            - { name: SKIP_FREQ_PIN, value: "@@SKIP_FREQ_PIN@@" }
+          args:
+            - |
+              set -x
+              if [ "$SKIP_FREQ_PIN" != "1" ]; then
+                # --- PIN CPU FREQUENCY (best effort; Azure may restrict) --------
+                for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+                  echo performance > "$g" 2>/dev/null || true
+                done
+                # disable turbo/boost so C is a stable base-clock measurement
+                echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
+                echo 0 > /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || true
+                # pin min=max where the platform exposes it
+                for c in /sys/devices/system/cpu/cpu*/cpufreq; do
+                  if [ -f "$c/scaling_min_freq" ] && [ -f "$c/cpuinfo_min_freq" ]; then
+                    cat "$c/scaling_min_freq" > "$c/scaling_max_freq" 2>/dev/null || true
+                  fi
+                done
+              else
+                echo "[agent] SKIP_FREQ_PIN=1 -- leaving governor/turbo/freq untouched"
+              fi
+              echo "[agent] governor + turbo state:"
+              cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || true
+              cat /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null || true
+              mkdir -p "/host@@HOST_PATH@@"
+              echo "[agent] ready; results at /host@@HOST_PATH@@"
+              sleep infinity
+          volumeMounts:
+            - { name: sysfs, mountPath: /sys }
+            - { name: results, mountPath: "/host@@HOST_PATH@@" }
+      volumes:
+        - name: sysfs
+          hostPath: { path: /sys }
+        - name: results
+          hostPath: { path: "@@HOST_PATH@@", type: DirectoryOrCreate }

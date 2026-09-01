@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sriov-probe-server
+  labels:
+    app: sriov-probe-server
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  nodeSelector:
+    sriov-probe-role: server
+  tolerations:
+    - operator: Exists
+  containers:
+    - name: iperf3-server
+      image: networkstatic/iperf3
+      args: ["-s"]
+      ports:
+        - containerPort: 5201
+          hostPort: 5201
+  restartPolicy: Never

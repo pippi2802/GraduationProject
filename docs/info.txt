@@ -1,1 +1,21 @@
 kubeadm join 10.0.1.4:6443 --token yqaquy.wybahsge1armod8c --discovery-token-ca-cert-hash sha256:b1c45a8bda779835a6ebf1a8d5b0937544da9d53aea18695aefb3445b2978cd7
+
+
+
+
+CV_THRESHOLD=0.3 WORKLOAD=primes OUT_TAG=_primes_round4 nohup ./run_job.sh model1 > logs/model1_primes_round4.log 2>&1 &
+
+
+CV_THRESHOLD=0.05 python3 calibrate.py model4-periodic --force
+  CV_THRESHOLD=0.05 python3 calibrate.py model4-event --force
+
+  WORKLOAD=primes python3 generate_yaml.py model4-periodic
+  WORKLOAD=primes python3 generate_yaml.py model4-event
+
+  OUT_TAG=_round4  nohup  ./run_job.sh model4-periodic > logs/model4-periodic_round4.log 2>&1 &
+  OUT_TAG=_round4 nohup ./run_job.sh model4-event > logs/model4-event_round4.log 2>&1 &
+  pgrep -af run_job.sh   # confirm exactly 2
+
+
+WORKLOAD=primes OUT_TAG=primes_round4 nohup  ./run_job.sh model4-periodic > logs/model4-periodic_primes_round4.log 2>&1 &
+WORKLOAD=primes OUT_TAG=primes_round4 nohup ./run_job.sh model4-event > logs/model4-event_primes_round4.log 2>&1 &

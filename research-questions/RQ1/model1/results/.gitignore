@@ -1,5 +1,0 @@
-# Results land here (git-ignored). Structure:
-#   <timeblock>/<scale-dir>/U<U>/    per-job CSV, covariate CSVs, cell metadata JSON
-#   <timeblock or 'aggregate'>/figures/   generated PNG/PDF
-*
-!.gitignore

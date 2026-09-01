@@ -1,1 +1,0 @@
-{"model":"model3","scale":"soft","U":"0.94","placement_mode":"separate","target_pod":"model3-soft-u94","target_RT_CPUSET":"2","interferer_cpu":"0","thread_siblings_list":"2-3","interferer_on_sibling":"false"}
