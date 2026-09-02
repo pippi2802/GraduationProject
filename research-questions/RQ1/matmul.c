@@ -80,7 +80,7 @@
 static const char *CSV_HEADER =
     "job_index,release_us,start_us,finish_us,C_cputime_us,R_wall_us,delay_us,"
     "dispatch_latency_us,mid_job_preempt_us,slack_us,deadline_miss,tardiness_us,"
-    "nonvol_ctxt,K_reps,matrix_M,skipped_before";
+    "nonvol_ctxt,K_reps,matrix_M,skipped_before,steal_us";
 
 enum { KIND_MATMUL, KIND_PRIMES };
 enum { ACT_PERIODIC, ACT_EVENT };
@@ -176,6 +176,35 @@ static long involuntary_ctxt(void) {
     struct rusage ru;
     if (getrusage(RUSAGE_THREAD, &ru) == 0) return ru.ru_nivcsw;
     return -1;
+}
+
+// Guest-visible hypervisor steal time for one vCPU, in USER_HZ ticks (as
+// reported by /proc/stat's per-cpu "steal" field -- the same number `top`/
+// `vmstat` show as %st). Resolution is coarse (1 tick = 1/sysconf(_SC_CLK_TCK)
+// s, typically 10ms), so a single tight-scale job (period ~10ms) will mostly
+// read a 0 delta with occasional 1-tick blips -- still meaningful when
+// nonzero, just not sub-tick precise. Returns -1 on any read failure.
+static long read_steal_ticks(int cpu) {
+    FILE *f = fopen("/proc/stat", "r");
+    if (!f) return -1;
+    char line[256];
+    long steal = -1;
+    while (fgets(line, sizeof(line), f)) {
+        char label[32];
+        long user, nice_, system_, idle, iowait, irq, softirq, st;
+        if (sscanf(line, "%31s %ld %ld %ld %ld %ld %ld %ld %ld",
+                   label, &user, &nice_, &system_, &idle, &iowait, &irq, &softirq, &st) == 9) {
+            int n;
+            if (sscanf(label, "cpu%d", &n) == 1 && n == cpu) { steal = st; break; }
+        }
+    }
+    fclose(f);
+    return steal;
+}
+static inline double steal_ticks_to_us(long ticks) {
+    static double scale = 0.0;
+    if (scale == 0.0) scale = 1.0e6 / (double)sysconf(_SC_CLK_TCK);
+    return (double)ticks * scale;
 }
 
 // ---- event-triggered activation (--activation event) --------------------------
@@ -304,6 +333,7 @@ typedef struct {
     pthread_barrier_t *bar_start, *bar_done;
     volatile int64_t C_ns;
     volatile long nv_delta;
+    volatile long steal_delta;
     volatile int stop;
 } worker_t;
 
@@ -335,6 +365,7 @@ static void *worker_main(void *arg) {
         pthread_barrier_wait(w->bar_start);
         if (w->stop) return NULL;
         long nv0 = involuntary_ctxt();
+        long sv0 = read_steal_ticks(w->cpu);
         struct timespec c0, c1;
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c0);
         if (w->kind == KIND_PRIMES)
@@ -343,8 +374,10 @@ static void *worker_main(void *arg) {
             for (int k = 0; k < w->K; k++) matmul(w->A, w->B, w->Cm, w->M);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &c1);
         long nv1 = involuntary_ctxt();
+        long sv1 = read_steal_ticks(w->cpu);
         w->C_ns = ts_ns(&c1) - ts_ns(&c0);
         w->nv_delta = (nv0 >= 0 && nv1 >= 0) ? (nv1 - nv0) : 0;
+        w->steal_delta = (sv0 >= 0 && sv1 >= 0) ? (sv1 - sv0) : 0;
         pthread_barrier_wait(w->bar_done);
     }
 }
@@ -558,6 +591,7 @@ int main(int argc, char **argv) {
         pthread_mutex_unlock(&trig.mutex);
 
         long nv0 = involuntary_ctxt();
+        long sv0 = read_steal_ticks(cpu_ids[0]);
         struct timespec t_start, t_finish, cc0, cc1;
         clock_gettime(CLOCK_MONOTONIC, &t_start);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc0);
@@ -568,6 +602,8 @@ int main(int argc, char **argv) {
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc1);
         clock_gettime(CLOCK_MONOTONIC, &t_finish);
         long nv1 = involuntary_ctxt();
+        long sv1 = read_steal_ticks(cpu_ids[0]);
+        double steal_us = steal_ticks_to_us((sv0 >= 0 && sv1 >= 0) ? (sv1 - sv0) : 0);
 
         int64_t start_ns = ts_ns(&t_start);
         int64_t finish_ns = ts_ns(&t_finish);
@@ -582,12 +618,12 @@ int main(int argc, char **argv) {
         long nv = (nv0 >= 0 && nv1 >= 0) ? (nv1 - nv0) : -1;
 
         fprintf(out,
-            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld\n",
+            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld,%.3f\n",
             i,
             release_ns / 1000.0, start_ns / 1000.0, finish_ns / 1000.0,
             C_ns / 1000.0, R_ns / 1000.0, delay_ns / 1000.0,
             dispatch_ns / 1000.0, midjob_ns / 1000.0, slack_ns / 1000.0,
-            miss, tard_ns / 1000.0, nv, K, M, 0L);
+            miss, tard_ns / 1000.0, nv, K, M, 0L, steal_us);
     }
     if (out != stdout) fclose(out);
     (void)sink;
@@ -647,6 +683,7 @@ int main(int argc, char **argv) {
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
         int64_t release_ns = next_ns;                 // scheduled activation instant
         long nv0 = involuntary_ctxt();
+        long sv0 = read_steal_ticks(cpu);
         clock_gettime(CLOCK_MONOTONIC, &t_start);
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc0);
 
@@ -660,6 +697,8 @@ int main(int argc, char **argv) {
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cc1);
         clock_gettime(CLOCK_MONOTONIC, &t_finish);
         long nv1 = involuntary_ctxt();
+        long sv1 = read_steal_ticks(cpu);
+        double steal_us = steal_ticks_to_us((sv0 >= 0 && sv1 >= 0) ? (sv1 - sv0) : 0);
 
         int64_t start_ns = ts_ns(&t_start);
         int64_t finish_ns = ts_ns(&t_finish);
@@ -685,12 +724,12 @@ int main(int argc, char **argv) {
         }
 
         fprintf(out,
-            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld\n",
+            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld,%.3f\n",
             i,
             release_ns / 1000.0, start_ns / 1000.0, finish_ns / 1000.0,
             C_ns / 1000.0, R_ns / 1000.0, delay_ns / 1000.0,
             dispatch_ns / 1000.0, midjob_ns / 1000.0, slack_ns / 1000.0,
-            miss, tard_ns / 1000.0, nv, K, M, skipped);
+            miss, tard_ns / 1000.0, nv, K, M, skipped, steal_us);
     }
     if (out != stdout) fclose(out);
     (void)sink;
@@ -757,11 +796,13 @@ int main(int argc, char **argv) {
         pthread_barrier_wait(&bar_done);            // wait for the LAST thread to finish
         clock_gettime(CLOCK_MONOTONIC, &t_finish);
 
-        int64_t C_ns = 0; long nv = 0;
+        int64_t C_ns = 0; long nv = 0; long steal_ticks = 0;
         for (int t = 0; t < threads; t++) {
             if (workers[t].C_ns > C_ns) C_ns = workers[t].C_ns;  // critical-path thread
             nv += workers[t].nv_delta;                            // total preemptions in the batch
+            steal_ticks += workers[t].steal_delta;                // total steal across the batch's cpus
         }
+        double steal_us = steal_ticks_to_us(steal_ticks);
 
         int64_t start_ns = ts_ns(&t_start);
         int64_t finish_ns = ts_ns(&t_finish);
@@ -782,12 +823,12 @@ int main(int argc, char **argv) {
         }
 
         fprintf(out,
-            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld\n",
+            "%ld,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%.3f,%ld,%d,%d,%ld,%.3f\n",
             i,
             release_ns / 1000.0, start_ns / 1000.0, finish_ns / 1000.0,
             C_ns / 1000.0, R_ns / 1000.0, delay_ns / 1000.0,
             dispatch_ns / 1000.0, midjob_ns / 1000.0, slack_ns / 1000.0,
-            miss, tard_ns / 1000.0, nv, K, M, skipped);
+            miss, tard_ns / 1000.0, nv, K, M, skipped, steal_us);
     }
     if (out != stdout) fclose(out);
 

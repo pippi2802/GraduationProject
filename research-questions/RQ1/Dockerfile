@@ -1,5 +1,5 @@
-# Single, tiny image that carries ONLY the compiled probe. All four RQ1 models
-# run this same binary — only the reservation / neighbours / node differ.
+# Single, tiny image that carries ONLY the compiled probe. All four RQ1 models run this same binary, only the reservation / neighbours / node differ.
+# matmul contains both types of workloadss
 FROM ubuntu:24.04 AS build
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev make \
     && rm -rf /var/lib/apt/lists/*

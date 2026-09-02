@@ -476,6 +476,59 @@ def plot_kind_comparison(df: pd.DataFrame, col: str, ylabel: str, title: str):
 
 
 # ---------------------------------------------------------------------------
+# Section C2: periodic vs event-triggered activation (release jitter)
+# ---------------------------------------------------------------------------
+
+def activation_summary_table(periodic_df: pd.DataFrame, event_df: pd.DataFrame,
+                              col: str = "dispatch_latency_us") -> pd.DataFrame:
+    """Pooled (all scale/U) mean/p50/p95/p99/max of `col`, one row per
+    (activation mode, kind) -- the headline release-jitter comparison
+    between periodic and event-triggered activation. Pooling across U is
+    deliberate: the question here is whether the activation mechanism
+    itself adds jitter, not how that varies with load (see
+    plot_activation_comparison for the per-U trend)."""
+    rows = []
+    for name, df in [("periodic", periodic_df), ("event", event_df)]:
+        for kind in sorted(df["kind"].unique()):
+            s = df[df["kind"] == kind][col]
+            rows.append({
+                "activation": name, "kind": kind, "n": len(s),
+                "mean_us": round(s.mean(), 2),
+                "p50_us": round(s.median(), 2),
+                "p95_us": round(s.quantile(0.95), 2),
+                "p99_us": round(s.quantile(0.99), 2),
+                "max_us": round(s.max(), 2),
+            })
+    return pd.DataFrame(rows)
+
+
+def plot_activation_comparison(periodic_df: pd.DataFrame, event_df: pd.DataFrame, kind: str,
+                                col: str = "dispatch_latency_us",
+                                ylabel: str = "dispatch latency p99 (us)",
+                                title: str = "periodic vs event release jitter"):
+    """P99 of `col` vs U, one line per activation mode (periodic/event),
+    one panel per scale, for a single `kind` -- shows whether the gap
+    between the two activation mechanisms grows with load or stays roughly
+    constant."""
+    scales = sorted(set(periodic_df["scale"].unique()) | set(event_df["scale"].unique()),
+                     key=lambda s: PERIOD_US[s])
+    fig, axes = plt.subplots(1, len(scales), figsize=(6 * len(scales), 4.2), squeeze=False)
+    for ax, scale in zip(axes[0], scales):
+        for i, (name, df) in enumerate([("periodic", periodic_df), ("event", event_df)]):
+            g = df[(df.scale == scale) & (df.kind == kind)]
+            if g.empty:
+                continue
+            us = sorted(g["U"].unique())
+            p99s = [g[g.U == u][col].quantile(0.99) for u in us]
+            c, m = style(i)
+            ax.plot(us, p99s, color=c, marker=m, markersize=6, linewidth=2, label=name)
+        ax.set_xlabel("U"); ax.set_ylabel(ylabel); ax.set_title(f"{title} ({kind}) -- {scale}")
+        ax.grid(alpha=0.25); ax.legend(fontsize=9)
+    fig.tight_layout()
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Section D: one table/figure per thesis claim
 # ---------------------------------------------------------------------------
 
