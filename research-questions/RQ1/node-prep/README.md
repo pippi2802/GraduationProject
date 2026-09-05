@@ -55,3 +55,29 @@ housekeeping noise (timer ticks, RCU callbacks, reschedule IPIs) from the
 isolated core, so the baseline's tail reflects cloud effects more cleanly and is
 more reproducible run-to-run, which is what RQ2's tail-based parameter
 derivation needs.
+
+## Further hardening beyond isolcpus/nohz_full/rcu_nocbs
+
+`harden.sh` (same nsenter-via-agent technique as `isolate.sh`) applies the
+remaining isolation gaps identified against the literature: hard cgroup
+containment of `system.slice`/`user.slice` (not `kubepods.slice` — that's
+where target/competitor pods live), permanent IRQ steering (persisted via a
+systemd unit, since `/proc/irq/*` resets every boot regardless of anything
+else), `mitigations=off` + `transparent_hugepage=never`, and SMT off.
+
+```bash
+bash node-prep/harden.sh model1 systemd-contain   # no reboot
+bash node-prep/harden.sh model1 irq-steer         # no reboot
+bash node-prep/harden.sh model1 boot-params       # stages grub -- REBOOT after
+bash node-prep/harden.sh model1 smt-off           # no reboot, renumbers cores
+bash node-prep/harden.sh model1 status            # dump current state of all
+bash node-prep/harden.sh model1 restore-all       # undo everything above
+```
+
+**Do not run `smt-off` on model2/model3's nodes** — SMT-sibling contention is
+the thing those models measure; only model1/model1-primes (the "clean"
+baseline) should have it disabled.
+
+Pair each step with `node-prep/isolation-audit.sh` (`snapshot <label>` before
+and after) to get the before/after impact numbers for the report, not just
+confirmation that the config changed.
