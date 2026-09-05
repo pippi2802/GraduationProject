@@ -96,7 +96,13 @@ do_snapshot() {
   # --- action 5: syscall overhead microbenchmark ---
   build_syscall_bench
   local syscall_us
-  syscall_us=$(taskset -c "$CORE" "$OUTDIR/.syscall_bench" 2>/dev/null)
+  # Run under the ROOT slice (-.slice), not the caller's own cgroup: once
+  # systemd-contain has clamped system.slice/user.slice to keep_cpu, a plain
+  # `taskset -c $CORE` from this shell fails with EINVAL (cgroup cpuset is a
+  # hard clamp). A scope parented directly under root inherits root's own
+  # (never-restricted) cpuset instead, so this works before AND after
+  # systemd-contain is applied.
+  syscall_us=$(systemd-run --scope --slice=-.slice --quiet taskset -c "$CORE" "$OUTDIR/.syscall_bench" 2>/dev/null)
   syscall_us="${syscall_us:-n/a}"
 
   # --- action 9: hwlatdetect (optional, needs rt-tests) ---

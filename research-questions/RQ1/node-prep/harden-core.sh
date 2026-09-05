@@ -14,8 +14,10 @@
 #                    oneshot systemd unit so it's re-applied on every future
 #                    boot (the kernel resets /proc/irq/* affinity every boot
 #                    regardless of anything else). No reboot needed now.
-#   boot-params      appends mitigations=off + transparent_hugepage=never to
-#                    the SAME grub line isolate-core.sh uses. REBOOT REQUIRED.
+#   boot-params      appends mitigations=off + transparent_hugepage=never +
+#                    rcu_nocb_poll to the SAME grub line isolate-core.sh uses.
+#                    REBOOT REQUIRED. Per-token idempotent -- safe to re-run
+#                    after this token list grows, only adds what's missing.
 #                    Marked separately so `restore-all` can remove just this
 #                    block without touching isolate-core.sh's own isolcpus line.
 #   smt-off          echo off > smt/control. No reboot, but changes logical
@@ -67,8 +69,14 @@ EOF
 }
 
 boot_params() {
-  if grep -q "$MARK" "$GRUB" 2>/dev/null; then
-    echo "[harden] already applied (marker found in $GRUB); nothing to do."
+  # per-token idempotent: safe to re-run after adding a new token to this list
+  # (e.g. rcu_nocb_poll added later) without re-appending ones already present.
+  local tokens="mitigations=off transparent_hugepage=never rcu_nocb_poll" missing=""
+  for t in $tokens; do
+    grep -q -- "$t" "$GRUB" 2>/dev/null || missing="$missing $t"
+  done
+  if [ -z "$missing" ]; then
+    echo "[harden] all boot params already present in $GRUB; nothing to do."
     return 0
   fi
   if [ ! -f "$GRUB" ]; then
@@ -77,9 +85,9 @@ boot_params() {
   fi
   {
     echo "$MARK"
-    echo "GRUB_CMDLINE_LINUX=\"\$GRUB_CMDLINE_LINUX mitigations=off transparent_hugepage=never\""
+    echo "GRUB_CMDLINE_LINUX=\"\$GRUB_CMDLINE_LINUX$missing\""
   } >> "$GRUB"
-  echo "[harden] appended mitigations=off transparent_hugepage=never to $GRUB"
+  echo "[harden] appended:$missing to $GRUB"
   if command -v update-grub >/dev/null 2>&1; then
     update-grub
   elif command -v grub2-mkconfig >/dev/null 2>&1; then
