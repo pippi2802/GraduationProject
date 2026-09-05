@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 # isolation-audit.sh — measure the IMPACT of OS-isolation hardening on cores
-# 1-3 (not just whether config changed). Run once before applying a batch of
-# changes, once after, then ask for the report. Runs directly on the worker
-# node (needs mpstat/gcc/taskset; hwlatdetect optional).
+# 1-3 (not just whether config changed). Take one snapshot per stage, under
+# any label you like, then compare any two stages afterward. Runs directly
+# on the worker node (needs mpstat/gcc/taskset; hwlatdetect optional).
 #
-# Usage:
-#   sudo bash isolation-audit.sh snapshot before
-#   ... apply your isolation changes (systemd AllowedCPUs, IRQ steering,
-#       THP=never, mitigations=off + reboot, SMT off) ...
-#   sudo bash isolation-audit.sh snapshot after
-#   bash isolation-audit.sh report
+# Usage (3-stage example — vanilla node, after node-prep, after full hardening):
+#   sudo bash isolation-audit.sh snapshot vanilla    # before node-prep at all
+#   ... apply node-prep (freq pin + isolcpus/nohz_full/rcu_nocbs), reboot ...
+#   sudo bash isolation-audit.sh snapshot nodeprep
+#   ... apply the rest (systemd AllowedCPUs, IRQ steering, THP=never,
+#       mitigations=off + reboot, SMT off) ...
+#   sudo bash isolation-audit.sh snapshot hardened
+#
+#   bash isolation-audit.sh report vanilla nodeprep     # node-prep's own effect
+#   bash isolation-audit.sh report nodeprep hardened    # the extra hardening's effect
+#   bash isolation-audit.sh report vanilla hardened     # total effect
+#
+# Labels are free text — use whatever names make sense for your stages.
+# `report` with no arguments defaults to comparing "before" vs "after".
 #
 # Env overrides:
 #   WINDOW=60   seconds used for the IRQ/THP delta + mpstat average (default 60)
@@ -135,15 +143,16 @@ pct_change() {
 }
 
 do_report() {
-  local bf="$OUTDIR/before.env" af="$OUTDIR/after.env"
+  local label_b="${1:-before}" label_a="${2:-after}"
+  local bf="$OUTDIR/$label_b.env" af="$OUTDIR/$label_a.env"
   if [ ! -f "$bf" ] || [ ! -f "$af" ]; then
-    echo "Need both $bf and $af -- run 'snapshot before' and 'snapshot after' first."
+    echo "Need both $bf and $af -- run 'snapshot $label_b' and 'snapshot $label_a' first."
     exit 1
   fi
   eval "$(sed 's/^/B_/' "$bf")"
   eval "$(sed 's/^/A_/' "$af")"
 
-  printf "\n| Metric | Before | After | Change |\n"
+  printf "\n| Metric | %s | %s | Change |\n" "$label_b" "$label_a"
   printf "|---|---|---|---|\n"
   printf "| nohz_full tick rate (HVS, /sec, core%s) | %s | %s | %s |\n" "$B_CORE" "$B_TICK_RATE_PER_SEC" "$A_TICK_RATE_PER_SEC" "$(pct_change "$B_TICK_RATE_PER_SEC" "$A_TICK_RATE_PER_SEC")"
   printf "| non-idle %% core1 (%ss avg) | %s | %s | %s |\n" "$B_WINDOW" "$B_NONIDLE_PCT_CORE1" "$A_NONIDLE_PCT_CORE1" "$(pct_change "$B_NONIDLE_PCT_CORE1" "$A_NONIDLE_PCT_CORE1")"
@@ -169,14 +178,14 @@ do_report() {
 
 case "${1:-}" in
   snapshot)
-    [ -n "${2:-}" ] || { echo "usage: $0 snapshot <before|after>"; exit 1; }
+    [ -n "${2:-}" ] || { echo "usage: $0 snapshot <label>"; exit 1; }
     do_snapshot "$2"
     ;;
   report)
-    do_report
+    do_report "${2:-}" "${3:-}"
     ;;
   *)
-    echo "usage: $0 snapshot <before|after> | report"
+    echo "usage: $0 snapshot <label> | report [label_a label_b]"
     exit 1
     ;;
 esac
