@@ -76,12 +76,116 @@ cv exceeds that threshold, which now reliably catches *genuinely*
 mis-calibrated or broken cells without false-flagging the platform's known,
 already-investigated residual floor.
 
+**4. Hypervisor steal-time instrumentation.** Layers 1-3 only reach guest-OS
+behaviour; whether Azure's Hyper-V host itself preempts the vCPU underneath
+the guest (steal time) is a separate, guest-invisible-by-default question.
+`matmul.c` was instrumented to read `/proc/stat`'s per-cpu `steal` field
+(USER_HZ-tick resolution, ~10ms) immediately around each timed job, in
+addition to the sub-microsecond `CLOCK_THREAD_CPUTIME_ID`/`CLOCK_MONOTONIC`
+timestamps already collected. Checked directly, under confirmed real
+sustained load on the correct worker/core: steal was genuinely 0. The
+instrumentation's own overhead (measured via a standalone microbenchmark,
+1,000,000 calls to the same `/proc/stat`-read path: ~8.2μs/call) is
+negligible and structurally outside the `C_cputime` measurement window, so
+it doesn't itself corrupt the timing it's meant to audit.
+
+**5. Verification that 1-4 are actually taking effect, not just applied
+(2026-09-03/05).** Configuring a boot parameter or writing a sysfs file is
+not evidence it's doing anything — two cases where checking the *effect*,
+not just the *setting*, mattered:
+
+- **`nohz_full` looked broken, wasn't.** The obvious verification counter
+  (`LOC:` in `/proc/interrupts`, the traditional LAPIC local-timer line)
+  read 0 on every core, including the non-isolated one — which should tick
+  normally and didn't, the tell that `LOC` was the wrong line entirely. This
+  kernel runs as a Hyper-V guest and uses Hyper-V's own paravirtualized
+  synthetic timer (`HVS:` "Hyper-V stimer0 interrupts"), not a bare-metal
+  LAPIC — confirmed via `dmesg`, `systemd-detect-virt`, and
+  `/sys/bus/vmbus/devices`. Checked against the right counter (two
+  timestamped snapshots 5s apart while a real paced round ran on the
+  isolated core), the tick rate first came back at ~1002/sec — a plain
+  1000Hz tick, one to two orders of magnitude above what the workload's own
+  period needs. Root cause: two leftover diagnostic busy-loop shell
+  processes (`sh -c 'while :; do :; done'`), still pinned to the same core
+  and still runnable, left over from an earlier steal-time stress test in
+  the same working session. `nohz_full`'s tick-suppression precondition —
+  *exactly one runnable task on the core at all times* — was being violated
+  continuously. Killing them dropped the rate to ~66/sec, a 15x drop,
+  confirming `nohz_full` works as intended once genuine single-task
+  occupancy holds; the small residual above the workload's own theoretical
+  rate wasn't pursued further given how much of the effect this already
+  explains. Any round collected while the busy-loops were alive is
+  contaminated and was re-collected, not reused.
+- **IRQ affinity** — checked directly rather than assumed: at check time, no
+  device IRQ's `smp_affinity_list` included the isolated core under test.
+  This was a one-off, point-in-time check on one node, not a persistent
+  guarantee — `node-prep/steer-irqs.sh` exists to move IRQs off an RT core
+  on demand, but it was built for model4's activation-mechanism arms
+  specifically and is invoked manually, not wired into every model's
+  baseline setup or re-applied automatically after a reboot.
+
+**Checked and already fine, no action taken:** `nmi_watchdog=0` (periodic
+lockup-detection NMI already disabled). **Checked, deliberately left as-is
+rather than a gap:** SMT is globally on and core 2's sibling (core 3) was
+confirmed to carry only idle per-cpu kthreads at check time — but SMT is not
+being tuned away as a hygiene measure, because Johan explicitly named
+SMT on/off as its own experimental axis (this is exactly what model3's
+sibling-vs-physical-pair design already varies), not noise to eliminate.
+**Checked, found not observable from the guest at all:** per-C-state idle
+entry counters (`cpuidle/state*/usage`) don't exist in this Hyper-V guest's
+sysfs — the hypervisor manages real idle-state entry opaquely, outside guest
+visibility, so this candidate is moot rather than unaddressed.
+
+**Identified but not applied — real remaining guest-side levers, in
+priority order if pursued further:** `transparent_hugepage=never` (currently
+`madvise`, a real but small step short of fully disabling background
+`khugepaged` scanning); `mitigations=off` (Spectre/Meltdown mitigations
+currently on by default, add measurable syscall/context-switch overhead —
+legitimate to disable on a controlled research testbed, needs a reboot,
+untried); persisting IRQ affinity/steering across reboots via a systemd
+unit or `irqbalance`'s `IRQBALANCE_BANNED_CPULIST` rather than the current
+manual, one-shot `steer-irqs.sh` invocation; a `cpuset` cgroup partition
+(`cpuset.cpus.partition=isolated`) as a belt-and-suspenders accounting
+boundary on top of `isolcpus` (largely redundant given `isolcpus` already
+removes the core from the scheduler domain, not expected to change results);
+`numactl --hardware` was never actually run to confirm this VM SKU is
+single-NUMA (likely, for these sizes, but unverified — would make any NUMA
+pinning a no-op if true); `hwlatdetect` (checks for SMI activity, which
+bypasses the OS entirely) was never run on this cluster; `matmul.c` never
+calls `mlockall()`, so a page fault on swapped-out memory could in principle
+land on the isolated core mid-measurement — cheap to add, never checked
+whether it currently matters.
+
+**Considered and deliberately not pursued:** a `PREEMPT_RT`-patched kernel.
+None of the causes confirmed or ruled out this session (guest-scheduler
+preemption, hypervisor steal, `nohz_full` misconfiguration) point at
+guest-kernel preemption latency as the remaining bottleneck, and the H-CBS
+patch already provides admission-controlled RT scheduling semantics
+independently of `PREEMPT_RT`. Revisitable if a future finding specifically
+implicates guest-kernel non-preemptible sections.
+
+**The hard ceiling — not crossable from inside a standard Azure guest VM.**
+Host-level vCPU scheduling (how Hyper-V decides which physical core runs
+this VM's vCPU, and when) and System Management Interrupts (which bypass
+the OS entirely) are both invisible and uncontrollable from inside the
+guest, no matter how completely the guest OS is tuned. This is the layer
+Claim 0's own residual noise floor (the ~cv 0.02-0.04 in point 3 above, and
+whatever remains after points 4-5) is implicitly measuring by exclusion: it
+persists after every guest-side cause that could be checked was checked.
+The one real escape from this ceiling is not a guest-side tunable at all —
+it is a different Azure product (Dedicated Host / Isolated VM sizes, which
+grant a whole physical host and eliminate noisy-neighbour risk at the
+hypervisor level). That is an infrastructure decision out of scope for this
+phase, not a configuration gap.
+
 The practical implication for reading results: any degradation attributed
 to a model/arm in the claims above is degradation *on top of* this baseline
 hygiene, not degradation that a naive, un-pinned, un-isolated deployment
 would show from noise alone — which is exactly why model1's solo baseline
-(Claim 0) still matters even with all three measures in place: it's the
-floor that remains *after* hygiene, not before it.
+(Claim 0) still matters even with all measures above in place: it's the
+floor that remains *after* hygiene and verification, not before it, and
+that floor is now attributable, by elimination, to the hard ceiling above
+rather than to anything still fixable from inside the guest.
 
 ## Co-runner intensity and persistence (model2's neighbour, model3's competitor)
 
