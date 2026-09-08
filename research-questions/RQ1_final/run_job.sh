@@ -78,6 +78,18 @@ CELL_ATTEMPTS="${CELL_ATTEMPTS:-4}"
 # memory/rq1_calibration_noise_floor.md for why this isn't 0 -- short-duration
 # cells have an intrinsic noise floor even with everything else controlled.
 CV_THRESHOLD="${CV_THRESHOLD:-0.05}"
+# opt-in extra pause after a delete, before the next recreate, in every
+# delete+recreate retry loop below. Default 0 = no behavior change. Exists
+# because the driver's own claim finalizer-removal is asynchronous -- our
+# wait_manifest_gone only confirms the OBJECT is gone from the k8s API, not
+# that the driver's controller has actually finished processing its removal
+# (observed 2026-09-08: "the object has been modified; please apply your
+# changes to the latest version and try again" conflict errors in the
+# driver's own controller logs, directly correlated with retry cycles that
+# never landed on the requested cpu -- a rapid delete/recreate can race
+# ahead of the driver's async cleanup). Set e.g. DELETE_SETTLE=2 for arms
+# hitting this; leave unset for arms that are already working fine.
+DELETE_SETTLE="${DELETE_SETTLE:-0}"
 WORKLOAD_KIND="${WORKLOAD:-matmul}"
 TAB_NAME="k_table.json"; [ "$WORKLOAD_KIND" != "matmul" ] && TAB_NAME="k_table.$WORKLOAD_KIND.json"
 GEN_DIR="generated"; [ "$WORKLOAD_KIND" != "matmul" ] && GEN_DIR="generated_$WORKLOAD_KIND"
@@ -116,7 +128,7 @@ if [ -n "${U_MIN:-}${U_MAX:-}" ]; then
   echo "[run] U_MIN=${U_MIN:-} U_MAX=${U_MAX:-} applied: ${#FILES[@]} cells remain"
 fi
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
-echo "[run] *** WORKLOAD=$WORKLOAD_KIND (GEN_DIR=$GEN_DIR, k_table=$TAB_NAME) -- confirm this is what you meant to run ***"
+echo "[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=$WORKLOAD_KIND label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=$GEN_DIR k_table=$TAB_NAME ***"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"
 [ "$MT_THREADS" -gt 1 ] 2>/dev/null && echo "[run] target_threads=$MT_THREADS, forcing the claimed pair onto two DISTINCT PHYSICAL cores"
 
@@ -342,6 +354,7 @@ place_fixed_competitor() {
     for attempt in 1 2 3 4 5; do
       delete_manifest "$FIXED_COMP_FILE"
       wait_manifest_gone "$FIXED_COMP_FILE"
+      [ "$DELETE_SETTLE" != "0" ] && sleep "$DELETE_SETTLE"
       wait_cpus_free "$hint_cpu"
       sed "s/@@REQUESTED_CPUS@@/$hint_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
@@ -400,6 +413,7 @@ restart_fixed_competitor() {
     for attempt in 1 2 3; do
       delete_manifest "$FIXED_COMP_FILE"
       wait_manifest_gone "$FIXED_COMP_FILE"
+      [ "$DELETE_SETTLE" != "0" ] && sleep "$DELETE_SETTLE"
       wait_cpus_free "$comp_cpu"
       sed "s/@@REQUESTED_CPUS@@/$comp_cpu/g" "$FIXED_COMP_FILE" | kubectl create -f - >/dev/null 2>&1
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=competitor" \
@@ -469,6 +483,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
       : "${NB_HINT_CPU:=$(pick_paired_cpu)}"
       delete_manifest "$nb_file"
       wait_manifest_gone "$nb_file"
+      [ "$DELETE_SETTLE" != "0" ] && sleep "$DELETE_SETTLE"
       wait_cpus_free "$NB_HINT_CPU"
       sed "s/@@REQUESTED_CPUS@@/$NB_HINT_CPU/g" "$nb_file" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=neighbour" \
@@ -517,6 +532,7 @@ print(d.get('$key', {}).get('cv', 'NA'))
     for attempt in $(seq 1 "$PIN_ATTEMPTS"); do
       delete_manifest "$f"
       wait_manifest_gone "$f"
+      [ "$DELETE_SETTLE" != "0" ] && sleep "$DELETE_SETTLE"
       wait_cpus_free "$tgt_hint"
       sed "s/@@REQUESTED_CPUS@@/$tgt_hint/g" "$f" | kubectl create -f - >/dev/null
       if ! kubectl wait -n "$NS" pod -l "app=$MODEL,role=target" \
