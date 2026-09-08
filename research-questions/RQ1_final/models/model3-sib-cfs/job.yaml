@@ -23,7 +23,7 @@ kind: Pod
 metadata:
   namespace: m3-sibcfs
   name: "@@NAME@@"
-  labels: { app: model3_sib_cfs, role: target }
+  labels: { app: model3-sib-cfs, role: target }
 spec:
   restartPolicy: Never
   nodeSelector: { experiment-model: m3-sibcfs }

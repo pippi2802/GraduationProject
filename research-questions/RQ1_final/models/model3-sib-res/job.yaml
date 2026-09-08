@@ -23,7 +23,7 @@ kind: Pod
 metadata:
   namespace: m3-sibres
   name: "@@NAME@@"
-  labels: { app: model3_sib_res, role: target }
+  labels: { app: model3-sib-res, role: target }
 spec:
   restartPolicy: Never
   nodeSelector: { experiment-model: m3-sibres }

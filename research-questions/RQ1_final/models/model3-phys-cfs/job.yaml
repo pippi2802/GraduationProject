@@ -23,7 +23,7 @@ kind: Pod
 metadata:
   namespace: m3-physcfs
   name: "@@NAME@@"
-  labels: { app: model3_phys_cfs, role: target }
+  labels: { app: model3-phys-cfs, role: target }
 spec:
   restartPolicy: Never
   nodeSelector: { experiment-model: m3-physcfs }
