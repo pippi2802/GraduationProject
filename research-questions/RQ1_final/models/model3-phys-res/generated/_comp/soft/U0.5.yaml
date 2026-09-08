@@ -1,0 +1,42 @@
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: m3-physres, name: "model3-phys-res-soft-u50-comp-params" }
+spec: { count: 1, runtime: 40000, period: 100000, requestedCpus: [@@REQUESTED_CPUS@@] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: m3-physres, name: "model3-phys-res-soft-u50-comp-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model3-phys-res-soft-u50-comp-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: m3-physres
+  name: "model3-phys-res-soft-u50-comp"
+  labels: { app: model3-phys-res, role: competitor }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: m3-physres }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1final-probe:v1
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          exec $PIN /usr/local/bin/workload --K 13 --sieve-n 1048576 --period-us 100000 \
+            --n-jobs 100000000 --warmup 200 --priority 90 --seed 20260713 $CPU --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "model3-phys-res-soft-u50-comp-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1final/m3-physres/soft/U0.5/comp, type: DirectoryOrCreate }

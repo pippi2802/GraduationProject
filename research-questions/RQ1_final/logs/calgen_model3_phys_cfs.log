@@ -1,0 +1,23 @@
+[6]+: command not foun[calib] tight-U0.1: K=75 medC=701 (target 700) cv=0.0205 [HIGH-CV]
+[calib] tight-U0.2: K=150 medC=1403 (target 1400) cv=0.0136 [OK]
+[calib] tight-U0.3: K=225 medC=2100 (target 2100) cv=0.0095 [OK]
+[calib] tight-U0.4: K=301 medC=2806 (target 2800) cv=0.0076 [OK]
+[calib] tight-U0.5: K=376 medC=3505 (target 3500) cv=0.0075 [OK]
+[calib] tight-U0.6: K=450 medC=4193 (target 4200) cv=0.0063 [OK]
+[calib] tight-U0.7: K=525 medC=4895 (target 4900) cv=0.0069 [OK]
+[calib] tight-U0.8: K=601 medC=5603 (target 5600) cv=0.0059 [OK]
+[calib] tight-U0.9: K=676 medC=6299 (target 6300) cv=0.0048 [OK]
+[calib] tight-U0.94: K=705 medC=6572 (target 6580) cv=0.0041 [OK]
+[calib] soft-U0.1: K=4 medC=7055 (target 7000) cv=0.0121 [OK]
+[calib] soft-U0.2: K=8 medC=14471 (target 14000) cv=0.0096 [OK] -- OFF TARGET: effective U=0.145, not nominal 0.2
+[calib] soft-U0.3: K=12 medC=21648 (target 21000) cv=0.0073 [OK] -- OFF TARGET: effective U=0.216, not nominal 0.3
+[calib] soft-U0.4: K=16 medC=28341 (target 28000) cv=0.0095 [OK]
+[calib] soft-U0.5: K=21 medC=35443 (target 35000) cv=0.0032 [OK]
+[calib] soft-U0.6: K=23 medC=40793 (target 42000) cv=0.0036 [OK]
+[calib] soft-U0.7: K=29 medC=50067 (target 49000) cv=0.0032 [OK]
+[calib] soft-U0.8: K=32 medC=54764 (target 56000) cv=0.0032 [OK]
+[calib] soft-U0.9: K=37 medC=62481 (target 63000) cv=0.0031 [OK]
+[calib] soft-U0.94: K=39 medC=67378 (target 65800) cv=0.0028 [OK]
+[calib] wrote /home/azureuser/GraduationProject/research-questions/RQ1_final/models/model3-phys-cfs/k_table.json
+[calib] NOTE off-target (kept deliberately, K=1 floor exceeds/undershoots target -- use effective_u from k_table.json, not the nominal label): ['soft-U0.2', 'soft-U0.3']
+[calib] WARNING high CV (freq not pinned / core not isolated?): ['tight-U0.1']
