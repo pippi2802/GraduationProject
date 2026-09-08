@@ -48,6 +48,8 @@ sudo apt install -y build-essential flex bison libssl-dev libelf-dev bc \
 ## 2. Build the HCBS kernel with RT group scheduling
 
 ```bash
+git clone --branch rt-cgroups-multi-260514 https://github.com/Yurand2000/HCBS-patch.git
+
 cd ~/HCBS-patch                     # the HCBS-patched kernel source tree
 
 # Start from the running kernel's config
@@ -65,6 +67,10 @@ scripts/config --disable SYSTEM_TRUSTED_KEYS
 scripts/config --disable SYSTEM_REVOCATION_KEYS
 scripts/config --disable MODULE_SIG_KEY       # only if it also points at a missing key
 
+# Enable PREEMPT_RT
+scripts/config --enable EXPERT
+scripts/config --enable PREEMPT_RT
+
 # Resolve remaining symbols non-interactively
 make olddefconfig
 
@@ -74,6 +80,14 @@ grep -E 'SYSTEM_TRUSTED_KEYS|SYSTEM_REVOCATION_KEYS|RT_GROUP_SCHED' .config
 #   CONFIG_SYSTEM_REVOCATION_KEYS=""
 #   CONFIG_RT_GROUP_SCHED=y
 # Safe here because secure boot is OFF on the worker -> unsigned kernel+modules boot fine.
+
+grep -E '^CONFIG_(EXPERT|PREEMPT_RT|RT_GROUP_SCHED)=|RT_GROUP_SCHED_DEFAULT_DISABLED|SYSTEM_TRUSTED_KEYS|SYSTEM_REVOCATION_KEYS' .config
+#   CONFIG_EXPERT=y
+#   CONFIG_PREEMPT_RT=y
+#   CONFIG_RT_GROUP_SCHED=y
+#   # CONFIG_RT_GROUP_SCHED_DEFAULT_DISABLED is not set
+#   CONFIG_SYSTEM_TRUSTED_KEYS=""
+#   CONFIG_SYSTEM_REVOCATION_KEYS=""
 
 # Confirm the flags stuck BEFORE building
 grep -E 'CONFIG_RT_GROUP_SCHED|RT_GROUP_SCHED_DEFAULT_DISABLED' .config

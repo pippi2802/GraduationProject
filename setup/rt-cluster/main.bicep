@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 @description('Base name used as a prefix for all resources.')
 @minLength(3)
 @maxLength(24)
-param clusterName string = 'rt-cluster'
+param clusterName string = 'rt-k8s'
 
 @description('Environment tag (dev, test, staging, prod, ...).')
 param environment string = 'dev'
@@ -61,7 +61,7 @@ param sshPublicKey string = ''
 @description('Which image to use for the VMs.')
 @allowed([
   'custom'
-  'ubuntu2404'
+  'ubuntu2204'
 ])
 param imageType string = 'custom'
 

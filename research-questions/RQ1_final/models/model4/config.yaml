@@ -1,0 +1,27 @@
+# RQ1_final, model4 -- periodic vs event activation (dispatch-latency jitter),
+# sieve workload. Kept in RQ1 as explanatory analysis of KubeDeadline's
+# release-jitter behavior, not a deep standalone study.
+#
+# Per Silvia's decision (2026-09-07): model4 ONLY collects the EVENT arm.
+# The periodic side of the comparison reuses model1's own existing periodic
+# data rather than re-collecting a redundant count=1 periodic dataset here.
+# This means the comparison isn't perfectly single-variable (model1 is
+# count=1, model4 is count=2 -- see below for why), but avoids collecting
+# the same periodic behavior twice.
+#
+# count=2: target (cpu[0]) + generator thread (cpu[1]), matching workload.c's
+# --activation event requirement (needs a second thread to fire triggers).
+# Both cpus come back from ONE DRA claim via RT_CPUSET; workload.c's
+# --cpu env / --generator-cpu env split that one string into the two cpus.
+model: model4
+namespace: m4
+node_label: experiment-model=m4
+host_path: /var/lib/rq1final/model4
+image: pippina2/rq1final-probe:v1
+target_count: 2                # model4 only: target + generator, one DRA claim
+headroom_frac: 0.7
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales:
+  tight: { period_us: 10000, sieve_n: 8192 }
+  soft: { period_us: 100000, sieve_n: 1048576 }
+co_runners: {}                 # no external competitor -- generator is internal

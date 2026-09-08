@@ -1,0 +1,27 @@
+# RQ1_final, model3 -- fixed-competitor, PAIR_TYPE x COMPETITOR_TYPE sweep,
+# sieve workload. Ported from RQ1/models/model3 -- same design, retargeted at
+# workload.c. See RQ1/models/model3/README.md for the full mechanism
+# (place_fixed_competitor, requestedCpus hints, the SMT-blind-driver
+# workaround); unchanged here.
+#   PAIR_TYPE=sibling  -> target's cpu is the competitor's SMT sibling
+#   PAIR_TYPE=physical -> target's cpu is on a DIFFERENT physical core
+#   COMPETITOR_TYPE=unreserved -> CFS sieve, taskset-pinned (not through the driver)
+#   COMPETITOR_TYPE=reserved   -> its own CBS reservation at co_runners.competitor.u
+# 2x2 sweep selected via env vars at run_job.sh invocation time, e.g.:
+#   PAIR_TYPE=sibling  COMPETITOR_TYPE=unreserved OUT_TAG=_sib_cfs ./run_job.sh model3
+model: model3
+namespace: rq1final-model3
+node_label: experiment-model=rq1final-model3
+host_path: /var/lib/rq1final/model3
+image: pippina2/rq1final-probe:v1
+headroom_frac: 0.7
+# capped at 0.5, same reasoning as RQ1's model3: sib_res/sib_cfs arms share
+# ONE physical core between target + fixed-intensity (u=0.4) competitor, so
+# combined utilisation must stay under the ~0.95 schedulability ceiling.
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+scales:
+  tight: { period_us: 10000, sieve_n: 8192 }
+  soft: { period_us: 100000, sieve_n: 1048576 }
+co_runners:
+  interferer: {}          # unreserved competitor; cpu resolved at run time
+  competitor: { u: 0.4 }  # reserved competitor's own utilisation
