@@ -18,7 +18,13 @@ namespace: m4
 node_label: experiment-model=m4
 host_path: /var/lib/rq1final/model4
 image: pippina2/rq1final-probe:v1
-target_count: 2                # model4 only: target + generator, one DRA claim
+target_threads: 2               # model4 only: target + generator, one DRA claim.
+                                 # NAME MATTERS: run_job.sh reads this exact key
+                                 # ("target_threads", not "target_count") to set
+                                 # MT_THREADS, which drives its distinct-physical-
+                                 # core verification for the pair. Was silently
+                                 # named "target_count" before -- MT_THREADS
+                                 # resolved to 0, disabling that check entirely.
 headroom_frac: 0.7
 utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 scales:
