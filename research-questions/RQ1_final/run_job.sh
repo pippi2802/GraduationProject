@@ -69,6 +69,13 @@ IRQ_STEER="${IRQ_STEER:-}"
 # placement. The SMT-blind driver has no core knob, so we delete+recreate until
 # worst-fit lands there (up to PIN_ATTEMPTS). Empty = accept whatever it picks.
 PIN_RTCPU="${PIN_RTCPU:-}"
+# comma-separated, exact-set version of PIN_RTCPU -- for count>1 claims
+# (model4's target+generator pair) where a single PIN_RTCPU would only pin
+# ONE of the two cpus, leaving the other free for the driver's worst-fit
+# top-up to still land on an unisolated cpu (e.g. KEEP_CPU). Requires
+# len(PIN_RTCPUS) == the claim's count. Takes priority over PIN_RTCPU if
+# both are set.
+PIN_RTCPUS="${PIN_RTCPUS:-}"
 PIN_ATTEMPTS="${PIN_ATTEMPTS:-8}"
 # how many times to redo a whole cell (placement + competitor landing + run +
 # row-count) before giving up and recording it as FAILED.
@@ -518,7 +525,10 @@ print(d.get('$key', {}).get('cv', 'NA'))
       echo "[run] neighbour placed+running on cpu$nb_cpu, confirmed actually executing; target will be forced onto its sibling cpu$desired_target_cpu"
     fi
 
-    if [ -n "$PIN_RTCPU" ]; then
+    FORCE_EXACT_SET=0
+    if [ -n "$PIN_RTCPUS" ]; then
+      IFS=',' read -ra CPU_CANDIDATES <<< "$PIN_RTCPUS"; FORCE_CPU=1; FORCE_EXACT_SET=1
+    elif [ -n "$PIN_RTCPU" ]; then
       CPU_CANDIDATES=("$PIN_RTCPU"); FORCE_CPU=1
     elif [ "$HAS_NB" = 1 ] || [ "$HAS_COMP" = 1 ]; then
       read -ra CPU_CANDIDATES <<< "$desired_target_cpu"; FORCE_CPU=1
@@ -542,7 +552,19 @@ print(d.get('$key', {}).get('cv', 'NA'))
       tgt=$(kubectl -n "$NS" get pod -l "app=$MODEL,role=target" -o jsonpath='{.items[0].metadata.name}')
       tgt_cpuset=$(kubectl -n "$NS" exec "$tgt" -- printenv RT_CPUSET 2>/dev/null || true)
       rtcpu=$(echo "$tgt_cpuset" | cut -d, -f1 | cut -d- -f1)
-      if [ "$FORCE_CPU" = 1 ]; then
+      if [ "$FORCE_CPU" = 1 ] && [ "$FORCE_EXACT_SET" = 1 ]; then
+        # exact-set mode (PIN_RTCPUS): every landed cpu must be in the set,
+        # not just the first -- rtcpu alone (cut -d, -f1|cut -d- -f1) only
+        # ever sees the FIRST cpu of a multi-cpu RT_CPUSET, which silently
+        # missed the second cpu landing anywhere (including KEEP_CPU) --
+        # exactly how model1/model4 ended up with ~50-80% of cells sharing
+        # the unisolated housekeeping core, undetected, before this fix.
+        landed=$(expand_cpuset "$tgt_cpuset" | tr ' ' '\n' | sort -n | tr '\n' ' ')
+        wanted=$(printf '%s\n' "${CPU_CANDIDATES[@]}" | sort -n | tr '\n' ' ')
+        if [ "$landed" != "$wanted" ]; then
+          echo "[run] target on {${landed% }}, wanted exactly {${wanted% }} ($attempt/$PIN_ATTEMPTS); re-placing"; continue
+        fi
+      elif [ "$FORCE_CPU" = 1 ]; then
         match=0
         for c in "${CPU_CANDIDATES[@]}"; do [ "$rtcpu" = "$c" ] && match=1 && break; done
         if [ "$match" != 1 ]; then
