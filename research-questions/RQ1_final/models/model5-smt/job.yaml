@@ -38,11 +38,11 @@ spec:
       command: ["/bin/bash","-c"]
       args:
         - |
-          set -e; mkdir -p /results; rm -f /results/jobs_1.csv /results/jobs_2.csv || true
+          set -e; mkdir -p /results; rm -f /results/jobs.csv /results/jobs_2.csv || true
           echo "RT_CPUSET=$RT_CPUSET"
           taskset -c $RT_CPUSET /usr/local/bin/workload --K @@K@@ --sieve-n @@SIEVE_N@@ --period-us @@PERIOD@@ \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 --clock monotonic \
-            --activation periodic --logfile /results/jobs_1.csv &
+            --activation periodic --logfile /results/jobs.csv &
           taskset -c $RT_CPUSET /usr/local/bin/workload --K @@K@@ --sieve-n @@SIEVE_N@@ --period-us @@PERIOD@@ \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260714 --clock monotonic \
             --activation periodic --logfile /results/jobs_2.csv &
