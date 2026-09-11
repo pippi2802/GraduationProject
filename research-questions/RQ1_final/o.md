@@ -10,3 +10,23 @@ nohup bash -c 'OUT_TAG=_round4 DELETE_SETTLE=2 PAIR_TYPE=physical COMPETITOR_TYP
 nohup bash -c 'OUT_TAG=_round4 ./run_job.sh model1' > logs/run_model1_round4.log 2>&1 &
 
 nohup bash -c 'OUT_TAG=_round4 ./run_job.sh model4' > logs/run_model4_round4.log 2>&1 &
+
+
+
+
+
+-------------------------
+nohup bash -c 'OUT_TAG=_round4 PIN_RTCPU=2 ./run_job.sh model1' > logs/run_model1_round4.log 2>&1 &
+
+nohup bash -c 'OUT_TAG=_round4 PIN_RTCPUS=1,2 ./run_job.sh model4' > logs/run_model4_round4.log 2>&1 &
+
+cd ~/GraduationProject/research-questions/RQ1_final/results
+python3 -c "
+import json, glob
+from collections import Counter
+for model in ['model1', 'model4']:
+    cpus = Counter()
+    for f in glob.glob(f'{model}_round1/*/*/placement.json'):
+        cpus[json.load(open(f))['target_RT_CPUSET']] += 1
+    print(model, dict(cpus))
+"

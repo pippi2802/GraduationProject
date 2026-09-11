@@ -67,11 +67,7 @@ scripts/config --disable SYSTEM_TRUSTED_KEYS
 scripts/config --disable SYSTEM_REVOCATION_KEYS
 scripts/config --disable MODULE_SIG_KEY       # only if it also points at a missing key
 
-# Enable PREEMPT_RT
-scripts/config --enable EXPERT
-scripts/config --enable PREEMPT_RT
-
-# Resolve remaining symbols non-interactively
+# Resolve remaining symbols non-interactively                   
 make olddefconfig
 
 # Confirm the signing keys are now empty (and RT flag is on)

@@ -23,3 +23,7 @@ research-questions/RQ1/analysis/clean_data
 
 # compiled probe binary (regenerable via `make`)
 research-questions/RQ1/matmul
+
+
+research-questions/RQ1_final/.venv
+research-questions/RQ1_final/analysis/data
