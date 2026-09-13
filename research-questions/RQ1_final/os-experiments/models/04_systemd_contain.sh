@@ -27,10 +27,11 @@ status() {
   systemctl show user.slice -p AllowedCPUs 2>/dev/null
 }
 
-apply() {  # remove containment -- baseline's own drop-ins
-  if [ ! -f "$DROPIN_SYS" ] && [ ! -f "$DROPIN_USR" ]; then
-    echo "systemd containment already absent; nothing to do."; return 0
-  fi
+apply() {  # remove containment -- baseline's own drop-ins.
+  # Always clear both the drop-in files AND the live systemctl property --
+  # `set-property` persists independently of the drop-in file's presence, so
+  # checking file-existence alone (as this used to) can skip the actual
+  # live-property clear when a prior run already removed just the file.
   rm -f "$DROPIN_SYS" "$DROPIN_USR"
   systemctl daemon-reload
   systemctl set-property system.slice AllowedCPUs="" 2>/dev/null || true
