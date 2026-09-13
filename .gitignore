@@ -26,4 +26,7 @@ research-questions/RQ1/matmul
 
 
 research-questions/RQ1_final/.venv
-research-questions/RQ1_final/analysis/data
+research-questions/RQ1_final/kubedeadline-experiments/.venv
+research-questions/RQ1_final/kubedeadline-experiments/analysis/data
+research-questions/RQ1_final/os-experiments/.venv
+research-questions/RQ1_final/os-experiments/analysis/data
