@@ -29,8 +29,8 @@ check() {
   else echo "  FAIL: $desc"; FAIL=$((FAIL+1)); fi
 }
 
-isolcpus_active() { [ -s /sys/devices/system/cpu/isolated ]; }
-nohz_active()     { [ -s /sys/devices/system/cpu/nohz_full ]; }
+isolcpus_active() { [ -n "$(cat /sys/devices/system/cpu/isolated 2>/dev/null)" ]; }
+nohz_active()     { [ -n "$(cat /sys/devices/system/cpu/nohz_full 2>/dev/null)" ]; }
 rcu_nocbs_active(){ grep -q "rcu_nocbs=" /proc/cmdline; }
 mitigations_off() { grep -q "mitigations=off" /proc/cmdline; }
 rcu_poll_active() { grep -q "rcu_nocb_poll" /proc/cmdline; }
