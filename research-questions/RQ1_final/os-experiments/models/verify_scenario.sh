@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # verify_scenario.sh <namespace> <scenario> [keep_cpu]
 #
-# PASS/FAIL check of live kernel/systemd state against what a scenario
-# SHOULD have produced, not a raw status dump -- run this AFTER rebooting
-# (for the grub-based scenarios), it reads the actually-booted state via
-# /sys and /proc, not the staged grub file.
+# PASS/FAIL check of live kernel/systemd state against a SUBTRACTIVE
+# scenario: full isolation baseline, with exactly ONE lever removed.
+# Run AFTER rebooting (for the grub-based scenarios) -- reads actually-booted
+# state via /sys and /proc, not the staged grub file.
 #
 # scenario: isolcpus_only | nohz_full_only | rcu_nocbs_only |
 #           systemd_contain | irq_steer | boot_params | worst_case
@@ -41,37 +41,42 @@ systemd_contain_active() {
   local v; v=$(systemctl show system.slice -p AllowedCPUs 2>/dev/null | cut -d= -f2)
   [ -n "$v" ] && [ "$v" != "" ]
 }
-irq_steer_active() { systemctl is-active --quiet rq1-os-sensitivity-irq-steer.service 2>/dev/null; }
+irq_steer_active() { systemctl is-active --quiet rq1-irq-steer.service 2>/dev/null; }
+
+# helper: assert baseline pieces NOT under test are still intact
+baseline_isolcpus() { isolcpus_active && check "isolcpus still active (part of baseline)" 1 || check "isolcpus still active (part of baseline)" 0; }
+baseline_nohz()     { nohz_active && check "nohz_full still active (part of baseline)" 1 || check "nohz_full still active (part of baseline)" 0; }
+baseline_rcu()      { rcu_nocbs_active && check "rcu_nocbs still active (part of baseline)" 1 || check "rcu_nocbs still active (part of baseline)" 0; }
+baseline_systemd()  { systemd_contain_active && check "systemd containment still active (part of baseline)" 1 || check "systemd containment still active (part of baseline)" 0; }
+baseline_irq()      { irq_steer_active && check "IRQ steering still active (part of baseline)" 1 || check "IRQ steering still active (part of baseline)" 0; }
+baseline_boot()     { mitigations_off && thp_never && check "boot-params bundle still active (part of baseline)" 1 || check "boot-params bundle still active (part of baseline)" 0; }
 
 case "$SCEN" in
   isolcpus_only)
-    isolcpus_active && check "isolcpus active" 1 || check "isolcpus active" 0
-    nohz_active && check "nohz_full should be INACTIVE (isolcpus-only scenario)" 0 || check "nohz_full inactive, as expected" 1
-    rcu_nocbs_active && check "rcu_nocbs should be INACTIVE (isolcpus-only scenario)" 0 || check "rcu_nocbs inactive, as expected" 1
+    isolcpus_active && check "isolcpus should be REMOVED" 0 || check "isolcpus removed, as expected" 1
+    baseline_nohz; baseline_rcu
     ;;
   nohz_full_only)
-    nohz_active && check "nohz_full active" 1 || check "nohz_full active" 0
-    isolcpus_active && check "isolcpus should be INACTIVE (nohz-only scenario)" 0 || check "isolcpus inactive, as expected" 1
+    nohz_active && check "nohz_full should be REMOVED" 0 || check "nohz_full removed, as expected" 1
+    baseline_isolcpus; baseline_rcu
     ;;
   rcu_nocbs_only)
-    rcu_nocbs_active && check "rcu_nocbs active" 1 || check "rcu_nocbs active" 0
-    isolcpus_active && check "isolcpus should be INACTIVE (rcu-only scenario)" 0 || check "isolcpus inactive, as expected" 1
+    rcu_nocbs_active && check "rcu_nocbs should be REMOVED" 0 || check "rcu_nocbs removed, as expected" 1
+    baseline_isolcpus; baseline_nohz
     ;;
   systemd_contain)
-    systemd_contain_active && check "system.slice/user.slice AllowedCPUs set" 1 || check "system.slice/user.slice AllowedCPUs set" 0
+    systemd_contain_active && check "systemd containment should be REMOVED" 0 || check "systemd containment removed, as expected" 1
+    baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_irq; baseline_boot
     ;;
   irq_steer)
-    irq_steer_active && check "rq1-os-sensitivity-irq-steer.service active" 1 || check "rq1-os-sensitivity-irq-steer.service active" 0
-    bad=0
-    for f in /proc/irq/*/smp_affinity_list; do
-      v=$(cat "$f" 2>/dev/null); [ "$v" = "$KEEP" ] || bad=$((bad+1))
-    done
-    check "no steerable IRQs left off cpu$KEEP ($bad still elsewhere)" "$([ "$bad" -eq 0 ] && echo 1 || echo 0)"
+    irq_steer_active && check "IRQ steering should be REMOVED" 0 || check "IRQ steering removed, as expected" 1
+    baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_boot
     ;;
   boot_params)
-    mitigations_off && check "mitigations=off" 1 || check "mitigations=off" 0
-    thp_never && check "transparent_hugepage=never" 1 || check "transparent_hugepage=never" 0
-    rcu_poll_active && check "rcu_nocb_poll present" 1 || check "rcu_nocb_poll present" 0
+    mitigations_off && check "mitigations should be back ON (removed)" 0 || check "mitigations back on, as expected" 1
+    thp_never && check "THP should be back to always (removed)" 0 || check "THP back to always, as expected" 1
+    rcu_poll_active && check "rcu_nocb_poll should be REMOVED" 0 || check "rcu_nocb_poll removed, as expected" 1
+    baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_irq
     ;;
   worst_case)
     isolcpus_active && check "isolcpus should be INACTIVE" 0 || check "isolcpus inactive" 1

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# 05_irq_steer.sh <namespace> <status|apply|restore> [keep_cpu]
+# 05_irq_steer.sh <namespace> <status|apply|restore>
 #
-# OS-sensitivity scenario: steer every steerable device IRQ onto keep_cpu,
-# install a boot-persistent systemd unit (kernel resets /proc/irq/* affinity
-# on every boot regardless). No reboot needed either direction.
+# SUBTRACTIVE: removes the IRQ steering the full baseline already applied
+# (kubedeadline-experiments/node-prep/harden-core.sh's rq1-irq-steer.service),
+# leaving everything else (isolcpus/nohz_full/rcu_nocbs, systemd-contain,
+# boot-params) as baseline. Existing IRQ affinity is left as-is on removal
+# (not actively reset), matching harden-core.sh's own restore_all() behavior.
 set -euo pipefail
 NS="${1:?usage: 05_irq_steer.sh <namespace> <status|apply|restore> [keep_cpu]}"
 MODE="${2:?usage: 05_irq_steer.sh <namespace> <status|apply|restore> [keep_cpu]}"
@@ -17,24 +19,27 @@ kubectl -n "$NS" exec -i "$AGENT" -- nsenter --target 1 --mount --uts --ipc --ne
   bash -s -- "$MODE" "$KEEP" <<'CORE'
 set -u
 MODE="$1"; KEEP="$2"
-IRQ_UNIT=/etc/systemd/system/rq1-os-sensitivity-irq-steer.service
+IRQ_UNIT=/etc/systemd/system/rq1-irq-steer.service
 
 status() {
-  echo "--- IRQ steering unit ---"
-  systemctl is-enabled rq1-os-sensitivity-irq-steer.service 2>/dev/null || echo "not installed"
-  echo "--- IRQs still allowed off keep_cpu ---"
-  for f in /proc/irq/*/smp_affinity_list; do
-    v=$(cat "$f" 2>/dev/null)
-    [ "$v" = "$KEEP" ] || echo "$f: $v"
-  done
+  echo "--- IRQ steering unit (should be REMOVED for this scenario) ---"
+  systemctl is-enabled rq1-irq-steer.service 2>/dev/null || echo "not installed"
 }
-apply() {
+
+apply() {  # remove -- baseline's own unit
+  systemctl disable --now rq1-irq-steer.service 2>/dev/null || true
+  rm -f "$IRQ_UNIT"
+  systemctl daemon-reload
+  echo "removed IRQ steering unit (existing affinity left as-is, not reset)."
+}
+
+restore() {  # put it back -- exactly as harden-core.sh's irq_steer() does
   for f in /proc/irq/*/smp_affinity_list; do
     echo "$KEEP" > "$f" 2>/dev/null || true
   done
   cat > "$IRQ_UNIT" <<EOF
 [Unit]
-Description=RQ1_final os-sensitivity -- steer all device IRQs onto cpu$KEEP at boot
+Description=RQ1_final -- steer all device IRQs onto cpu$KEEP at boot
 After=multi-user.target
 
 [Service]
@@ -46,15 +51,10 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
-  systemctl enable --now rq1-os-sensitivity-irq-steer.service
-  echo "IRQs steered onto cpu$KEEP now, persisted across future boots."
+  systemctl enable --now rq1-irq-steer.service
+  echo "restored IRQ steering (onto cpu$KEEP) -- back to full baseline."
 }
-restore() {
-  systemctl disable --now rq1-os-sensitivity-irq-steer.service 2>/dev/null || true
-  rm -f "$IRQ_UNIT"
-  systemctl daemon-reload
-  echo "IRQ steering unit removed (existing affinity left as-is, not reset)."
-}
+
 case "$MODE" in
   status) status ;;
   apply) apply ;;

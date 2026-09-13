@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# 04_systemd_contain.sh <namespace> <status|apply|restore> [keep_cpu]
+# 04_systemd_contain.sh <namespace> <status|apply|restore>
 #
-# OS-sensitivity scenario: clamp system.slice/user.slice to keep_cpu only via
-# cgroup v2 AllowedCPUs= (kubepods.slice, where target pods live, is left
-# untouched). No reboot needed either direction.
+# SUBTRACTIVE: removes the systemd containment the full baseline already
+# applied (kubedeadline-experiments/node-prep/harden-core.sh's
+# rq1-harden.conf drop-ins on system.slice/user.slice), leaving everything
+# else (isolcpus/nohz_full/rcu_nocbs, irq-steer, boot-params) as baseline.
 set -euo pipefail
 NS="${1:?usage: 04_systemd_contain.sh <namespace> <status|apply|restore> [keep_cpu]}"
 MODE="${2:?usage: 04_systemd_contain.sh <namespace> <status|apply|restore> [keep_cpu]}"
@@ -17,30 +18,36 @@ kubectl -n "$NS" exec -i "$AGENT" -- nsenter --target 1 --mount --uts --ipc --ne
   bash -s -- "$MODE" "$KEEP" <<'CORE'
 set -u
 MODE="$1"; KEEP="$2"
-DROPIN_DIR_SYS=/etc/systemd/system/system.slice.d
-DROPIN_DIR_USR=/etc/systemd/system/user.slice.d
+DROPIN_SYS=/etc/systemd/system/system.slice.d/rq1-harden.conf
+DROPIN_USR=/etc/systemd/system/user.slice.d/rq1-harden.conf
 
 status() {
-  echo "--- systemd containment ---"
+  echo "--- systemd containment (should be REMOVED for this scenario) ---"
   systemctl show system.slice -p AllowedCPUs 2>/dev/null
   systemctl show user.slice -p AllowedCPUs 2>/dev/null
 }
-apply() {
-  mkdir -p "$DROPIN_DIR_SYS" "$DROPIN_DIR_USR"
-  printf '[Slice]\nAllowedCPUs=%s\n' "$KEEP" > "$DROPIN_DIR_SYS/rq1-os-sensitivity.conf"
-  printf '[Slice]\nAllowedCPUs=%s\n' "$KEEP" > "$DROPIN_DIR_USR/rq1-os-sensitivity.conf"
-  systemctl daemon-reload
-  systemctl set-property system.slice AllowedCPUs="$KEEP"
-  systemctl set-property user.slice AllowedCPUs="$KEEP"
-  echo "system.slice + user.slice clamped to cpu$KEEP (kubepods.slice untouched)."
-}
-restore() {
-  rm -f "$DROPIN_DIR_SYS/rq1-os-sensitivity.conf" "$DROPIN_DIR_USR/rq1-os-sensitivity.conf"
+
+apply() {  # remove containment -- baseline's own drop-ins
+  if [ ! -f "$DROPIN_SYS" ] && [ ! -f "$DROPIN_USR" ]; then
+    echo "systemd containment already absent; nothing to do."; return 0
+  fi
+  rm -f "$DROPIN_SYS" "$DROPIN_USR"
   systemctl daemon-reload
   systemctl set-property system.slice AllowedCPUs="" 2>/dev/null || true
   systemctl set-property user.slice AllowedCPUs="" 2>/dev/null || true
-  echo "systemd containment removed."
+  echo "removed systemd containment (system.slice/user.slice unclamped)."
 }
+
+restore() {  # put it back -- exactly as harden-core.sh's systemd_contain() does
+  mkdir -p "$(dirname "$DROPIN_SYS")" "$(dirname "$DROPIN_USR")"
+  printf '[Slice]\nAllowedCPUs=%s\n' "$KEEP" > "$DROPIN_SYS"
+  printf '[Slice]\nAllowedCPUs=%s\n' "$KEEP" > "$DROPIN_USR"
+  systemctl daemon-reload
+  systemctl set-property system.slice AllowedCPUs="$KEEP"
+  systemctl set-property user.slice AllowedCPUs="$KEEP"
+  echo "restored systemd containment (clamped to cpu$KEEP) -- back to full baseline."
+}
+
 case "$MODE" in
   status) status ;;
   apply) apply ;;
