@@ -19,7 +19,7 @@ kind: Pod
 metadata:
   namespace: 05-model1
   name: "@@NAME@@"
-  labels: { app: model1, role: target }
+  labels: { app: 05-model1, role: target }
 spec:
   restartPolicy: Never
   nodeSelector: { experiment-model: 05-model1 }
