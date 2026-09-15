@@ -1,0 +1,57 @@
+# BASE manifest for one model5-phys cell -- RQ1_final, multicore (K=2
+# concurrent compute threads on ONE count=2 claim, cross-physical-core pair).
+# generate_yaml.py stamps 06-model5-tight-u94 9400(Q) 10000(P) 638 8192 tight/U0.94.
+# Both processes reuse the SAME 638 (each individually targets the full
+# calibrated per-thread Q) -- with 2 threads on 2 reserved cpus this is the
+# balanced baseline (no oversubscription); K3/K4 variants (more threads than
+# reserved cpus) add processes here without changing calibration.
+# requestedCpus hardcoded per the model1/model4 placement-forcing fix
+# precedent (2026-09-09) -- never rely on the dynamic substitution path.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: 06-model5, name: "06-model5-tight-u94-params" }
+spec: { count: 2, runtime: 9400, period: 10000, requestedCpus: [1,3] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: 06-model5, name: "06-model5-tight-u94-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "06-model5-tight-u94-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: 06-model5
+  name: "06-model5-tight-u94"
+  labels: { app: 06-model5, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: 06-model5 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1final-probe:v1
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results; rm -f /results/jobs.csv /results/jobs_2.csv || true
+          echo "RT_CPUSET=$RT_CPUSET"
+          taskset -c $RT_CPUSET /usr/local/bin/workload --K 638 --sieve-n 8192 --period-us 10000 \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 --clock monotonic \
+            --activation periodic --logfile /results/jobs.csv &
+          taskset -c $RT_CPUSET /usr/local/bin/workload --K 638 --sieve-n 8192 --period-us 10000 \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260714 --clock monotonic \
+            --activation periodic --logfile /results/jobs_2.csv &
+          wait
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "06-model5-tight-u94-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1final/06-model5/tight/U0.94/target, type: DirectoryOrCreate }

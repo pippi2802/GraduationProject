@@ -1,0 +1,47 @@
+# BASE manifest for one model1 cell -- RQ1_final, sieve workload.
+# generate_yaml.py stamps 02-model1-tight-u20 2000(Q) 10000(P) 150 8192 tight/U0.2.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: 02-model1, name: "02-model1-tight-u20-params" }
+spec: { count: 1, runtime: 2000, period: 10000, requestedCpus: [2] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: 02-model1, name: "02-model1-tight-u20-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "02-model1-tight-u20-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: 02-model1
+  name: "02-model1-tight-u20"
+  labels: { app: 02-model1, role: target }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: 02-model1 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: probe
+      image: pippina2/rq1final-probe:v1
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/bash","-c"]
+      args:
+        - |
+          set -e; mkdir -p /results; rm -f /results/jobs.csv || true
+          if [ -n "$RT_CPUSET" ]; then PIN="taskset -c $RT_CPUSET"; CPU="--cpu env"; else PIN=""; CPU=""; fi
+          # switch --clock to realtime here for a clock-choice comparison round
+          exec $PIN /usr/local/bin/workload --K 150 --sieve-n 8192 --period-us 10000 \
+            --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 --clock monotonic $CPU \
+            --logfile /results/jobs.csv
+      securityContext: { capabilities: { add: ["SYS_NICE","IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "02-model1-tight-u20-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq1final/02-model1/tight/U0.2/target, type: DirectoryOrCreate }

@@ -1,0 +1,23 @@
+nohup: ignoring input
+[calib] tight-U0.1: K=75 medC=699 (target 700) cv=0.0120 [OK]
+[calib] tight-U0.2: K=150 medC=1397 (target 1400) cv=0.0083 [OK]
+[calib] tight-U0.3: K=225 medC=2095 (target 2100) cv=0.0070 [OK]
+[calib] tight-U0.4: K=300 medC=2789 (target 2800) cv=0.0057 [OK]
+[calib] tight-U0.5: K=375 medC=3491 (target 3500) cv=0.0042 [OK]
+[calib] tight-U0.6: K=451 medC=4198 (target 4200) cv=0.0040 [OK]
+[calib] tight-U0.7: K=525 medC=4890 (target 4900) cv=0.0078 [OK]
+[calib] tight-U0.8: K=600 medC=5590 (target 5600) cv=0.0041 [OK]
+[calib] tight-U0.9: K=675 medC=6280 (target 6300) cv=0.0033 [OK]
+[calib] tight-U0.94: K=706 medC=6571 (target 6580) cv=0.0040 [OK]
+[calib] soft-U0.1: K=4 medC=7115 (target 7000) cv=0.0082 [OK]
+[calib] soft-U0.2: K=8 medC=14285 (target 14000) cv=0.0047 [OK]
+[calib] soft-U0.3: K=12 medC=21868 (target 21000) cv=0.0041 [OK] -- OFF TARGET: effective U=0.219, not nominal 0.3
+[calib] soft-U0.4: K=16 medC=27409 (target 28000) cv=0.0042 [OK]
+[calib] soft-U0.5: K=20 medC=35770 (target 35000) cv=0.0030 [OK]
+[calib] soft-U0.6: K=25 medC=42648 (target 42000) cv=0.0036 [OK]
+[calib] soft-U0.7: K=28 medC=49159 (target 49000) cv=0.0028 [OK]
+[calib] soft-U0.8: K=31 medC=55060 (target 56000) cv=0.0025 [OK]
+[calib] soft-U0.9: K=37 medC=64235 (target 63000) cv=0.0028 [OK]
+[calib] soft-U0.94: K=38 medC=64341 (target 65800) cv=0.0030 [OK]
+[calib] wrote /home/azureuser/GraduationProject/research-questions/RQ1_final/os-experiments/workloads/02-model1/k_table.json
+[calib] NOTE off-target (kept deliberately, K=1 floor exceeds/undershoots target -- use effective_u from k_table.json, not the nominal label): ['soft-U0.3']
