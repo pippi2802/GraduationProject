@@ -35,7 +35,10 @@ rcu_nocbs_active(){ grep -q "rcu_nocbs=" /proc/cmdline; }
 mitigations_off() { grep -q "mitigations=off" /proc/cmdline; }
 rcu_poll_active() { grep -q "rcu_nocb_poll" /proc/cmdline; }
 thp_never()       { grep -q "\[never\]" /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null; }
-thp_always()      { grep -q "\[always\]" /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null; }
+# "default" here means NOT the harden-core bundle's forced [never] -- this
+# platform's real distro default is [madvise], not [always], confirmed
+# empirically on 07-model1's node post-reboot (2026-09-15).
+thp_always()      { ! grep -q "\[never\]" /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null; }
 smt_on()          { [ "$(cat /sys/devices/system/cpu/smt/control 2>/dev/null)" = "on" ]; }
 systemd_contain_active() {
   local v; v=$(systemctl show system.slice -p AllowedCPUs 2>/dev/null | cut -d= -f2)
