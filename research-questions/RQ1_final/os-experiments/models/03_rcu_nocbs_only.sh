@@ -43,7 +43,7 @@ lines = open(path).read().splitlines()
 out = []
 for line in lines:
     if line.startswith("GRUB_CMDLINE_LINUX=") and "rcu_nocbs=" in line:
-        line = re.sub(r'\s*rcu_nocbs=\S+', '', line)
+        line = re.sub(r'\s*rcu_nocbs=[0-9,-]+', '', line)
     out.append(line)
 open(path, "w").write("\n".join(out) + "\n")
 PY

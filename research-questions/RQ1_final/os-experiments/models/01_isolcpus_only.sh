@@ -52,7 +52,7 @@ lines = open(path).read().splitlines()
 out = []
 for line in lines:
     if line.startswith("GRUB_CMDLINE_LINUX=") and "isolcpus=" in line:
-        line = re.sub(r'\s*isolcpus=\S+', '', line)
+        line = re.sub(r'\s*isolcpus=[0-9,-]+', '', line)
     out.append(line)
 open(path, "w").write("\n".join(out) + "\n")
 PY

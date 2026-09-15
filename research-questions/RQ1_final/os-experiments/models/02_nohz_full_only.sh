@@ -43,7 +43,7 @@ lines = open(path).read().splitlines()
 out = []
 for line in lines:
     if line.startswith("GRUB_CMDLINE_LINUX=") and "nohz_full=" in line:
-        line = re.sub(r'\s*nohz_full=\S+', '', line)
+        line = re.sub(r'\s*nohz_full=[0-9,-]+', '', line)
     out.append(line)
 open(path, "w").write("\n".join(out) + "\n")
 PY
