@@ -1,0 +1,7 @@
+nohup: ignoring input
+[run] U_MIN=0.8 U_MAX=0.94 applied: 3 cells remain
+[run] model=01-model1 ns=01-model1 agent=rq1-agent-rwnmp cells=3 has_neighbours=0 has_competitor=0
+[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=matmul label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=generated k_table=k_table.json ***
+[run] kubepods-besteffort.slice period mismatch (have 0, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] === tight/U0.8 (workloads/01-model1/generated/tight/U0.8.yaml) ===

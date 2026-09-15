@@ -1,6 +1,6 @@
 # BASE manifest for one model5-phys cell -- RQ1_final, multicore (K=2
 # concurrent compute threads on ONE count=2 claim, cross-physical-core pair).
-# generate_yaml.py stamps model5-phys-soft-u10 10000(Q) 100000(P) 3 1048576 soft/U0.1.
+# generate_yaml.py stamps 04-model5-soft-u10 10000(Q) 100000(P) 3 1048576 soft/U0.1.
 # Both processes reuse the SAME 3 (each individually targets the full
 # calibrated per-thread Q) -- with 2 threads on 2 reserved cpus this is the
 # balanced baseline (no oversubscription); K3/K4 variants (more threads than
@@ -10,26 +10,26 @@
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
-metadata: { namespace: m5-phys, name: "model5-phys-soft-u10-params" }
+metadata: { namespace: 04-model5, name: "04-model5-soft-u10-params" }
 spec: { count: 2, runtime: 10000, period: 100000, requestedCpus: [1,3] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
-metadata: { namespace: m5-phys, name: "model5-phys-soft-u10-claim" }
+metadata: { namespace: 04-model5, name: "04-model5-soft-u10-claim" }
 spec:
   spec:
     resourceClassName: rt.example.com
-    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model5-phys-soft-u10-params" }
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "04-model5-soft-u10-params" }
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: m5-phys
-  name: "model5-phys-soft-u10"
-  labels: { app: model5-phys, role: target }
+  namespace: 04-model5
+  name: "04-model5-soft-u10"
+  labels: { app: 04-model5, role: target }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: m5-phys }
+  nodeSelector: { experiment-model: 04-model5 }
   tolerations: [{ operator: Exists }]
   containers:
     - name: probe
@@ -51,7 +51,7 @@ spec:
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]
   resourceClaims:
-    - { name: rtcpu, source: { resourceClaimTemplateName: "model5-phys-soft-u10-claim" } }
+    - { name: rtcpu, source: { resourceClaimTemplateName: "04-model5-soft-u10-claim" } }
   volumes:
     - name: results
-      hostPath: { path: /var/lib/rq1final/m5-phys/soft/U0.1/target, type: DirectoryOrCreate }
+      hostPath: { path: /var/lib/rq1final/04-model5/soft/U0.1/target, type: DirectoryOrCreate }

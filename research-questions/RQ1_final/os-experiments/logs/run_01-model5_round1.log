@@ -1,0 +1,175 @@
+nohup: ignoring input
+[run] model=01-model5 ns=01-model5 agent=rq1-agent-4mrnc cells=20 has_neighbours=0 has_competitor=0
+[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=matmul label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=generated k_table=k_table.json ***
+[run] === soft/U0.1 (workloads/01-model5/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.1
+[run] === soft/U0.2 (workloads/01-model5/generated/soft/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.2
+[run] === soft/U0.3 (workloads/01-model5/generated/soft/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.3
+[run] === soft/U0.4 (workloads/01-model5/generated/soft/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.4
+[run] === soft/U0.5 (workloads/01-model5/generated/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.5
+[run] === soft/U0.6 (workloads/01-model5/generated/soft/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.6
+[run] === soft/U0.7 (workloads/01-model5/generated/soft/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/soft/U0.7
+[run] === soft/U0.8 (workloads/01-model5/generated/soft/U0.8.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.8 after 4 attempt(s): could not place target after 8 attempts
+[run] === soft/U0.9 (workloads/01-model5/generated/soft/U0.9.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.9 after 4 attempt(s): could not place target after 8 attempts
+[run] === soft/U0.94 (workloads/01-model5/generated/soft/U0.94.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.94 after 4 attempt(s): could not place target after 8 attempts
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] === tight/U0.1 (workloads/01-model5/generated/tight/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.1
+[run] === tight/U0.2 (workloads/01-model5/generated/tight/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.2
+[run] === tight/U0.3 (workloads/01-model5/generated/tight/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.3
+[run] === tight/U0.4 (workloads/01-model5/generated/tight/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.4
+[run] === tight/U0.5 (workloads/01-model5/generated/tight/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.5
+[run] === tight/U0.6 (workloads/01-model5/generated/tight/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.6
+[run] === tight/U0.7 (workloads/01-model5/generated/tight/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/01-model5/tight/U0.7
+[run] === tight/U0.8 (workloads/01-model5/generated/tight/U0.8.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.8 after 4 attempt(s): could not place target after 8 attempts
+[run] === tight/U0.9 (workloads/01-model5/generated/tight/U0.9.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.9 after 4 attempt(s): could not place target after 8 attempts
+[run] === tight/U0.94 (workloads/01-model5/generated/tight/U0.94.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.94 after 4 attempt(s): could not place target after 8 attempts
+
+[run] --- 6 cell(s) failed during the main sweep; retrying them once more now that the rest of the sweep is done ---
+[run] === soft/U0.8 (workloads/01-model5/generated/soft/U0.8.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.8 after 4 attempt(s): could not place target after 8 attempts
+[run] === soft/U0.9 (workloads/01-model5/generated/soft/U0.9.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.9 after 4 attempt(s): could not place target after 8 attempts
+[run] === soft/U0.94 (workloads/01-model5/generated/soft/U0.94.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED soft/U0.94 after 4 attempt(s): could not place target after 8 attempts
+[run] === tight/U0.8 (workloads/01-model5/generated/tight/U0.8.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.8 after 4 attempt(s): could not place target after 8 attempts
+[run] === tight/U0.9 (workloads/01-model5/generated/tight/U0.9.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)
+[run] target not Ready (attempt 5/8)
+[run] target not Ready (attempt 6/8)
+[run] target not Ready (attempt 7/8)
+[run] target not Ready (attempt 8/8)
+[run] could not place target after 8 attempts; giving up on this cell
+[run] FAILED tight/U0.9 after 4 attempt(s): could not place target after 8 attempts
+[run] === tight/U0.94 (workloads/01-model5/generated/tight/U0.94.yaml) ===
+[run] target not Ready (attempt 1/8)
+[run] target not Ready (attempt 2/8)
+[run] target not Ready (attempt 3/8)
+[run] target not Ready (attempt 4/8)

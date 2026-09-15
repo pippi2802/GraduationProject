@@ -1,28 +1,28 @@
 # BASE manifest for one model1 cell -- RQ1_final, sieve workload.
-# generate_yaml.py stamps model1-soft-u70 70000(Q) 100000(P) 27 1048576 soft/U0.7.
+# generate_yaml.py stamps 04-model1-soft-u70 70000(Q) 100000(P) 27 1048576 soft/U0.7.
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
-metadata: { namespace: m1, name: "model1-soft-u70-params" }
-spec: { count: 1, runtime: 70000, period: 100000, requestedCpus: [@@REQUESTED_CPUS@@] }
+metadata: { namespace: 04-model1, name: "04-model1-soft-u70-params" }
+spec: { count: 1, runtime: 70000, period: 100000, requestedCpus: [2] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
-metadata: { namespace: m1, name: "model1-soft-u70-claim" }
+metadata: { namespace: 04-model1, name: "04-model1-soft-u70-claim" }
 spec:
   spec:
     resourceClassName: rt.example.com
-    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model1-soft-u70-params" }
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "04-model1-soft-u70-params" }
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: m1
-  name: "model1-soft-u70"
-  labels: { app: model1, role: target }
+  namespace: 04-model1
+  name: "04-model1-soft-u70"
+  labels: { app: 04-model1, role: target }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: m1 }
+  nodeSelector: { experiment-model: 04-model1 }
   tolerations: [{ operator: Exists }]
   containers:
     - name: probe
@@ -41,7 +41,7 @@ spec:
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]
   resourceClaims:
-    - { name: rtcpu, source: { resourceClaimTemplateName: "model1-soft-u70-claim" } }
+    - { name: rtcpu, source: { resourceClaimTemplateName: "04-model1-soft-u70-claim" } }
   volumes:
     - name: results
-      hostPath: { path: /var/lib/rq1final/model1/soft/U0.7/target, type: DirectoryOrCreate }
+      hostPath: { path: /var/lib/rq1final/04-model1/soft/U0.7/target, type: DirectoryOrCreate }

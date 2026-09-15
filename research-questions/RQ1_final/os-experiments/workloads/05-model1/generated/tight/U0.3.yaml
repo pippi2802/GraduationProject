@@ -1,28 +1,28 @@
 # BASE manifest for one model1 cell -- RQ1_final, sieve workload.
-# generate_yaml.py stamps model1-tight-u30 3000(Q) 10000(P) 225 8192 tight/U0.3.
+# generate_yaml.py stamps 05-model1-tight-u30 3000(Q) 10000(P) 225 8192 tight/U0.3.
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
-metadata: { namespace: m1, name: "model1-tight-u30-params" }
-spec: { count: 1, runtime: 3000, period: 10000, requestedCpus: [@@REQUESTED_CPUS@@] }
+metadata: { namespace: 05-model1, name: "05-model1-tight-u30-params" }
+spec: { count: 1, runtime: 3000, period: 10000, requestedCpus: [2] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
-metadata: { namespace: m1, name: "model1-tight-u30-claim" }
+metadata: { namespace: 05-model1, name: "05-model1-tight-u30-claim" }
 spec:
   spec:
     resourceClassName: rt.example.com
-    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "model1-tight-u30-params" }
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "05-model1-tight-u30-params" }
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: m1
-  name: "model1-tight-u30"
-  labels: { app: model1, role: target }
+  namespace: 05-model1
+  name: "05-model1-tight-u30"
+  labels: { app: 05-model1, role: target }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: m1 }
+  nodeSelector: { experiment-model: 05-model1 }
   tolerations: [{ operator: Exists }]
   containers:
     - name: probe
@@ -41,7 +41,7 @@ spec:
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]
   resourceClaims:
-    - { name: rtcpu, source: { resourceClaimTemplateName: "model1-tight-u30-claim" } }
+    - { name: rtcpu, source: { resourceClaimTemplateName: "05-model1-tight-u30-claim" } }
   volumes:
     - name: results
-      hostPath: { path: /var/lib/rq1final/model1/tight/U0.3/target, type: DirectoryOrCreate }
+      hostPath: { path: /var/lib/rq1final/05-model1/tight/U0.3/target, type: DirectoryOrCreate }
