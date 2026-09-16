@@ -1,0 +1,53 @@
+nohup: ignoring input
+[run] U_MIN= U_MAX=0.7 applied: 14 cells remain
+[run] model=07-model1 ns=07-model1 agent=rq1-agent-d87vj cells=14 has_neighbours=0 has_competitor=0
+[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=matmul label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=generated k_table=k_table.json ***
+[run] kubepods-besteffort.slice period mismatch (have 10000, need 100000) -- resetting
+[run] kubepods-besteffort.slice period now 100000, runtime cleared
+[run] === soft/U0.1 (workloads/07-model1/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.1
+[run] === soft/U0.2 (workloads/07-model1/generated/soft/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.2
+[run] === soft/U0.3 (workloads/07-model1/generated/soft/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.3
+[run] === soft/U0.4 (workloads/07-model1/generated/soft/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.4
+[run] === soft/U0.5 (workloads/07-model1/generated/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.5
+[run] === soft/U0.6 (workloads/07-model1/generated/soft/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.6
+[run] === soft/U0.7 (workloads/07-model1/generated/soft/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/soft/U0.7
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] === tight/U0.1 (workloads/07-model1/generated/tight/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.1
+[run] === tight/U0.2 (workloads/07-model1/generated/tight/U0.2.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.2
+[run] === tight/U0.3 (workloads/07-model1/generated/tight/U0.3.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.3
+[run] === tight/U0.4 (workloads/07-model1/generated/tight/U0.4.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.4
+[run] === tight/U0.5 (workloads/07-model1/generated/tight/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.5
+[run] === tight/U0.6 (workloads/07-model1/generated/tight/U0.6.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.6
+[run] === tight/U0.7 (workloads/07-model1/generated/tight/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> results/07-model1_round4/tight/U0.7
+
+[run] done. all 14 cell(s) collected their expected row count.
+[run] results under results/07-model1_round4/

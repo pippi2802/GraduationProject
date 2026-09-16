@@ -1,0 +1,24 @@
+nohup: ignoring input
+[calib] soft-U0.1: K=3 medC=6344 (target 7000) cv=0.0247 [HIGH-CV] -- OFF TARGET: effective U=0.063, not nominal 0.1
+[calib] soft-U0.2: K=7 medC=14557 (target 14000) cv=0.0147 [OK] -- OFF TARGET: effective U=0.146, not nominal 0.2
+[calib] soft-U0.3: K=10 medC=21137 (target 21000) cv=0.0102 [OK]
+[calib] soft-U0.4: K=13 medC=27063 (target 28000) cv=0.0088 [OK] -- OFF TARGET: effective U=0.271, not nominal 0.4
+[calib] soft-U0.5: K=17 medC=35284 (target 35000) cv=0.0065 [OK]
+[calib] soft-U0.6: K=20 medC=41551 (target 42000) cv=0.0065 [OK]
+[calib] soft-U0.7: K=24 medC=50005 (target 49000) cv=0.0068 [OK]
+[calib] soft-U0.8: K=27 medC=56057 (target 56000) cv=0.0050 [OK]
+[calib] soft-U0.9: K=30 medC=62436 (target 63000) cv=0.0081 [OK]
+[calib] soft-U0.94: K=31 medC=66251 (target 65800) cv=0.0050 [OK]
+[calib] tight-U0.1: K=66 medC=698 (target 700) cv=0.0264 [HIGH-CV]
+[calib] tight-U0.2: K=134 medC=1416 (target 1400) cv=0.0227 [HIGH-CV]
+[calib] tight-U0.3: K=199 medC=2102 (target 2100) cv=0.0316 [HIGH-CV]
+[calib] tight-U0.4: K=273 medC=2882 (target 2800) cv=0.0214 [HIGH-CV]
+[calib] tight-U0.5: K=331 medC=3497 (target 3500) cv=0.0321 [HIGH-CV]
+[calib] tight-U0.6: K=397 medC=4192 (target 4200) cv=0.0342 [HIGH-CV]
+[calib] tight-U0.7: K=464 medC=4901 (target 4900) cv=0.0098 [OK]
+[calib] tight-U0.8: K=531 medC=5522 (target 5600) cv=0.0458 [HIGH-CV]
+[calib] tight-U0.9: K=596 medC=6287 (target 6300) cv=0.0267 [HIGH-CV]
+[calib] tight-U0.94: K=627 medC=6631 (target 6580) cv=0.0465 [HIGH-CV]
+[calib] wrote /home/azureuser/GraduationProject/research-questions/RQ1_final/os-experiments/workloads/08-model1/k_table.json
+[calib] NOTE off-target (kept deliberately, K=1 floor exceeds/undershoots target -- use effective_u from k_table.json, not the nominal label): ['soft-U0.1', 'soft-U0.2', 'soft-U0.4']
+[calib] WARNING high CV (freq not pinned / core not isolated?): ['soft-U0.1', 'tight-U0.1', 'tight-U0.2', 'tight-U0.3', 'tight-U0.4', 'tight-U0.5', 'tight-U0.6', 'tight-U0.8', 'tight-U0.9', 'tight-U0.94']

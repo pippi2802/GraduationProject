@@ -1,0 +1,23 @@
+# RQ1_final, model1 -- clean baseline, sieve workload (Johan's suggestion).
+# Same design as RQ1/models/model1: single reserved probe, no co-runners.
+# Distinct namespace/host_path/node_label/image from RQ1's own model1 so
+# nothing here can ever collide with or overwrite existing RQ1 results.
+model: model1
+namespace: 08-model1
+node_label: experiment-model=08-model1
+host_path: /var/lib/rq1final/08-model1
+image: pippina2/rq1final-probe:v1
+headroom_frac: 0.7            # calibrate median C -> 0.7*Q so R stays bounded
+utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+# sieve_n is scale-dependent, deliberately -- see workload.c's header comment.
+# tight: small/cache-resident (8192, matches matmul.c's own in-cache design).
+# soft: 1MB, clearly past this hardware's 512KB L2 (measured directly on the
+# EPYC 7763 worker) -- genuine cache-miss cost. Consequence, accepted
+# deliberately: K=1 alone already costs ~10-14ms, so the lowest soft
+# utilization cells (U0.1, possibly U0.2) can't hit their nominal target
+# exactly -- kept anyway, using the real calibrated median_C_us/effective
+# utilization from k_table.json rather than the nominal U label for those
+# cells in analysis, not excluded.
+scales:
+  soft: { period_us: 100000, sieve_n: 1048576 }
+  tight: { period_us: 10000, sieve_n: 8192 }
