@@ -19,5 +19,5 @@ utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
 # utilization from k_table.json rather than the nominal U label for those
 # cells in analysis, not excluded.
 scales:
-  tight: { period_us: 10000, sieve_n: 8192 }
   soft: { period_us: 100000, sieve_n: 1048576 }
+  tight: { period_us: 10000, sieve_n: 8192 }

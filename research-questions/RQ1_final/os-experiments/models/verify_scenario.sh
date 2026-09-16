@@ -7,7 +7,7 @@
 # state via /sys and /proc, not the staged grub file.
 #
 # scenario: isolcpus_only | nohz_full_only | rcu_nocbs_only |
-#           systemd_contain | irq_steer | boot_params | worst_case
+#           systemd_contain | irq_steer | boot_params | freq_unpinned | worst_case
 set -euo pipefail
 NS="${1:?usage: verify_scenario.sh <namespace> <scenario> [keep_cpu]}"
 SCEN="${2:?usage: verify_scenario.sh <namespace> <scenario> [keep_cpu]}"
@@ -45,6 +45,7 @@ systemd_contain_active() {
   [ -n "$v" ] && [ "$v" != "" ]
 }
 irq_steer_active() { systemctl is-active --quiet rq1-irq-steer.service 2>/dev/null; }
+freq_pinned()      { [ "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null)" = "performance" ]; }
 
 # helper: assert baseline pieces NOT under test are still intact
 baseline_isolcpus() { isolcpus_active && check "isolcpus still active (part of baseline)" 1 || check "isolcpus still active (part of baseline)" 0; }
@@ -74,6 +75,10 @@ case "$SCEN" in
   irq_steer)
     irq_steer_active && check "IRQ steering should be REMOVED" 0 || check "IRQ steering removed, as expected" 1
     baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_boot
+    ;;
+  freq_unpinned)
+    freq_pinned && check "frequency should be UNPINNED (governor != performance)" 0 || check "frequency unpinned, as expected" 1
+    baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_irq; baseline_boot
     ;;
   boot_params)
     mitigations_off && check "mitigations should be back ON (removed)" 0 || check "mitigations back on, as expected" 1
