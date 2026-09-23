@@ -15,3 +15,9 @@ CV_THRESHOLD=0.06 U_MAX=0.7 OUT_TAG=_round4 nohup ./run_job.sh 07-model5 > logs/
 
 OUT_TAG=_round4 nohup ./run_job.sh 08-model1 > logs/run_08-model1_round4.log 2>&1 &
 OUT_TAG=_round4 nohup ./run_job.sh 08-model5 > logs/run_08-model5_round4.log 2>&1 &
+
+
+  python3 generate_yaml.py 07-model1
+  python3 generate_yaml.py 07-model5
+  CV_THRESHOLD=0.1 U_MAX=0.7 OUT_TAG=_freqfix_round4 nohup ./run_job.sh 07-model1 > logs/run_07-model1_freqfix_round4.log 2>&1 &
+  CV_THRESHOLD=0.1 U_MAX=0.7 OUT_TAG=_freqfix_round4 nohup ./run_job.sh 07-model5 > logs/run_07-model5_freqfix_round4.log 2>&1 &

@@ -1,0 +1,19 @@
+scale,,soft (100ms),soft (100ms),soft (100ms),soft (100ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms)
+U,,0.1,0.5,0.7,0.94,0.1,0.5,0.7,0.94
+workload,label,,,,,,,,
+single-core,baseline (full isolation),1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+single-core,isolcpus removed,20.0,19.0,8.0,,12.0,12.0,8.0,
+single-core,nohz_full removed,7.0,0.0,0.0,0.0,5.0,3.0,2.0,2.0
+single-core,rcu_nocbs removed,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0
+single-core,systemd containment removed,7.0,1.0,1.0,0.0,5.0,8.0,2.0,2.0
+single-core,IRQ steering removed,1.0,0.0,0.0,1.0,2.0,1.0,1.0,1.0
+single-core,boot-params bundle removed,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0
+single-core,frequency pinning removed,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0
+multi-core on physical cores,baseline (full isolation),0.0,0.0,0.0,11.0,1.0,2.0,1.0,8.0
+multi-core on physical cores,isolcpus removed,0.0,1.0,0.0,,1.0,2.0,6.0,
+multi-core on physical cores,nohz_full removed,0.0,0.0,0.0,0.0,1.0,0.0,0.0,6.0
+multi-core on physical cores,rcu_nocbs removed,3.0,2.0,1.0,3.0,13.0,2.0,12.0,10.0
+multi-core on physical cores,systemd containment removed,0.0,1.0,1.0,1.0,3.0,1.0,1.0,6.0
+multi-core on physical cores,IRQ steering removed,0.0,0.0,2.0,12.0,3.0,1.0,4.0,9.0
+multi-core on physical cores,boot-params bundle removed,1.0,0.0,0.0,0.0,1.0,3.0,7.0,8.0
+multi-core on physical cores,frequency pinning removed,1.0,1.0,1.0,0.0,3.0,2.0,2.0,7.0

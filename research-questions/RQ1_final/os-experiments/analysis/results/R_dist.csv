@@ -1,0 +1,67 @@
+scale,,,soft (100ms),soft (100ms),soft (100ms),soft (100ms),soft (100ms),soft (100ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms)
+stat,,,median,p99,p99_9,max,n_ge_2x,p99_ratio,median,p99,p99_9,max,n_ge_2x,p99_ratio
+workload,label,U,,,,,,,,,,,,
+single-core,baseline (full isolation),0.1,0.085,0.087,0.089,1.002,0.0,1.0,0.082,0.086,0.435,1.967,0.0,1.0
+single-core,baseline (full isolation),0.5,0.412,0.427,0.431,1.0,0.0,1.0,0.397,0.406,0.422,1.041,0.0,1.0
+single-core,baseline (full isolation),0.7,0.558,0.566,0.576,6.387,1.0,1.0,0.556,0.566,0.57,20.14,1.0,1.0
+single-core,baseline (full isolation),0.94,0.767,0.775,0.786,1.099,0.0,1.0,0.737,0.754,0.764,1.76,0.0,1.0
+single-core,isolcpus removed,0.1,0.084,1.002,1.024,2.003,1.0,11.467,0.081,1.004,1.067,2.087,10.0,11.741
+single-core,isolcpus removed,0.5,0.418,1.008,1.088,2.969,1.0,2.36,0.39,0.481,1.093,1.642,0.0,1.184
+single-core,isolcpus removed,0.7,0.552,0.667,1.034,1.126,0.0,1.178,0.541,0.635,1.062,1.303,0.0,1.121
+single-core,isolcpus removed,0.94,,,,,,,,,,,,
+single-core,nohz_full removed,0.1,0.086,0.094,1.014,1.038,0.0,1.081,0.073,0.089,1.004,2.045,3.0,1.046
+single-core,nohz_full removed,0.5,0.348,0.367,0.408,0.488,0.0,0.859,0.351,0.354,0.412,1.142,0.0,0.871
+single-core,nohz_full removed,0.7,0.481,0.493,0.562,0.619,0.0,0.87,0.491,0.495,0.557,1.023,0.0,0.875
+single-core,nohz_full removed,0.94,0.674,0.69,0.74,0.797,0.0,0.89,0.659,0.687,0.843,1.294,0.0,0.91
+single-core,rcu_nocbs removed,0.1,0.065,0.069,0.069,0.182,0.0,0.785,0.073,0.074,0.077,0.861,0.0,0.862
+single-core,rcu_nocbs removed,0.5,0.355,0.357,0.36,0.606,0.0,0.837,0.352,0.356,0.369,1.228,0.0,0.876
+single-core,rcu_nocbs removed,0.7,0.479,0.495,0.515,0.622,0.0,0.874,0.49,0.498,0.514,4.491,2.0,0.88
+single-core,rcu_nocbs removed,0.94,0.666,0.676,0.689,0.912,0.0,0.872,0.656,0.661,0.668,1.38,0.0,0.877
+single-core,systemd containment removed,0.1,0.085,0.094,1.017,1.046,0.0,1.073,0.082,0.091,1.009,3.004,2.0,1.066
+single-core,systemd containment removed,0.5,0.412,0.424,0.448,1.068,0.0,0.993,0.397,0.404,1.004,2.627,1.0,0.995
+single-core,systemd containment removed,0.7,0.548,0.563,0.607,1.065,0.0,0.993,0.553,0.564,0.645,1.239,0.0,0.996
+single-core,systemd containment removed,0.94,0.764,0.774,0.798,0.873,0.0,0.998,0.742,0.751,0.86,2.925,1.0,0.996
+single-core,IRQ steering removed,0.1,0.086,0.088,0.09,5.068,1.0,1.006,0.082,0.085,0.09,1.921,0.0,0.993
+single-core,IRQ steering removed,0.5,0.414,0.42,0.428,0.465,0.0,0.984,0.396,0.419,0.432,1.164,0.0,1.03
+single-core,IRQ steering removed,0.7,0.559,0.565,0.576,0.71,0.0,0.997,0.557,0.567,0.573,1.035,0.0,1.001
+single-core,IRQ steering removed,0.94,0.765,0.784,0.804,11.609,1.0,1.012,0.743,0.756,0.798,1.553,0.0,1.002
+single-core,boot-params bundle removed,0.1,0.065,0.067,0.068,0.135,0.0,0.768,0.072,0.075,0.079,2.653,1.0,0.88
+single-core,boot-params bundle removed,0.5,0.35,0.363,0.365,0.44,0.0,0.85,0.35,0.359,0.38,1.005,0.0,0.884
+single-core,boot-params bundle removed,0.7,0.495,0.505,0.514,0.569,0.0,0.892,0.485,0.502,0.51,1.32,0.0,0.888
+single-core,boot-params bundle removed,0.94,0.64,0.662,0.673,0.723,0.0,0.854,0.639,0.665,0.674,3.567,1.0,0.881
+single-core,frequency pinning removed,0.1,0.065,0.067,0.069,0.171,0.0,0.763,0.07,0.075,0.077,1.338,0.0,0.873
+single-core,frequency pinning removed,0.5,0.346,0.356,0.359,0.58,0.0,0.834,0.34,0.354,0.371,28.516,1.0,0.871
+single-core,frequency pinning removed,0.7,0.498,0.514,0.526,0.645,0.0,0.907,0.476,0.498,0.512,1.31,0.0,0.879
+single-core,frequency pinning removed,0.94,0.628,0.645,0.658,0.914,0.0,0.833,0.646,0.671,0.677,1.96,0.0,0.889
+multi-core on physical cores,baseline (full isolation),0.1,0.064,0.067,0.088,0.164,0.0,1.0,0.076,0.096,0.841,6.544,1.0,1.0
+multi-core on physical cores,baseline (full isolation),0.5,0.355,0.382,0.417,0.645,0.0,1.0,0.357,0.447,0.566,3.476,4.0,1.0
+multi-core on physical cores,baseline (full isolation),0.7,0.502,0.534,0.606,0.911,0.0,1.0,0.492,0.523,0.772,3.652,2.0,1.0
+multi-core on physical cores,baseline (full isolation),0.94,0.669,0.719,0.936,1.037,0.0,1.0,0.661,0.739,1.066,15.044,2.0,1.0
+multi-core on physical cores,isolcpus removed,0.1,0.062,0.067,0.083,0.091,0.0,0.997,0.074,0.093,0.875,1.016,0.0,0.968
+multi-core on physical cores,isolcpus removed,0.5,0.348,0.378,0.426,8.941,1.0,0.988,0.349,0.381,0.598,1.815,0.0,0.851
+multi-core on physical cores,isolcpus removed,0.7,0.5,0.534,0.568,0.639,0.0,1.001,0.492,0.572,1.036,3.556,1.0,1.093
+multi-core on physical cores,isolcpus removed,0.94,,,,,,,,,,,,
+multi-core on physical cores,nohz_full removed,0.1,0.062,0.073,0.085,0.094,0.0,1.091,0.073,0.078,0.831,1.003,0.0,0.811
+multi-core on physical cores,nohz_full removed,0.5,0.344,0.365,0.438,0.681,0.0,0.954,0.354,0.409,0.564,0.655,0.0,0.915
+multi-core on physical cores,nohz_full removed,0.7,0.484,0.505,0.53,0.638,0.0,0.947,0.496,0.552,0.782,0.826,0.0,1.056
+multi-core on physical cores,nohz_full removed,0.94,0.678,0.712,0.807,0.89,0.0,0.991,0.661,0.723,1.063,1.161,0.0,0.978
+multi-core on physical cores,rcu_nocbs removed,0.1,0.079,0.172,1.006,1.235,0.0,2.569,0.081,1.005,1.777,2.051,3.0,10.415
+multi-core on physical cores,rcu_nocbs removed,0.5,0.369,0.477,0.81,1.515,0.0,1.248,0.362,0.601,0.944,1.529,0.0,1.343
+multi-core on physical cores,rcu_nocbs removed,0.7,0.526,0.641,0.842,2.186,1.0,1.201,0.503,0.801,1.134,2.023,1.0,1.532
+multi-core on physical cores,rcu_nocbs removed,0.94,0.714,0.844,1.041,3.059,3.0,1.174,0.672,0.94,1.24,2.442,1.0,1.272
+multi-core on physical cores,systemd containment removed,0.1,0.064,0.076,0.101,0.899,0.0,1.14,0.074,0.878,0.977,1.923,0.0,9.102
+multi-core on physical cores,systemd containment removed,0.5,0.354,0.374,0.471,23.753,1.0,0.979,0.356,0.417,0.603,5.968,1.0,0.931
+multi-core on physical cores,systemd containment removed,0.7,0.501,0.542,0.669,1.367,0.0,1.016,0.493,0.615,0.789,12.424,1.0,1.176
+multi-core on physical cores,systemd containment removed,0.94,0.666,0.712,0.825,1.001,0.0,0.991,0.658,0.78,1.043,1.285,0.0,1.056
+multi-core on physical cores,IRQ steering removed,0.1,0.064,0.079,0.108,0.184,0.0,1.179,0.075,0.181,1.005,1.987,0.0,1.881
+multi-core on physical cores,IRQ steering removed,0.5,0.356,0.382,0.454,0.61,0.0,0.998,0.354,0.499,0.654,1.23,0.0,1.116
+multi-core on physical cores,IRQ steering removed,0.7,0.501,0.54,0.645,1.144,0.0,1.012,0.482,0.537,0.847,1.534,0.0,1.026
+multi-core on physical cores,IRQ steering removed,0.94,0.668,0.711,1.431,1.52,0.0,0.989,0.659,0.779,1.077,5.121,2.0,1.054
+multi-core on physical cores,boot-params bundle removed,0.1,0.063,0.067,0.085,14.395,1.0,1.005,0.074,0.085,0.123,1.241,0.0,0.879
+multi-core on physical cores,boot-params bundle removed,0.5,0.351,0.365,0.445,0.622,0.0,0.955,0.353,0.394,0.764,3.718,1.0,0.88
+multi-core on physical cores,boot-params bundle removed,0.7,0.48,0.529,0.582,0.706,0.0,0.992,0.493,0.543,1.045,1.518,0.0,1.037
+multi-core on physical cores,boot-params bundle removed,0.94,0.65,0.682,0.761,0.969,0.0,0.949,0.652,0.698,1.038,1.138,0.0,0.945
+multi-core on physical cores,frequency pinning removed,0.1,0.064,0.082,0.132,12.956,2.0,1.22,0.075,0.49,0.936,1.19,0.0,5.076
+multi-core on physical cores,frequency pinning removed,0.5,0.354,0.394,0.464,11.299,2.0,1.031,0.362,0.494,0.92,1.244,0.0,1.104
+multi-core on physical cores,frequency pinning removed,0.7,0.505,0.6,0.656,18.438,1.0,1.125,0.507,0.635,0.907,1.498,0.0,1.214
+multi-core on physical cores,frequency pinning removed,0.94,0.668,0.713,0.795,0.855,0.0,0.992,0.681,0.841,1.087,1.186,0.0,1.137

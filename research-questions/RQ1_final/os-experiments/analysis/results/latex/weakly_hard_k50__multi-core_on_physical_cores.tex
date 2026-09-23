@@ -1,0 +1,22 @@
+\begin{table}
+\caption{multi-core on physical cores: weakly hard k50}
+\label{tab:weakly_hard_k50_multi-core_on_physical_cores}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\toprule
+scale & \multicolumn{4}{c}{soft (100ms)} & \multicolumn{4}{c}{tight (10ms)} \\
+U & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+label &  &  &  &  &  &  &  &  \\
+\midrule
+baseline (full isolation) & (50,50) & (50,50) & (50,50) & (40,50) & (49,50) & (48,50) & (49,50) & (43,50) \\
+isolcpus removed & (50,50) & (49,50) & (50,50) & -- & (49,50) & (48,50) & (44,50) & -- \\
+nohz\_full removed & (50,50) & (50,50) & (50,50) & (50,50) & (49,50) & (50,50) & (50,50) & (45,50) \\
+rcu\_nocbs removed & (47,50) & (48,50) & (49,50) & (47,50) & (41,50) & (49,50) & (40,50) & (41,50) \\
+systemd containment removed & (50,50) & (49,50) & (49,50) & (49,50) & (47,50) & (49,50) & (49,50) & (44,50) \\
+IRQ steering removed & (50,50) & (50,50) & (48,50) & (38,50) & (47,50) & (49,50) & (46,50) & (43,50) \\
+boot-params bundle removed & (49,50) & (50,50) & (50,50) & (50,50) & (49,50) & (47,50) & (44,50) & (43,50) \\
+frequency pinning removed & (49,50) & (49,50) & (49,50) & (50,50) & (48,50) & (48,50) & (48,50) & (44,50) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

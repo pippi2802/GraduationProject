@@ -1,0 +1,22 @@
+\begin{table}
+\caption{single-core: miss rate pct}
+\label{tab:miss_rate_pct_single-core}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrr}
+\toprule
+scale & \multicolumn{4}{c}{soft (100ms)} & \multicolumn{4}{c}{tight (10ms)} \\
+U & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+label &  &  &  &  &  &  &  &  \\
+\midrule
+baseline (full isolation) & 0.01 & 0.01 & 0.01 & 0.01 & 0.01 & 0.01 & 0.01 & 0.02 \\
+isolcpus removed & 2.48 & 1.44 & 0.44 & -- & 1.22 & 0.71 & 0.40 & -- \\
+nohz\_full removed & 0.54 & 0.00 & 0.00 & 0.00 & 0.12 & 0.03 & 0.01 & 0.03 \\
+rcu\_nocbs removed & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.01 & 0.01 \\
+systemd containment removed & 0.55 & 0.01 & 0.01 & 0.00 & 0.41 & 0.13 & 0.04 & 0.04 \\
+IRQ steering removed & 0.01 & 0.00 & 0.00 & 0.01 & 0.03 & 0.01 & 0.01 & 0.01 \\
+boot-params bundle removed & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.01 & 0.01 & 0.01 \\
+frequency pinning removed & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.01 & 0.01 & 0.01 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
