@@ -1,7 +1,7 @@
 # BASE manifest for one model5-phys cell -- RQ1_final, multicore (K=2
 # concurrent compute threads on ONE count=2 claim, cross-physical-core pair).
-# generate_yaml.py stamps 07-model5-soft-u94 94000(Q) 100000(P) 33 1048576 soft/U0.94.
-# Both processes reuse the SAME 33 (each individually targets the full
+# generate_yaml.py stamps 07-model5-soft-u94 94000(Q) 100000(P) 32 1048576 soft/U0.94.
+# Both processes reuse the SAME 32 (each individually targets the full
 # calibrated per-thread Q) -- with 2 threads on 2 reserved cpus this is the
 # balanced baseline (no oversubscription); K3/K4 variants (more threads than
 # reserved cpus) add processes here without changing calibration.
@@ -40,10 +40,10 @@ spec:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv /results/jobs_2.csv || true
           echo "RT_CPUSET=$RT_CPUSET"
-          taskset -c $RT_CPUSET /usr/local/bin/workload --K 33 --sieve-n 1048576 --period-us 100000 \
+          taskset -c $RT_CPUSET /usr/local/bin/workload --K 32 --sieve-n 1048576 --period-us 100000 \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260713 --clock monotonic \
             --activation periodic --logfile /results/jobs.csv &
-          taskset -c $RT_CPUSET /usr/local/bin/workload --K 33 --sieve-n 1048576 --period-us 100000 \
+          taskset -c $RT_CPUSET /usr/local/bin/workload --K 32 --sieve-n 1048576 --period-us 100000 \
             --n-jobs 5000 --warmup 200 --priority 90 --seed 20260714 --clock monotonic \
             --activation periodic --logfile /results/jobs_2.csv &
           wait
