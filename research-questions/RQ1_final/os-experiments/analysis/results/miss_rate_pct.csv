@@ -1,27 +1,20 @@
-scale,,,soft (100ms),soft (100ms),soft (100ms),soft (100ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms)
-U,,,0.1,0.5,0.7,0.94,0.1,0.5,0.7,0.94
-workload,label,cores,,,,,,,,
-single-core,baseline (full isolation),,0.015,0.005,0.005,0.005,0.01,0.01,0.005,0.02
-single-core,isolcpus removed,,2.48,1.44,0.44,,1.22,0.71,0.4,
-single-core,nohz_full removed,,0.54,0.0,0.0,0.0,0.125,0.025,0.015,0.03
-single-core,rcu_nocbs removed,,0.0,0.0,0.0,0.0,0.0,0.015,0.015,0.005
-single-core,systemd containment removed,,0.55,0.015,0.005,0.0,0.41,0.13,0.035,0.035
-single-core,IRQ steering removed,,0.005,0.0,0.0,0.005,0.025,0.01,0.01,0.015
-single-core,boot-params bundle removed,,0.0,0.0,0.0,0.0,0.015,0.005,0.005,0.005
-single-core,frequency pinning removed,,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.005
-multi-core on physical cores,baseline (full isolation),physical,0.0,0.0,0.0,0.085,0.0075,0.015,0.0125,0.335
-multi-core on physical cores,baseline (full isolation),SMT,0.1625,45.575,10.3875,62.245,12.86,50.05,16.1075,77.9475
-multi-core on physical cores,isolcpus removed,physical,0.0,0.005,0.0,,0.04,0.04,0.29,
-multi-core on physical cores,isolcpus removed,SMT,,,,,,,,
-multi-core on physical cores,nohz_full removed,physical,0.0,0.0,0.0,0.0,0.005,0.0,0.0,0.225
-multi-core on physical cores,nohz_full removed,SMT,,,,,,,,
-multi-core on physical cores,rcu_nocbs removed,physical,0.23,0.02,0.02,0.155,1.555,0.065,0.525,0.94
-multi-core on physical cores,rcu_nocbs removed,SMT,,,,,,,,
-multi-core on physical cores,systemd containment removed,physical,0.0,0.005,0.01,0.005,0.09,0.01,0.02,0.37
-multi-core on physical cores,systemd containment removed,SMT,,,,,,,,
-multi-core on physical cores,IRQ steering removed,physical,0.0,0.0,0.015,0.11,0.16,0.015,0.075,0.445
-multi-core on physical cores,IRQ steering removed,SMT,,,,,,,,
-multi-core on physical cores,boot-params bundle removed,physical,0.005,0.0,0.0,0.0,0.01,0.03,0.185,0.165
-multi-core on physical cores,boot-params bundle removed,SMT,,,,,,,,
-multi-core on physical cores,frequency pinning removed,physical,0.015,0.01,0.02,0.0,0.07,0.075,0.05,0.525
-multi-core on physical cores,frequency pinning removed,SMT,,,,,,,,
+scale,,soft (100ms),soft (100ms),soft (100ms),soft (100ms),tight (10ms),tight (10ms),tight (10ms),tight (10ms)
+U,,0.1,0.5,0.7,0.94,0.1,0.5,0.7,0.94
+workload,label,,,,,,,,
+single-core,baseline (full isolation),0.015,0.005,0.005,0.005,0.01,0.01,0.005,0.02
+single-core,isolcpus removed,2.48,1.44,0.44,,1.22,0.71,0.4,
+single-core,nohz_full removed,0.54,0.0,0.0,0.0,0.125,0.025,0.015,0.03
+single-core,rcu_nocbs removed,0.0,0.0,0.0,0.0,0.0,0.015,0.015,0.005
+single-core,systemd containment removed,0.55,0.015,0.005,0.0,0.41,0.13,0.035,0.035
+single-core,IRQ steering removed,0.005,0.0,0.0,0.005,0.025,0.01,0.01,0.015
+single-core,boot-params bundle removed,0.0,0.0,0.0,0.0,0.015,0.005,0.005,0.005
+single-core,frequency pinning removed,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.005
+multi-core on physical cores,baseline (full isolation),0.0,0.0,0.0,0.085,0.0075,0.015,0.0125,0.335
+multi-core on physical cores,isolcpus removed,0.0,0.005,0.0,,0.04,0.04,0.29,
+multi-core on physical cores,nohz_full removed,0.0,0.0,0.0,0.0,0.005,0.0,0.0,0.225
+multi-core on physical cores,rcu_nocbs removed,0.23,0.02,0.02,0.155,1.555,0.065,0.525,0.94
+multi-core on physical cores,systemd containment removed,0.0,0.005,0.01,0.005,0.09,0.01,0.02,0.37
+multi-core on physical cores,IRQ steering removed,0.0,0.0,0.015,0.11,0.16,0.015,0.075,0.445
+multi-core on physical cores,boot-params bundle removed,0.005,0.0,0.0,0.0,0.01,0.03,0.185,0.165
+multi-core on physical cores,frequency pinning removed,0.015,0.01,0.02,0.0,0.07,0.075,0.05,0.525
+multi-core on physical cores,SMT enabled (multi-core),0.1625,45.575,10.3875,62.245,12.86,50.05,16.1075,77.9475

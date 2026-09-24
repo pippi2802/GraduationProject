@@ -17,3 +17,4 @@ multi-core on physical cores,systemd containment removed,0.0,1.0,1.0,1.0,3.0,1.0
 multi-core on physical cores,IRQ steering removed,0.0,0.0,2.0,12.0,3.0,1.0,4.0,7.0
 multi-core on physical cores,boot-params bundle removed,1.0,0.0,0.0,0.0,1.0,3.0,6.0,7.0
 multi-core on physical cores,frequency pinning removed,1.0,1.0,1.0,0.0,2.0,2.0,2.0,6.0
+multi-core on physical cores,SMT enabled (multi-core),3.0,50.0,26.0,50.0,26.0,50.0,32.0,50.0
