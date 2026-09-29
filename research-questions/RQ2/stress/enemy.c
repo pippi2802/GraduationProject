@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 typedef enum { MODE_READ, MODE_WRITE, MODE_RW } access_mode_t;
@@ -94,6 +95,9 @@ int main(int argc, char **argv) {
     }
 
     unsigned char sink = 0;
+    size_t touches = 0;  /* one stride step = one touch, for the GB/s report below */
+    struct timespec t_start, t_end;
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
     while (!g_stop) {
         for (size_t off = 0; off < size_bytes; off += (size_t)stride_bytes) {
             switch (mode) {
@@ -108,12 +112,24 @@ int main(int argc, char **argv) {
                     buf[off] = sink;
                     break;
             }
+            touches++;
             if (g_stop) break;
         }
     }
+    clock_gettime(CLOCK_MONOTONIC, &t_end);
+
+    double elapsed_s = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec) / 1e9;
+    /* bytes "moved" = how far the strided sweep advanced through the buffer,
+     * not the single byte actually read/written per touch - with
+     * --stride-bytes matching (or exceeding) the cache line size, each touch
+     * forces roughly one cache-line-sized transfer from DRAM, so this is a
+     * reasonable proxy for real memory traffic, not just loop iteration count. */
+    double gb_moved = (double)touches * (double)stride_bytes / 1e9;
+    double gbps = elapsed_s > 0 ? gb_moved / elapsed_s : 0.0;
 
     /* prevent the compiler from proving sink/buf are dead */
-    fprintf(stderr, "enemy exiting, sink=%u\n", sink);
+    fprintf(stderr, "enemy exiting, sink=%u, moved %.2f GB in %.2f s (%.2f GB/s)\n",
+            sink, gb_moved, elapsed_s, gbps);
     free((void *)buf);
     return 0;
 }
