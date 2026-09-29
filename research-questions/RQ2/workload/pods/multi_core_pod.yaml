@@ -61,7 +61,7 @@ spec:
         - "--height=720"
         - "--frames=600"
         - "--input=/app/videos/sintel_720p_600.mp4"
-        - "--jobs=100000"
+        - "--jobs=500"
         - "--overrun=skip"
         - "--start-at=REPLACE_WITH_SHARED_MONOTONIC_NS"
         - "--output=/results/multi_core_instance0.csv"

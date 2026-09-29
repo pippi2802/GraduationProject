@@ -69,7 +69,7 @@ spec:
         - "--height=720"
         - "--frames=600"
         - "--input=/app/videos/sintel_720p_600.mp4"
-        - "--jobs=100000"
+        - "--jobs=500"
         - "--overrun=skip"
         - "--output=/results/single_core_instance0.csv"
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
