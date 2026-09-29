@@ -82,31 +82,8 @@ FAILED_CONDITIONS=()
 start_enemies() {
     local size_kb="$1" result
     log "starting enemies (size=${size_kb}KB, stride=${STRIDE_BYTES}) on cpus $ENEMY_CPUS"
-    result=$(kubectl -n "$NODE_PREP_NS" exec "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c "
-        rm -f /tmp/rq2_campaign_enemy.pids
-        IFS=',' read -ra cpus <<< '$ENEMY_CPUS'
-        for cpu in \"\${cpus[@]}\"; do
-            nohup /usr/local/bin/rq2-enemy --size-kb $size_kb --stride-bytes $STRIDE_BYTES --mode rw --cpu \"\$cpu\" \
-                >/tmp/rq2_campaign_enemy_\${cpu}.log 2>&1 &
-            echo \$! >> /tmp/rq2_campaign_enemy.pids
-        done
-        disown -a
-        sleep 8
-        bad=0
-        while read -r pid; do
-            line=\$(ps -o pid=,psr=,pcpu=,comm= -p \"\$pid\" 2>/dev/null)
-            if [ -z \"\$line\" ]; then
-                echo \"MISSING pid=\$pid\"; bad=1
-            else
-                echo \"OK \$line\"
-                pcpu=\$(echo \"\$line\" | awk '{print \$3}')
-                if awk -v p=\"\$pcpu\" 'BEGIN{exit !(p+0 < 20)}'; then
-                    echo \"LOW_CPU pid=\$pid pcpu=\$pcpu (expected a busy loop, this looks stuck)\"; bad=1
-                fi
-            fi
-        done < /tmp/rq2_campaign_enemy.pids
-        exit \$bad
-    " 2>&1) || true
+    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount -- \
+        bash -s -- "$size_kb" "$STRIDE_BYTES" "$ENEMY_CPUS" < stress/campaign_start_enemies.sh 2>&1) || true
     echo "$result" | tee -a "$LOG"
     if echo "$result" | grep -qE "MISSING|LOW_CPU"; then
         log "FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition"
@@ -121,32 +98,8 @@ start_enemies() {
 stop_enemies() {
     log "stopping enemies"
     local result
-    result=$(kubectl -n "$NODE_PREP_NS" exec "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c '
-        [ -f /tmp/rq2_campaign_enemy.pids ] || { echo "no pidfile, nothing to stop"; exit 0; }
-        pids="$(cat /tmp/rq2_campaign_enemy.pids)"
-        for pid in $pids; do kill "$pid" 2>/dev/null || true; done
-        for i in $(seq 1 20); do
-            alive=""
-            for pid in $pids; do kill -0 "$pid" 2>/dev/null && alive="$alive $pid"; done
-            if [ -z "$alive" ]; then
-                echo "confirmed all stopped"
-                rm -f /tmp/rq2_campaign_enemy.pids
-                exit 0
-            fi
-            sleep 0.5
-        done
-        echo "still alive after SIGTERM+10s, escalating to SIGKILL:$alive"
-        for pid in $alive; do kill -9 "$pid" 2>/dev/null || true; done
-        sleep 1
-        still=""
-        for pid in $alive; do kill -0 "$pid" 2>/dev/null && still="$still $pid"; done
-        rm -f /tmp/rq2_campaign_enemy.pids
-        if [ -n "$still" ]; then
-            echo "STILL_ALIVE_AFTER_SIGKILL:$still"
-            exit 1
-        fi
-        echo "confirmed all stopped (after SIGKILL escalation)"
-    ' 2>&1) || true
+    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount -- \
+        bash -s -- < stress/campaign_stop_enemies.sh 2>&1) || true
     echo "$result" | tee -a "$LOG"
     if echo "$result" | grep -q "STILL_ALIVE_AFTER_SIGKILL"; then
         log "FATAL: could not confirm enemies stopped even after SIGKILL - aborting to avoid contaminating the next condition"
