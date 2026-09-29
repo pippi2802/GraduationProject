@@ -1,0 +1,22 @@
+\begin{table}
+\caption{Claim 6: p99.9 and median response time (ms), multi-core, tight, $U=0.1$; 6 of the 8 single-sweep configurations (baseline and the seven ablations, SMT excluded) fall in 8.3--10.1 ms.}
+\label{tab:claim6_p999_tight_U01}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrl}
+\toprule
+ & median & p99\_9 & in band 8.3-10.1 ms \\
+label &  &  &  \\
+\midrule
+baseline (full isolation) & 0.76 & 8.41 & yes \\
+isolcpus removed & 0.74 & 8.75 & yes \\
+nohz\_full removed & 0.73 & 8.31 & yes \\
+rcu\_nocbs removed & 0.81 & 17.77 & no \\
+systemd containment removed & 0.74 & 9.77 & yes \\
+IRQ steering removed & 0.75 & 10.05 & yes \\
+boot-params bundle removed & 0.74 & 1.23 & no \\
+frequency pinning removed & 0.75 & 9.36 & yes \\
+SMT enabled & 0.84 & 10.15 & no \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

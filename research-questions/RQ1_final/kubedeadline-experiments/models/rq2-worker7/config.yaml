@@ -1,0 +1,12 @@
+# node-prep-only config for RQ2's rt-k8s-worker-7 (research-questions/RQ2).
+# Not an RQ1_final sweep model - no job.yaml/generate_yaml.py use this. Only
+# node-prep/{apply,isolate,harden}.sh read namespace/node_label/host_path.
+#
+# node_label is a per-node-UNIQUE label (distinct from RQ2's own
+# `experiment-model: rq2` workload-scheduling label, which both new workers
+# share) so the rq1-agent DaemonSet + `kubectl get pod -l app=rq1-agent`
+# (which only ever looks at pod [0]) binds to exactly this one node.
+#   kubectl label node rt-k8s-worker-7 rq2-isolation=worker7
+namespace: rq2-node-prep-worker7
+node_label: rq2-isolation=worker7
+host_path: /var/lib/rq2-node-prep/worker7

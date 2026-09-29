@@ -1,0 +1,18 @@
+\begin{table}
+\caption{Claim 2: share (\%) of the misses that fall in round 1, single-core; -- = no misses.}
+\label{tab:claim2_round1_share}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+ & U=0.1 & U=0.5 & U=0.7 & U=0.94 \\
+\midrule
+isolcpus removed, soft (100 ms) & 82.9 & 98.6 & 100.0 & -- \\
+isolcpus removed, tight (10 ms) & 97.5 & 94.4 & 90.0 & -- \\
+nohz\_full removed, soft (100 ms) & 56.5 & -- & -- & -- \\
+nohz\_full removed, tight (10 ms) & 0.0 & 0.0 & 33.3 & 0.0 \\
+systemd containment removed, soft (100 ms) & 0.0 & 33.3 & 0.0 & -- \\
+systemd containment removed, tight (10 ms) & 53.7 & 0.0 & 14.3 & 0.0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

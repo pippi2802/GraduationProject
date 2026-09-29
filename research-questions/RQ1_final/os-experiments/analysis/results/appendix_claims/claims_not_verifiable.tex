@@ -1,0 +1,17 @@
+\begin{table}
+\caption{Claims that cannot be verified from the collected data.}
+\label{tab:claims_unverifiable}
+\begin{tabular}{p{4cm}p{5cm}p{5.5cm}}
+\toprule
+claim & needed & status \\
+\midrule
+1 (cause: host) & CPU model / node per configuration & not logged per run; C differs systematically (see above), cause undetermined \\
+2 (reboot before round 1) & reboot times per configuration & not in the data; round-1 concentration is checked above \\
+4 (co-location) & sched\_getcpu() per job & not logged; keep as hypothesis, future work \\
+7 (cache sizes) & lscpu on the VM, sieve memory size & platform fact, not in the data \\
+8 (frequency on Azure) & cpufreq presence, cpupower output & not in the data \\
+9 (device/network activity) & /proc/interrupts, /proc/softirqs & not logged \\
+10 (RT CPU vs housekeeping sibling) & thread\_siblings\_list & not in the data \\
+\bottomrule
+\end{tabular}
+\end{table}

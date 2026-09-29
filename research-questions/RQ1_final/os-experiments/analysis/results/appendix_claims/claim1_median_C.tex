@@ -1,0 +1,22 @@
+\begin{table}
+\caption{Claim 1: median execution time C (ms), single-core. The last row is the ratio between the slow group and the fast group.}
+\label{tab:claim1_median_C}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrr}
+\toprule
+ & group & soft (100 ms), U=0.1 & soft (100 ms), U=0.5 & soft (100 ms), U=0.7 & tight (10 ms), U=0.1 & tight (10 ms), U=0.5 & tight (10 ms), U=0.7 \\
+label &  &  &  &  &  &  &  \\
+\midrule
+baseline (full isolation) & slow & 8.23 & 41.05 & 55.70 & 0.79 & 3.94 & 5.53 \\
+isolcpus removed & slow & 8.33 & 41.70 & 55.10 & 0.78 & 3.87 & 5.38 \\
+nohz\_full removed & fast & 8.41 & 34.62 & 48.07 & 0.70 & 3.49 & 4.88 \\
+rcu\_nocbs removed & fast & 6.28 & 35.22 & 47.75 & 0.70 & 3.49 & 4.87 \\
+systemd containment removed & slow & 8.27 & 41.08 & 54.52 & 0.79 & 3.94 & 5.50 \\
+IRQ steering removed & slow & 8.33 & 41.33 & 55.78 & 0.79 & 3.92 & 5.54 \\
+boot-params bundle removed & fast & 6.27 & 34.75 & 49.37 & 0.69 & 3.47 & 4.81 \\
+frequency pinning removed & fast & 6.22 & 34.33 & 49.72 & 0.67 & 3.37 & 4.73 \\
+slow / fast (mean of group medians) & -- & 1.22 & 1.19 & 1.13 & 1.14 & 1.13 & 1.14 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

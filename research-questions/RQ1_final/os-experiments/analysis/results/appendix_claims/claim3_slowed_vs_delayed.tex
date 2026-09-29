@@ -1,0 +1,35 @@
+\begin{table}
+\caption{Claim 3: execution-time excess and non-executing time (R-C) of missed jobs, single-core.}
+\label{tab:claim3_slowed_vs_delayed}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrrrr}
+\toprule
+ &  &  & misses & median C (ms) & missed-job C excess (\%) & median R-C all (ms) & median R-C missed (ms) \\
+configuration & scale & U &  &  &  &  &  \\
+\midrule
+\multirow[t]{6}{*}{isolcpus removed} & \multirow[t]{3}{*}{soft (100 ms)} & 0.1 & 496 & 8.33 & 25.14 & 0.12 & 89.71 \\
+ &  & 0.5 & 288 & 41.70 & 25.50 & 0.11 & 49.80 \\
+ &  & 0.7 & 88 & 55.10 & 30.18 & 0.06 & 29.68 \\
+\cmidrule{2-8}
+ & \multirow[t]{3}{*}{tight (10 ms)} & 0.1 & 244 & 0.78 & 24.11 & 0.03 & 9.09 \\
+ &  & 0.5 & 142 & 3.87 & 36.79 & 0.03 & 4.81 \\
+ &  & 0.7 & 80 & 5.38 & 36.28 & 0.03 & 2.85 \\
+\cmidrule{1-8} \cmidrule{2-8}
+\multirow[t]{4}{*}{nohz\_full removed} & soft (100 ms) & 0.1 & 108 & 8.41 & 27.66 & 0.12 & 89.79 \\
+\cmidrule{2-8}
+ & \multirow[t]{3}{*}{tight (10 ms)} & 0.1 & 25 & 0.70 & 64.03 & 0.03 & 9.04 \\
+ &  & 0.5 & 5 & 3.49 & 50.61 & 0.02 & 4.83 \\
+ &  & 0.7 & 3 & 4.88 & 55.94 & 0.02 & 2.57 \\
+\cmidrule{1-8} \cmidrule{2-8}
+\multirow[t]{6}{*}{systemd containment removed} & \multirow[t]{3}{*}{soft (100 ms)} & 0.1 & 110 & 8.27 & 33.45 & 0.24 & 89.78 \\
+ &  & 0.5 & 3 & 41.08 & 26.32 & 0.12 & 49.97 \\
+ &  & 0.7 & 1 & 54.52 & 40.33 & 0.24 & 30.01 \\
+\cmidrule{2-8}
+ & \multirow[t]{3}{*}{tight (10 ms)} & 0.1 & 82 & 0.79 & 25.07 & 0.03 & 9.07 \\
+ &  & 0.5 & 26 & 3.94 & 36.00 & 0.03 & 4.93 \\
+ &  & 0.7 & 7 & 5.50 & 27.43 & 0.03 & 3.02 \\
+\cmidrule{1-8} \cmidrule{2-8}
+\bottomrule
+\end{tabular}%
+}
+\end{table}
