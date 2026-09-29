@@ -56,7 +56,7 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
-      image: pippina2/rq2-workload:v1
+      image: pippina2/rq2-workload:v2
       imagePullPolicy: IfNotPresent
       command: ["python3", "rt_video.py"]
       args:
