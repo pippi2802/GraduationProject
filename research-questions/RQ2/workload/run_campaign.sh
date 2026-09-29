@@ -106,7 +106,7 @@ start_enemies() {
             fi
         done < /tmp/rq2_campaign_enemy.pids
         exit \$bad
-    " 2>&1)
+    " 2>&1) || true
     echo "$result" | tee -a "$LOG"
     if echo "$result" | grep -qE "MISSING|LOW_CPU"; then
         log "FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition"
@@ -146,7 +146,7 @@ stop_enemies() {
             exit 1
         fi
         echo "confirmed all stopped (after SIGKILL escalation)"
-    ' 2>&1)
+    ' 2>&1) || true
     echo "$result" | tee -a "$LOG"
     if echo "$result" | grep -q "STILL_ALIVE_AFTER_SIGKILL"; then
         log "FATAL: could not confirm enemies stopped even after SIGKILL - aborting to avoid contaminating the next condition"
