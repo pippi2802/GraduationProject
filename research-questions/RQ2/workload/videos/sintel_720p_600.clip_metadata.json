@@ -1,0 +1,15 @@
+{
+  "clip_name": "Sintel trailer (Blender Foundation)",
+  "licence": "CC BY 3.0 (Blender Foundation, as stated in the Sintel project readme)",
+  "source_archive": "workload/videos/sintel_trailer_2k_720p24.y4m",
+  "excerpt_start_frame": 300,
+  "excerpt_frames_requested": 600,
+  "excerpt_frames_actual": 600,
+  "resolution": "1280x720",
+  "frame_rate_fps": 24.0,
+  "period_ms_native": 41.667,
+  "output_path": "/home/silvia/Documents/GraduationProject/research-questions/RQ2/workload/videos/sintel_720p_600.mp4",
+  "sha256": "5c859e9fcb01bdd922d72999aa32ef67a43f1b1430bd0539b0e77ce77033d2c7",
+  "prepared_at_utc": "2026-09-29T14:07:49.688932+00:00",
+  "note": "Tail-analysis block size: clip-aligned, b=600 or b=1200 (this excerpt's own length, or 2x it)."
+}

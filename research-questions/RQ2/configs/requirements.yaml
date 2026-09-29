@@ -1,6 +1,0 @@
-# Application timing requirements for RQ2 - the practitioner's tolerance
-# levels. Never hard-code these in scripts; every stage that needs a p level
-# or the burst limit reads this file.
-p_levels: [0.1, 0.01, 0.001]
-burst_limit: 3          # max tolerated consecutive missed deadlines
-confidence_level: 0.95  # 1 - alpha, used for all upper confidence bounds

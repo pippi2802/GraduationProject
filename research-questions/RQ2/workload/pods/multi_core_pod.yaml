@@ -1,0 +1,115 @@
+# Multi-core run: two rt_video.py instances (cpu1, cpu2), each its own
+# KubeDeadline CBS reservation. Same manifest shape as single_core_pod.yaml
+# - see its header comment for what to edit before every run.
+#
+# To align both instances' first release (so the interference condition is
+# actually concurrent), compute ONE shared --start-at value on the WORKER
+# NODE itself before applying this file (CLOCK_MONOTONIC is per-kernel,
+# shared by every pod on that node, but NOT synchronized with your own
+# machine's clock):
+#
+#   ssh <worker-node> 'python3 -c "import time; print(time.clock_gettime_ns(time.CLOCK_MONOTONIC) + 10_000_000_000)"'
+#
+# Paste that number into BOTH --start-at args below (10s of margin covers
+# pod scheduling + container start + rt_video.py's own init), then
+# `kubectl apply -f` this file so both pods get created together.
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-multi-instance0-params" }
+spec: { count: 1, runtime: 39583, period: 41667, requestedCpus: [1] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-multi-instance0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-multi-instance0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-multi-instance0"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: rt-video
+      image: rq2-workload:latest
+      command: ["python3", "rt_video.py"]
+      args:
+        - "--instance-id=instance0"
+        - "--cpu=1"
+        - "--fifo-prio=50"
+        - "--period-ms=41.667"
+        - "--work=1"
+        - "--width=1280"
+        - "--height=720"
+        - "--frames=600"
+        - "--input=/app/videos/sintel_720p_600.mp4"
+        - "--jobs=100000"
+        - "--overrun=skip"
+        - "--start-at=REPLACE_WITH_SHARED_MONOTONIC_NS"
+        - "--output=/results/multi_core_instance0.csv"
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-multi-instance0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/multi_core, type: DirectoryOrCreate }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-multi-instance1-params" }
+spec: { count: 1, runtime: 39583, period: 41667, requestedCpus: [2] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-multi-instance1-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-multi-instance1-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-multi-instance1"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: rt-video
+      image: rq2-workload:latest
+      command: ["python3", "rt_video.py"]
+      args:
+        - "--instance-id=instance1"
+        - "--cpu=2"
+        - "--fifo-prio=50"
+        - "--period-ms=41.667"
+        - "--work=1"
+        - "--width=1280"
+        - "--height=720"
+        - "--frames=600"
+        - "--input=/app/videos/sintel_720p_600.mp4"
+        - "--jobs=100000"
+        - "--overrun=skip"
+        - "--start-at=REPLACE_WITH_SHARED_MONOTONIC_NS"
+        - "--output=/results/multi_core_instance1.csv"
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-multi-instance1-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/multi_core, type: DirectoryOrCreate }

@@ -4,10 +4,12 @@
 # (fixed work, pinned to the task's cpu) alone and with enemies running,
 # for BOTH a cache victim (buffer = LLC) and a memory victim (buffer =
 # 10 x LLC), each matched against the enemy of the same kind. Writes raw
-# condition,trial,elapsed_ms rows to --output; every percentile/CI/slowdown
-# statistic is computed in Python (rq2/orchestration/checks.py) from this
-# CSV, so the statistics stay testable with synthetic data and this script
-# stays a thin, inspectable timing loop.
+# condition,trial,elapsed_ms rows to --output, then prints a median-based
+# slowdown summary (plain stdlib `statistics`, no extra dependency).
+#
+# For a mechanism-level check (does the cache enemy actually cause cache
+# pressure rather than memory-bandwidth pressure, and vice versa) use
+# verify_targets.sh instead - this script only proves SOMETHING slows down.
 #
 # Conditions written: cache_alone, cache_enemy, memory_alone, memory_enemy.
 set -euo pipefail
@@ -101,4 +103,25 @@ start_enemies "$MEMORY_SIZE_KB"
 run_trials memory_enemy "$MEMORY_SIZE_KB"
 [ "$DRY_RUN" = "1" ] || stop_enemies
 
-[ "$DRY_RUN" = "1" ] || echo "wrote $OUTPUT"
+if [ "$DRY_RUN" != "1" ]; then
+    echo "wrote $OUTPUT"
+    echo
+    echo "=== summary (median elapsed_ms, slowdown = enemy / alone) ==="
+    python3 -c "
+import csv, statistics
+from collections import defaultdict
+
+by_condition = defaultdict(list)
+with open('$OUTPUT', newline='') as f:
+    for row in csv.DictReader(f):
+        by_condition[row['condition']].append(float(row['elapsed_ms']))
+
+medians = {c: statistics.median(v) for c, v in by_condition.items()}
+for c, m in medians.items():
+    print(f'{c}: median={m:.2f}ms (n={len(by_condition[c])})')
+for kind in ('cache', 'memory'):
+    alone, enemy = medians.get(f'{kind}_alone'), medians.get(f'{kind}_enemy')
+    if alone and enemy:
+        print(f'{kind} slowdown: {enemy/alone:.2f}x')
+"
+fi
