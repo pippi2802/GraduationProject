@@ -90,10 +90,23 @@ class Buffers:
         self.kernel = np.ones((3, 3), np.uint8)
 
 
-def run_job_body(frame, buf, work, empty_job):
+def frame_batch(frames, base_idx, count):
+    """--work distinct, consecutive frames starting at base_idx (wrapping),
+    never the same frame repeated. Repeating one frame would leave it (and
+    its intermediate buffers) cache-resident after the first pass, so later
+    passes would run mostly from cache - understating the task's real
+    memory-bandwidth sensitivity and biasing any alpha_cores/alpha_OS
+    inflation factor measured against it low. A real video task processes
+    each frame once with fresh data; this keeps that property even when
+    --work > 1 batches several frames into one job."""
+    n = len(frames)
+    return [frames[(base_idx + i) % n] for i in range(count)]
+
+
+def run_job_body(frames_batch, buf, empty_job):
     if empty_job:
         return
-    for _ in range(work):
+    for frame in frames_batch:
         cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY, dst=buf.gray)
         cv2.GaussianBlur(buf.gray, (5, 5), 0, dst=buf.blur)
         cv2.Canny(buf.blur, 50, 150, edges=buf.edges)
@@ -133,7 +146,9 @@ def build_arg_parser():
     p.add_argument("--width", type=int, default=1280)
     p.add_argument("--height", type=int, default=720)
     p.add_argument("--input", type=str, default=None)
-    p.add_argument("--work", type=int, default=1, help="repetitions of the filter pipeline per job")
+    p.add_argument("--work", type=int, default=1,
+                    help="distinct frames processed per job (one filter-pipeline pass each, "
+                         "never the same frame reprocessed - see frame_batch())")
     p.add_argument("--empty-job", action="store_true", help="no-op job body; measures runtime overhead/jitter")
     p.add_argument("--period-ms", type=float, default=33.3)
     p.add_argument("--deadline-ms", type=float, default=None, help="default: period")
@@ -157,8 +172,9 @@ def calibrate(args, frames, buf):
     def measure(work):
         samples = np.empty(args.calib_jobs, dtype=np.float64)
         for k in range(args.calib_jobs):
+            batch = frame_batch(frames, k * work, work)
             t0 = time.thread_time_ns()
-            run_job_body(frames[k % len(frames)], buf, work, args.empty_job)
+            run_job_body(batch, buf, args.empty_job)
             samples[k] = time.thread_time_ns() - t0
         return samples
 
@@ -253,12 +269,12 @@ def main():
     n_frames = len(frames)
 
     for k in range(args.warmup_jobs):
-        run_job_body(frames[k % n_frames], buf, args.work, args.empty_job)
+        run_job_body(frame_batch(frames, k * args.work, args.work), buf, args.empty_job)
 
     n_jobs = args.jobs if args.jobs is not None else int(args.duration_s * 1000 / args.period_ms) + 1
     instance_id = np.full(n_jobs, args.instance_id, dtype=object)
     job_id = np.arange(n_jobs, dtype=np.int64)
-    frame_idx = job_id % n_frames
+    frame_idx = (job_id * args.work) % n_frames  # first frame of this job's batch
     release_ns = np.empty(n_jobs, dtype=np.int64)
     start_ns = np.full(n_jobs, -1, dtype=np.int64)
     end_ns = np.full(n_jobs, -1, dtype=np.int64)
@@ -280,10 +296,11 @@ def main():
             skipped[jid] = 1
             continue
 
+        batch = frame_batch(frames, jid * args.work, args.work)
         clock_nanosleep_abs(rel)
         s = monotonic_ns()
         c0 = time.thread_time_ns()
-        run_job_body(frames[jid % n_frames], buf, args.work, args.empty_job)
+        run_job_body(batch, buf, args.empty_job)
         cpu_ns[jid] = time.thread_time_ns() - c0
         e = monotonic_ns()
         start_ns[jid], end_ns[jid] = s, e
