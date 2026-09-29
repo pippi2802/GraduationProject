@@ -66,7 +66,7 @@ for INSTANCE in "${INSTANCES[@]}"; do
         SRC="/var/lib/rq2/results/$MODEL/${HOST_BASE}.${EXT}"
         DST="$OUT_DIR/${INSTANCE}.${EXT}"
         echo "[pull_results] $SRC -> $DST"
-        kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount -- cat "$SRC" > "$DST"
+        kubectl -n "$NODE_PREP_NS" exec "$AGENT" -- nsenter --target 1 --mount -- cat "$SRC" > "$DST"
     done
 done
 

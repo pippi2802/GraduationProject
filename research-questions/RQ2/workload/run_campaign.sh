@@ -39,6 +39,10 @@ MEMORY_SIZE_KB="${MEMORY_SIZE_KB:-2662400}"
 STRIDE_BYTES="${STRIDE_BYTES:-64}"
 CONDITION_ATTEMPTS="${CONDITION_ATTEMPTS:-2}"
 SETTLE_S="${SETTLE_S:-10}"
+# Resume after a crash without redoing already-collected conditions, e.g.
+# after baseline1 succeeded but the script died before cache:
+#   START_FROM=cache workload/run_campaign.sh multi_core
+START_FROM="${START_FROM:-baseline1}"
 
 case "$MODEL" in
     single_core)
@@ -78,7 +82,7 @@ FAILED_CONDITIONS=()
 start_enemies() {
     local size_kb="$1" result
     log "starting enemies (size=${size_kb}KB, stride=${STRIDE_BYTES}) on cpus $ENEMY_CPUS"
-    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c "
+    result=$(kubectl -n "$NODE_PREP_NS" exec "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c "
         rm -f /tmp/rq2_campaign_enemy.pids
         IFS=',' read -ra cpus <<< '$ENEMY_CPUS'
         for cpu in \"\${cpus[@]}\"; do
@@ -117,7 +121,7 @@ start_enemies() {
 stop_enemies() {
     log "stopping enemies"
     local result
-    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c '
+    result=$(kubectl -n "$NODE_PREP_NS" exec "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c '
         [ -f /tmp/rq2_campaign_enemy.pids ] || { echo "no pidfile, nothing to stop"; exit 0; }
         pids="$(cat /tmp/rq2_campaign_enemy.pids)"
         for pid in $pids; do kill "$pid" 2>/dev/null || true; done
@@ -193,12 +197,18 @@ run_condition() {
     sleep "$SETTLE_S"
 }
 
-log "campaign start: model=$MODEL enemy_cpus=$ENEMY_CPUS cache=${CACHE_SIZE_KB}KB memory=${MEMORY_SIZE_KB}KB"
+log "campaign start: model=$MODEL enemy_cpus=$ENEMY_CPUS cache=${CACHE_SIZE_KB}KB memory=${MEMORY_SIZE_KB}KB start_from=$START_FROM"
 
-run_condition baseline1
-run_condition cache "$CACHE_SIZE_KB"
-run_condition memory "$MEMORY_SIZE_KB"
-run_condition baseline2
+case "$START_FROM" in
+    baseline1) run_condition baseline1 ;&
+    cache)     run_condition cache "$CACHE_SIZE_KB" ;&
+    memory)    run_condition memory "$MEMORY_SIZE_KB" ;&
+    baseline2) run_condition baseline2 ;;
+    *)
+        log "ERROR: unknown START_FROM=$START_FROM (expected baseline1, cache, memory, or baseline2)"
+        exit 2
+        ;;
+esac
 
 echo | tee -a "$LOG"
 if [ ${#FAILED_CONDITIONS[@]} -eq 0 ]; then
