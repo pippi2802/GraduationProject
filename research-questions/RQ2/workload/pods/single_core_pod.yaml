@@ -4,7 +4,14 @@
 # and models/*/generated/*.yaml): RtClaimParameters + ResourceClaimTemplate,
 # consumed by the Pod via resourceClaims.
 #
+# Before the FIRST run ever: `kubectl create namespace rq2` (or apply this
+# file, which creates it too) and label the target node(s):
+#   kubectl label node <node-name> experiment-model=rq2
+#
 # Edit before every run:
+#   - image: build+push first (see workload/README.md "6. A real run"),
+#     then put your registry/tag here - "rq2-workload:latest" with no
+#     registry will never pull on the node.
 #   - runtime/period (RtClaimParameters.spec): runtime = Q in microseconds,
 #     period = T in microseconds. T=41667 matches the Sintel clip's native
 #     24fps; Q starts at 0.95*T (generous, --overrun skip) for profiling -
@@ -13,6 +20,10 @@
 #   - --jobs: how many activations to run.
 #   - metadata.name / RtClaimParameters/ResourceClaimTemplate names: bump
 #     if you're deploying a second run without deleting the first.
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
@@ -39,7 +50,8 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
-      image: rq2-workload:latest
+      image: pippina2/rq2-workload:v1
+      imagePullPolicy: IfNotPresent
       command: ["python3", "rt_video.py"]
       args:
         - "--instance-id=instance0"

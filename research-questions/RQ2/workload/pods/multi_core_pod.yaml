@@ -13,6 +13,13 @@
 # Paste that number into BOTH --start-at args below (10s of margin covers
 # pod scheduling + container start + rt_video.py's own init), then
 # `kubectl apply -f` this file so both pods get created together.
+#
+# Before the FIRST run ever: label both target nodes:
+#   kubectl label node <node-name-cpu1> <node-name-cpu2> experiment-model=rq2
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
@@ -39,7 +46,8 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
-      image: rq2-workload:latest
+      image: pippina2/rq2-workload:v1
+      imagePullPolicy: IfNotPresent
       command: ["python3", "rt_video.py"]
       args:
         - "--instance-id=instance0"
@@ -89,7 +97,8 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
-      image: rq2-workload:latest
+      image: pippina2/rq2-workload:v1
+      imagePullPolicy: IfNotPresent
       command: ["python3", "rt_video.py"]
       args:
         - "--instance-id=instance1"
