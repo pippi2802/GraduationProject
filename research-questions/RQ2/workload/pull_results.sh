@@ -28,7 +28,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RQ2_ROOT="$(dirname "$SCRIPT_DIR")"
 OUT_DIR="$RQ2_ROOT/results/$MODEL/$CONDITION"
 WORKLOAD_NS="${WORKLOAD_NS:-rq2}"
-TIMEOUT="${TIMEOUT:-1800s}"
+# 100000 jobs @ period-ms=41.667 ~= 69.4 min; 5400s (90min) gives real margin.
+TIMEOUT="${TIMEOUT:-5400s}"
 
 # PODS: what to wait for. INSTANCES: what result files to pull. These
 # differ for multi_core - ONE pod (launch.py spawns 2 subprocesses inside
