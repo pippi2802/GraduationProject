@@ -61,7 +61,7 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
-      image: <dockerhub-user>/rq2-workload:v1   # EDIT: your pushed image
+      image: <dockerhub-user>/rq2-workload:v2
       imagePullPolicy: IfNotPresent
       command: ["python3", "launch.py"]
       args: ["configs/multi_core.json"]
