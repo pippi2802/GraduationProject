@@ -26,7 +26,7 @@ metadata: { name: rq2 }
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq2, name: "rq2-multi-instance0-params" }
-spec: { count: 1, runtime: 39583, period: 41667, requestedCpus: [1] }
+spec: { count: 1, runtime: 39100, period: 41667, requestedCpus: [1] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
@@ -77,7 +77,7 @@ spec:
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq2, name: "rq2-multi-instance1-params" }
-spec: { count: 1, runtime: 39583, period: 41667, requestedCpus: [2] }
+spec: { count: 1, runtime: 39100, period: 41667, requestedCpus: [2] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate

@@ -16,8 +16,12 @@
 #     registry will never pull on the node.
 #   - runtime/period (RtClaimParameters.spec): runtime = Q in microseconds,
 #     period = T in microseconds. T=41667 matches the Sintel clip's native
-#     24fps; Q starts at 0.95*T (generous, --overrun skip) for profiling -
-#     use the real derived budget for a validation run.
+#     24fps. Q must stay UNDER whatever rt-budget-seed.sh actually seeded on
+#     this node (it prints "SUCCESS: root=X kubepods=X" - that X/1000000 is
+#     the real ceiling, which is node-dependent and usually a bit below the
+#     nominal 0.95). runtime=39100 here assumes a seeded cap of >=0.94; if a
+#     node seeds lower, recompute: runtime < seeded_ratio * period. Use the
+#     real derived budget for a validation run.
 #   - --work: retune from the pilot run (see workload/README.md).
 #   - --jobs: how many activations to run.
 #   - metadata.name / RtClaimParameters/ResourceClaimTemplate names: bump
@@ -30,7 +34,7 @@ metadata: { name: rq2 }
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq2, name: "rq2-single-instance0-params" }
-spec: { count: 1, runtime: 39583, period: 41667, requestedCpus: [1] }
+spec: { count: 1, runtime: 39100, period: 41667, requestedCpus: [1] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
