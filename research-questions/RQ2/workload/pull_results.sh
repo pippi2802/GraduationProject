@@ -30,13 +30,18 @@ OUT_DIR="$RQ2_ROOT/results/$MODEL/$CONDITION"
 WORKLOAD_NS="${WORKLOAD_NS:-rq2}"
 TIMEOUT="${TIMEOUT:-1800s}"
 
+# PODS: what to wait for. INSTANCES: what result files to pull. These
+# differ for multi_core - ONE pod (launch.py spawns 2 subprocesses inside
+# it) still produces TWO instances' worth of output files.
 case "$MODEL" in
     single_core)
         PODS=(rq2-single-instance0)
+        INSTANCES=(instance0)
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker6}"
         ;;
     multi_core)
-        PODS=(rq2-multi-instance0 rq2-multi-instance1)
+        PODS=(rq2-multi)
+        INSTANCES=(instance0 instance1)
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker7}"
         ;;
     *)
@@ -54,11 +59,7 @@ for POD in "${PODS[@]}"; do
 done
 
 mkdir -p "$OUT_DIR"
-for POD in "${PODS[@]}"; do
-    # Pod names are rq2-<model-short>-<instance>; the instance id is the
-    # suffix after the last '-', matching workload/pods/*_pod.yaml's
-    # --instance-id and --output naming convention.
-    INSTANCE="${POD##*-}"
+for INSTANCE in "${INSTANCES[@]}"; do
     HOST_BASE="${MODEL}_${INSTANCE}"
     for EXT in csv meta.json; do
         SRC="/var/lib/rq2/results/$MODEL/${HOST_BASE}.${EXT}"

@@ -19,7 +19,12 @@ except ImportError:
 
 # Common time base so multiple instances' periodic schedules are aligned,
 # which matters for reproducing multi-core interference/contention scenarios.
-START_AHEAD_S = 3.0
+# 10s covers subprocess startup + each instance's own init (decoding real
+# video frames, not just synthetic ones, can itself take a couple seconds) -
+# too short a margin risks a child's first release already being in the
+# past by the time it reaches its sleep, causing a spurious skip-cascade
+# right at the start of the run.
+START_AHEAD_S = 10.0
 NS_PER_S = 1_000_000_000
 RT_VIDEO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rt_video.py")
 
