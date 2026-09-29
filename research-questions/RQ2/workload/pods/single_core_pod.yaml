@@ -5,8 +5,10 @@
 # consumed by the Pod via resourceClaims.
 #
 # Before the FIRST run ever: `kubectl create namespace rq2` (or apply this
-# file, which creates it too) and label the target node(s):
-#   kubectl label node <node-name> experiment-model=rq2
+# file, which creates it too) and label the SINGLE-CORE node (only this
+# one - rq2-role is how this file and multi_core_pod.yaml stay pinned to
+# different nodes even though both share experiment-model=rq2):
+#   kubectl label node <single-core-node-name> experiment-model=rq2 rq2-role=single-core
 #
 # Edit before every run:
 #   - image: build+push first (see workload/README.md "6. A real run"),
@@ -46,7 +48,7 @@ metadata:
   labels: { app: rq2-workload, role: worker }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: rq2 }
+  nodeSelector: { experiment-model: rq2, rq2-role: single-core }
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video

@@ -59,7 +59,18 @@ start_enemies() {
             ENEMY_PIDS+=("$!")
         fi
     done
-    [ "$DRY_RUN" = "1" ] || sleep 0.2  # let enemies reach their steady-state loop
+    if [ "$DRY_RUN" != "1" ]; then
+        sleep 0.2  # let enemies reach their steady-state loop
+        for i in "${!ENEMY_PIDS[@]}"; do
+            local pid="${ENEMY_PIDS[$i]}" cpu="${cpus[$i]}" psr
+            psr="$(ps -o psr= -p "$pid" 2>/dev/null | tr -d ' ')"
+            if [ "$psr" = "$cpu" ]; then
+                echo "[enemy_effectiveness] confirmed: pid $pid running on cpu$cpu"
+            else
+                echo "[enemy_effectiveness] WARNING: pid $pid reports cpu$psr, expected cpu$cpu"
+            fi
+        done
+    fi
 }
 
 stop_enemies() {
@@ -67,6 +78,15 @@ stop_enemies() {
         [ -n "$pid" ] && kill "$pid" 2>/dev/null || true
     done
     wait 2>/dev/null || true
+    for pid in "${ENEMY_PIDS[@]:-}"; do
+        if [ -n "$pid" ]; then
+            if kill -0 "$pid" 2>/dev/null; then
+                echo "[enemy_effectiveness] WARNING: pid $pid still alive after stop"
+            else
+                echo "[enemy_effectiveness] confirmed: pid $pid stopped"
+            fi
+        fi
+    done
 }
 
 run_trials() {

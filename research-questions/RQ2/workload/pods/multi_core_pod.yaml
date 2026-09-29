@@ -14,8 +14,10 @@
 # pod scheduling + container start + rt_video.py's own init), then
 # `kubectl apply -f` this file so both pods get created together.
 #
-# Before the FIRST run ever: label both target nodes:
-#   kubectl label node <node-name-cpu1> <node-name-cpu2> experiment-model=rq2
+# Before the FIRST run ever: label the ONE node both instances share
+# (rq2-role keeps this pinned to a different node than single_core_pod.yaml,
+# even though both share experiment-model=rq2):
+#   kubectl label node <multi-core-node-name> experiment-model=rq2 rq2-role=multi-core
 ---
 apiVersion: v1
 kind: Namespace
@@ -42,7 +44,7 @@ metadata:
   labels: { app: rq2-workload, role: worker }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: rq2 }
+  nodeSelector: { experiment-model: rq2, rq2-role: multi-core }
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
@@ -93,7 +95,7 @@ metadata:
   labels: { app: rq2-workload, role: worker }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: rq2 }
+  nodeSelector: { experiment-model: rq2, rq2-role: multi-core }
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video

@@ -76,10 +76,28 @@ run_condition() {
     "$ENEMY" --size-kb "$size_kb" --stride-bytes "$STRIDE_BYTES" --mode rw --cpu "$CPU" &
     local pid=$!
     sleep 0.2  # let it reach steady state before counting
+
+    # Confirm it's actually pinned to $CPU while running, not just started -
+    # part of "added and working", not just "started".
+    local psr
+    psr="$(ps -o psr= -p "$pid" 2>/dev/null | tr -d ' ')"
+    if [ "$psr" = "$CPU" ]; then
+        echo "[verify_targets] $label pid $pid confirmed running on cpu$CPU"
+    else
+        echo "[verify_targets] WARNING: $label pid $pid reports cpu$psr, expected cpu$CPU (affinity not holding)"
+    fi
+
     local perf_out
     perf_out="$(perf stat -e "$EVENTS" -C "$CPU" -- sleep "$DURATION_S" 2>&1 || true)"
     kill "$pid" 2>/dev/null || true
     wait "$pid" 2>/dev/null || true
+
+    # Confirm it's actually gone, not just signalled - the "removed" part.
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "[verify_targets] WARNING: $label pid $pid still alive after SIGTERM+wait"
+    else
+        echo "[verify_targets] $label pid $pid confirmed stopped"
+    fi
 
     echo "=== $label (cpu$CPU, size=${size_kb}KB) ==="
     echo "$perf_out"
