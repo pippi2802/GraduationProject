@@ -64,7 +64,7 @@ spec:
         - "--cpu=1"
         - "--fifo-prio=50"
         - "--period-ms=41.667"
-        - "--work=1"
+        - "--work=5"
         - "--width=1280"
         - "--height=720"
         - "--frames=600"
