@@ -1,0 +1,155 @@
+[2026-09-29T17:20:25Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB
+[2026-09-29T17:20:25Z] === condition: baseline1 (model=multi_core) ===
+[2026-09-29T17:20:25Z] deploying pod: workload/pods/multi_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-multi-claim unchanged
+pod/rq2-multi created
+[2026-09-29T17:20:25Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 5400s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline1/instance0.csv
+E0929 18:30:08.010142   77009 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline1/instance0.meta.json
+E0929 18:30:08.141349   77016 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline1/instance1.csv
+E0929 18:30:08.250356   77022 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline1/instance1.meta.json
+E0929 18:30:08.379086   77028 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline1
+total 20848
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 18:30 .
+drwxrwxr-x 3 azureuser azureuser     4096 Sep 29 18:30 ..
+-rw-rw-r-- 1 azureuser azureuser 10661945 Sep 29 18:30 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1120 Sep 29 18:30 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10662901 Sep 29 18:30 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser     1120 Sep 29 18:30 instance1.meta.json
+[2026-09-29T18:30:08Z] === baseline1 done ===
+[2026-09-29T18:30:08Z] settling 10s before the next condition...
+[2026-09-29T18:30:18Z] === condition: cache (model=multi_core) ===
+[2026-09-29T18:30:18Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+[2026-09-29T19:36:31Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T19:36:31Z] === condition: cache (model=multi_core) ===
+[2026-09-29T19:36:31Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+[2026-09-29T19:39:19Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T19:39:19Z] === condition: cache (model=multi_core) ===
+[2026-09-29T19:39:19Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+[2026-09-29T19:53:25Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T19:53:25Z] === condition: cache (model=multi_core) ===
+[2026-09-29T19:53:25Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+MISSING pid=45125
+MISSING pid=45126
+command terminated with exit code 1
+[2026-09-29T19:53:33Z] FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition
+[2026-09-29T20:00:51Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T20:00:51Z] === condition: cache (model=multi_core) ===
+[2026-09-29T20:00:51Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+MISSING pid=45859
+MISSING pid=45860
+command terminated with exit code 1
+[2026-09-29T20:00:59Z] FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition
+[2026-09-29T20:11:53Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T20:11:53Z] === condition: cache (model=multi_core) ===
+[2026-09-29T20:11:53Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+MISSING pid=46970
+MISSING pid=46971
+command terminated with exit code 1
+[2026-09-29T20:12:01Z] FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition
+[2026-09-29T20:22:23Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T20:22:23Z] === condition: cache (model=multi_core) ===
+[2026-09-29T20:22:23Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+MISSING cpu=3
+MISSING cpu=0
+command terminated with exit code 1
+[2026-09-29T20:22:31Z] FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this condition
+[2026-09-29T20:29:08Z] campaign start: model=multi_core enemy_cpus=3,0 cache=266240KB memory=2662400KB start_from=cache
+[2026-09-29T20:29:08Z] === condition: cache (model=multi_core) ===
+[2026-09-29T20:29:08Z] starting enemies (size=266240KB, stride=64) on cpus 3,0
+OK   48777   3 94.3 rq2-enemy
+OK   48778   0 98.3 rq2-enemy
+[2026-09-29T20:29:16Z] deploying pod: workload/pods/multi_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-multi-claim unchanged
+pod/rq2-multi created
+[2026-09-29T20:29:16Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 5400s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/cache/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/cache/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/cache/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/cache/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/cache
+total 20852
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 21:39 .
+drwxrwxr-x 4 azureuser azureuser     4096 Sep 29 21:38 ..
+-rw-rw-r-- 1 azureuser azureuser 10665660 Sep 29 21:38 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1128 Sep 29 21:38 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10666690 Sep 29 21:39 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser     1128 Sep 29 21:39 instance1.meta.json
+[2026-09-29T21:39:00Z] stopping enemies
+confirmed all stopped
+[2026-09-29T21:39:01Z] === cache done ===
+[2026-09-29T21:39:01Z] settling 10s before the next condition...
+[2026-09-29T21:39:11Z] === condition: memory (model=multi_core) ===
+[2026-09-29T21:39:11Z] starting enemies (size=2662400KB, stride=64) on cpus 3,0
+OK   55325   3 89.3 rq2-enemy
+OK   55326   0 96.6 rq2-enemy
+[2026-09-29T21:39:19Z] deploying pod: workload/pods/multi_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-multi-claim unchanged
+pod/rq2-multi created
+[2026-09-29T21:39:19Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 5400s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/memory/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/memory/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/memory/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/memory
+total 20856
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 22:49 .
+drwxrwxr-x 5 azureuser azureuser     4096 Sep 29 22:49 ..
+-rw-rw-r-- 1 azureuser azureuser 10666569 Sep 29 22:49 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1130 Sep 29 22:49 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10667910 Sep 29 22:49 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser     1130 Sep 29 22:49 instance1.meta.json
+[2026-09-29T22:49:03Z] stopping enemies
+confirmed all stopped
+[2026-09-29T22:49:03Z] === memory done ===
+[2026-09-29T22:49:03Z] settling 10s before the next condition...
+[2026-09-29T22:49:13Z] === condition: baseline2 (model=multi_core) ===
+[2026-09-29T22:49:13Z] deploying pod: workload/pods/multi_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-multi-claim unchanged
+pod/rq2-multi created
+[2026-09-29T22:49:13Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 5400s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline2/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline2/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline2/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline2/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/multi_core/baseline2
+total 20856
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 23:58 .
+drwxrwxr-x 6 azureuser azureuser     4096 Sep 29 23:58 ..
+-rw-rw-r-- 1 azureuser azureuser 10668308 Sep 29 23:58 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1131 Sep 29 23:58 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10669132 Sep 29 23:58 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser     1131 Sep 29 23:58 instance1.meta.json
+[2026-09-29T23:58:56Z] === baseline2 done ===
+[2026-09-29T23:58:56Z] settling 10s before the next condition...
+
+[2026-09-29T23:59:06Z] campaign complete: all 4 conditions collected successfully
+[2026-09-29T23:59:06Z] results in results/multi_core/{baseline1,cache,memory,baseline2}/

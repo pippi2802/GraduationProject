@@ -1,0 +1,108 @@
+[2026-09-29T17:20:25Z] campaign start: model=single_core enemy_cpus=2,3,0 cache=266240KB memory=2662400KB
+[2026-09-29T17:20:25Z] === condition: baseline1 (model=single_core) ===
+[2026-09-29T17:20:25Z] deploying pod: workload/pods/single_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-claim unchanged
+pod/rq2-single-instance0 created
+[2026-09-29T17:20:25Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline1/instance0.csv
+E0929 18:30:02.614970   76976 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline1/instance0.meta.json
+E0929 18:30:02.774099   76982 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline1
+total 10432
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 18:30 .
+drwxrwxr-x 9 azureuser azureuser     4096 Sep 29 18:30 ..
+-rw-rw-r-- 1 azureuser azureuser 10666129 Sep 29 18:30 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1125 Sep 29 18:30 instance0.meta.json
+[2026-09-29T18:30:02Z] === baseline1 done ===
+[2026-09-29T18:30:02Z] settling 10s before the next condition...
+[2026-09-29T18:30:12Z] === condition: cache (model=single_core) ===
+[2026-09-29T18:30:12Z] starting enemies (size=266240KB, stride=64) on cpus 2,3,0
+E0929 18:30:13.003110   77056 v2.go:104] read /dev/stdin: bad file descriptor
+OK   42287   2 98.8 rq2-enemy
+OK   42288   3 98.8 rq2-enemy
+OK   42289   0 98.2 rq2-enemy
+[2026-09-29T18:30:21Z] deploying pod: workload/pods/single_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-claim unchanged
+pod/rq2-single-instance0 created
+[2026-09-29T18:30:21Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/cache/instance0.csv
+E0929 19:39:58.683465   87955 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/cache/instance0.meta.json
+E0929 19:39:59.000456   87961 v2.go:104] read /dev/stdin: bad file descriptor
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/cache
+total 10428
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 15:30 .
+drwxrwxr-x 9 azureuser azureuser     4096 Sep 29 18:30 ..
+-rw-rw-r-- 1 azureuser azureuser 10662332 Sep 29 19:39 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1126 Sep 29 19:39 instance0.meta.json
+[2026-09-29T19:39:59Z] stopping enemies
+E0929 19:39:59.182013   87978 v2.go:104] read /dev/stdin: bad file descriptor
+confirmed all stopped
+[2026-09-29T19:39:59Z] === cache done ===
+[2026-09-29T19:39:59Z] settling 10s before the next condition...
+[2026-09-29T19:40:09Z] === condition: memory (model=single_core) ===
+[2026-09-29T19:40:09Z] starting enemies (size=2662400KB, stride=64) on cpus 2,3,0
+E0929 19:40:09.813357   88010 v2.go:104] read /dev/stdin: bad file descriptor
+OK   48843   2 97.8 rq2-enemy
+OK   48844   3 97.8 rq2-enemy
+OK   48845   0 97.1 rq2-enemy
+[2026-09-29T19:40:17Z] deploying pod: workload/pods/single_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-claim unchanged
+pod/rq2-single-instance0 created
+[2026-09-29T19:40:18Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/memory/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/memory
+total 10428
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 15:31 .
+drwxrwxr-x 9 azureuser azureuser     4096 Sep 29 18:30 ..
+-rw-rw-r-- 1 azureuser azureuser 10664423 Sep 29 20:49 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1127 Sep 29 20:49 instance0.meta.json
+[2026-09-29T20:49:55Z] stopping enemies
+E0929 20:49:55.438338   99264 v2.go:104] read /dev/stdin: bad file descriptor
+confirmed all stopped
+[2026-09-29T20:49:55Z] === memory done ===
+[2026-09-29T20:49:55Z] settling 10s before the next condition...
+[2026-09-29T20:50:05Z] === condition: baseline2 (model=single_core) ===
+[2026-09-29T20:50:05Z] deploying pod: workload/pods/single_core_pod.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-claim unchanged
+pod/rq2-single-instance0 created
+[2026-09-29T20:50:06Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline2/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline2/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/results/single_core/baseline2
+total 10428
+drwxrwxr-x 2 azureuser azureuser     4096 Sep 29 15:32 .
+drwxrwxr-x 9 azureuser azureuser     4096 Sep 29 18:30 ..
+-rw-rw-r-- 1 azureuser azureuser 10665238 Sep 29 21:59 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1129 Sep 29 21:59 instance0.meta.json
+[2026-09-29T21:59:44Z] === baseline2 done ===
+[2026-09-29T21:59:44Z] settling 10s before the next condition...
+
+[2026-09-29T21:59:54Z] campaign complete: all 4 conditions collected successfully
+[2026-09-29T21:59:54Z] results in results/single_core/{baseline1,cache,memory,baseline2}/
