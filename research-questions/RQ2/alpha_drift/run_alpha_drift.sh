@@ -19,7 +19,10 @@
 # in workload/pods/ are never edited. The node must carry experiment-model=rq2
 # (the script checks, and tells you the command, but never labels nodes).
 #
-# Run one VM at a time: both VMs would use the same pod names in namespace rq2.
+# Different VMs can run at the same time: the script gives every pod, claim and
+# claim-parameters object a -<vm-label> suffix in its pinned copy of the spec, so
+# two invocations (one per VM) never share a name in namespace rq2. Two
+# invocations for the SAME VM would collide, and the preflight refuses that.
 #
 # Same automation as workload/run_campaign.sh: it applies the pod, waits for
 # it to Succeed, pulls the CSV + meta.json off the node via the node-prep
@@ -55,6 +58,7 @@ NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-$VM}"
 
 OUT_ROOT="$SCRIPT_DIR/results/$VM"
 export OUT_ROOT                      # read by workload/pull_results.sh
+export POD_SUFFIX="-$VM"             # read by workload/pull_results.sh (pod names)
 CONDITION="baseline"
 JOBS="${JOBS:-100000}"               # must match --jobs in the pod specs; used only for the row-count check
 ATTEMPTS="${ATTEMPTS:-2}"
@@ -78,12 +82,14 @@ set_model() {
     case "$MODEL" in
         single_core)
             SRC_YAML="workload/pods/single_core_pod.yaml"
-            PODS=(rq2-single-instance0)
+            POD_BASE="rq2-single-instance0"
+            PODS=("$POD_BASE$POD_SUFFIX")
             INSTANCES=(instance0)
             ;;
         multi_core)
             SRC_YAML="workload/pods/multi_core_pod.yaml"
-            PODS=(rq2-multi)
+            POD_BASE="rq2-multi"
+            PODS=("$POD_BASE$POD_SUFFIX")
             INSTANCES=(instance0 instance1)
             ;;
         *)
@@ -109,14 +115,21 @@ resolve_vm() {
     log "vm=$VM agent=$AGENT node=$NODE_NAME hostname-label=$HOST_LABEL"
 }
 
-# Copy of $SRC_YAML with its (single) nodeSelector pinned to this VM's node.
+# Copy of $SRC_YAML with its (single) nodeSelector pinned to this VM's node and
+# every rq2-... object name suffixed with -<vm> (pod, claim, claim parameters),
+# so runs on different VMs can overlap.
 make_manifest() {
     POD_YAML="$MANIFEST_DIR/$MODEL.yaml"
-    sed -E "s#^([[:space:]]*)nodeSelector:.*#\1nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: $HOST_LABEL }#" \
+    sed -E -e "s#^([[:space:]]*)nodeSelector:.*#\1nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: $HOST_LABEL }#" \
+           -e "s#$POD_BASE#&$POD_SUFFIX#g" \
         "$SRC_YAML" > "$POD_YAML"
     if [ "$(grep -c 'kubernetes.io/hostname' "$POD_YAML")" -ne 1 ] || \
        [ "$(grep -c 'nodeSelector' "$SRC_YAML")" -ne 1 ]; then
         log "FATAL: expected exactly one nodeSelector line in $SRC_YAML - not applying a pinned copy I can't vouch for"
+        exit 1
+    fi
+    if ! grep -q "name: \"${PODS[0]}\"" "$POD_YAML"; then
+        log "FATAL: pod name ${PODS[0]} not found in $POD_YAML after renaming - not applying it"
         exit 1
     fi
 }

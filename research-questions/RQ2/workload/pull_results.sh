@@ -33,17 +33,19 @@ WORKLOAD_NS="${WORKLOAD_NS:-rq2}"
 # 100000 jobs @ period-ms=41.667 ~= 69.4 min; 5400s (90min) gives real margin.
 TIMEOUT="${TIMEOUT:-5400s}"
 
+# POD_SUFFIX (default empty) is appended to the pod names, so another script can
+# run the same model on several VMs at once (alpha_drift/run_alpha_drift.sh).
 # PODS: what to wait for. INSTANCES: what result files to pull. These
 # differ for multi_core - ONE pod (launch.py spawns 2 subprocesses inside
 # it) still produces TWO instances' worth of output files.
 case "$MODEL" in
     single_core)
-        PODS=(rq2-single-instance0)
+        PODS=("rq2-single-instance0${POD_SUFFIX:-}")
         INSTANCES=(instance0)
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker6}"
         ;;
     multi_core)
-        PODS=(rq2-multi)
+        PODS=("rq2-multi${POD_SUFFIX:-}")
         INSTANCES=(instance0 instance1)
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker7}"
         ;;

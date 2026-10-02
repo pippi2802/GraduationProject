@@ -9,13 +9,15 @@ the main four-condition campaign (`workload/run_campaign.sh`).
 # detached, from research-questions/RQ2 (needs a machine with a real kubeconfig)
 nohup alpha_drift/run_alpha_drift.sh worker6 > /dev/null 2>&1 &
 tail -f alpha_drift/results/worker6/alpha_drift.log
-# when it is finished, the other VM:
+# the other VM, at the same time or later:
 nohup alpha_drift/run_alpha_drift.sh worker0 > /dev/null 2>&1 &
 ```
 
-Takes about 2.3 h per VM (about 70 min per run). Run one VM at a time: both
-use the same pod names in namespace `rq2`, and the script aborts if a pod of
-that name already exists.
+Takes about 2.3 h per VM (about 70 min per run). The two VMs can run at the
+same time: each invocation suffixes its pod, claim and claim-parameters names
+with `-<vm-label>`, so they never share a name. The script still aborts if a
+pod of its own name already exists, for example from a second invocation for
+the same VM.
 
 ## How the VM is chosen
 
