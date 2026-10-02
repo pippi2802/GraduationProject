@@ -2,11 +2,14 @@
   python3 generate_yaml.py 08-model1
 
 cd ~/GraduationProject/research-questions/RQ1_final/os-experiments
-A1=$(kubectl -n 07-model1 get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
-A5=$(kubectl -n 07-model5 get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
+A1=$(kubectl -n rq2-node-prep-worker6 get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
+A5=$(kubectl -n rq2-node-prep-worker7 get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
 
-kubectl -n 07-model1 exec -i "$A1" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
-kubectl -n 07-model5 exec -i "$A5" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
+kubectl -n rq2-node-prep-worker6 exec -i "$A1" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
+kubectl -n rq2-node-prep-worker7 exec -i "$A5" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
+
+ kubectl label node rt-k8s-worker-6 experiment-model=rq2 rq2-role=single-core
+  kubectl label node rt-k8s-worker-7 experiment-model=rq2 rq2-role=multi-core
 
 
 CV_THRESHOLD=0.06 U_MAX=0.7 OUT_TAG=_round4 nohup ./run_job.sh 07-model1 > logs/run_07-model1_round4.log 2>&1 &

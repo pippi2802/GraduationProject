@@ -1,0 +1,44 @@
+1. Get the enemy binary onto the node (once):
+cd ~/GraduationProject/research-questions/RQ2
+make -C stress
+kubectl -n rq2-node-prep-worker6 exec -i "$AGENT" -- \
+    nsenter --target 1 --mount -- bash -c 'cat > /usr/local/bin/rq2-enemy && chmod +x /usr/local/bin/rq2-enemy' \
+    < stress/enemy
+
+2. Cache condition:
+# start cache enemy, detached, pidfile on the host
+kubectl -n rq2-node-prep-worker6 exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c \
+    'nohup /usr/local/bin/rq2-enemy --size-kb 266240 --stride-bytes 64 --mode rw --cpu 2 >/tmp/rq2-enemy.log 2>&1 & echo $! > /tmp/rq2-enemy.pid; disown'
+
+kubectl apply -f workload/pods/single_core_pod.yaml
+workload/pull_results.sh single_core cache
+
+# stop it
+kubectl -n rq2-node-prep-worker6 exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c \
+    'kill "$(cat /tmp/rq2-enemy.pid)" && rm -f /tmp/rq2-enemy.pid'
+
+3. Memory condition (same shape, swap size and label):
+kubectl -n rq2-node-prep-worker6 exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c \
+    'nohup /usr/local/bin/rq2-enemy --size-kb 2662400 --stride-bytes 64 --mode rw --cpu 2 >/tmp/rq2-enemy.log 2>&1 & echo $! > /tmp/rq2-enemy.pid; disown'
+
+kubectl apply -f workload/pods/single_core_pod.yaml
+workload/pull_results.sh single_core memory
+
+kubectl -n rq2-node-prep-worker6 exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- bash -c \
+    'kill "$(cat /tmp/rq2-enemy.pid)" && rm -f /tmp/rq2-enemy.pid'
+
+4. Baseline2 (drift check, no stress):
+kubectl apply -f workload/pods/single_core_pod.yaml
+workload/pull_results.sh single_core baseline2
+
+5. Compare (once you've also re-saved the first baseline run as results/single_core/baseline1/instance0.csv via pull_results.sh — if you haven't yet, run baseline once more through it now
+so all four conditions are in the same layout):
+python3 -c "
+import csv
+for cond in ['baseline1_v2', 'memory_v2']:
+    rows = list(csv.DictReader(open(f'results/single_core/{cond}/instance0.csv')))
+    cpu_ns = sorted(int(r['cpu_ns']) for r in rows)
+    n = len(cpu_ns)
+    print(f'{cond:14s} median={cpu_ns[n//2]/1e6:.2f}ms p99={cpu_ns[int(n*0.99)]/1e6:.2f}ms max={max(cpu_ns)/1e6:.2f}ms')
+"
+

@@ -20,3 +20,7 @@ workload/videos/*.tar.xz
 workload/videos/*.y4m
 workload/videos/*.mp4
 workload/videos/Unconfirmed*
+
+# alpha_drift runs (same rule as results/)
+alpha_drift/results/*
+!alpha_drift/results/.gitkeep

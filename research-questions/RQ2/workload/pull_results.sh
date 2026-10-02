@@ -26,7 +26,9 @@ CONDITION="${2:?usage: pull_results.sh <single_core|multi_core> <condition>}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RQ2_ROOT="$(dirname "$SCRIPT_DIR")"
-OUT_DIR="$RQ2_ROOT/results/$MODEL/$CONDITION"
+# OUT_ROOT lets another script (e.g. alpha_drift/run_alpha_drift.sh) collect
+# into its own results tree; the default keeps the existing layout.
+OUT_DIR="${OUT_ROOT:-$RQ2_ROOT/results}/$MODEL/$CONDITION"
 WORKLOAD_NS="${WORKLOAD_NS:-rq2}"
 # 100000 jobs @ period-ms=41.667 ~= 69.4 min; 5400s (90min) gives real margin.
 TIMEOUT="${TIMEOUT:-5400s}"
