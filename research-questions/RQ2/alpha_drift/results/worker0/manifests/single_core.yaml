@@ -1,0 +1,82 @@
+# Single-core run: one rt_video.py instance on cpu1, under a KubeDeadline
+# CBS reservation. Same manifest shape as RQ1_final's models (see
+# research-questions/RQ1_final/kubedeadline-experiments/generate_yaml.py
+# and models/*/generated/*.yaml): RtClaimParameters + ResourceClaimTemplate,
+# consumed by the Pod via resourceClaims.
+#
+# Before the FIRST run ever: `kubectl create namespace rq2` (or apply this
+# file, which creates it too) and label the SINGLE-CORE node (only this
+# one - rq2-role is how this file and multi_core_pod.yaml stay pinned to
+# different nodes even though both share experiment-model=rq2):
+#   kubectl label node <single-core-node-name> experiment-model=rq2 rq2-role=single-core
+#
+# Edit before every run:
+#   - image: build+push first (see workload/README.md "6. A real run"),
+#     then put your registry/tag here - "rq2-workload:latest" with no
+#     registry will never pull on the node.
+#   - runtime/period (RtClaimParameters.spec): runtime = Q in microseconds,
+#     period = T in microseconds. T=41667 matches the Sintel clip's native
+#     24fps. Q must stay UNDER whatever rt-budget-seed.sh actually seeded on
+#     this node (it prints "SUCCESS: root=X kubepods=X" - that X/1000000 is
+#     the real ceiling, which is node-dependent and usually a bit below the
+#     nominal 0.95). runtime=39100 here assumes a seeded cap of >=0.94; if a
+#     node seeds lower, recompute: runtime < seeded_ratio * period. Use the
+#     real derived budget for a validation run.
+#   - --work: retune from the pilot run (see workload/README.md).
+#   - --jobs: how many activations to run.
+#   - metadata.name / RtClaimParameters/ResourceClaimTemplate names: bump
+#     if you're deploying a second run without deleting the first.
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-single-instance0-worker0-params" }
+spec: { count: 1, runtime: 39100, period: 41667, requestedCpus: [1] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-single-instance0-worker0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-single-instance0-worker0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-single-instance0-worker0"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: rt-k8s-worker-0 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: rt-video
+      image: pippina2/rq2-workload:v2
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "rt_video.py"]
+      args:
+        - "--instance-id=instance0"
+        - "--cpu=1"
+        - "--fifo-prio=50"
+        - "--period-ms=41.667"
+        - "--work=5"
+        - "--width=1280"
+        - "--height=720"
+        - "--frames=600"
+        - "--input=/app/videos/sintel_720p_600.mp4"
+        - "--jobs=100000"
+        - "--overrun=skip"
+        - "--output=/results/single_core_instance0.csv"
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-single-instance0-worker0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/single_core, type: DirectoryOrCreate }

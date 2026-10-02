@@ -1,0 +1,75 @@
+# Multi-core run: ONE claim (count: 2, requestedCpus: [1, 2]) reserving a
+# CBS budget on BOTH cores, consumed by ONE pod running launch.py (which
+# spawns 2 rt_video.py subprocesses - instance0 on cpu1, instance1 on
+# cpu2 - sharing one CLOCK_MONOTONIC start time it computes itself). This
+# replaces an earlier two-separate-pods design: same manifest shape as
+# single_core_pod.yaml otherwise (see its header comment for what "count"/
+# "requestedCpus" mean and the RtClaimParameters CRD pattern).
+#
+# NOT YET EMPIRICALLY VERIFIED: whether count:2/requestedCpus:[1,2] on one
+# RtClaimParameters actually gives the container two INDEPENDENT per-cpu
+# CBS reservations (one full budget on cpu1 AND one full budget on cpu2),
+# as opposed to some other semantic. After first deploying this, check the
+# real cgroup state the same way the single-core StartError was diagnosed:
+#   kubectl -n rq2-node-prep-worker7 exec -i "$AGENT" -- nsenter --target 1 --mount -- bash -c '
+#     for d in /sys/fs/cgroup/kubepods.slice/*/*rq2-multi-worker0*; do
+#       echo "== $d =="; cat "$d/cpu.rt_period_us" "$d/cpu.rt_runtime_us" 2>/dev/null
+#     done'
+# If it does NOT give independent per-cpu budgets, fall back to the
+# two-separate-pods design (git history has the old single_core_pod.yaml-
+# style per-instance version) instead.
+#
+# Before the FIRST run ever: label the multi-core node:
+#   kubectl label node <multi-core-node-name> experiment-model=rq2 rq2-role=multi-core
+#
+# Edit before every run:
+#   - image: build+push first (see workload/README.md "6. A real run").
+#   - runtime/period: same node-dependent-cap caveat as single_core_pod.yaml
+#     - runtime must stay under whatever rt-budget-seed.sh actually seeded
+#     on THIS node (it may differ from the single-core node's cap).
+#   - workload/configs/multi_core.json: --work/--jobs/etc. for both
+#     instances (rebuild+push the image after editing it - it's baked in).
+#   - metadata.name / RtClaimParameters/ResourceClaimTemplate names: bump
+#     if you're deploying a second run without deleting the first.
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-multi-worker0-params" }
+spec: { count: 2, runtime: 39100, period: 41667, requestedCpus: [1, 2] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-multi-worker0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-multi-worker0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-multi-worker0"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: rt-k8s-worker-0 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: rt-video
+      image: pippina2/rq2-workload:v2
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "launch.py"]
+      args: ["configs/multi_core.json"]
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-multi-worker0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/multi_core, type: DirectoryOrCreate }

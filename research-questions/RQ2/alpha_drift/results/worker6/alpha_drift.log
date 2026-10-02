@@ -1,0 +1,74 @@
+[2026-10-02T14:51:35Z] vm=worker6 agent=rq1-agent-9l4bs node=rt-k8s-worker-6 hostname-label=rt-k8s-worker-6
+[2026-10-02T14:51:35Z] alpha_drift start: vm=worker6 start_from=single_core jobs=100000 out=/home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6
+[2026-10-02T14:51:35Z] === alpha_drift: worker6 single_core baseline (100000 jobs) ===
+[2026-10-02T14:51:35Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-claim unchanged
+pod/rq2-single-instance0 created
+[2026-10-02T14:51:36Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 5400s)...
+[2026-10-02T14:58:54Z] vm=worker6 agent=rq1-agent-9l4bs node=rt-k8s-worker-6 hostname-label=rt-k8s-worker-6
+[2026-10-02T14:58:54Z] alpha_drift start: vm=worker6 start_from=single_core jobs=100000 out=/home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6
+[2026-10-02T14:58:54Z] === alpha_drift: worker6 single_core baseline (100000 jobs) ===
+[2026-10-02T14:58:54Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-worker6-params created
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-worker6-claim created
+pod/rq2-single-instance0-worker6 created
+[2026-10-02T14:58:55Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0-worker6 to Succeed (timeout 5400s)...
+[2026-10-02T15:12:05Z] pull/check failed for single_core (attempt 1/2)
+[2026-10-02T15:12:05Z] retrying single_core (attempt 2/2)
+pod "rq2-single-instance0-worker6" deleted
+[2026-10-02T15:12:36Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-worker6-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-worker6-claim unchanged
+pod/rq2-single-instance0-worker6 created
+[2026-10-02T15:12:37Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0-worker6 to Succeed (timeout 5400s)...
+error: timed out waiting for the condition on pods/rq2-single-instance0
+pod/rq2-single-instance0-worker6 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/single_core/baseline/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/single_core/baseline/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0-worker6
+pod "rq2-single-instance0-worker6" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/single_core/baseline
+total 10140
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  2 16:22 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  2 16:22 ..
+-rw-rw-r-- 1 azureuser azureuser 10367581 Oct  2 16:22 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1134 Oct  2 16:22 instance0.meta.json
+[2026-10-02T16:22:14Z] data check OK (worker6/single_core/baseline: 1 instance(s) x 100000 jobs, rt flags ok)
+[2026-10-02T16:22:14Z] === single_core done ===
+[2026-10-02T16:22:14Z] settling 10s before the next step...
+[2026-10-02T16:22:24Z] === alpha_drift: worker6 multi_core baseline (100000 jobs) ===
+[2026-10-02T16:22:24Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/manifests/multi_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-worker6-params created
+resourceclaimtemplate.resource.k8s.io/rq2-multi-worker6-claim created
+pod/rq2-multi-worker6 created
+[2026-10-02T16:22:24Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi-worker6 to Succeed (timeout 5400s)...
+pod/rq2-multi-worker6 condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/baseline/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/baseline/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/baseline/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/baseline/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi-worker6
+pod "rq2-multi-worker6" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/baseline
+total 20632
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  2 17:32 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  2 17:32 ..
+-rw-rw-r-- 1 azureuser azureuser 10552101 Oct  2 17:32 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser     1132 Oct  2 17:32 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10552756 Oct  2 17:32 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser     1132 Oct  2 17:32 instance1.meta.json
+[2026-10-02T17:32:07Z] data check OK (worker6/multi_core/baseline: 2 instance(s) x 100000 jobs, rt flags ok)
+[2026-10-02T17:32:07Z] === multi_core done ===
+[2026-10-02T17:32:07Z] settling 10s before the next step...
+
+[2026-10-02T17:32:17Z] alpha_drift complete on worker6: both baselines collected successfully
+[2026-10-02T17:32:17Z] results in /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/{single_core,multi_core}/baseline/
