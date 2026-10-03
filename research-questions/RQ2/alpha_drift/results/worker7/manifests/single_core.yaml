@@ -33,26 +33,26 @@ metadata: { name: rq2 }
 ---
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
-metadata: { namespace: rq2, name: "rq2-single-instance0-worker6-params" }
+metadata: { namespace: rq2, name: "rq2-single-instance0-worker7-params" }
 spec: { count: 1, runtime: 39100, period: 41667, requestedCpus: [1] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
-metadata: { namespace: rq2, name: "rq2-single-instance0-worker6-claim" }
+metadata: { namespace: rq2, name: "rq2-single-instance0-worker7-claim" }
 spec:
   spec:
     resourceClassName: rt.example.com
-    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-single-instance0-worker6-params" }
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-single-instance0-worker7-params" }
 ---
 apiVersion: v1
 kind: Pod
 metadata:
   namespace: rq2
-  name: "rq2-single-instance0-worker6"
+  name: "rq2-single-instance0-worker7"
   labels: { app: rq2-workload, role: worker }
 spec:
   restartPolicy: Never
-  nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: rt-k8s-worker-6 }
+  nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: rt-k8s-worker-7 }
   tolerations: [{ operator: Exists }]
   containers:
     - name: rt-video
@@ -76,7 +76,7 @@ spec:
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]
   resourceClaims:
-    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-single-instance0-worker6-claim" } }
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-single-instance0-worker7-claim" } }
   volumes:
     - name: results
       hostPath: { path: /var/lib/rq2/results/single_core, type: DirectoryOrCreate }

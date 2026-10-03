@@ -64,12 +64,14 @@ spec:
       image: pippina2/rq2-workload:v2
       imagePullPolicy: IfNotPresent
       command: ["python3", "launch.py"]
-      args: ["configs/multi_core.json"]
+      args: ["/cfg/multi_core.json"]
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
-      volumeMounts: [{ name: results, mountPath: /results }]
+      volumeMounts: [{ name: results, mountPath: /results }, { name: cfg, mountPath: /cfg }]
   resourceClaims:
     - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-multi-worker6-claim" } }
   volumes:
     - name: results
       hostPath: { path: /var/lib/rq2/results/multi_core, type: DirectoryOrCreate }
+    - name: cfg
+      configMap: { name: rq2-multi-config-worker6 }

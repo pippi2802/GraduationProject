@@ -1,0 +1,34 @@
+[2026-10-03T15:15:01Z] vm=worker7 agent=rq1-agent-g6hp5 node=rt-k8s-worker-7 hostname-label=rt-k8s-worker-7
+[2026-10-03T15:15:01Z] alpha_drift start: vm=worker7 condition=memory only=single_core start_from=single_core jobs=50000 out=/home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-03T15:15:01Z] === alpha_drift: worker7 single_core memory (50000 jobs) ===
+[2026-10-03T15:15:01Z] jobs override: 50000 per run (spec default 100000)
+[2026-10-03T15:15:02Z] starting enemies (condition=memory size=2662400KB stride=64) on cpus 2,3,0
+OK   11938   2 93.1 rq2-enemy
+OK   11939   3 93.0 rq2-enemy
+OK   11940   0 98.8 rq2-enemy
+[2026-10-03T15:15:10Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-worker7-params created
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-worker7-claim created
+pod/rq2-single-instance0-worker7 created
+[2026-10-03T15:15:10Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0-worker7 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0-worker7 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7/single_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7/single_core/memory/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0-worker7
+pod "rq2-single-instance0-worker7" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7/single_core/memory
+total 5072
+drwxrwxr-x 2 azureuser azureuser    4096 Oct  3 15:50 .
+drwxrwxr-x 3 azureuser azureuser    4096 Oct  3 15:50 ..
+-rw-rw-r-- 1 azureuser azureuser 5178468 Oct  3 15:50 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser    1130 Oct  3 15:50 instance0.meta.json
+[2026-10-03T15:50:13Z] data check OK (worker7/single_core/memory: 1 instance(s) x 50000 jobs, rt flags ok, jobs recorded in meta.json)
+[2026-10-03T15:50:13Z] stopping enemies
+confirmed all stopped
+[2026-10-03T15:50:13Z] === single_core done ===
+[2026-10-03T15:50:13Z] settling 10s before the next step...
+
+[2026-10-03T15:50:23Z] alpha_drift complete on worker7: single_core memory run(s) collected successfully
+[2026-10-03T15:50:23Z] results in /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker7/single_core/memory/
