@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
-# run_alpha_drift.sh <vm-label>      e.g.  run_alpha_drift.sh worker6
-#                                          run_alpha_drift.sh worker0
+# run_alpha_drift.sh <vm-label> [baseline|memory|cache]
+#   run_alpha_drift.sh worker6              # two baseline runs
+#   run_alpha_drift.sh worker0              # two baseline runs
+#   run_alpha_drift.sh worker0 memory       # the same two runs under the memory enemy
 #
-# Two baseline runs on the VM you name, one after the other, unattended:
-#   1. single_core baseline  (workload/pods/single_core_pod.yaml)
-#   2. multi_core  baseline  (workload/pods/multi_core_pod.yaml)
+# Two runs on the VM you name, one after the other, unattended:
+#   1. single_core  (workload/pods/single_core_pod.yaml)
+#   2. multi_core   (workload/pods/multi_core_pod.yaml)
 # Run it once per VM to compare VM types. Each run is 100000 jobs (the --jobs
 # baked into the pod specs, ~70 min each at period-ms=41.667, so ~2.3 h per
-# VM). No stress: both runs are plain baselines, so the script first confirms
-# no enemy is running on the node.
+# VM). The default condition is "baseline" (no stress): the script first
+# confirms no enemy is running on the node.
+#
+# With "memory" or "cache" the enemy is started before each run exactly as in
+# workload/run_campaign.sh (same sizes, same stride, same cpus: single_core
+# 2,3,0 and multi_core 3,0; the start script CONFIRMS every enemy is really
+# burning cpu), and stopped after it with a polled confirmation, so the next
+# run never starts next to a leftover enemy. If the script dies or is
+# interrupted while an enemy is up, an exit trap stops it. The enemy binary
+# must already be installed on the node (/usr/local/bin/rq2-enemy, see
+# analysis/execution_commands.txt step 1).
 #
 # <vm-label> is the suffix of that VM's node-prep namespace
 # (rq2-node-prep-<vm-label>, override with NODE_PREP_NS). The node the agent
@@ -30,10 +41,10 @@
 # step. Pod specs are reused unchanged from workload/pods/ so these runs stay
 # directly comparable with the four-condition campaign.
 #
-# Data lands in (git-ignored):
-#   alpha_drift/results/<vm>/single_core/baseline/instance0.{csv,meta.json}
-#   alpha_drift/results/<vm>/multi_core/baseline/instance{0,1}.{csv,meta.json}
-#   alpha_drift/results/<vm>/manifests/<model>.yaml   (exact spec applied)
+# Data lands in (git-ignored), <condition> = baseline | memory | cache:
+#   alpha_drift/results/<vm>/single_core/<condition>/instance0.{csv,meta.json}
+#   alpha_drift/results/<vm>/multi_core/<condition>/instance{0,1}.{csv,meta.json}
+#   alpha_drift/results/<vm>/manifests/<model>.yaml   (exact spec applied; same for every condition)
 # Log: alpha_drift/results/<vm>/alpha_drift.log
 #
 # After each pull the data is CHECKED (row count == jobs + 1, meta.json says
@@ -44,6 +55,7 @@
 # Run it detached so it survives your terminal closing - it does NOT
 # background itself:
 #   nohup alpha_drift/run_alpha_drift.sh worker6 > /dev/null 2>&1 &
+#   nohup alpha_drift/run_alpha_drift.sh worker0 memory > /dev/null 2>&1 &
 # or in tmux/screen. Resume after a crash without redoing a finished run:
 #   START_FROM=multi_core alpha_drift/run_alpha_drift.sh worker6
 set -euo pipefail
@@ -52,14 +64,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RQ2_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$RQ2_ROOT"
 
-VM="${1:?usage: run_alpha_drift.sh <vm-label>   (e.g. worker6, worker0)}"
+VM="${1:?usage: run_alpha_drift.sh <vm-label> [baseline|memory|cache]   (e.g. worker6, worker0 memory)}"
 [[ "$VM" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]] || { echo "bad vm label: $VM" >&2; exit 2; }
 NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-$VM}"
 
 OUT_ROOT="$SCRIPT_DIR/results/$VM"
 export OUT_ROOT                      # read by workload/pull_results.sh
 export POD_SUFFIX="-$VM"             # read by workload/pull_results.sh (pod names)
-CONDITION="baseline"
+CONDITION="${2:-baseline}"           # baseline | memory | cache
+# Enemy sizes as in workload/run_campaign.sh; ENEMY_KB empty = no enemy.
+case "$CONDITION" in
+    baseline) ENEMY_KB="" ;;
+    memory)   ENEMY_KB="${MEMORY_SIZE_KB:-2662400}" ;;
+    cache)    ENEMY_KB="${CACHE_SIZE_KB:-266240}" ;;
+    *) echo "unknown condition: $CONDITION (expected baseline, memory or cache)" >&2; exit 2 ;;
+esac
+STRIDE_BYTES="${STRIDE_BYTES:-64}"
 JOBS="${JOBS:-100000}"               # must match --jobs in the pod specs; used only for the row-count check
 ATTEMPTS="${ATTEMPTS:-2}"
 SETTLE_S="${SETTLE_S:-10}"
@@ -85,12 +105,14 @@ set_model() {
             POD_BASE="rq2-single-instance0"
             PODS=("$POD_BASE$POD_SUFFIX")
             INSTANCES=(instance0)
+            ENEMY_CPUS_RUN="${ENEMY_CPUS:-2,3,0}"   # as run_campaign.sh: all free RT cores + housekeeping
             ;;
         multi_core)
             SRC_YAML="workload/pods/multi_core_pod.yaml"
             POD_BASE="rq2-multi"
             PODS=("$POD_BASE$POD_SUFFIX")
             INSTANCES=(instance0 instance1)
+            ENEMY_CPUS_RUN="${ENEMY_CPUS:-3,0}"     # as run_campaign.sh: the only free cores
             ;;
         *)
             echo "unknown model: $MODEL" >&2
@@ -134,7 +156,7 @@ make_manifest() {
     fi
 }
 
-# A baseline must not run next to a leftover stress enemy, nor next to an old
+# A run must not start next to a leftover stress enemy, nor next to an old
 # pod of the same name (apply would say "unchanged" and pull_results would
 # collect stale data). Both abort the whole script rather than guess.
 preflight() {
@@ -142,7 +164,7 @@ preflight() {
     enemies=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount --pid -- \
         bash -c 'pgrep -x rq2-enemy || true' 2>/dev/null) || true
     if [ -n "$enemies" ]; then
-        log "FATAL: rq2-enemy still running on $NODE_PREP_NS (pids: $(echo $enemies)) - a baseline would not be clean. Stop it first."
+        log "FATAL: rq2-enemy still running on $NODE_PREP_NS (pids: $(echo $enemies)) - this run would not be clean. Stop it first."
         exit 1
     fi
     for pod in "${PODS[@]}"; do
@@ -152,6 +174,60 @@ preflight() {
         fi
     done
 }
+
+# Stress dir: stress1/ (current) or stress/ (older name); override with STRESS_DIR.
+find_stress_dir() {
+    if [ -z "${STRESS_DIR:-}" ]; then
+        local d
+        for d in stress1 stress; do
+            if [ -f "$RQ2_ROOT/$d/campaign_start_enemies.sh" ]; then STRESS_DIR="$RQ2_ROOT/$d"; break; fi
+        done
+    fi
+    if [ ! -f "${STRESS_DIR:-/nonexistent}/campaign_start_enemies.sh" ] || [ ! -f "$STRESS_DIR/campaign_stop_enemies.sh" ]; then
+        log "FATAL: campaign_start_enemies.sh / campaign_stop_enemies.sh not found (looked in $RQ2_ROOT/stress1 and $RQ2_ROOT/stress; set STRESS_DIR)"
+        exit 1
+    fi
+}
+
+# Starts each enemy, then CONFIRMS it is genuinely burning cpu (not just
+# started-then-stuck) - aborts rather than collect data against a dead stressor.
+ENEMIES_UP=0
+start_enemies() {
+    local result
+    log "starting enemies (condition=$CONDITION size=${ENEMY_KB}KB stride=$STRIDE_BYTES) on cpus $ENEMY_CPUS_RUN"
+    ENEMIES_UP=1                     # from here on the exit trap makes sure they get stopped
+    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount -- \
+        bash -s -- "$ENEMY_KB" "$STRIDE_BYTES" "$ENEMY_CPUS_RUN" < "$STRESS_DIR/campaign_start_enemies.sh" 2>&1) || true
+    echo "$result" | tee -a "$LOG"
+    if echo "$result" | grep -qE "MISSING|LOW_CPU"; then
+        log "FATAL: an enemy failed to start or isn't genuinely running - aborting rather than trust this run"
+        exit 1                       # the exit trap stops whatever did start
+    fi
+}
+
+# SIGTERM, then POLL until every pid is gone (SIGKILL after a grace period).
+# Returns 1 if an enemy could not be confirmed stopped.
+stop_enemies() {
+    local result
+    log "stopping enemies"
+    result=$(kubectl -n "$NODE_PREP_NS" exec -i "$AGENT" -- nsenter --target 1 --mount -- \
+        bash -s -- < "$STRESS_DIR/campaign_stop_enemies.sh" 2>&1) || true
+    echo "$result" | tee -a "$LOG"
+    if echo "$result" | grep -q "STILL_ALIVE_AFTER_SIGKILL"; then
+        log "FATAL: could not confirm enemies stopped even after SIGKILL"
+        return 1
+    fi
+    ENEMIES_UP=0
+}
+
+on_exit() {
+    if [ "$ENEMIES_UP" = 1 ]; then
+        log "exiting while enemies may still be running - stopping them"
+        stop_enemies || log "WARNING: an enemy may still be alive on $NODE_PREP_NS - kill the pids in /tmp/rq2_campaign_enemy.pids on the node by hand"
+    fi
+}
+trap on_exit EXIT
+trap 'exit 130' INT TERM
 
 cleanup_stuck_pods() {
     local pod
@@ -192,6 +268,7 @@ run_one() {
     log "=== alpha_drift: $VM $MODEL $CONDITION ($JOBS jobs) ==="
     make_manifest
     preflight
+    if [ -n "$ENEMY_KB" ]; then start_enemies; fi
 
     local attempt ok=0
     for attempt in $(seq 1 "$ATTEMPTS"); do
@@ -215,6 +292,9 @@ run_one() {
         log "pull/check failed for $MODEL (attempt $attempt/$ATTEMPTS)"
     done
 
+    # stop the enemy whether or not the run worked: it must never run into the next one
+    if [ -n "$ENEMY_KB" ]; then stop_enemies || exit 1; fi
+
     if [ "$ok" != 1 ]; then
         FAILED+=("$MODEL")
         log "=== $MODEL FAILED after $ATTEMPTS attempt(s) - data missing/incomplete, do not trust it ==="
@@ -226,7 +306,8 @@ run_one() {
 }
 
 resolve_vm
-log "alpha_drift start: vm=$VM start_from=$START_FROM jobs=$JOBS out=$OUT_ROOT"
+if [ -n "$ENEMY_KB" ]; then find_stress_dir; fi
+log "alpha_drift start: vm=$VM condition=$CONDITION start_from=$START_FROM jobs=$JOBS out=$OUT_ROOT${STRESS_DIR:+ stress_dir=$STRESS_DIR}"
 
 case "$START_FROM" in
     single_core) run_one single_core ;&
@@ -239,7 +320,7 @@ esac
 
 echo | tee -a "$LOG"
 if [ ${#FAILED[@]} -eq 0 ]; then
-    log "alpha_drift complete on $VM: both baselines collected successfully"
+    log "alpha_drift complete on $VM: both $CONDITION runs collected successfully"
 else
     log "alpha_drift on $VM finished with ${#FAILED[@]} FAILED run(s): ${FAILED[*]} - rerun individually with START_FROM"
 fi

@@ -43,6 +43,30 @@ multi-core) are isolated RT cores there, and that the node's seeded RT budget
 is at least `runtime / period` of the pod specs (`runtime: 39100` of
 `period: 41667`). See the header comment of `workload/pods/single_core_pod.yaml`.
 
+## Stress runs (Route 2 transfer test)
+
+```bash
+nohup alpha_drift/run_alpha_drift.sh worker0 memory > /dev/null 2>&1 &
+```
+
+The optional second argument is the condition: `baseline` (default), `memory`
+or `cache`. With a stress condition the script starts the enemy the way
+`workload/run_campaign.sh` does (memory 2662400 KB, cache 266240 KB, stride 64;
+cpus `2,3,0` for single-core and `3,0` for multi-core, the same as session 1,
+override with `ENEMY_CPUS`), confirms every enemy is really burning cpu,
+deploys the pod, pulls the data, and stops the enemy with a polled
+confirmation. An exit trap stops the enemy if the script dies or is
+interrupted. The enemy start/stop scripts come from `stress1/` (or `stress/`,
+or `STRESS_DIR`).
+
+Before the first stress run on a VM, install the enemy binary on its node
+(`/usr/local/bin/rq2-enemy`, step 1 of `analysis/execution_commands.txt`),
+check there are at least 3 GB free for the memory enemy, and re-seed the RT
+budget if the node was rebooted.
+
+Data goes to `alpha_drift/results/<vm>/<model>/<condition>/`, next to the
+baseline runs.
+
 ## Per run
 
 Checks no `rq2-enemy` is running on the node and no old pod exists, applies
@@ -54,8 +78,8 @@ as FAILED while the next run goes on.
 ## Output (git-ignored)
 
 ```
-alpha_drift/results/<vm>/single_core/baseline/instance0.{csv,meta.json}
-alpha_drift/results/<vm>/multi_core/baseline/instance{0,1}.{csv,meta.json}
+alpha_drift/results/<vm>/single_core/<condition>/instance0.{csv,meta.json}
+alpha_drift/results/<vm>/multi_core/<condition>/instance{0,1}.{csv,meta.json}
 alpha_drift/results/<vm>/manifests/{single_core,multi_core}.yaml
 alpha_drift/results/<vm>/alpha_drift.log
 ```
@@ -67,4 +91,5 @@ START_FROM=multi_core alpha_drift/run_alpha_drift.sh worker6
 ```
 
 Environment overrides: `NODE_PREP_NS`, `WORKLOAD_NS`, `JOBS` (row-count check
-only; must match the pod specs), `ATTEMPTS`, `SETTLE_S`, `START_FROM`.
+only; must match the pod specs), `ATTEMPTS`, `SETTLE_S`, `START_FROM`,
+`ENEMY_CPUS`, `STRESS_DIR`, `MEMORY_SIZE_KB`, `CACHE_SIZE_KB`, `STRIDE_BYTES`.
