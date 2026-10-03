@@ -67,6 +67,21 @@ budget if the node was rebooted.
 Data goes to `alpha_drift/results/<vm>/<model>/<condition>/`, next to the
 baseline runs.
 
+### Fewer jobs (validation runs)
+
+```bash
+JOBS=50000 nohup alpha_drift/run_alpha_drift.sh worker0 memory > /dev/null 2>&1 &
+```
+
+`JOBS` (default 100000, minimum 5000) sets the jobs per run: about 35 min per
+run at 50000 (about 1.2 h for both models) or 21 min at 30000. Single-core:
+`--jobs` is changed in the pinned copy of the pod spec. Multi-core takes its
+job count from `configs/multi_core.json` inside the image, so the script
+builds a ConfigMap `rq2-multi-config-<vm>` from that file with the new count
+and mounts it at `/cfg`; the image is not rebuilt, and `workload/pods/*.yaml`
+are not edited. After the pull, `meta.json` must record exactly the requested
+job count, otherwise the run is marked FAILED.
+
 ## Per run
 
 Checks no `rq2-enemy` is running on the node and no old pod exists, applies
@@ -90,6 +105,5 @@ Resume after a crash without redoing a finished run:
 START_FROM=multi_core alpha_drift/run_alpha_drift.sh worker6
 ```
 
-Environment overrides: `NODE_PREP_NS`, `WORKLOAD_NS`, `JOBS` (row-count check
-only; must match the pod specs), `ATTEMPTS`, `SETTLE_S`, `START_FROM`,
+Environment overrides: `NODE_PREP_NS`, `WORKLOAD_NS`, `JOBS` (jobs per run, see above), `ATTEMPTS`, `SETTLE_S`, `START_FROM`,
 `ENEMY_CPUS`, `STRESS_DIR`, `MEMORY_SIZE_KB`, `CACHE_SIZE_KB`, `STRIDE_BYTES`.

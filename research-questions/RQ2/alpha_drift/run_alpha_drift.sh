@@ -7,10 +7,18 @@
 # Two runs on the VM you name, one after the other, unattended:
 #   1. single_core  (workload/pods/single_core_pod.yaml)
 #   2. multi_core   (workload/pods/multi_core_pod.yaml)
-# Run it once per VM to compare VM types. Each run is 100000 jobs (the --jobs
-# baked into the pod specs, ~70 min each at period-ms=41.667, so ~2.3 h per
+# Run it once per VM to compare VM types. Each run is 100000 jobs by default
+# (the --jobs of the pod specs, ~70 min each at period-ms=41.667, so ~2.3 h per
 # VM). The default condition is "baseline" (no stress): the script first
 # confirms no enemy is running on the node.
+#
+# JOBS=<n> runs a shorter run, e.g. for validation (50000 is ~35 min per run):
+#   JOBS=50000 nohup alpha_drift/run_alpha_drift.sh worker0 memory > /dev/null 2>&1 &
+# Single-core: --jobs is changed in the pinned copy of the pod spec. Multi-core:
+# its job count lives in the image (configs/multi_core.json), so the script
+# builds a ConfigMap rq2-multi-config-<vm> from that file with the new count
+# and mounts it at /cfg; the image is not rebuilt. After the pull, meta.json
+# must record exactly the requested job count, otherwise the run fails.
 #
 # With "memory" or "cache" the enemy is started before each run exactly as in
 # workload/run_campaign.sh (same sizes, same stride, same cpus: single_core
@@ -80,7 +88,9 @@ case "$CONDITION" in
     *) echo "unknown condition: $CONDITION (expected baseline, memory or cache)" >&2; exit 2 ;;
 esac
 STRIDE_BYTES="${STRIDE_BYTES:-64}"
-JOBS="${JOBS:-100000}"               # must match --jobs in the pod specs; used only for the row-count check
+DEFAULT_JOBS=100000                  # --jobs in workload/pods/*.yaml and workload/configs/multi_core.json
+JOBS="${JOBS:-$DEFAULT_JOBS}"        # jobs per run; anything else is applied to the pinned spec copy
+[[ "$JOBS" =~ ^[0-9]+$ ]] && [ "$JOBS" -ge 5000 ] || { echo "JOBS must be an integer >= 5000 (got '$JOBS')" >&2; exit 2; }
 ATTEMPTS="${ATTEMPTS:-2}"
 SETTLE_S="${SETTLE_S:-10}"
 START_FROM="${START_FROM:-single_core}"
@@ -142,6 +152,7 @@ resolve_vm() {
 # so runs on different VMs can overlap.
 make_manifest() {
     POD_YAML="$MANIFEST_DIR/$MODEL.yaml"
+    CONFIGMAP=""
     sed -E -e "s#^([[:space:]]*)nodeSelector:.*#\1nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: $HOST_LABEL }#" \
            -e "s#$POD_BASE#&$POD_SUFFIX#g" \
         "$SRC_YAML" > "$POD_YAML"
@@ -154,6 +165,50 @@ make_manifest() {
         log "FATAL: pod name ${PODS[0]} not found in $POD_YAML after renaming - not applying it"
         exit 1
     fi
+    if [ "$JOBS" != "$DEFAULT_JOBS" ]; then apply_jobs_override; fi
+}
+
+# JOBS != default: single_core edits --jobs; multi_core points launch.py at a
+# ConfigMap-mounted copy of the config (volumes must be the last key of the spec).
+CONFIGMAP=""
+apply_jobs_override() {
+    case "$MODEL" in
+        single_core)
+            sed -i "s#\"--jobs=${DEFAULT_JOBS}\"#\"--jobs=${JOBS}\"#" "$POD_YAML"
+            if [ "$(grep -c -- "--jobs=${JOBS}\"" "$POD_YAML")" -ne 1 ]; then
+                log "FATAL: could not set --jobs=$JOBS in $POD_YAML - not applying it"; exit 1
+            fi
+            ;;
+        multi_core)
+            CONFIGMAP="rq2-multi-config$POD_SUFFIX"
+            sed -i -e 's#args: \["configs/multi_core.json"\]#args: ["/cfg/multi_core.json"]#' \
+                   -e 's#volumeMounts: \[{ name: results, mountPath: /results }\]#volumeMounts: [{ name: results, mountPath: /results }, { name: cfg, mountPath: /cfg }]#' \
+                   "$POD_YAML"
+            printf '    - name: cfg\n      configMap: { name: %s }\n' "$CONFIGMAP" >> "$POD_YAML"
+            if ! grep -q '/cfg/multi_core.json' "$POD_YAML" || ! grep -q 'mountPath: /cfg' "$POD_YAML" \
+               || ! awk '/^  volumes:/{f=1; next} f && /^  [A-Za-z]/{bad=1} END{exit bad}' "$POD_YAML"; then
+                log "FATAL: could not wire the ConfigMap into $POD_YAML (expected args/volumeMounts lines, and volumes as the last key) - not applying it"
+                exit 1
+            fi
+            ;;
+    esac
+    log "jobs override: $JOBS per run (spec default $DEFAULT_JOBS)${CONFIGMAP:+, config from ConfigMap $CONFIGMAP}"
+}
+
+# Builds the ConfigMap with the job count from workload/configs/multi_core.json
+# (re-applied on every attempt, so it is never stale).
+apply_jobs_configmap() {
+    [ -n "$CONFIGMAP" ] || return 0
+    python3 - "$RQ2_ROOT/workload/configs/multi_core.json" "$JOBS" "$MANIFEST_DIR/multi_core.config.json" <<'EOF' || return 1
+import json, sys
+src, jobs, dst = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+cfg = json.load(open(src))
+for inst in cfg["instances"]:
+    inst["jobs"] = jobs
+json.dump(cfg, open(dst, "w"), indent=2)
+EOF
+    kubectl -n "$WORKLOAD_NS" create configmap "$CONFIGMAP" --from-file=multi_core.json="$MANIFEST_DIR/multi_core.config.json" \
+        --dry-run=client -o yaml | kubectl apply -f - 2>&1 | tee -a "$LOG"
 }
 
 # A run must not start next to a leftover stress enemy, nor next to an old
@@ -245,12 +300,15 @@ check_data() {
             log "CHECK FAILED: $dir/$inst.csv has $rows rows, expected $JOBS"
             return 1
         fi
-        if ! python3 - "$dir/$inst.meta.json" <<'EOF'
+        if ! python3 - "$dir/$inst.meta.json" "$JOBS" <<'EOF'
 import json, sys
 m = json.load(open(sys.argv[1]))
 bad = [k for k in ("mlockall_ok", "sched_fifo_ok", "affinity_ok") if m.get(k) is not True]
 if bad:
     print("CHECK FAILED: %s not true in %s" % (", ".join(bad), sys.argv[1]))
+    sys.exit(1)
+if m.get("args", {}).get("jobs") != int(sys.argv[2]):
+    print("CHECK FAILED: meta.json records jobs=%s, expected %s (%s)" % (m.get("args", {}).get("jobs"), sys.argv[2], sys.argv[1]))
     sys.exit(1)
 EOF
         then
@@ -258,7 +316,7 @@ EOF
             return 1
         fi
     done
-    log "data check OK ($VM/$MODEL/$CONDITION: ${#INSTANCES[@]} instance(s) x $JOBS jobs, rt flags ok)"
+    log "data check OK ($VM/$MODEL/$CONDITION: ${#INSTANCES[@]} instance(s) x $JOBS jobs, rt flags ok, jobs recorded in meta.json)"
 }
 
 FAILED=()
@@ -277,6 +335,10 @@ run_one() {
             cleanup_stuck_pods
         fi
 
+        if ! apply_jobs_configmap; then
+            log "could not create the jobs ConfigMap (attempt $attempt/$ATTEMPTS)"
+            continue
+        fi
         log "deploying pod: $POD_YAML"
         if ! kubectl apply -f "$POD_YAML" 2>&1 | tee -a "$LOG"; then
             log "kubectl apply failed (attempt $attempt/$ATTEMPTS)"
