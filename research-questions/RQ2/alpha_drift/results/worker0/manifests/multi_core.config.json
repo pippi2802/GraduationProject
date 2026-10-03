@@ -1,0 +1,32 @@
+{
+  "instances": [
+    {
+      "instance_id": "instance0",
+      "cpu": 1,
+      "fifo_prio": 50,
+      "period_ms": 41.667,
+      "work": 5,
+      "width": 1280,
+      "height": 720,
+      "frames": 600,
+      "input": "/app/videos/sintel_720p_600.mp4",
+      "jobs": 50000,
+      "overrun": "skip",
+      "output": "/results/multi_core_instance0.csv"
+    },
+    {
+      "instance_id": "instance1",
+      "cpu": 2,
+      "fifo_prio": 50,
+      "period_ms": 41.667,
+      "work": 5,
+      "width": 1280,
+      "height": 720,
+      "frames": 600,
+      "input": "/app/videos/sintel_720p_600.mp4",
+      "jobs": 50000,
+      "overrun": "skip",
+      "output": "/results/multi_core_instance1.csv"
+    }
+  ]
+}

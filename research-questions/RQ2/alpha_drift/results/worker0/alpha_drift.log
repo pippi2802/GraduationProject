@@ -65,3 +65,81 @@ drwxrwxr-x 3 azureuser azureuser     4096 Oct  2 17:32 ..
 
 [2026-10-02T17:32:17Z] alpha_drift complete on worker0: both baselines collected successfully
 [2026-10-02T17:32:17Z] results in /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/{single_core,multi_core}/baseline/
+[2026-10-03T10:28:38Z] FATAL: no node-prep agent in namespace rq2-node-prep-worker0 - is 'worker0' the right label? (set NODE_PREP_NS to override)
+[2026-10-03T10:32:49Z] vm=worker0 agent=rq1-agent-657g7 node=rt-k8s-worker-0 hostname-label=rt-k8s-worker-0
+[2026-10-03T10:32:49Z] alpha_drift start: vm=worker0 condition=memory start_from=single_core jobs=50000 out=/home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-03T10:32:49Z] === alpha_drift: worker0 single_core memory (50000 jobs) ===
+[2026-10-03T10:32:49Z] jobs override: 50000 per run (spec default 100000)
+[2026-10-03T10:32:49Z] starting enemies (condition=memory size=2662400KB stride=64) on cpus 2,3,0
+OK    4501   2 89.1 rq2-enemy
+OK    4502   3 92.3 rq2-enemy
+OK    4503   0 98.3 rq2-enemy
+[2026-10-03T10:32:57Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-worker0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-worker0-claim unchanged
+pod/rq2-single-instance0-worker0 created
+[2026-10-03T10:32:58Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0-worker0 to Succeed (timeout 5400s)...
+[2026-10-03T11:04:59Z] pull/check failed for single_core (attempt 1/2)
+[2026-10-03T11:04:59Z] retrying single_core (attempt 2/2)
+pod "rq2-single-instance0-worker0" deleted
+[2026-10-03T11:05:31Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/manifests/single_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-single-instance0-worker0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-single-instance0-worker0-claim unchanged
+pod/rq2-single-instance0-worker0 created
+[2026-10-03T11:05:32Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-single-instance0-worker0 to Succeed (timeout 5400s)...
+pod/rq2-single-instance0-worker0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/single_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/single_core/memory/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0-worker0
+pod "rq2-single-instance0-worker0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/single_core/memory
+total 5024
+drwxrwxr-x 2 azureuser azureuser    4096 Oct  3 11:40 .
+drwxrwxr-x 4 azureuser azureuser    4096 Oct  3 11:40 ..
+-rw-rw-r-- 1 azureuser azureuser 5129440 Oct  3 11:40 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser    1133 Oct  3 11:40 instance0.meta.json
+[2026-10-03T11:40:28Z] data check OK (worker0/single_core/memory: 1 instance(s) x 50000 jobs, rt flags ok, jobs recorded in meta.json)
+[2026-10-03T11:40:28Z] stopping enemies
+confirmed all stopped
+[2026-10-03T11:40:28Z] === single_core done ===
+[2026-10-03T11:40:28Z] settling 10s before the next step...
+[2026-10-03T11:40:38Z] === alpha_drift: worker0 multi_core memory (50000 jobs) ===
+[2026-10-03T11:40:38Z] jobs override: 50000 per run (spec default 100000), config from ConfigMap rq2-multi-config-worker0
+[2026-10-03T11:40:38Z] starting enemies (condition=memory size=2662400KB stride=64) on cpus 3,0
+OK   20484   3 90.1 rq2-enemy
+OK   20485   0 96.3 rq2-enemy
+configmap/rq2-multi-config-worker0 created
+[2026-10-03T11:40:47Z] deploying pod: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/manifests/multi_core.yaml
+namespace/rq2 unchanged
+rtclaimparameters.rt.resource.example.com/rq2-multi-worker0-params unchanged
+resourceclaimtemplate.resource.k8s.io/rq2-multi-worker0-claim unchanged
+pod/rq2-multi-worker0 created
+[2026-10-03T11:40:47Z] waiting for completion and pulling results...
+[pull_results] waiting for rq2/rq2-multi-worker0 to Succeed (timeout 5400s)...
+pod/rq2-multi-worker0 condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/multi_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/multi_core/memory/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/multi_core/memory/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/multi_core/memory/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi-worker0
+pod "rq2-multi-worker0" deleted
+[pull_results] done: /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/multi_core/memory
+total 10032
+drwxrwxr-x 2 azureuser azureuser    4096 Oct  3 12:15 .
+drwxrwxr-x 4 azureuser azureuser    4096 Oct  3 12:15 ..
+-rw-rw-r-- 1 azureuser azureuser 5124839 Oct  3 12:15 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser    1132 Oct  3 12:15 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 5124620 Oct  3 12:15 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser    1132 Oct  3 12:15 instance1.meta.json
+[2026-10-03T12:15:46Z] data check OK (worker0/multi_core/memory: 2 instance(s) x 50000 jobs, rt flags ok, jobs recorded in meta.json)
+[2026-10-03T12:15:46Z] stopping enemies
+confirmed all stopped
+[2026-10-03T12:15:47Z] === multi_core done ===
+[2026-10-03T12:15:47Z] settling 10s before the next step...
+
+[2026-10-03T12:15:57Z] alpha_drift complete on worker0: both memory runs collected successfully
+[2026-10-03T12:15:57Z] results in /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker0/{single_core,multi_core}/memory/
