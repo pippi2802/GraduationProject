@@ -55,7 +55,8 @@ case "$MODEL" in
         ;;
 esac
 
-AGENT=$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
+# AGENT_POD (set by alpha_drift/run_alpha_drift.sh) pins the agent when a namespace has more than one.
+AGENT="${AGENT_POD:-$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')}"
 [ -n "$AGENT" ] || { echo "no node-prep agent found in namespace $NODE_PREP_NS" >&2; exit 1; }
 
 for POD in "${PODS[@]}"; do

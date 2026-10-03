@@ -3,6 +3,8 @@
 #   run_alpha_drift.sh worker6              # two baseline runs
 #   run_alpha_drift.sh worker0              # two baseline runs
 #   run_alpha_drift.sh worker0 memory       # the same two runs under the memory enemy
+#   ONLY=multi_core run_alpha_drift.sh worker6 memory    # just one of the two models
+#   EXPECT_NODE=rt-k8s-worker-6 run_alpha_drift.sh worker6   # abort unless the VM label resolves to that node
 #
 # Two runs on the VM you name, one after the other, unattended:
 #   1. single_core  (workload/pods/single_core_pod.yaml)
@@ -94,6 +96,7 @@ JOBS="${JOBS:-$DEFAULT_JOBS}"        # jobs per run; anything else is applied to
 ATTEMPTS="${ATTEMPTS:-2}"
 SETTLE_S="${SETTLE_S:-10}"
 START_FROM="${START_FROM:-single_core}"
+ONLY="${ONLY:-}"                     # single_core | multi_core: run only that model (START_FROM is then ignored)
 WORKLOAD_NS="${WORKLOAD_NS:-rq2}"
 
 mkdir -p "$OUT_ROOT"
@@ -135,11 +138,22 @@ set_model() {
 # copy of the pod spec. Done once per script run.
 resolve_vm() {
     export NODE_PREP_NS WORKLOAD_NS    # read by workload/pull_results.sh
-    AGENT=$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}' 2>/dev/null) || true
-    [ -n "$AGENT" ] || { log "FATAL: no node-prep agent in namespace $NODE_PREP_NS - is '$VM' the right label? (set NODE_PREP_NS to override)"; exit 1; }
+    # With EXPECT_NODE the agent that runs ON THAT NODE is used, so a second (dead) agent of the same
+    # namespace, e.g. one left on a node that is switched off, can stay where it is. Without it: the first agent.
+    local sel=()
+    [ -n "${EXPECT_NODE:-}" ] && sel=(--field-selector "spec.nodeName=$EXPECT_NODE")
+    AGENT=$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent ${sel[@]+"${sel[@]}"} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null) || true
+    [ -n "$AGENT" ] || { log "FATAL: no node-prep agent in namespace $NODE_PREP_NS${EXPECT_NODE:+ on node $EXPECT_NODE} - is '$VM' the right label? (set NODE_PREP_NS to override)"; exit 1; }
+    export AGENT_POD="$AGENT"          # read by workload/pull_results.sh, so it uses the same agent
     NODE_NAME=$(kubectl -n "$NODE_PREP_NS" get pod "$AGENT" -o jsonpath='{.spec.nodeName}')
     HOST_LABEL=$(kubectl get node "$NODE_NAME" -o jsonpath='{.metadata.labels.kubernetes\.io/hostname}')
     [ -n "$NODE_NAME" ] && [ -n "$HOST_LABEL" ] || { log "FATAL: could not resolve the node of agent $AGENT"; exit 1; }
+    # The node is taken from the agent of the namespace, so a moved label silently moves the run to another VM.
+    # EXPECT_NODE makes that fatal, e.g. EXPECT_NODE=rt-k8s-worker-7 for the label worker7.
+    if [ -n "${EXPECT_NODE:-}" ] && [ "$NODE_NAME" != "$EXPECT_NODE" ]; then
+        log "FATAL: the agent of $NODE_PREP_NS runs on node $NODE_NAME, but EXPECT_NODE=$EXPECT_NODE - the data would be recorded for the wrong VM. Fix the rq2-isolation label / agent first."
+        exit 1
+    fi
     if [ "$(kubectl get node "$NODE_NAME" -o jsonpath='{.metadata.labels.experiment-model}')" != "rq2" ]; then
         log "FATAL: node $NODE_NAME lacks the label experiment-model=rq2 that the pod specs select on. Label it yourself: kubectl label node $NODE_NAME experiment-model=rq2"
         exit 1
@@ -369,21 +383,28 @@ run_one() {
 
 resolve_vm
 if [ -n "$ENEMY_KB" ]; then find_stress_dir; fi
-log "alpha_drift start: vm=$VM condition=$CONDITION start_from=$START_FROM jobs=$JOBS out=$OUT_ROOT${STRESS_DIR:+ stress_dir=$STRESS_DIR}"
+log "alpha_drift start: vm=$VM condition=$CONDITION ${ONLY:+only=$ONLY }start_from=$START_FROM jobs=$JOBS out=$OUT_ROOT${STRESS_DIR:+ stress_dir=$STRESS_DIR}"
 
-case "$START_FROM" in
-    single_core) run_one single_core ;&
-    multi_core)  run_one multi_core ;;
-    *)
-        log "ERROR: unknown START_FROM=$START_FROM (expected single_core or multi_core)"
-        exit 2
-        ;;
-esac
+if [ -n "$ONLY" ]; then
+    case "$ONLY" in
+        single_core|multi_core) run_one "$ONLY" ;;
+        *) log "ERROR: unknown ONLY=$ONLY (expected single_core or multi_core)"; exit 2 ;;
+    esac
+else
+    case "$START_FROM" in
+        single_core) run_one single_core ;&
+        multi_core)  run_one multi_core ;;
+        *)
+            log "ERROR: unknown START_FROM=$START_FROM (expected single_core or multi_core)"
+            exit 2
+            ;;
+    esac
+fi
 
 echo | tee -a "$LOG"
 if [ ${#FAILED[@]} -eq 0 ]; then
-    log "alpha_drift complete on $VM: both $CONDITION runs collected successfully"
+    log "alpha_drift complete on $VM: ${ONLY:-both models} $CONDITION run(s) collected successfully"
 else
     log "alpha_drift on $VM finished with ${#FAILED[@]} FAILED run(s): ${FAILED[*]} - rerun individually with START_FROM"
 fi
-log "results in $OUT_ROOT/{single_core,multi_core}/$CONDITION/"
+log "results in $OUT_ROOT/${ONLY:-\{single_core,multi_core\}}/$CONDITION/"

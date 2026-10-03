@@ -99,6 +99,24 @@ alpha_drift/results/<vm>/manifests/{single_core,multi_core}.yaml
 alpha_drift/results/<vm>/alpha_drift.log
 ```
 
+Run only one of the two models (for example when each model is validated on a
+different VM):
+
+```bash
+ONLY=multi_core  JOBS=50000 nohup alpha_drift/run_alpha_drift.sh worker6 memory > /dev/null 2>&1 &
+ONLY=single_core JOBS=50000 nohup alpha_drift/run_alpha_drift.sh worker7 memory > /dev/null 2>&1 &
+```
+
+The VM label only selects a namespace; the node comes from that namespace's
+agent. If a label was moved to another node, the run would silently go to the
+wrong VM. `EXPECT_NODE=<node name>` makes the script abort in that case (the
+log also prints `node=...` at the start). Use it whenever the VM matters.
+
+`EXPECT_NODE` also selects the agent: the agent running on that node is used, so
+a second, dead agent in the same namespace (for example on a node that is
+switched off) does not have to be deleted. Without `EXPECT_NODE` the first agent
+of the namespace is used, as before.
+
 Resume after a crash without redoing a finished run:
 
 ```bash
@@ -106,4 +124,4 @@ START_FROM=multi_core alpha_drift/run_alpha_drift.sh worker6
 ```
 
 Environment overrides: `NODE_PREP_NS`, `WORKLOAD_NS`, `JOBS` (jobs per run, see above), `ATTEMPTS`, `SETTLE_S`, `START_FROM`,
-`ENEMY_CPUS`, `STRESS_DIR`, `MEMORY_SIZE_KB`, `CACHE_SIZE_KB`, `STRIDE_BYTES`.
+`ONLY`, `EXPECT_NODE`, `ENEMY_CPUS`, `STRESS_DIR`, `MEMORY_SIZE_KB`, `CACHE_SIZE_KB`, `STRIDE_BYTES`.
