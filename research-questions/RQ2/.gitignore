@@ -24,3 +24,7 @@ workload/videos/Unconfirmed*
 # alpha_drift runs (same rule as results/)
 alpha_drift/results/*
 !alpha_drift/results/.gitkeep
+
+# validation runs (same rule as results/)
+validation/results/*
+!validation/results/.gitkeep

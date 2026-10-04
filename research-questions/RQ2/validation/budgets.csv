@@ -1,0 +1,13 @@
+scenario,route,p,Q_ms,runtime_us
+multi_core,route1,0.1,17.812797,17813
+multi_core,route1,0.01,22.916163,22917
+multi_core,route1,0.001,23.329208,23330
+multi_core,route2b,0.1,18.713249,18714
+multi_core,route2b,0.01,24.110960,24111
+multi_core,route2b,0.001,24.508311,24509
+single_core,route1,0.1,18.290951,18291
+single_core,route1,0.01,23.665729,23666
+single_core,route1,0.001,24.027966,24028
+single_core,route2b,0.1,19.824730,19825
+single_core,route2b,0.01,25.785783,25786
+single_core,route2b,0.001,26.048098,26049
