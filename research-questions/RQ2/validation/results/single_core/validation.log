@@ -1,0 +1,171 @@
+[2026-10-04T14:07:33Z] validation start: single_core, 12 runs, node=rt-k8s-worker-7 agent=rq1-agent-g6hp5 enemy_cpus=2,3,0 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-04T14:07:33Z] === single_core route1 p1e-3 none (rq2-val-single-r1-p1e-3-none, 50000 jobs per instance) ===
+[2026-10-04T14:07:34Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-3_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-3-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-3-none-claim created
+pod/rq2-val-single-r1-p1e-3-none created
+[2026-10-04T14:07:35Z] waiting for rq2-val-single-r1-p1e-3-none (poll 30s, timeout 6000s)
+[2026-10-04T14:42:39Z] pull rq2-val-single-r1-p1e-3-none_instance0.csv
+[2026-10-04T14:42:39Z] pull rq2-val-single-r1-p1e-3-none_instance0.meta.json
+pod "rq2-val-single-r1-p1e-3-none" deleted
+[2026-10-04T14:42:40Z] === single_core route1 p1e-3 none done ===
+  instance0: 36 misses in 50000 jobs (7.20e-04)
+[2026-10-04T14:42:50Z] === single_core route1 p1e-3 memory (rq2-val-single-r1-p1e-3-mem, 50000 jobs per instance) ===
+[2026-10-04T14:42:50Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK    8473   2 95.1 rq2-enemy
+OK    8474   3 95.2 rq2-enemy
+OK    8475   0 99.3 rq2-enemy
+[2026-10-04T14:42:58Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-3_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-3-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-3-mem-claim created
+pod/rq2-val-single-r1-p1e-3-mem created
+[2026-10-04T14:42:59Z] waiting for rq2-val-single-r1-p1e-3-mem (poll 30s, timeout 6000s)
+[2026-10-04T15:18:02Z] pull rq2-val-single-r1-p1e-3-mem_instance0.csv
+[2026-10-04T15:18:03Z] pull rq2-val-single-r1-p1e-3-mem_instance0.meta.json
+pod "rq2-val-single-r1-p1e-3-mem" deleted
+[2026-10-04T15:18:03Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T15:18:04Z] === single_core route1 p1e-3 memory done ===
+  instance0: 116 misses in 50000 jobs (2.32e-03)
+[2026-10-04T15:18:14Z] === single_core route2b p1e-3 none (rq2-val-single-r2b-p1e-3-none, 50000 jobs per instance) ===
+[2026-10-04T15:18:14Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-3_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-3-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-3-none-claim created
+pod/rq2-val-single-r2b-p1e-3-none created
+[2026-10-04T15:18:14Z] waiting for rq2-val-single-r2b-p1e-3-none (poll 30s, timeout 6000s)
+[2026-10-04T15:53:18Z] pull rq2-val-single-r2b-p1e-3-none_instance0.csv
+[2026-10-04T15:53:18Z] pull rq2-val-single-r2b-p1e-3-none_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-3-none" deleted
+[2026-10-04T15:53:19Z] === single_core route2b p1e-3 none done ===
+  instance0: 47 misses in 50000 jobs (9.40e-04)
+[2026-10-04T15:53:29Z] === single_core route2b p1e-3 memory (rq2-val-single-r2b-p1e-3-mem, 50000 jobs per instance) ===
+[2026-10-04T15:53:29Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK   16007   2 89.6 rq2-enemy
+OK   16008   3 89.6 rq2-enemy
+OK   16009   0 98.8 rq2-enemy
+[2026-10-04T15:53:37Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-3_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-3-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-3-mem-claim created
+pod/rq2-val-single-r2b-p1e-3-mem created
+[2026-10-04T15:53:37Z] waiting for rq2-val-single-r2b-p1e-3-mem (poll 30s, timeout 6000s)
+[2026-10-04T16:28:41Z] pull rq2-val-single-r2b-p1e-3-mem_instance0.csv
+[2026-10-04T16:28:41Z] pull rq2-val-single-r2b-p1e-3-mem_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-3-mem" deleted
+[2026-10-04T16:28:42Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T16:28:42Z] === single_core route2b p1e-3 memory done ===
+  instance0: 21 misses in 50000 jobs (4.20e-04)
+[2026-10-04T16:28:52Z] === single_core route1 p1e-2 none (rq2-val-single-r1-p1e-2-none, 50000 jobs per instance) ===
+[2026-10-04T16:28:53Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-2_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-2-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-2-none-claim created
+pod/rq2-val-single-r1-p1e-2-none created
+[2026-10-04T16:28:53Z] waiting for rq2-val-single-r1-p1e-2-none (poll 30s, timeout 6000s)
+[2026-10-04T17:03:57Z] pull rq2-val-single-r1-p1e-2-none_instance0.csv
+[2026-10-04T17:03:57Z] pull rq2-val-single-r1-p1e-2-none_instance0.meta.json
+pod "rq2-val-single-r1-p1e-2-none" deleted
+[2026-10-04T17:03:57Z] === single_core route1 p1e-2 none done ===
+  instance0: 0 misses in 50000 jobs (0.00e+00)
+[2026-10-04T17:04:07Z] === single_core route1 p1e-2 memory (rq2-val-single-r1-p1e-2-mem, 50000 jobs per instance) ===
+[2026-10-04T17:04:07Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK   22986   2 88.3 rq2-enemy
+OK   22987   3  100 rq2-enemy
+OK   22988   0 97.3 rq2-enemy
+[2026-10-04T17:04:16Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-2_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-2-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-2-mem-claim created
+pod/rq2-val-single-r1-p1e-2-mem created
+[2026-10-04T17:04:16Z] waiting for rq2-val-single-r1-p1e-2-mem (poll 30s, timeout 6000s)
+[2026-10-04T17:39:20Z] pull rq2-val-single-r1-p1e-2-mem_instance0.csv
+[2026-10-04T17:39:20Z] pull rq2-val-single-r1-p1e-2-mem_instance0.meta.json
+pod "rq2-val-single-r1-p1e-2-mem" deleted
+[2026-10-04T17:39:20Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T17:39:21Z] === single_core route1 p1e-2 memory done ===
+  instance0: 20 misses in 50000 jobs (4.00e-04)
+[2026-10-04T17:39:31Z] === single_core route2b p1e-2 none (rq2-val-single-r2b-p1e-2-none, 50000 jobs per instance) ===
+[2026-10-04T17:39:31Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-2_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-2-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-2-none-claim created
+pod/rq2-val-single-r2b-p1e-2-none created
+[2026-10-04T17:39:31Z] waiting for rq2-val-single-r2b-p1e-2-none (poll 30s, timeout 6000s)
+[2026-10-04T18:14:35Z] pull rq2-val-single-r2b-p1e-2-none_instance0.csv
+[2026-10-04T18:14:35Z] pull rq2-val-single-r2b-p1e-2-none_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-2-none" deleted
+[2026-10-04T18:14:36Z] === single_core route2b p1e-2 none done ===
+  instance0: 0 misses in 50000 jobs (0.00e+00)
+[2026-10-04T18:14:46Z] === single_core route2b p1e-2 memory (rq2-val-single-r2b-p1e-2-mem, 50000 jobs per instance) ===
+[2026-10-04T18:14:46Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK   29943   2 99.6 rq2-enemy
+OK   29944   3 89.3 rq2-enemy
+OK   29945   0 86.2 rq2-enemy
+[2026-10-04T18:14:54Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-2_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-2-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-2-mem-claim created
+pod/rq2-val-single-r2b-p1e-2-mem created
+[2026-10-04T18:14:54Z] waiting for rq2-val-single-r2b-p1e-2-mem (poll 30s, timeout 6000s)
+[2026-10-04T18:49:58Z] pull rq2-val-single-r2b-p1e-2-mem_instance0.csv
+[2026-10-04T18:49:58Z] pull rq2-val-single-r2b-p1e-2-mem_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-2-mem" deleted
+[2026-10-04T18:49:59Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T18:50:00Z] === single_core route2b p1e-2 memory done ===
+  instance0: 18 misses in 50000 jobs (3.60e-04)
+[2026-10-04T18:50:10Z] === single_core route1 p1e-1 none (rq2-val-single-r1-p1e-1-none, 50000 jobs per instance) ===
+[2026-10-04T18:50:10Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-1_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-1-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-1-none-claim created
+pod/rq2-val-single-r1-p1e-1-none created
+[2026-10-04T18:50:10Z] waiting for rq2-val-single-r1-p1e-1-none (poll 30s, timeout 6000s)
+[2026-10-04T19:25:14Z] pull rq2-val-single-r1-p1e-1-none_instance0.csv
+[2026-10-04T19:25:14Z] pull rq2-val-single-r1-p1e-1-none_instance0.meta.json
+pod "rq2-val-single-r1-p1e-1-none" deleted
+[2026-10-04T19:25:14Z] === single_core route1 p1e-1 none done ===
+  instance0: 3342 misses in 50000 jobs (6.68e-02)
+[2026-10-04T19:25:25Z] === single_core route1 p1e-1 memory (rq2-val-single-r1-p1e-1-mem, 50000 jobs per instance) ===
+[2026-10-04T19:25:25Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK   36908   2 96.3 rq2-enemy
+OK   36909   3 96.3 rq2-enemy
+OK   36910   0 98.5 rq2-enemy
+[2026-10-04T19:25:33Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route1/p1e-1_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r1-p1e-1-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r1-p1e-1-mem-claim created
+pod/rq2-val-single-r1-p1e-1-mem created
+[2026-10-04T19:25:33Z] waiting for rq2-val-single-r1-p1e-1-mem (poll 30s, timeout 6000s)
+[2026-10-04T20:00:37Z] pull rq2-val-single-r1-p1e-1-mem_instance0.csv
+[2026-10-04T20:00:37Z] pull rq2-val-single-r1-p1e-1-mem_instance0.meta.json
+pod "rq2-val-single-r1-p1e-1-mem" deleted
+[2026-10-04T20:00:37Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T20:00:38Z] === single_core route1 p1e-1 memory done ===
+  instance0: 3442 misses in 50000 jobs (6.88e-02)
+[2026-10-04T20:00:48Z] === single_core route2b p1e-1 none (rq2-val-single-r2b-p1e-1-none, 50000 jobs per instance) ===
+[2026-10-04T20:00:48Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-1_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-1-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-1-none-claim created
+pod/rq2-val-single-r2b-p1e-1-none created
+[2026-10-04T20:00:49Z] waiting for rq2-val-single-r2b-p1e-1-none (poll 30s, timeout 6000s)
+[2026-10-04T20:35:53Z] pull rq2-val-single-r2b-p1e-1-none_instance0.csv
+[2026-10-04T20:35:53Z] pull rq2-val-single-r2b-p1e-1-none_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-1-none" deleted
+[2026-10-04T20:35:53Z] === single_core route2b p1e-1 none done ===
+  instance0: 2574 misses in 50000 jobs (5.15e-02)
+[2026-10-04T20:36:03Z] === single_core route2b p1e-1 memory (rq2-val-single-r2b-p1e-1-mem, 50000 jobs per instance) ===
+[2026-10-04T20:36:03Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK   43896   2 97.7 rq2-enemy
+OK   43897   3 97.7 rq2-enemy
+OK   43898   0 97.6 rq2-enemy
+[2026-10-04T20:36:12Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/route2b/p1e-1_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-r2b-p1e-1-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-r2b-p1e-1-mem-claim created
+pod/rq2-val-single-r2b-p1e-1-mem created
+[2026-10-04T20:36:12Z] waiting for rq2-val-single-r2b-p1e-1-mem (poll 30s, timeout 6000s)
+[2026-10-04T21:11:16Z] pull rq2-val-single-r2b-p1e-1-mem_instance0.csv
+[2026-10-04T21:11:16Z] pull rq2-val-single-r2b-p1e-1-mem_instance0.meta.json
+pod "rq2-val-single-r2b-p1e-1-mem" deleted
+[2026-10-04T21:11:16Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T21:11:17Z] === single_core route2b p1e-1 memory done ===
+  instance0: 2690 misses in 50000 jobs (5.38e-02)
+
+[2026-10-04T21:11:27Z] validation complete (single_core): all 12 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/single_core

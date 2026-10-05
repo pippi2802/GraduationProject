@@ -1,0 +1,213 @@
+[2026-10-04T14:07:33Z] validation start: multi_core, 12 runs, node=rt-k8s-worker-6 agent=rq1-agent-9l4bs enemy_cpus=3,0 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-04T14:07:33Z] === multi_core route1 p1e-3 none (rq2-val-multi-r1-p1e-3-none, 50000 jobs per instance) ===
+[2026-10-04T14:07:34Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-3_none.yaml
+configmap/rq2-val-multi-r1-p1e-3-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-3-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-3-none-claim created
+pod/rq2-val-multi-r1-p1e-3-none created
+[2026-10-04T14:07:35Z] waiting for rq2-val-multi-r1-p1e-3-none (poll 30s, timeout 6000s)
+[2026-10-04T14:42:39Z] pull rq2-val-multi-r1-p1e-3-none_instance0.csv
+[2026-10-04T14:42:39Z] pull rq2-val-multi-r1-p1e-3-none_instance0.meta.json
+[2026-10-04T14:42:39Z] pull rq2-val-multi-r1-p1e-3-none_instance1.csv
+[2026-10-04T14:42:39Z] pull rq2-val-multi-r1-p1e-3-none_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-3-none" deleted
+[2026-10-04T14:42:40Z] === multi_core route1 p1e-3 none done ===
+  instance0: 112 misses in 50000 jobs (2.24e-03)
+  instance1: 111 misses in 50000 jobs (2.22e-03)
+[2026-10-04T14:42:50Z] === multi_core route1 p1e-3 memory (rq2-val-multi-r1-p1e-3-mem, 50000 jobs per instance) ===
+[2026-10-04T14:42:50Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK    8676   3 89.6 rq2-enemy
+OK    8677   0 99.0 rq2-enemy
+[2026-10-04T14:42:59Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-3_memory.yaml
+configmap/rq2-val-multi-r1-p1e-3-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-3-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-3-mem-claim created
+pod/rq2-val-multi-r1-p1e-3-mem created
+[2026-10-04T14:42:59Z] waiting for rq2-val-multi-r1-p1e-3-mem (poll 30s, timeout 6000s)
+[2026-10-04T15:18:03Z] pull rq2-val-multi-r1-p1e-3-mem_instance0.csv
+[2026-10-04T15:18:03Z] pull rq2-val-multi-r1-p1e-3-mem_instance0.meta.json
+[2026-10-04T15:18:03Z] pull rq2-val-multi-r1-p1e-3-mem_instance1.csv
+[2026-10-04T15:18:03Z] pull rq2-val-multi-r1-p1e-3-mem_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-3-mem" deleted
+[2026-10-04T15:18:04Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T15:18:05Z] === multi_core route1 p1e-3 memory done ===
+  instance0: 184 misses in 50000 jobs (3.68e-03)
+  instance1: 172 misses in 50000 jobs (3.44e-03)
+[2026-10-04T15:18:15Z] === multi_core route2b p1e-3 none (rq2-val-multi-r2b-p1e-3-none, 50000 jobs per instance) ===
+[2026-10-04T15:18:15Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-3_none.yaml
+configmap/rq2-val-multi-r2b-p1e-3-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-3-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-3-none-claim created
+pod/rq2-val-multi-r2b-p1e-3-none created
+[2026-10-04T15:18:15Z] waiting for rq2-val-multi-r2b-p1e-3-none (poll 30s, timeout 6000s)
+[2026-10-04T15:53:19Z] pull rq2-val-multi-r2b-p1e-3-none_instance0.csv
+[2026-10-04T15:53:19Z] pull rq2-val-multi-r2b-p1e-3-none_instance0.meta.json
+[2026-10-04T15:53:19Z] pull rq2-val-multi-r2b-p1e-3-none_instance1.csv
+[2026-10-04T15:53:19Z] pull rq2-val-multi-r2b-p1e-3-none_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-3-none" deleted
+[2026-10-04T15:53:20Z] === multi_core route2b p1e-3 none done ===
+  instance0: 2 misses in 50000 jobs (4.00e-05)
+  instance1: 6 misses in 50000 jobs (1.20e-04)
+[2026-10-04T15:53:30Z] === multi_core route2b p1e-3 memory (rq2-val-multi-r2b-p1e-3-mem, 50000 jobs per instance) ===
+[2026-10-04T15:53:30Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK   16325   3 96.6 rq2-enemy
+OK   16326   0 98.2 rq2-enemy
+[2026-10-04T15:53:38Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-3_memory.yaml
+configmap/rq2-val-multi-r2b-p1e-3-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-3-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-3-mem-claim created
+pod/rq2-val-multi-r2b-p1e-3-mem created
+[2026-10-04T15:53:39Z] waiting for rq2-val-multi-r2b-p1e-3-mem (poll 30s, timeout 6000s)
+[2026-10-04T16:28:42Z] pull rq2-val-multi-r2b-p1e-3-mem_instance0.csv
+[2026-10-04T16:28:43Z] pull rq2-val-multi-r2b-p1e-3-mem_instance0.meta.json
+[2026-10-04T16:28:43Z] pull rq2-val-multi-r2b-p1e-3-mem_instance1.csv
+[2026-10-04T16:28:43Z] pull rq2-val-multi-r2b-p1e-3-mem_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-3-mem" deleted
+[2026-10-04T16:28:43Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T16:28:44Z] === multi_core route2b p1e-3 memory done ===
+  instance0: 236 misses in 50000 jobs (4.72e-03)
+  instance1: 238 misses in 50000 jobs (4.76e-03)
+[2026-10-04T16:28:54Z] === multi_core route1 p1e-2 none (rq2-val-multi-r1-p1e-2-none, 50000 jobs per instance) ===
+[2026-10-04T16:28:54Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-2_none.yaml
+configmap/rq2-val-multi-r1-p1e-2-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-2-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-2-none-claim created
+pod/rq2-val-multi-r1-p1e-2-none created
+[2026-10-04T16:28:55Z] waiting for rq2-val-multi-r1-p1e-2-none (poll 30s, timeout 6000s)
+[2026-10-04T17:03:59Z] pull rq2-val-multi-r1-p1e-2-none_instance0.csv
+[2026-10-04T17:03:59Z] pull rq2-val-multi-r1-p1e-2-none_instance0.meta.json
+[2026-10-04T17:03:59Z] pull rq2-val-multi-r1-p1e-2-none_instance1.csv
+[2026-10-04T17:03:59Z] pull rq2-val-multi-r1-p1e-2-none_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-2-none" deleted
+[2026-10-04T17:03:59Z] === multi_core route1 p1e-2 none done ===
+  instance0: 364 misses in 50000 jobs (7.28e-03)
+  instance1: 494 misses in 50000 jobs (9.88e-03)
+[2026-10-04T17:04:10Z] === multi_core route1 p1e-2 memory (rq2-val-multi-r1-p1e-2-mem, 50000 jobs per instance) ===
+[2026-10-04T17:04:10Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK   23348   3 94.7 rq2-enemy
+OK   23349   0 98.5 rq2-enemy
+[2026-10-04T17:04:18Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-2_memory.yaml
+configmap/rq2-val-multi-r1-p1e-2-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-2-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-2-mem-claim created
+pod/rq2-val-multi-r1-p1e-2-mem created
+[2026-10-04T17:04:18Z] waiting for rq2-val-multi-r1-p1e-2-mem (poll 30s, timeout 6000s)
+[2026-10-04T17:39:22Z] pull rq2-val-multi-r1-p1e-2-mem_instance0.csv
+[2026-10-04T17:39:22Z] pull rq2-val-multi-r1-p1e-2-mem_instance0.meta.json
+[2026-10-04T17:39:22Z] pull rq2-val-multi-r1-p1e-2-mem_instance1.csv
+[2026-10-04T17:39:22Z] pull rq2-val-multi-r1-p1e-2-mem_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-2-mem" deleted
+[2026-10-04T17:39:23Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T17:39:23Z] === multi_core route1 p1e-2 memory done ===
+  instance0: 202 misses in 50000 jobs (4.04e-03)
+  instance1: 268 misses in 50000 jobs (5.36e-03)
+[2026-10-04T17:39:34Z] === multi_core route2b p1e-2 none (rq2-val-multi-r2b-p1e-2-none, 50000 jobs per instance) ===
+[2026-10-04T17:39:34Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-2_none.yaml
+configmap/rq2-val-multi-r2b-p1e-2-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-2-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-2-none-claim created
+pod/rq2-val-multi-r2b-p1e-2-none created
+[2026-10-04T17:39:34Z] waiting for rq2-val-multi-r2b-p1e-2-none (poll 30s, timeout 6000s)
+[2026-10-04T18:14:38Z] pull rq2-val-multi-r2b-p1e-2-none_instance0.csv
+[2026-10-04T18:14:38Z] pull rq2-val-multi-r2b-p1e-2-none_instance0.meta.json
+[2026-10-04T18:14:38Z] pull rq2-val-multi-r2b-p1e-2-none_instance1.csv
+[2026-10-04T18:14:38Z] pull rq2-val-multi-r2b-p1e-2-none_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-2-none" deleted
+[2026-10-04T18:14:39Z] === multi_core route2b p1e-2 none done ===
+  instance0: 10 misses in 50000 jobs (2.00e-04)
+  instance1: 10 misses in 50000 jobs (2.00e-04)
+[2026-10-04T18:14:49Z] === multi_core route2b p1e-2 memory (rq2-val-multi-r2b-p1e-2-mem, 50000 jobs per instance) ===
+[2026-10-04T18:14:49Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK   30433   3 97.1 rq2-enemy
+OK   30434   0 98.5 rq2-enemy
+[2026-10-04T18:14:57Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-2_memory.yaml
+configmap/rq2-val-multi-r2b-p1e-2-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-2-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-2-mem-claim created
+pod/rq2-val-multi-r2b-p1e-2-mem created
+[2026-10-04T18:14:57Z] waiting for rq2-val-multi-r2b-p1e-2-mem (poll 30s, timeout 6000s)
+[2026-10-04T18:50:01Z] pull rq2-val-multi-r2b-p1e-2-mem_instance0.csv
+[2026-10-04T18:50:01Z] pull rq2-val-multi-r2b-p1e-2-mem_instance0.meta.json
+[2026-10-04T18:50:02Z] pull rq2-val-multi-r2b-p1e-2-mem_instance1.csv
+[2026-10-04T18:50:02Z] pull rq2-val-multi-r2b-p1e-2-mem_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-2-mem" deleted
+[2026-10-04T18:50:02Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T18:50:03Z] === multi_core route2b p1e-2 memory done ===
+  instance0: 2 misses in 50000 jobs (4.00e-05)
+  instance1: 2 misses in 50000 jobs (4.00e-05)
+[2026-10-04T18:50:13Z] === multi_core route1 p1e-1 none (rq2-val-multi-r1-p1e-1-none, 50000 jobs per instance) ===
+[2026-10-04T18:50:13Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-1_none.yaml
+configmap/rq2-val-multi-r1-p1e-1-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-1-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-1-none-claim created
+pod/rq2-val-multi-r1-p1e-1-none created
+[2026-10-04T18:50:14Z] waiting for rq2-val-multi-r1-p1e-1-none (poll 30s, timeout 6000s)
+[2026-10-04T19:25:17Z] pull rq2-val-multi-r1-p1e-1-none_instance0.csv
+[2026-10-04T19:25:17Z] pull rq2-val-multi-r1-p1e-1-none_instance0.meta.json
+[2026-10-04T19:25:17Z] pull rq2-val-multi-r1-p1e-1-none_instance1.csv
+[2026-10-04T19:25:18Z] pull rq2-val-multi-r1-p1e-1-none_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-1-none" deleted
+[2026-10-04T19:25:18Z] === multi_core route1 p1e-1 none done ===
+  instance0: 3374 misses in 50000 jobs (6.75e-02)
+  instance1: 3456 misses in 50000 jobs (6.91e-02)
+[2026-10-04T19:25:28Z] === multi_core route1 p1e-1 memory (rq2-val-multi-r1-p1e-1-mem, 50000 jobs per instance) ===
+[2026-10-04T19:25:28Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK   37505   3 95.5 rq2-enemy
+OK   37506   0 98.2 rq2-enemy
+[2026-10-04T19:25:37Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route1/p1e-1_memory.yaml
+configmap/rq2-val-multi-r1-p1e-1-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r1-p1e-1-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r1-p1e-1-mem-claim created
+pod/rq2-val-multi-r1-p1e-1-mem created
+[2026-10-04T19:25:37Z] waiting for rq2-val-multi-r1-p1e-1-mem (poll 30s, timeout 6000s)
+[2026-10-04T20:00:41Z] pull rq2-val-multi-r1-p1e-1-mem_instance0.csv
+[2026-10-04T20:00:41Z] pull rq2-val-multi-r1-p1e-1-mem_instance0.meta.json
+[2026-10-04T20:00:41Z] pull rq2-val-multi-r1-p1e-1-mem_instance1.csv
+[2026-10-04T20:00:41Z] pull rq2-val-multi-r1-p1e-1-mem_instance1.meta.json
+pod "rq2-val-multi-r1-p1e-1-mem" deleted
+[2026-10-04T20:00:42Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T20:00:42Z] === multi_core route1 p1e-1 memory done ===
+  instance0: 4314 misses in 50000 jobs (8.63e-02)
+  instance1: 4576 misses in 50000 jobs (9.15e-02)
+[2026-10-04T20:00:53Z] === multi_core route2b p1e-1 none (rq2-val-multi-r2b-p1e-1-none, 50000 jobs per instance) ===
+[2026-10-04T20:00:53Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-1_none.yaml
+configmap/rq2-val-multi-r2b-p1e-1-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-1-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-1-none-claim created
+pod/rq2-val-multi-r2b-p1e-1-none created
+[2026-10-04T20:00:53Z] waiting for rq2-val-multi-r2b-p1e-1-none (poll 30s, timeout 6000s)
+[2026-10-04T20:35:57Z] pull rq2-val-multi-r2b-p1e-1-none_instance0.csv
+[2026-10-04T20:35:57Z] pull rq2-val-multi-r2b-p1e-1-none_instance0.meta.json
+[2026-10-04T20:35:57Z] pull rq2-val-multi-r2b-p1e-1-none_instance1.csv
+[2026-10-04T20:35:57Z] pull rq2-val-multi-r2b-p1e-1-none_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-1-none" deleted
+[2026-10-04T20:35:58Z] === multi_core route2b p1e-1 none done ===
+  instance0: 3144 misses in 50000 jobs (6.29e-02)
+  instance1: 3290 misses in 50000 jobs (6.58e-02)
+[2026-10-04T20:36:08Z] === multi_core route2b p1e-1 memory (rq2-val-multi-r2b-p1e-1-mem, 50000 jobs per instance) ===
+[2026-10-04T20:36:08Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK   44644   3 92.2 rq2-enemy
+OK   44645   0 98.5 rq2-enemy
+[2026-10-04T20:36:16Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/route2b/p1e-1_memory.yaml
+configmap/rq2-val-multi-r2b-p1e-1-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-r2b-p1e-1-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-r2b-p1e-1-mem-claim created
+pod/rq2-val-multi-r2b-p1e-1-mem created
+[2026-10-04T20:36:17Z] waiting for rq2-val-multi-r2b-p1e-1-mem (poll 30s, timeout 6000s)
+[2026-10-04T21:11:20Z] pull rq2-val-multi-r2b-p1e-1-mem_instance0.csv
+[2026-10-04T21:11:20Z] pull rq2-val-multi-r2b-p1e-1-mem_instance0.meta.json
+[2026-10-04T21:11:20Z] pull rq2-val-multi-r2b-p1e-1-mem_instance1.csv
+[2026-10-04T21:11:21Z] pull rq2-val-multi-r2b-p1e-1-mem_instance1.meta.json
+pod "rq2-val-multi-r2b-p1e-1-mem" deleted
+[2026-10-04T21:11:21Z] stopping the enemies
+confirmed all stopped
+[2026-10-04T21:11:22Z] === multi_core route2b p1e-1 memory done ===
+  instance0: 3364 misses in 50000 jobs (6.73e-02)
+  instance1: 3392 misses in 50000 jobs (6.78e-02)
+
+[2026-10-04T21:11:32Z] validation complete (multi_core): all 12 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/multi_core
