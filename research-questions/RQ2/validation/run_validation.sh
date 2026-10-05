@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_validation.sh <multi_core|single_core> [route1|route2b|all]        (routes default: all)
+# run_validation.sh <multi_core|single_core> [route1|route2b|hwm|all]        (routes default: all)
 #
 # Online validation of the budgets under KubeDeadline, unattended. For every run it applies one manifest of
 # validation/manifests/<scenario>/<route>/, optionally with the memory enemy running, waits for the pod, pulls the CSV
@@ -8,8 +8,10 @@
 #
 #   multi_core  -> VM rt-k8s-worker-6 (multi-core was profiled on worker7), 2 instances, enemy on cpus 3,0
 #   single_core -> VM rt-k8s-worker-7 (single-core was profiled on worker6), 1 instance,  enemy on cpus 2,3,0
-#   12 runs for "all": 3 tolerances (p1e-3 first, then p1e-2, p1e-1) x 2 routes x {none, memory}
-#   each run is 50000 jobs, ~36 min, so ~7.2 h per scenario (6 runs, ~3.6 h, with route1 or route2b)
+#   14 runs for "all": 3 tolerances (p1e-3 first, then p1e-2, p1e-1) x 2 routes x {none, memory} = 12, then the third
+#   route (hwm, the high-water mark: one budget for every tolerance) x {none, memory} = 2
+#   each run is 50000 jobs, ~36 min, so ~8.2 h per scenario (6 runs, ~3.6 h, with route1 or route2b; 2 runs, ~1.2 h, with hwm)
+#   runs already collected are skipped, so "all" after an earlier "all" of the two routes only runs the hwm pair
 #
 # The two scenarios run on different VMs, so start them at the same time in two commands:
 #   cd research-questions/RQ2
@@ -45,8 +47,9 @@ esac
 case "$WHICH" in
     route1)  ROUTES=(route1) ;;
     route2b) ROUTES=(route2b) ;;
-    all)     ROUTES=(route1 route2b) ;;
-    *) echo "usage: run_validation.sh <multi_core|single_core> [route1|route2b|all]" >&2; exit 2 ;;
+    hwm)     ROUTES=(hwm) ;;
+    all)     ROUTES=(route1 route2b hwm) ;;
+    *) echo "usage: run_validation.sh <multi_core|single_core> [route1|route2b|hwm|all]" >&2; exit 2 ;;
 esac
 
 NODE="${NODE:-$NODE_DEFAULT}"
@@ -58,6 +61,7 @@ STRIDE_BYTES="${STRIDE_BYTES:-64}"
 ATTEMPTS="${ATTEMPTS:-2}"
 SETTLE_S="${SETTLE_S:-10}"
 POLL_S="${POLL_S:-30}"                              # how often the pod phase is read
+HEARTBEAT_S="${HEARTBEAT_S:-300}"                   # a "still waiting" line in the log this often
 TIMEOUT_S="${TIMEOUT_S:-6000}"                      # per run; 50000 jobs take about 35 min
 HOST_RESULTS="/var/lib/rq2/results/$SCEN"           # hostPath of the pods, read through the agent
 TOLS=(p1e-3 p1e-2 p1e-1)
@@ -69,11 +73,23 @@ LOG="$RES/validation.log"
 log() { printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"; }
 
 RUNS=()                                             # "route|ptag|cond|manifest"
-for t in "${TOLS[@]}"; do for r in "${ROUTES[@]}"; do for c in "${CONDS[@]}"; do
-    m="$HERE/manifests/$SCEN/$r/${t}_${c}.yaml"
-    [ -f "$m" ] || { echo "missing manifest: $m (run validation/make_manifests.py)" >&2; exit 1; }
-    RUNS+=("$r|$t|$c|$m")
-done; done; done
+for t in "${TOLS[@]}"; do for r in "${ROUTES[@]}"; do
+    if [ "$r" = hwm ]; then continue; fi            # the hwm route has no tolerance, it goes last
+    for c in "${CONDS[@]}"; do
+        m="$HERE/manifests/$SCEN/$r/${t}_${c}.yaml"
+        [ -f "$m" ] || { echo "missing manifest: $m (run validation/make_manifests.py)" >&2; exit 1; }
+        RUNS+=("$r|$t|$c|$m")
+    done
+done; done
+for r in "${ROUTES[@]}"; do
+    if [ "$r" = hwm ]; then
+        for c in "${CONDS[@]}"; do
+            m="$HERE/manifests/$SCEN/hwm/all_${c}.yaml"
+            [ -f "$m" ] || { echo "missing manifest: $m (run validation/make_manifests.py)" >&2; exit 1; }
+            RUNS+=("hwm|all|$c|$m")
+        done
+    fi
+done
 
 if [ "${DRY_RUN:-0}" = 1 ]; then
     echo "plan: $SCEN, ${#RUNS[@]} runs on $NODE (agent namespace $NODE_PREP_NS), enemy cpus $ENEMY_CPUS for the *_memory runs"
@@ -178,6 +194,9 @@ wait_pod() {
             *)         unreadable=0 ;;
         esac
         if [ "$waited" -ge "$TIMEOUT_S" ]; then log "timeout: $pod is still $phase after ${TIMEOUT_S}s"; return 1; fi
+        if [ "$waited" -gt 0 ] && [ $((waited % HEARTBEAT_S)) -lt "$POLL_S" ]; then
+            log "still waiting: $pod is ${phase:-unreadable} after $((waited / 60)) min (a run takes about 36 min)"
+        fi
         sleep "$POLL_S"; waited=$((waited + POLL_S))
     done
 }
