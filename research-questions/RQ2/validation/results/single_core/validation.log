@@ -169,3 +169,46 @@ confirmed all stopped
   instance0: 2690 misses in 50000 jobs (5.38e-02)
 
 [2026-10-04T21:11:27Z] validation complete (single_core): all 12 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/single_core
+[2026-10-05T10:10:48Z] validation start: single_core, 2 runs, node=rt-k8s-worker-7 agent=rq1-agent-g6hp5 enemy_cpus=2,3,0 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-05T10:10:48Z] === single_core hwm all none (rq2-val-single-hwm-all-none, 50000 jobs per instance) ===
+[2026-10-05T10:10:48Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/hwm/all_none.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-hwm-all-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-hwm-all-none-claim created
+pod/rq2-val-single-hwm-all-none created
+[2026-10-05T10:10:48Z] waiting for rq2-val-single-hwm-all-none (poll 30s, timeout 6000s)
+[2026-10-05T10:15:49Z] still waiting: rq2-val-single-hwm-all-none is Running after 5 min (a run takes about 36 min)
+[2026-10-05T10:20:49Z] still waiting: rq2-val-single-hwm-all-none is Running after 10 min (a run takes about 36 min)
+[2026-10-05T10:25:50Z] still waiting: rq2-val-single-hwm-all-none is Running after 15 min (a run takes about 36 min)
+[2026-10-05T10:30:51Z] still waiting: rq2-val-single-hwm-all-none is Running after 20 min (a run takes about 36 min)
+[2026-10-05T10:35:51Z] still waiting: rq2-val-single-hwm-all-none is Running after 25 min (a run takes about 36 min)
+[2026-10-05T10:40:52Z] still waiting: rq2-val-single-hwm-all-none is Running after 30 min (a run takes about 36 min)
+[2026-10-05T10:45:53Z] pull rq2-val-single-hwm-all-none_instance0.csv
+[2026-10-05T10:45:53Z] pull rq2-val-single-hwm-all-none_instance0.meta.json
+pod "rq2-val-single-hwm-all-none" deleted
+[2026-10-05T10:45:53Z] === single_core hwm all none done ===
+  instance0: 0 misses in 50000 jobs (0.00e+00)
+[2026-10-05T10:46:04Z] === single_core hwm all memory (rq2-val-single-hwm-all-mem, 50000 jobs per instance) ===
+[2026-10-05T10:46:04Z] starting the memory enemy (size=2662400KB stride=64) on cpus 2,3,0
+OK    7817   2 89.3 rq2-enemy
+OK    7818   3 79.4 rq2-enemy
+OK    7819   0 87.7 rq2-enemy
+[2026-10-05T10:46:12Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/single_core/hwm/all_memory.yaml
+rtclaimparameters.rt.resource.example.com/rq2-val-single-hwm-all-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-single-hwm-all-mem-claim created
+pod/rq2-val-single-hwm-all-mem created
+[2026-10-05T10:46:12Z] waiting for rq2-val-single-hwm-all-mem (poll 30s, timeout 6000s)
+[2026-10-05T10:51:13Z] still waiting: rq2-val-single-hwm-all-mem is Running after 5 min (a run takes about 36 min)
+[2026-10-05T10:56:13Z] still waiting: rq2-val-single-hwm-all-mem is Running after 10 min (a run takes about 36 min)
+[2026-10-05T11:01:14Z] still waiting: rq2-val-single-hwm-all-mem is Running after 15 min (a run takes about 36 min)
+[2026-10-05T11:06:14Z] still waiting: rq2-val-single-hwm-all-mem is Running after 20 min (a run takes about 36 min)
+[2026-10-05T11:11:15Z] still waiting: rq2-val-single-hwm-all-mem is Running after 25 min (a run takes about 36 min)
+[2026-10-05T11:16:16Z] still waiting: rq2-val-single-hwm-all-mem is Running after 30 min (a run takes about 36 min)
+[2026-10-05T11:21:16Z] pull rq2-val-single-hwm-all-mem_instance0.csv
+[2026-10-05T11:21:16Z] pull rq2-val-single-hwm-all-mem_instance0.meta.json
+pod "rq2-val-single-hwm-all-mem" deleted
+[2026-10-05T11:21:17Z] stopping the enemies
+confirmed all stopped
+[2026-10-05T11:21:18Z] === single_core hwm all memory done ===
+  instance0: 0 misses in 50000 jobs (0.00e+00)
+
+[2026-10-05T11:21:28Z] validation complete (single_core): all 2 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/single_core

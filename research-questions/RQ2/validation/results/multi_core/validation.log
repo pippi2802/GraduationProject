@@ -211,3 +211,53 @@ confirmed all stopped
   instance1: 3392 misses in 50000 jobs (6.78e-02)
 
 [2026-10-04T21:11:32Z] validation complete (multi_core): all 12 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/multi_core
+[2026-10-05T10:10:46Z] validation start: multi_core, 2 runs, node=rt-k8s-worker-6 agent=rq1-agent-9l4bs enemy_cpus=3,0 stress_dir=/home/azureuser/GraduationProject/research-questions/RQ2/stress1
+[2026-10-05T10:10:47Z] === multi_core hwm all none (rq2-val-multi-hwm-all-none, 50000 jobs per instance) ===
+[2026-10-05T10:10:47Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/hwm/all_none.yaml
+configmap/rq2-val-multi-hwm-all-none-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-hwm-all-none-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-hwm-all-none-claim created
+pod/rq2-val-multi-hwm-all-none created
+[2026-10-05T10:10:48Z] waiting for rq2-val-multi-hwm-all-none (poll 30s, timeout 6000s)
+[2026-10-05T10:15:49Z] still waiting: rq2-val-multi-hwm-all-none is Running after 5 min (a run takes about 36 min)
+[2026-10-05T10:20:49Z] still waiting: rq2-val-multi-hwm-all-none is Running after 10 min (a run takes about 36 min)
+[2026-10-05T10:25:50Z] still waiting: rq2-val-multi-hwm-all-none is Running after 15 min (a run takes about 36 min)
+[2026-10-05T10:30:51Z] still waiting: rq2-val-multi-hwm-all-none is Running after 20 min (a run takes about 36 min)
+[2026-10-05T10:35:51Z] still waiting: rq2-val-multi-hwm-all-none is Running after 25 min (a run takes about 36 min)
+[2026-10-05T10:40:52Z] still waiting: rq2-val-multi-hwm-all-none is Running after 30 min (a run takes about 36 min)
+[2026-10-05T10:45:53Z] pull rq2-val-multi-hwm-all-none_instance0.csv
+[2026-10-05T10:45:53Z] pull rq2-val-multi-hwm-all-none_instance0.meta.json
+[2026-10-05T10:45:53Z] pull rq2-val-multi-hwm-all-none_instance1.csv
+[2026-10-05T10:45:53Z] pull rq2-val-multi-hwm-all-none_instance1.meta.json
+pod "rq2-val-multi-hwm-all-none" deleted
+[2026-10-05T10:45:54Z] === multi_core hwm all none done ===
+  instance0: 108 misses in 50000 jobs (2.16e-03)
+  instance1: 109 misses in 50000 jobs (2.18e-03)
+[2026-10-05T10:46:04Z] === multi_core hwm all memory (rq2-val-multi-hwm-all-mem, 50000 jobs per instance) ===
+[2026-10-05T10:46:04Z] starting the memory enemy (size=2662400KB stride=64) on cpus 3,0
+OK    7728   3 94.1 rq2-enemy
+OK    7729   0 97.7 rq2-enemy
+[2026-10-05T10:46:12Z] applying /home/azureuser/GraduationProject/research-questions/RQ2/validation/manifests/multi_core/hwm/all_memory.yaml
+configmap/rq2-val-multi-hwm-all-mem-config created
+rtclaimparameters.rt.resource.example.com/rq2-val-multi-hwm-all-mem-params created
+resourceclaimtemplate.resource.k8s.io/rq2-val-multi-hwm-all-mem-claim created
+pod/rq2-val-multi-hwm-all-mem created
+[2026-10-05T10:46:12Z] waiting for rq2-val-multi-hwm-all-mem (poll 30s, timeout 6000s)
+[2026-10-05T10:51:13Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 5 min (a run takes about 36 min)
+[2026-10-05T10:56:14Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 10 min (a run takes about 36 min)
+[2026-10-05T11:01:14Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 15 min (a run takes about 36 min)
+[2026-10-05T11:06:15Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 20 min (a run takes about 36 min)
+[2026-10-05T11:11:15Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 25 min (a run takes about 36 min)
+[2026-10-05T11:16:16Z] still waiting: rq2-val-multi-hwm-all-mem is Running after 30 min (a run takes about 36 min)
+[2026-10-05T11:21:17Z] pull rq2-val-multi-hwm-all-mem_instance0.csv
+[2026-10-05T11:21:17Z] pull rq2-val-multi-hwm-all-mem_instance0.meta.json
+[2026-10-05T11:21:17Z] pull rq2-val-multi-hwm-all-mem_instance1.csv
+[2026-10-05T11:21:17Z] pull rq2-val-multi-hwm-all-mem_instance1.meta.json
+pod "rq2-val-multi-hwm-all-mem" deleted
+[2026-10-05T11:21:18Z] stopping the enemies
+confirmed all stopped
+[2026-10-05T11:21:18Z] === multi_core hwm all memory done ===
+  instance0: 2 misses in 50000 jobs (4.00e-05)
+  instance1: 0 misses in 50000 jobs (0.00e+00)
+
+[2026-10-05T11:21:29Z] validation complete (multi_core): all 2 runs collected in /home/azureuser/GraduationProject/research-questions/RQ2/validation/results/multi_core
