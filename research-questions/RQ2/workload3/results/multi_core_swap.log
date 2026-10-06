@@ -1,0 +1,41 @@
+no pidfile, nothing to stop
+[14:15:01] multi_core@worker6 === baseline (100000 jobs)
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/alpha_drift/results/worker6/multi_core/baseline/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/alpha_drift/results/worker6/multi_core/baseline/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/alpha_drift/results/worker6/multi_core/baseline/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/alpha_drift/results/worker6/multi_core/baseline/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/alpha_drift/results/worker6/multi_core/baseline
+total 20356
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 14:31 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  6 14:31 ..
+-rw-rw-r-- 1 azureuser azureuser 10404892 Oct  6 14:31 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 14:31 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10416905 Oct  6 14:31 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 14:31 instance1.meta.json
+[14:31:55] multi_core@worker6 baseline done
+[14:32:05] multi_core@worker6 === memory (100000 jobs)
+OK   19472   3 44.1 rq2-enemy
+OK   19473   0 43.1 rq2-enemy
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/alpha_drift/results/worker6/multi_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/alpha_drift/results/worker6/multi_core/memory/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/alpha_drift/results/worker6/multi_core/memory/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/alpha_drift/results/worker6/multi_core/memory/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/alpha_drift/results/worker6/multi_core/memory
+total 20260
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 14:49 .
+drwxrwxr-x 4 azureuser azureuser     4096 Oct  6 14:49 ..
+-rw-rw-r-- 1 azureuser azureuser 10351072 Oct  6 14:49 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 14:49 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10372003 Oct  6 14:49 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 14:49 instance1.meta.json
+confirmed all stopped
+[14:49:05] multi_core@worker6 memory done
+no pidfile, nothing to stop

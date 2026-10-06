@@ -1,0 +1,10 @@
+nohup: ignoring input
+[14:15:01] single_core@worker7 === baseline (100000 jobs)
+[14:15:01] multi_core@worker6 === baseline (100000 jobs)
+[14:31:54] single_core@worker7 baseline done
+[14:31:55] multi_core@worker6 baseline done
+[14:32:04] single_core@worker7 === memory (100000 jobs)
+[14:32:05] multi_core@worker6 === memory (100000 jobs)
+[14:49:05] single_core@worker7 memory done
+[14:49:05] multi_core@worker6 memory done
+swap: all runs collected

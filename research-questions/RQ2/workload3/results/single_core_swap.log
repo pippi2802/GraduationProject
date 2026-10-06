@@ -1,0 +1,34 @@
+no pidfile, nothing to stop
+[14:15:01] single_core@worker7 === baseline (100000 jobs)
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/alpha_drift/results/worker7/single_core/baseline/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/alpha_drift/results/worker7/single_core/baseline/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/alpha_drift/results/worker7/single_core/baseline
+total 10088
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 14:31 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  6 14:31 ..
+-rw-rw-r-- 1 azureuser azureuser 10315596 Oct  6 14:31 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 14:31 instance0.meta.json
+[14:31:54] single_core@worker7 baseline done
+[14:32:04] single_core@worker7 === memory (100000 jobs)
+OK   35716   2 89.6 rq2-enemy
+OK   27595   3 89.2 rq2-enemy
+OK   27596   0 87.3 rq2-enemy
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/alpha_drift/results/worker7/single_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/alpha_drift/results/worker7/single_core/memory/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/alpha_drift/results/worker7/single_core/memory
+total 10068
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 14:49 .
+drwxrwxr-x 4 azureuser azureuser     4096 Oct  6 14:49 ..
+-rw-rw-r-- 1 azureuser azureuser 10295374 Oct  6 14:49 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 14:49 instance0.meta.json
+confirmed all stopped
+[14:49:05] single_core@worker7 memory done
+no pidfile, nothing to stop
