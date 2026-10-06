@@ -54,6 +54,7 @@ for o in (d["items"] if d.get("kind") == "List" else [d]):
     grep -q "kubernetes.io/hostname: $HOST" "$PINNED" || die "could not pin the pod to $HOST"
     trap 'stop_enemies' EXIT; trap 'exit 130' INT TERM       # whatever happens, no enemy is left running
     stop_enemies                                              # clean start
+    no_strays "at the start"
     say "node $NODE (agent $AGENT), pod $POD_NS/$POD, $INSTANCES instance(s), enemy cpus $ENEMY_CPUS"
 }
 
@@ -64,6 +65,17 @@ start_enemies() {   # <size KB>: starts one enemy per cpu and CONFIRMS each real
     out=$(on_node bash -s -- "$1" "$STRIDE" "$ENEMY_CPUS" < "$HERE/campaign_start_enemies.sh" 2>&1)
     echo "$out" | sed 's/^/    /'
     if echo "$out" | grep -qE "MISSING|LOW_CPU"; then say "FATAL: an enemy is not running; install it first (step 2: ./install_enemy.sh)"; stop_enemies; exit 1; fi
+}
+
+strays() { on_node pgrep -x rq2-enemy > /dev/null 2>&1; }     # 0 when an enemy is running, BY NAME: the stop script only knows its own pidfile
+
+no_strays() {       # <when>: an enemy this script did not start would contaminate the data of the run
+    if strays; then
+        say "FATAL: an rq2-enemy is running on $NODE that this script did not start ($1): the data would be contaminated"
+        on_node ps -o pid,lstart,psr,pcpu,args -C rq2-enemy 2>&1 | sed 's/^/    /'
+        say "if nothing else uses $NODE, stop it: kubectl -n $AGENT_NS exec -i $AGENT -- nsenter --target 1 --mount --pid -- pkill -x rq2-enemy"
+        exit 1
+    fi
 }
 
 stop_enemies() {    # SIGTERM, polled until gone, SIGKILL after a grace period
@@ -118,6 +130,7 @@ diag() {            # pod state and logs, before the pod is deleted
 run_one() {         # <name> <out dir> <enemy size KB or empty>
     local name="$1" out="$2" kb="$3" try ok=0
     say "=== $name"
+    no_strays "before $name"
     [ -n "$kb" ] && start_enemies "$kb"
     for try in $(seq 1 "$ATTEMPTS"); do
         kubectl -n "$POD_NS" delete pod "$POD" --ignore-not-found > /dev/null 2>&1
@@ -126,6 +139,7 @@ run_one() {         # <name> <out dir> <enemy size KB or empty>
     done
     kubectl -n "$POD_NS" delete pod "$POD" --ignore-not-found > /dev/null 2>&1
     [ -n "$kb" ] && stop_enemies
+    no_strays "after $name"
     if [ "$ok" = 1 ]; then say "$name done -> $out"; else say "$name FAILED"; FAILED+=("$name"); fi
     sleep "$SETTLE_S"
 }

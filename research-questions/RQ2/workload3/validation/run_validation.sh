@@ -67,7 +67,15 @@ validate_scenario() {   # <scenario>: runs in its own subshell, so its variables
     stop_enemies() { local o; o=$(on_node bash -s -- < "$STRESS/campaign_stop_enemies.sh" 2>&1) || true; echo "$o" | grep -q STILL_ALIVE && { say "FATAL: an enemy could not be stopped on $NODE"; return 1; }; return 0; }
     trap stop_enemies EXIT; trap 'exit 130' INT TERM                    # whatever happens, no enemy is left running
     stop_enemies || return 1                                             # clean start
-    on_node bash -c 'pgrep -x rq2-enemy' > /dev/null 2>&1 && { say "FATAL: an rq2-enemy is still running on $NODE"; return 1; }
+    no_strays() {   # <when>: BY NAME, because the stop script only knows its own pidfile; an enemy that this script did not start contaminates the data
+        if on_node bash -c 'pgrep -x rq2-enemy' > /dev/null 2>&1; then
+            say "FATAL: an rq2-enemy is running on $NODE that this script did not start ($1): the data would be contaminated:"
+            on_node bash -c 'ps -o pid,lstart,psr,pcpu,args -C rq2-enemy' 2>&1 | sed 's/^/    /' | tee -a "$LOG"
+            say "if no other experiment uses $NODE, stop it:  kubectl -n $NS exec -i $AGENT -- nsenter --target 1 --mount --pid -- pkill -x rq2-enemy"
+            return 1
+        fi
+    }
+    no_strays "at the start" || return 1
 
     if [ "$SLICE_RESET" = 1 ]; then       # the slice must hold the period of these pods
         say "node slice: $(on_node bash -s -- "$PERIOD" <<'EOS' 2>&1 | tr '\n' ' '
@@ -89,6 +97,7 @@ EOS
         if [ -f "$DIR/.done" ]; then say "$ID: already collected, skipped"; continue; fi
         INST=$(grep -o 'cpus=\[[0-9,]*\]' "$HERE/$POD_FILE" | head -1 | tr -cd ',' | wc -c); INST=$((INST + 1))
         say "=== $ID ($COND, $INST instance(s), $JOBS jobs)"
+        no_strays "before $ID" || return 1
         if kubectl -n rq2 get pod "$ID" > /dev/null 2>&1; then say "FATAL: pod $ID already exists"; return 1; fi
         ok=0
         for try in $(seq 1 "$ATTEMPTS"); do
@@ -100,6 +109,7 @@ EOS
             [ "$ok" = 1 ] || { say "attempt $try failed"; diag "$ID"; }
             kubectl -n rq2 delete pod "$ID" --ignore-not-found > /dev/null 2>&1
             [ "$COND" = memory ] && { stop_enemies || return 1; }
+            no_strays "after $ID" || return 1
             [ "$ok" = 1 ] && break
         done
         if [ "$ok" = 1 ]; then

@@ -27,12 +27,16 @@ phase() {   # phase <model> <vm> <out root> <condition[:enemy KB]>...
     host=$(kubectl get node "$node" -o jsonpath='{.metadata.labels.kubernetes\.io/hostname}')
     on_node() { kubectl -n "$ns" exec -i "$agent" -- nsenter --target 1 --mount -- bash -s -- "$@"; }
     stop() { on_node < stress1/campaign_stop_enemies.sh 2>&1 | tee -a "$log" | grep -q STILL_ALIVE && say "FATAL enemy not stopped on $node"; }
+    strays() { kubectl -n "$ns" exec "$agent" -- nsenter --target 1 --mount --pid -- pgrep -x rq2-enemy > /dev/null 2>&1; }   # BY NAME: stop only knows its own pidfile
+    clean() { if strays; then say "FATAL: an rq2-enemy is running on $node that this script did not start ($1): the data would be contaminated; stop it: kubectl -n $ns exec -i $agent -- nsenter --target 1 --mount --pid -- pkill -x rq2-enemy"; exit 1; fi; }
     trap stop EXIT; trap 'exit 130' INT TERM            # whatever happens, no enemy is left running
     stop                                                  # clean start
+    clean "at the start"
 
     for spec in "$@"; do
         cond=${spec%%:*}; kb=${spec#*:}; [ "$kb" = "$spec" ] && kb=""
         say "=== $cond ($JOBS jobs)"
+        clean "before $cond"
         [ -n "$kb" ] && { on_node "$kb" $STRIDE "${ENEMY_CPUS[$model]}" < stress1/campaign_start_enemies.sh 2>&1 | tee -a "$log" | grep -qE "MISSING|LOW_CPU" && { say "FATAL enemy not running"; stop; return 1; }; }
         sed -E -e "s#^([[:space:]]*)nodeSelector:.*#\1nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: $host }#" \
                -e "s#jobs=[0-9]+#jobs=$JOBS#" workload3/pods/${model}_pod.yaml > "workload3/results/.${model}.yaml"
@@ -45,6 +49,7 @@ phase() {   # phase <model> <vm> <out root> <condition[:enemy KB]>...
             say "attempt $try failed (pod state and logs are in $log)"; diag
         done
         [ -n "$kb" ] && stop
+        clean "after $cond"
         [ $ok = 1 ] && say "$cond done" || { say "$cond FAILED"; echo "$model@$vm $cond" >> workload3/results/failed_$PHASE.txt; }
         sleep 10
     done
@@ -89,6 +94,7 @@ for model in $ONLY; do
         ( phase "$model" "$vm" "workload3/alpha_drift/results/$vm" baseline "memory:$MEM_KB" ) &
     fi
 done
-wait
-[ -s workload3/results/failed_$PHASE.txt ] && { echo "FAILED runs:"; cat workload3/results/failed_$PHASE.txt; exit 1; }
-echo "$PHASE: all runs collected"
+status=0
+for pid in $(jobs -p); do wait "$pid" || status=1; done          # a phase that aborted (FATAL) counts as failed
+[ -s workload3/results/failed_$PHASE.txt ] && { echo "FAILED runs:"; cat workload3/results/failed_$PHASE.txt; status=1; }
+[ $status = 0 ] && echo "$PHASE: all runs collected" || { echo "$PHASE: NOT complete, see workload3/results/<model>_$PHASE.log"; exit 1; }
