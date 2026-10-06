@@ -31,7 +31,7 @@ spec:
   tolerations: [{ operator: Exists }]
   containers:
     - name: audio
-      image: pippina2/rq2-audio:v1
+      image: pippina2/rq2-audio:v2
       imagePullPolicy: IfNotPresent
       command: ["python3", "run.py"]
       args: ["cpus=[1]", "period_ms=10", "jobs=100000", "output=/results/single_core"]

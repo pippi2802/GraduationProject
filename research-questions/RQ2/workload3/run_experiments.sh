@@ -39,15 +39,31 @@ phase() {   # phase <model> <vm> <out root> <condition[:enemy KB]>...
         ok=0
         for try in 1 2; do
             kubectl -n rq2 delete pod "${POD[$model]}" --ignore-not-found > /dev/null 2>&1
-            kubectl apply -f "workload3/results/.${model}.yaml" > /dev/null 2>&1 \
+            kubectl apply -f "workload3/results/.${model}.yaml" > /dev/null 2>&1 && wait_pod "$((JOBS / 100 + 600))" \
               && OUT_ROOT="$out" NODE_PREP_NS="$ns" AGENT_POD="$agent" TIMEOUT="$((JOBS / 100 + 600))s" workload/pull_results.sh "$model" "$cond" >> "$log" 2>&1 \
               && check "$out/$model/$cond" && { ok=1; break; }
-            say "attempt $try failed"
+            say "attempt $try failed (pod state and logs are in $log)"; diag
         done
         [ -n "$kb" ] && stop
         [ $ok = 1 ] && say "$cond done" || { say "$cond FAILED"; echo "$model@$vm $cond" >> workload3/results/failed_$PHASE.txt; }
         sleep 10
     done
+}
+
+wait_pod() {   # 0 when the pod Succeeded; 1 when it Failed or <timeout> seconds passed (a failed pod is seen at once, not after the timeout)
+    local t=0 phase
+    while [ "$t" -lt "$1" ]; do
+        phase=$(kubectl -n rq2 get pod "${POD[$model]}" -o jsonpath='{.status.phase}' 2>/dev/null)
+        [ "$phase" = Succeeded ] && return 0
+        [ "$phase" = Failed ] && return 1
+        sleep 5; t=$((t + 5))
+    done
+    return 1
+}
+
+diag() {   # state and logs of the pod, written to the log BEFORE the pod is deleted for the next attempt
+    { echo "--- pod ${POD[$model]} at the failure:"; kubectl -n rq2 get pod "${POD[$model]}" -o wide
+      kubectl -n rq2 describe pod "${POD[$model]}" | tail -n 12; echo "--- its logs:"; kubectl -n rq2 logs "${POD[$model]}" --tail=15; } >> "$log" 2>&1
 }
 
 check() {   # every instance: JOBS rows, FIFO + affinity + mlock really set
@@ -63,6 +79,8 @@ rm -f workload3/results/failed_$PHASE.txt
 for model in $ONLY; do                                   # a running (or left over) pod would be deleted by the runs below
     kubectl -n rq2 get pod "${POD[$model]}" > /dev/null 2>&1 && { echo "pod rq2/${POD[$model]} exists (another run, or a leftover): wait for it or: kubectl -n rq2 delete pod ${POD[$model]}" >&2; exit 1; }
 done
+set -m                                                   # each phase gets its own process group, which the trap below can kill
+trap 'trap "" INT TERM; echo "interrupted: stopping the runs and the enemies"; kill -TERM -- $(jobs -p | sed "s/^/-/") 2>/dev/null; wait; exit 130' INT TERM
 for model in $ONLY; do
     if [ "$PHASE" = profile ]; then
         ( phase "$model" "${PROFILE_VM[$model]}" workload3/results baseline1 "cache:$CACHE_KB" "memory:$MEM_KB" baseline2 ) &
