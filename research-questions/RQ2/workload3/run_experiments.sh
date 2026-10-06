@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# run_experiments.sh        (run from the RQ2 folder; detach it: nohup workload3/run_experiments.sh > /dev/null 2>&1 &)
+# run_experiments.sh <profile|swap>     (run from the RQ2 folder; detach it: nohup workload3/run_experiments.sh profile > /dev/null 2>&1 &)
 #
-# Profiling node : baseline1, cache, memory, baseline2   -> workload3/results/<model>/<condition>/
-# Swapped node   : baseline, memory                      -> workload3/alpha_drift/results/<vm>/<model>/<condition>/
-# single_core is profiled on worker6 and swapped to worker7, multi_core on worker7 and swapped to worker6. The two models run
-# at the same time on different nodes, one phase after the other (profiling, then swapped), so a node never runs both.
+# profile : on the profiling node, baseline1, cache, memory, baseline2  -> workload3/results/<model>/<condition>/
+# swap    : on the other node, baseline, memory                         -> workload3/alpha_drift/results/<vm>/<model>/<condition>/
+# The two phases are independent: run one, work on its data, run the other later. Never both at once: they share the pod names
+# and the nodes (single_core: profile on worker6, swap on worker7; multi_core: profile on worker7, swap on worker6), so the
+# script refuses to start while a pod of this workload exists. Within a phase the two models run at the same time, on different nodes.
 # Enemies as in workload/run_campaign.sh (start script confirms they burn cpu, stop script confirms they are gone).
-# JOBS=<n> (default 100000, ~17 min a run), PHASES="profile swap", ONLY=single_core|multi_core limit what runs.
+# JOBS=<n> (default 100000, ~17 min a run), ONLY=single_core|multi_core limit what runs. Logs: workload3/results/<model>_<phase>.log
 set -uo pipefail
 cd "$(dirname "$0")/.."
-JOBS="${JOBS:-100000}"; PHASES="${PHASES:-profile swap}"; ONLY="${ONLY:-single_core multi_core}"
+PHASE="${1:?usage: run_experiments.sh <profile|swap>}"; [[ "$PHASE" =~ ^(profile|swap)$ ]] || { echo "phase must be profile or swap" >&2; exit 2; }
+JOBS="${JOBS:-100000}"; ONLY="${ONLY:-single_core multi_core}"
 CACHE_KB=266240; MEM_KB=2662400; STRIDE=64
 mkdir -p workload3/results
 declare -A PROFILE_VM=([single_core]=worker6 [multi_core]=worker7) SWAP_VM=([single_core]=worker7 [multi_core]=worker6)
@@ -18,7 +20,7 @@ declare -A INSTANCES=([single_core]="instance0" [multi_core]="instance0 instance
 
 phase() {   # phase <model> <vm> <out root> <condition[:enemy KB]>...
     model=$1; vm=$2; out=$3; shift 3          # plain variables: phase runs in its own subshell, and the EXIT trap needs them
-    ns=rq2-node-prep-$vm; node=rt-k8s-worker-${vm#worker}; log=workload3/results/${model}_experiments.log
+    ns=rq2-node-prep-$vm; node=rt-k8s-worker-${vm#worker}; log=workload3/results/${model}_${PHASE}.log
     say() { printf '[%s] %s %s\n' "$(date -u +%H:%M:%S)" "$model@$vm" "$*" | tee -a "$log"; }
     agent=$(kubectl -n "$ns" get pod -l app=rq1-agent --field-selector "spec.nodeName=$node" -o jsonpath='{.items[0].metadata.name}')
     [ -n "$agent" ] || { say "FATAL no node-prep agent for $node in $ns"; return 1; }
@@ -43,7 +45,7 @@ phase() {   # phase <model> <vm> <out root> <condition[:enemy KB]>...
             say "attempt $try failed"
         done
         [ -n "$kb" ] && stop
-        [ $ok = 1 ] && say "$cond done" || { say "$cond FAILED"; echo "$model@$vm $cond" >> workload3/results/failed.txt; }
+        [ $ok = 1 ] && say "$cond done" || { say "$cond FAILED"; echo "$model@$vm $cond" >> workload3/results/failed_$PHASE.txt; }
         sleep 10
     done
 }
@@ -57,17 +59,18 @@ m = json.load(open(sys.argv[1])); sys.exit(0 if all(m[k] for k in ('mlockall_ok'
     done
 }
 
-rm -f workload3/results/failed.txt
-for ph in $PHASES; do
-    for model in $ONLY; do
-        if [ "$ph" = profile ]; then
-            ( phase "$model" "${PROFILE_VM[$model]}" workload3/results baseline1 "cache:$CACHE_KB" "memory:$MEM_KB" baseline2 ) &
-        else
-            vm=${SWAP_VM[$model]}
-            ( phase "$model" "$vm" "workload3/alpha_drift/results/$vm" baseline "memory:$MEM_KB" ) &
-        fi
-    done
-    wait
+rm -f workload3/results/failed_$PHASE.txt
+for model in $ONLY; do                                   # a running (or left over) pod would be deleted by the runs below
+    kubectl -n rq2 get pod "${POD[$model]}" > /dev/null 2>&1 && { echo "pod rq2/${POD[$model]} exists (another run, or a leftover): wait for it or: kubectl -n rq2 delete pod ${POD[$model]}" >&2; exit 1; }
 done
-[ -s workload3/results/failed.txt ] && { echo "FAILED runs:"; cat workload3/results/failed.txt; exit 1; }
-echo "all runs collected"
+for model in $ONLY; do
+    if [ "$PHASE" = profile ]; then
+        ( phase "$model" "${PROFILE_VM[$model]}" workload3/results baseline1 "cache:$CACHE_KB" "memory:$MEM_KB" baseline2 ) &
+    else
+        vm=${SWAP_VM[$model]}
+        ( phase "$model" "$vm" "workload3/alpha_drift/results/$vm" baseline "memory:$MEM_KB" ) &
+    fi
+done
+wait
+[ -s workload3/results/failed_$PHASE.txt ] && { echo "FAILED runs:"; cat workload3/results/failed_$PHASE.txt; exit 1; }
+echo "$PHASE: all runs collected"

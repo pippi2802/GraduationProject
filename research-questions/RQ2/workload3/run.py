@@ -4,16 +4,17 @@
     python3 run.py cpus=[1] period_ms=10 jobs=100000 output=/results/single_core     (every parameter is key=value, see CFG)
 
 Every period one block of 10 ms of audio (480 samples at 48 kHz) arrives and is processed: FFT of the block, partitioned
-convolution with a long impulse response (the reverb), inverse FFT, soft limiter. A job = one block. The audio is a
-synthetic 30 s stream (noise + tones) generated before the loop; nothing is allocated or generated inside a job.
+convolution with a long impulse response (the reverb), inverse FFT, soft limiter. A job = one block. The audio is every
+*.wav of the folder `audios` (mono, 48 kHz, 16 bit; convert with ffmpeg -i in.mp3 -ac 1 -ar 48000 -c:a pcm_s16le out.wav),
+joined in file order and loaded before the loop; the blocks are taken one after the other, so a long stream never repeats.
 Several cpus = one process per cpu, same start time. Writes <output>_instance<i>.csv (columns as in workload/rt_video.py,
 cpu_ns = thread CPU time of the job) and <output>_instance<i>.meta.json. A release that passed during an overrun is skipped.
 """
-import csv, ctypes, ctypes.util, gc, json, multiprocessing, os, platform, socket, sys, time
+import csv, ctypes, ctypes.util, gc, json, multiprocessing, os, platform, socket, sys, time, wave
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 import numpy as np
 
-CFG = dict(cpus=[1], fifo_prio=50, period_ms=10, jobs=100000, partitions=1000, warmup=200, output="/results/single_core")
+CFG = dict(cpus=[1], fifo_prio=50, period_ms=10, jobs=100000, partitions=1000, warmup=200, audio="audios", output="/results/single_core")
 FS, B = 48000, 480                                              # sample rate, block = 10 ms
 libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
 
@@ -34,11 +35,16 @@ def sleep_until(t_ns):
         pass
 
 
+def read_wav(path):
+    with wave.open(path) as w:
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (FS, 1, 2), f"{path}: needs mono 48 kHz 16 bit, see the docstring"
+        return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16)
+
+
 def run_instance(cfg, i, ready, shared_t0):
     inst, P = f"instance{i}", cfg["partitions"]
     rng = np.random.default_rng(i)
-    t = np.arange(30 * FS) / FS
-    stream = (0.3 * np.sin(2 * np.pi * 440 * t) + 0.2 * np.sin(2 * np.pi * 1250 * t) + 0.1 * rng.standard_normal(len(t))).astype(np.float32)
+    stream = np.concatenate([read_wav(os.path.join(cfg["audio"], f)) for f in sorted(os.listdir(cfg["audio"])) if f.endswith(".wav")])
     ir = rng.standard_normal(P * B) * np.exp(-3 * np.arange(P * B) / (P * B))        # reverb tail of P blocks (P * 10 ms)
     H = np.fft.rfft(ir.reshape(P, B), 2 * B, axis=1).astype(np.complex64)             # [P, B+1] spectra of the partitions
     fdl = np.zeros_like(H)                                                           # spectra of the last P input blocks
@@ -47,7 +53,7 @@ def run_instance(cfg, i, ready, shared_t0):
 
     def job(k):
         nonlocal fdl, prev
-        block = stream[(k % n_blocks) * B:(k % n_blocks + 1) * B]
+        block = stream[(k % n_blocks) * B:(k % n_blocks + 1) * B].astype(np.float32) / 32768       # int16 audio -> float
         fdl = np.roll(fdl, 1, axis=0)
         fdl[0] = np.fft.rfft(np.concatenate((prev, block)))
         out = np.tanh(np.fft.irfft((fdl * H).sum(axis=0))[B:])                       # reverb + soft limiter
