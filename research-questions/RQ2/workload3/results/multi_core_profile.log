@@ -1,0 +1,80 @@
+no pidfile, nothing to stop
+[12:37:58] multi_core@worker7 === baseline1 (100000 jobs)
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/results/multi_core/baseline1/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/results/multi_core/baseline1/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/results/multi_core/baseline1/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/results/multi_core/baseline1/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/results/multi_core/baseline1
+total 20188
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 12:54 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  6 12:54 ..
+-rw-rw-r-- 1 azureuser azureuser 10323837 Oct  6 12:54 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 12:54 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10329213 Oct  6 12:54 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 12:54 instance1.meta.json
+[12:54:52] multi_core@worker7 baseline1 done
+[12:55:02] multi_core@worker7 === cache (100000 jobs)
+OK   15096   3 99.5 rq2-enemy
+OK   15097   0 97.4 rq2-enemy
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/results/multi_core/cache/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/results/multi_core/cache/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/results/multi_core/cache/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/results/multi_core/cache/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/results/multi_core/cache
+total 20180
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:12 .
+drwxrwxr-x 4 azureuser azureuser     4096 Oct  6 13:12 ..
+-rw-rw-r-- 1 azureuser azureuser 10316560 Oct  6 13:12 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:12 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10328717 Oct  6 13:12 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:12 instance1.meta.json
+confirmed all stopped
+[13:12:04] multi_core@worker7 cache done
+[13:12:14] multi_core@worker7 === memory (100000 jobs)
+OK   25710   3 50.5 rq2-enemy
+OK   25711   0 49.3 rq2-enemy
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/results/multi_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/results/multi_core/memory/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/results/multi_core/memory/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/results/multi_core/memory/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/results/multi_core/memory
+total 20136
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:29 .
+drwxrwxr-x 5 azureuser azureuser     4096 Oct  6 13:29 ..
+-rw-rw-r-- 1 azureuser azureuser 10292211 Oct  6 13:29 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:29 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10308190 Oct  6 13:29 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:29 instance1.meta.json
+confirmed all stopped
+[13:29:15] multi_core@worker7 memory done
+[13:29:25] multi_core@worker7 === baseline2 (100000 jobs)
+[pull_results] waiting for rq2/rq2-multi to Succeed (timeout 1600s)...
+pod/rq2-multi condition met
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.csv -> workload3/results/multi_core/baseline2/instance0.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance0.meta.json -> workload3/results/multi_core/baseline2/instance0.meta.json
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.csv -> workload3/results/multi_core/baseline2/instance1.csv
+[pull_results] /var/lib/rq2/results/multi_core/multi_core_instance1.meta.json -> workload3/results/multi_core/baseline2/instance1.meta.json
+[pull_results] deleting pod(s): rq2-multi
+pod "rq2-multi" deleted
+[pull_results] done: workload3/results/multi_core/baseline2
+total 20156
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:46 .
+drwxrwxr-x 6 azureuser azureuser     4096 Oct  6 13:46 ..
+-rw-rw-r-- 1 azureuser azureuser 10307919 Oct  6 13:46 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:46 instance0.meta.json
+-rw-rw-r-- 1 azureuser azureuser 10310015 Oct  6 13:46 instance1.csv
+-rw-rw-r-- 1 azureuser azureuser      539 Oct  6 13:46 instance1.meta.json
+[13:46:17] multi_core@worker7 baseline2 done
+no pidfile, nothing to stop

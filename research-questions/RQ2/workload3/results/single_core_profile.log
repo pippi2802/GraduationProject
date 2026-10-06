@@ -1,0 +1,66 @@
+no pidfile, nothing to stop
+[12:37:58] single_core@worker6 === baseline1 (100000 jobs)
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/results/single_core/baseline1/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/results/single_core/baseline1/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/results/single_core/baseline1
+total 9792
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 12:54 .
+drwxrwxr-x 3 azureuser azureuser     4096 Oct  6 12:54 ..
+-rw-rw-r-- 1 azureuser azureuser 10013189 Oct  6 12:54 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 12:54 instance0.meta.json
+[12:54:52] single_core@worker6 baseline1 done
+[12:55:02] single_core@worker6 === cache (100000 jobs)
+OK    7084   2 49.9 rq2-enemy
+OK    7086   3 49.9 rq2-enemy
+OK    7087   0 48.7 rq2-enemy
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/results/single_core/cache/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/results/single_core/cache/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/results/single_core/cache
+total 9848
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:12 .
+drwxrwxr-x 4 azureuser azureuser     4096 Oct  6 13:12 ..
+-rw-rw-r-- 1 azureuser azureuser 10068836 Oct  6 13:12 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 13:12 instance0.meta.json
+confirmed all stopped
+[13:12:04] single_core@worker6 cache done
+[13:12:14] single_core@worker6 === memory (100000 jobs)
+OK    7089   2 47.7 rq2-enemy
+OK    7090   3 47.7 rq2-enemy
+OK    7091   0 46.6 rq2-enemy
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/results/single_core/memory/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/results/single_core/memory/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/results/single_core/memory
+total 10076
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:29 .
+drwxrwxr-x 5 azureuser azureuser     4096 Oct  6 13:29 ..
+-rw-rw-r-- 1 azureuser azureuser 10302554 Oct  6 13:29 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 13:29 instance0.meta.json
+confirmed all stopped
+[13:29:15] single_core@worker6 memory done
+[13:29:25] single_core@worker6 === baseline2 (100000 jobs)
+[pull_results] waiting for rq2/rq2-single-instance0 to Succeed (timeout 1600s)...
+pod/rq2-single-instance0 condition met
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.csv -> workload3/results/single_core/baseline2/instance0.csv
+[pull_results] /var/lib/rq2/results/single_core/single_core_instance0.meta.json -> workload3/results/single_core/baseline2/instance0.meta.json
+[pull_results] deleting pod(s): rq2-single-instance0
+pod "rq2-single-instance0" deleted
+[pull_results] done: workload3/results/single_core/baseline2
+total 10104
+drwxrwxr-x 2 azureuser azureuser     4096 Oct  6 13:46 .
+drwxrwxr-x 6 azureuser azureuser     4096 Oct  6 13:46 ..
+-rw-rw-r-- 1 azureuser azureuser 10333062 Oct  6 13:46 instance0.csv
+-rw-rw-r-- 1 azureuser azureuser      542 Oct  6 13:46 instance0.meta.json
+[13:46:16] single_core@worker6 baseline2 done
+no pidfile, nothing to stop

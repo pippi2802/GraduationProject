@@ -1,0 +1,18 @@
+nohup: ignoring input
+[12:37:58] multi_core@worker7 === baseline1 (100000 jobs)
+[12:37:58] single_core@worker6 === baseline1 (100000 jobs)
+[12:54:52] single_core@worker6 baseline1 done
+[12:54:52] multi_core@worker7 baseline1 done
+[12:55:02] single_core@worker6 === cache (100000 jobs)
+[12:55:02] multi_core@worker7 === cache (100000 jobs)
+[13:12:04] single_core@worker6 cache done
+[13:12:04] multi_core@worker7 cache done
+[13:12:14] single_core@worker6 === memory (100000 jobs)
+[13:12:14] multi_core@worker7 === memory (100000 jobs)
+[13:29:15] single_core@worker6 memory done
+[13:29:15] multi_core@worker7 memory done
+[13:29:25] single_core@worker6 === baseline2 (100000 jobs)
+[13:29:25] multi_core@worker7 === baseline2 (100000 jobs)
+[13:46:16] single_core@worker6 baseline2 done
+[13:46:17] multi_core@worker7 baseline2 done
+profile: all runs collected

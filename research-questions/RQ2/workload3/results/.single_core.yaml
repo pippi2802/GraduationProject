@@ -1,0 +1,45 @@
+# Audio stream processor, one instance on cpu1 under a CBS reservation. Parameters are the args below (defaults in run.py).
+# Reservation = 93% of the task's period (10 ms): generous, so the budget never limits the task while profiling.
+# Pod name, hostPath and file names match workload/pull_results.sh; run_experiments.sh pins the pod to a node and sets jobs.
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-single-instance0-params" }
+spec: { count: 1, runtime: 9300, period: 10000, requestedCpus: [1] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-single-instance0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-single-instance0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-single-instance0"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2, kubernetes.io/hostname: rt-k8s-worker-6 }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: audio
+      image: pippina2/rq2-audio:v2
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "run.py"]
+      args: ["cpus=[1]", "period_ms=10", "jobs=100000", "output=/results/single_core"]
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-single-instance0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/single_core, type: DirectoryOrCreate }
