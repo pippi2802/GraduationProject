@@ -130,3 +130,4 @@ confirmed all stopped
 
 [2026-10-03T15:55:05Z] alpha_drift complete on worker6: multi_core memory run(s) collected successfully
 [2026-10-03T15:55:05Z] results in /home/azureuser/GraduationProject/research-questions/RQ2/alpha_drift/results/worker6/multi_core/memory/
+error: timed out waiting for the condition on pods/rq2-single-instance0-worker6
