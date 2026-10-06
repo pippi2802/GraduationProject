@@ -24,7 +24,7 @@
 # Run this detached so it survives your terminal closing - it does NOT
 # background itself:
 #   nohup workload/run_campaign.sh single_core > /dev/null 2>&1 &
-# or in tmux/screen. single_core (worker6) and multi_core (worker7) are on
+# or in tmux/screen. Another workload: POD_YAML=<its pod yaml> OUT_ROOT=<its results folder> (AGENT_POD / NODE_PREP_NS pick the node's agent). single_core (worker6) and multi_core (worker7) are on
 # different nodes, so you can run both scripts at once to halve the wait.
 set -euo pipefail
 
@@ -46,13 +46,13 @@ START_FROM="${START_FROM:-baseline1}"
 
 case "$MODEL" in
     single_core)
-        POD_YAML="workload/pods/single_core_pod.yaml"
+        POD_YAML="${POD_YAML:-workload/pods/single_core_pod.yaml}"
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker6}"
         ENEMY_CPUS="${ENEMY_CPUS:-2,3,0}"   # dial 3: all free RT cores + housekeeping
         CLEANUP_PODS=(rq2-single-instance0)
         ;;
     multi_core)
-        POD_YAML="workload/pods/multi_core_pod.yaml"
+        POD_YAML="${POD_YAML:-workload/pods/multi_core_pod.yaml}"
         NODE_PREP_NS="${NODE_PREP_NS:-rq2-node-prep-worker7}"
         ENEMY_CPUS="${ENEMY_CPUS:-3,0}"      # dial 2: the only free cores (cpu1,2 are the workload)
         CLEANUP_PODS=(rq2-multi)
@@ -70,7 +70,7 @@ log() {
     printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"
 }
 
-AGENT=$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
+AGENT="${AGENT_POD:-$(kubectl -n "$NODE_PREP_NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')}"
 [ -n "$AGENT" ] || { log "ERROR: no node-prep agent found in $NODE_PREP_NS"; exit 1; }
 
 FAILED_CONDITIONS=()

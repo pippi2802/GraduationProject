@@ -1,10 +1,6 @@
-# Single-core run: one instance on cpu1 under a KubeDeadline CBS reservation (same shape as ../../workload/pods).
-# Continuous mode (period_ms 0 in the config) wants 100% of the core, and SCHED_FIFO still needs a claim, so the claim is the
-# largest the node accepts: 93000 of 100000 us. About 7% of the time the task is throttled; cpu_ns is not affected.
-# Once the period is chosen: set period_ms in configs/single_core.json and use a runtime/period derived from the CPU times.
-# Edit before running: image (docker push first), jobs in the config (rebuild the image after editing it).
-# Pod name, hostPath and file names match workload/pull_results.sh (run from the RQ2 folder):
-#   OUT_ROOT=workload2/results workload/pull_results.sh single_core <condition>
+# Audio stream processor, one instance on cpu1 under a CBS reservation. Parameters are the args below (defaults in run.py).
+# Reservation = 93% of the task's period (10 ms): generous, so the budget never limits the task while profiling.
+# Pod name, hostPath and file names match workload/pull_results.sh; run_experiments.sh pins the pod to a node and sets jobs.
 ---
 apiVersion: v1
 kind: Namespace
@@ -13,7 +9,7 @@ metadata: { name: rq2 }
 apiVersion: rt.resource.example.com/v1alpha1
 kind: RtClaimParameters
 metadata: { namespace: rq2, name: "rq2-single-instance0-params" }
-spec: { count: 1, runtime: 93000, period: 100000, requestedCpus: [1] }
+spec: { count: 1, runtime: 9300, period: 10000, requestedCpus: [1] }
 ---
 apiVersion: resource.k8s.io/v1alpha2
 kind: ResourceClaimTemplate
@@ -34,10 +30,11 @@ spec:
   nodeSelector: { experiment-model: rq2, rq2-role: single-core }
   tolerations: [{ operator: Exists }]
   containers:
-    - name: seg
-      image: pippina2/rq2-seg:v2
+    - name: audio
+      image: pippina2/rq2-audio:v1
       imagePullPolicy: IfNotPresent
-      command: ["python3", "run.py", "configs/single_core.json", "jobs=3000", "n_images=100"]   # pilot: 3000 jobs over 100 pictures (30 repetitions each); remove both overrides for the full baseline
+      command: ["python3", "run.py"]
+      args: ["cpus=[1]", "period_ms=10", "jobs=100000", "output=/results/single_core"]
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]

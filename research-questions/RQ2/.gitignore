@@ -33,3 +33,7 @@ validation/results/*
 workload2/archive/
 workload2/results/*
 workload2/aeroscapes/
+
+# workload3 (audio): collected results
+workload3/results/*
+workload3/alpha_drift/results/
