@@ -1,0 +1,15 @@
+scenario,route,p,runtime_us,period_us
+multi_core,route1,0.001,1572,10000
+multi_core,route1,0.01,1341,10000
+multi_core,route1,0.1,1176,10000
+multi_core,route2b,0.001,2401,10000
+multi_core,route2b,0.01,1432,10000
+multi_core,route2b,0.1,1240,10000
+multi_core,hwm,all,3544,10000
+single_core,route1,0.001,1348,10000
+single_core,route1,0.01,1091,10000
+single_core,route1,0.1,1031,10000
+single_core,route2b,0.001,1497,10000
+single_core,route2b,0.01,1207,10000
+single_core,route2b,0.1,1161,10000
+single_core,hwm,all,7584,10000

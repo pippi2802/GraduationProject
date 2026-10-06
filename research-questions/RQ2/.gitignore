@@ -53,3 +53,7 @@ procedure/step1_platform/victim
 procedure/step2_profiling/enemy
 procedure/__pycache__/
 procedure/*/__pycache__/
+
+# workload3 online validation: collected results
+workload3/validation/results/*
+!workload3/validation/results/.gitkeep
