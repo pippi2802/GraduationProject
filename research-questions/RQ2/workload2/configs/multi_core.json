@@ -1,0 +1,12 @@
+{
+  "model": "model.onnx",
+  "images": "aeroscapes/JPEGImages",
+  "cpus": [
+    1,
+    2
+  ],
+  "fifo_prio": 50,
+  "period_ms": 0,
+  "jobs": 5000,
+  "output": "/results/multi_core"
+}

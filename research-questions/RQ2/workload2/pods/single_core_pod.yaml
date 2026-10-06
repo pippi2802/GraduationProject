@@ -1,0 +1,48 @@
+# Single-core run: one instance on cpu1 under a KubeDeadline CBS reservation (same shape as ../../workload/pods).
+# Continuous mode (period_ms 0 in the config) wants 100% of the core, and SCHED_FIFO still needs a claim, so the claim is the
+# largest the node accepts: 93000 of 100000 us. About 7% of the time the task is throttled; cpu_ns is not affected.
+# Once the period is chosen: set period_ms in configs/single_core.json and use a runtime/period derived from the CPU times.
+# Edit before running: image (docker push first), jobs in the config (rebuild the image after editing it).
+# Pod name, hostPath and file names match workload/pull_results.sh (run from the RQ2 folder):
+#   OUT_ROOT=workload2/results workload/pull_results.sh single_core <condition>
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: rq2 }
+---
+apiVersion: rt.resource.example.com/v1alpha1
+kind: RtClaimParameters
+metadata: { namespace: rq2, name: "rq2-single-instance0-params" }
+spec: { count: 1, runtime: 93000, period: 100000, requestedCpus: [1] }
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata: { namespace: rq2, name: "rq2-single-instance0-claim" }
+spec:
+  spec:
+    resourceClassName: rt.example.com
+    parametersRef: { apiGroup: rt.resource.example.com, kind: RtClaimParameters, name: "rq2-single-instance0-params" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: rq2
+  name: "rq2-single-instance0"
+  labels: { app: rq2-workload, role: worker }
+spec:
+  restartPolicy: Never
+  nodeSelector: { experiment-model: rq2, rq2-role: single-core }
+  tolerations: [{ operator: Exists }]
+  containers:
+    - name: seg
+      image: pippina2/rq2-seg:v2
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "run.py", "configs/single_core.json", "jobs=100", "n_images=100"]   # trial: 100 jobs; remove the two overrides for the 5000-job baseline
+      securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
+      resources: { claims: [{ name: rtcpu }] }
+      volumeMounts: [{ name: results, mountPath: /results }]
+  resourceClaims:
+    - { name: rtcpu, source: { resourceClaimTemplateName: "rq2-single-instance0-claim" } }
+  volumes:
+    - name: results
+      hostPath: { path: /var/lib/rq2/results/single_core, type: DirectoryOrCreate }

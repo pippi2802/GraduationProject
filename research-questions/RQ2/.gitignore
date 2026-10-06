@@ -28,3 +28,8 @@ alpha_drift/results/*
 # validation runs (same rule as results/)
 validation/results/*
 !validation/results/.gitkeep
+
+# workload2 (segmentation): the dataset (4 GB) and the collected results
+workload2/archive/
+workload2/results/*
+workload2/aeroscapes/

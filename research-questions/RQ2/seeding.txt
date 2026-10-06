@@ -1,0 +1,7 @@
+    
+  for pair in "rq2-node-prep-worker6 rt-k8s-worker-6" "rq2-node-prep-worker7 rt-k8s-worker-7"; do
+    set -- $pair
+    A=$(kubectl -n $1 get pod -l app=rq1-agent --field-selector spec.nodeName=$2 -o jsonpath='{.items[0].metadata.name}')
+    echo "== $2 (agent $A)"
+    kubectl -n $1 exec -i "$A" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
+  done
