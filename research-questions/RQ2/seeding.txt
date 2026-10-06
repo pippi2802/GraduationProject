@@ -5,3 +5,42 @@
     echo "== $2 (agent $A)"
     kubectl -n $1 exec -i "$A" -- nsenter --target 1 --mount --pid -- bash -s < ~/GraduationProject/setup/scripts/rt-budget-seed.sh
   done
+
+
+python3 - <<'EOF'
+import csv, statistics as s, os
+for c in ("baseline1", "cache", "memory", "baseline2"):
+    f = f"workload3/results/multi_core/{c}/instance0.csv"
+    if not os.path.exists(f): continue
+    rows = list(csv.DictReader(open(f)))
+    x = sorted(int(r["cpu_ns"]) / 1e6 for r in rows if r["cpu_ns"])
+    skipped = sum(r["skipped"] == "1" for r in rows); late = sum(r["skipped"] == "0" and r["deadline_met"] == "0" for r in rows)
+    q = lambda p: x[min(len(x) - 1, int(p * len(x)))]
+    print(f"{c:10s} n={len(x)} median={s.median(x):.2f} p99={q(.99):.2f} max={x[-1]:.2f} cv={s.stdev(x) / s.mean(x):.3f} skipped={skipped} late={late}")
+EOF
+
+for w in 7 6; do 
+  A=$(kubectl -n rq2-node-prep-worker$w get pod -l app=rq1-agent --field-selector spec.nodeName=rt-k8s-worker-$w -o jsonpath='{.items[0].metadata.name}')
+  echo "######## worker$w"
+  kubectl -n rq2-node-prep-worker$w exec -i $A -- nsenter --target 1 --mount --pid -- bash -s <<'EOF'
+echo "--- free DEADLINE bandwidth per cpu (a 9300/10000 reservation needs 975175 on each of its cpus)"
+awk '/^dl_rq\[/{cpu=$1} /dl_bw->bw/{bw=$NF} /dl_bw->total_bw/{tot=$NF; f=bw-tot; printf "%-9s bw=%d total_bw=%d free=%d (%.3f of a core) %s\n", cpu, bw, tot, f, f/1048576, (f >= 975175 ? 
+"fits 9300/10000" : "does NOT fit 9300/10000")}' /sys/kernel/debug/sched/debug
+echo "--- raw lines, in case the format differs:"
+grep -E 'dl_rq\[|dl_bw->' /sys/kernel/debug/sched/debug | head -24
+echo "--- RT cgroups under kubepods (period, runtime per cpu 0..3):"
+for f in $(find /sys/fs/cgroup/kubepods.slice -maxdepth 2 -name cpu.rt_runtime_us | sort); do d=$(dirname $f); echo "$(basename $d): period $(cat $d/cpu.rt_period_us)  runtime $(cat $f)";
+done
+echo "--- last kernel messages about it:"; dmesg | grep -iE "rt_schedulable|Set Bw" | tail -6
+EOF
+done
+
+A=$(kubectl -n rq2-node-prep-worker7 get pod -l app=rq1-agent --field-selector spec.nodeName=rt-k8s-worker-7 -o jsonpath='{.items[0].metadata.name}')
+kubectl -n rq2-node-prep-worker7 exec -i $A -- nsenter --target 1 --mount --pid -- bash -s <<'EOF'
+d=/sys/fs/cgroup/kubepods.slice/kubepods-besteffort.slice
+echo "before: period $(cat $d/cpu.rt_period_us)  runtime $(cat $d/cpu.rt_runtime_us)"
+echo 0 > $d/cpu.rt_runtime_us && echo 10000 > $d/cpu.rt_period_us 
+echo "after:  period $(cat $d/cpu.rt_period_us)  runtime $(cat $d/cpu.rt_runtime_us)"
+EOF
+
+ nohup workload3/run_experiments.sh swap > workload3/results/swap.out 2>&1 &

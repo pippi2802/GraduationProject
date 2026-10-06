@@ -38,3 +38,18 @@ workload2/aeroscapes/
 workload3/results/*
 workload3/alpha_drift/results/
 workload3/audios/*.wav
+
+# procedure: default output folder
+procedure/results/
+procedure/__pycache__/
+
+# procedure steps: collected data and results are regenerated; the structure stays
+procedure/step*/results/*
+!procedure/step*/results/.gitkeep
+procedure/step5_online_validation/report/
+procedure/step4_parameter_derivation/results/
+procedure/step1_platform/enemy
+procedure/step1_platform/victim
+procedure/step2_profiling/enemy
+procedure/__pycache__/
+procedure/*/__pycache__/

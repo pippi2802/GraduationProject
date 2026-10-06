@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# campaign_start_enemies.sh <size-kb> <stride-bytes> <cpus-csv>
+#
+# Runs ON THE WORKER NODE (piped via `bash -s -- ARGS < this-file` through
+# nsenter, by run_campaign.sh). Starts one enemy per cpu in <cpus-csv>,
+# confirms each is genuinely running (not just started-then-stuck), prints
+# OK/MISSING/LOW_CPU per pid, exits nonzero if anything didn't check out.
+#
+# Uses setsid (a real new session, not just nohup+disown) so the enemy
+# survives the launching `kubectl exec` session ending - plain nohup+disown
+# was observed to not be enough on at least one node (background children
+# went missing by the time we checked). setsid forks internally when
+# called from a process-group leader (which a freshly-backgrounded job is),
+# so $! can't be trusted here - the actual PID is re-discovered via pgrep
+# after the fact instead.
+set -u
+
+SIZE_KB="$1"
+STRIDE="$2"
+CPUS_CSV="$3"
+
+rm -f /tmp/rq2_campaign_enemy.pids
+IFS=',' read -ra cpus <<< "$CPUS_CSV"
+for cpu in "${cpus[@]}"; do
+    setsid /usr/local/bin/rq2-enemy --size-kb "$SIZE_KB" --stride-bytes "$STRIDE" --mode rw --cpu "$cpu" \
+        </dev/null >"/tmp/rq2_campaign_enemy_${cpu}.log" 2>&1 &
+done
+disown -a
+sleep 8
+
+bad=0
+: > /tmp/rq2_campaign_enemy.pids
+for cpu in "${cpus[@]}"; do
+    pid=$(pgrep -f "rq2-enemy .*--cpu ${cpu}\$" | head -1)
+    if [ -z "$pid" ]; then
+        echo "MISSING cpu=$cpu"
+        bad=1
+        continue
+    fi
+    echo "$pid" >> /tmp/rq2_campaign_enemy.pids
+    line=$(ps -o pid=,psr=,pcpu=,comm= -p "$pid" 2>/dev/null)
+    if [ -z "$line" ]; then
+        echo "MISSING pid=$pid (found by pgrep, gone by the time ps checked)"
+        bad=1
+        continue
+    fi
+    echo "OK $line"
+    pcpu=$(echo "$line" | awk '{print $3}')
+    if awk -v p="$pcpu" 'BEGIN{exit !(p+0 < 20)}'; then
+        echo "LOW_CPU pid=$pid pcpu=$pcpu (expected a busy loop, this looks stuck)"
+        bad=1
+    fi
+done
+
+exit "$bad"
