@@ -1,0 +1,327 @@
+label,workload,scale,U,n_miss,longest_run,n_bursts,misses_in_bursts,burst_share
+IRQ steering removed,model1,soft,0.1,1,1,0,0,0.0
+IRQ steering removed,model1,soft,0.2,0,0,0,0,
+IRQ steering removed,model1,soft,0.3,1,1,0,0,0.0
+IRQ steering removed,model1,soft,0.4,1,1,0,0,0.0
+IRQ steering removed,model1,soft,0.5,0,0,0,0,
+IRQ steering removed,model1,soft,0.6,0,0,0,0,
+IRQ steering removed,model1,soft,0.7,0,0,0,0,
+IRQ steering removed,model1,soft,0.8,0,0,0,0,
+IRQ steering removed,model1,soft,0.9,0,0,0,0,
+IRQ steering removed,model1,soft,0.94,1,1,0,0,0.0
+IRQ steering removed,model1,tight,0.1,5,1,0,0,0.0
+IRQ steering removed,model1,tight,0.2,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.3,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.4,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.5,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.6,1,1,0,0,0.0
+IRQ steering removed,model1,tight,0.7,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.8,2,1,0,0,0.0
+IRQ steering removed,model1,tight,0.9,4,1,0,0,0.0
+IRQ steering removed,model1,tight,0.94,3,1,0,0,0.0
+IRQ steering removed,model5,soft,0.1,0,0,0,0,
+IRQ steering removed,model5,soft,0.2,0,0,0,0,
+IRQ steering removed,model5,soft,0.3,0,0,0,0,
+IRQ steering removed,model5,soft,0.4,0,0,0,0,
+IRQ steering removed,model5,soft,0.5,0,0,0,0,
+IRQ steering removed,model5,soft,0.6,0,0,0,0,
+IRQ steering removed,model5,soft,0.7,3,2,1,2,0.6666666666666666
+IRQ steering removed,model5,soft,0.8,4,1,0,0,0.0
+IRQ steering removed,model5,soft,0.9,0,0,0,0,
+IRQ steering removed,model5,soft,0.94,22,12,3,22,1.0
+IRQ steering removed,model5,tight,0.1,32,2,3,6,0.1875
+IRQ steering removed,model5,tight,0.2,13,4,1,4,0.3076923076923077
+IRQ steering removed,model5,tight,0.3,9,3,1,3,0.3333333333333333
+IRQ steering removed,model5,tight,0.4,4,1,0,0,0.0
+IRQ steering removed,model5,tight,0.5,3,1,0,0,0.0
+IRQ steering removed,model5,tight,0.6,4,1,0,0,0.0
+IRQ steering removed,model5,tight,0.7,15,1,0,0,0.0
+IRQ steering removed,model5,tight,0.8,75,4,7,19,0.25333333333333335
+IRQ steering removed,model5,tight,0.9,33,3,4,10,0.30303030303030304
+IRQ steering removed,model5,tight,0.94,89,5,7,19,0.21348314606741572
+SMT enabled,model5-smt,soft,0.1,65,2,1,2,0.03076923076923077
+SMT enabled,model5-smt,soft,0.2,2593,2,960,1920,0.7404550713459314
+SMT enabled,model5-smt,soft,0.3,4639,2,1689,3378,0.728174175468851
+SMT enabled,model5-smt,soft,0.4,4863,2,2014,4028,0.8282952909726506
+SMT enabled,model5-smt,soft,0.5,18230,9997,2390,16564,0.9086121777290181
+SMT enabled,model5-smt,soft,0.6,15528,203,1908,15061,0.969925296239052
+SMT enabled,model5-smt,soft,0.7,4155,4,1531,3072,0.7393501805054151
+SMT enabled,model5-smt,soft,0.8,7797,7,1629,3709,0.4756957804283699
+SMT enabled,model5-smt,soft,0.9,8808,9,1450,3303,0.375
+SMT enabled,model5-smt,soft,0.94,24898,81,4323,22593,0.9074222829142903
+SMT enabled,model5-smt,tight,0.1,5144,3,2103,4210,0.8184292379471229
+SMT enabled,model5-smt,tight,0.2,13185,57,3749,11431,0.866970041714069
+SMT enabled,model5-smt,tight,0.3,5001,3,2086,4174,0.8346330733853229
+SMT enabled,model5-smt,tight,0.4,33,1,0,0,0.0
+SMT enabled,model5-smt,tight,0.5,20020,9997,4182,18381,0.9181318681318681
+SMT enabled,model5-smt,tight,0.6,5064,3,2097,4195,0.8283965244865719
+SMT enabled,model5-smt,tight,0.7,6443,12,1934,4111,0.6380568058357908
+SMT enabled,model5-smt,tight,0.8,17544,9997,1836,14513,0.827234382124943
+SMT enabled,model5-smt,tight,0.9,26979,3358,3446,25712,0.9530375477223025
+SMT enabled,model5-smt,tight,0.94,31179,1813,3834,29894,0.9587863626158633
+baseline (full isolation),model1,soft,0.1,3,1,0,0,0.0
+baseline (full isolation),model1,soft,0.2,1,1,0,0,0.0
+baseline (full isolation),model1,soft,0.3,0,0,0,0,
+baseline (full isolation),model1,soft,0.4,0,0,0,0,
+baseline (full isolation),model1,soft,0.5,1,1,0,0,0.0
+baseline (full isolation),model1,soft,0.6,0,0,0,0,
+baseline (full isolation),model1,soft,0.7,1,1,0,0,0.0
+baseline (full isolation),model1,soft,0.8,1,1,0,0,0.0
+baseline (full isolation),model1,soft,0.9,0,0,0,0,
+baseline (full isolation),model1,soft,0.94,1,1,0,0,0.0
+baseline (full isolation),model1,tight,0.1,2,1,0,0,0.0
+baseline (full isolation),model1,tight,0.2,1,1,0,0,0.0
+baseline (full isolation),model1,tight,0.3,2,1,0,0,0.0
+baseline (full isolation),model1,tight,0.4,4,1,0,0,0.0
+baseline (full isolation),model1,tight,0.5,2,1,0,0,0.0
+baseline (full isolation),model1,tight,0.6,4,1,0,0,0.0
+baseline (full isolation),model1,tight,0.7,1,1,0,0,0.0
+baseline (full isolation),model1,tight,0.8,2,1,0,0,0.0
+baseline (full isolation),model1,tight,0.9,4,1,0,0,0.0
+baseline (full isolation),model1,tight,0.94,4,1,0,0,0.0
+baseline (full isolation),model5,soft,0.1,0,0,0,0,
+baseline (full isolation),model5,soft,0.2,0,0,0,0,
+baseline (full isolation),model5,soft,0.3,0,0,0,0,
+baseline (full isolation),model5,soft,0.4,0,0,0,0,
+baseline (full isolation),model5,soft,0.5,0,0,0,0,
+baseline (full isolation),model5,soft,0.6,0,0,0,0,
+baseline (full isolation),model5,soft,0.7,0,0,0,0,
+baseline (full isolation),model5,soft,0.8,0,0,0,0,
+baseline (full isolation),model5,soft,0.9,0,0,0,0,
+baseline (full isolation),model5,soft,0.94,34,2,6,12,0.35294117647058826
+baseline (full isolation),model5,tight,0.1,3,1,0,0,0.0
+baseline (full isolation),model5,tight,0.2,8,1,0,0,0.0
+baseline (full isolation),model5,tight,0.3,1,1,0,0,0.0
+baseline (full isolation),model5,tight,0.4,4,1,0,0,0.0
+baseline (full isolation),model5,tight,0.5,6,1,0,0,0.0
+baseline (full isolation),model5,tight,0.6,4,2,1,2,0.5
+baseline (full isolation),model5,tight,0.7,5,1,0,0,0.0
+baseline (full isolation),model5,tight,0.8,17,1,0,0,0.0
+baseline (full isolation),model5,tight,0.9,79,2,7,14,0.17721518987341772
+baseline (full isolation),model5,tight,0.94,134,2,18,36,0.26865671641791045
+boot-params bundle removed,model1,soft,0.1,0,0,0,0,
+boot-params bundle removed,model1,soft,0.2,0,0,0,0,
+boot-params bundle removed,model1,soft,0.3,0,0,0,0,
+boot-params bundle removed,model1,soft,0.4,1,1,0,0,0.0
+boot-params bundle removed,model1,soft,0.5,0,0,0,0,
+boot-params bundle removed,model1,soft,0.6,0,0,0,0,
+boot-params bundle removed,model1,soft,0.7,0,0,0,0,
+boot-params bundle removed,model1,soft,0.8,0,0,0,0,
+boot-params bundle removed,model1,soft,0.9,0,0,0,0,
+boot-params bundle removed,model1,soft,0.94,0,0,0,0,
+boot-params bundle removed,model1,tight,0.1,3,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.2,1,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.3,0,0,0,0,
+boot-params bundle removed,model1,tight,0.4,0,0,0,0,
+boot-params bundle removed,model1,tight,0.5,1,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.6,1,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.7,1,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.8,0,0,0,0,
+boot-params bundle removed,model1,tight,0.9,4,1,0,0,0.0
+boot-params bundle removed,model1,tight,0.94,1,1,0,0,0.0
+boot-params bundle removed,model5,soft,0.1,1,1,0,0,0.0
+boot-params bundle removed,model5,soft,0.2,0,0,0,0,
+boot-params bundle removed,model5,soft,0.3,0,0,0,0,
+boot-params bundle removed,model5,soft,0.4,0,0,0,0,
+boot-params bundle removed,model5,soft,0.5,0,0,0,0,
+boot-params bundle removed,model5,soft,0.6,0,0,0,0,
+boot-params bundle removed,model5,soft,0.7,0,0,0,0,
+boot-params bundle removed,model5,soft,0.8,0,0,0,0,
+boot-params bundle removed,model5,soft,0.9,0,0,0,0,
+boot-params bundle removed,model5,soft,0.94,0,0,0,0,
+boot-params bundle removed,model5,tight,0.1,2,1,0,0,0.0
+boot-params bundle removed,model5,tight,0.2,15,1,0,0,0.0
+boot-params bundle removed,model5,tight,0.3,3,1,0,0,0.0
+boot-params bundle removed,model5,tight,0.4,2,1,0,0,0.0
+boot-params bundle removed,model5,tight,0.5,6,3,1,3,0.5
+boot-params bundle removed,model5,tight,0.6,2,1,0,0,0.0
+boot-params bundle removed,model5,tight,0.7,37,4,4,11,0.2972972972972973
+boot-params bundle removed,model5,tight,0.8,35,4,2,7,0.2
+boot-params bundle removed,model5,tight,0.9,32,4,2,7,0.21875
+boot-params bundle removed,model5,tight,0.94,33,4,5,14,0.42424242424242425
+frequency pinning removed,model1,soft,0.1,0,0,0,0,
+frequency pinning removed,model1,soft,0.2,0,0,0,0,
+frequency pinning removed,model1,soft,0.3,0,0,0,0,
+frequency pinning removed,model1,soft,0.4,0,0,0,0,
+frequency pinning removed,model1,soft,0.5,0,0,0,0,
+frequency pinning removed,model1,soft,0.6,0,0,0,0,
+frequency pinning removed,model1,soft,0.7,0,0,0,0,
+frequency pinning removed,model1,soft,0.8,0,0,0,0,
+frequency pinning removed,model1,soft,0.9,0,0,0,0,
+frequency pinning removed,model1,soft,0.94,0,0,0,0,
+frequency pinning removed,model1,tight,0.1,2,1,0,0,0.0
+frequency pinning removed,model1,tight,0.2,1,1,0,0,0.0
+frequency pinning removed,model1,tight,0.3,6,1,0,0,0.0
+frequency pinning removed,model1,tight,0.4,2,1,0,0,0.0
+frequency pinning removed,model1,tight,0.5,2,1,0,0,0.0
+frequency pinning removed,model1,tight,0.6,3,1,0,0,0.0
+frequency pinning removed,model1,tight,0.7,2,1,0,0,0.0
+frequency pinning removed,model1,tight,0.8,5,1,0,0,0.0
+frequency pinning removed,model1,tight,0.9,4,1,0,0,0.0
+frequency pinning removed,model1,tight,0.94,1,1,0,0,0.0
+frequency pinning removed,model5,soft,0.1,3,1,0,0,0.0
+frequency pinning removed,model5,soft,0.2,2,1,0,0,0.0
+frequency pinning removed,model5,soft,0.3,0,0,0,0,
+frequency pinning removed,model5,soft,0.4,2,1,0,0,0.0
+frequency pinning removed,model5,soft,0.5,2,1,0,0,0.0
+frequency pinning removed,model5,soft,0.6,3,1,0,0,0.0
+frequency pinning removed,model5,soft,0.7,4,1,0,0,0.0
+frequency pinning removed,model5,soft,0.8,1,1,0,0,0.0
+frequency pinning removed,model5,soft,0.9,0,0,0,0,
+frequency pinning removed,model5,soft,0.94,0,0,0,0,
+frequency pinning removed,model5,tight,0.1,14,2,1,2,0.14285714285714285
+frequency pinning removed,model5,tight,0.2,3,1,0,0,0.0
+frequency pinning removed,model5,tight,0.3,7,1,0,0,0.0
+frequency pinning removed,model5,tight,0.4,6,1,0,0,0.0
+frequency pinning removed,model5,tight,0.5,15,1,0,0,0.0
+frequency pinning removed,model5,tight,0.6,5,1,0,0,0.0
+frequency pinning removed,model5,tight,0.7,10,1,0,0,0.0
+frequency pinning removed,model5,tight,0.8,19,3,3,8,0.42105263157894735
+frequency pinning removed,model5,tight,0.9,82,4,8,23,0.2804878048780488
+frequency pinning removed,model5,tight,0.94,105,5,14,42,0.4
+isolcpus removed,model1,soft,0.1,496,4,70,157,0.3165322580645161
+isolcpus removed,model1,soft,0.2,344,4,49,106,0.3081395348837209
+isolcpus removed,model1,soft,0.3,268,4,38,84,0.31343283582089554
+isolcpus removed,model1,soft,0.4,74,2,4,8,0.10810810810810811
+isolcpus removed,model1,soft,0.5,288,4,49,107,0.3715277777777778
+isolcpus removed,model1,soft,0.6,358,5,67,160,0.44692737430167595
+isolcpus removed,model1,soft,0.7,88,3,5,11,0.125
+isolcpus removed,model1,tight,0.1,244,3,23,48,0.19672131147540983
+isolcpus removed,model1,tight,0.2,192,2,11,22,0.11458333333333333
+isolcpus removed,model1,tight,0.3,185,3,13,27,0.14594594594594595
+isolcpus removed,model1,tight,0.4,142,2,9,18,0.1267605633802817
+isolcpus removed,model1,tight,0.5,142,3,7,16,0.11267605633802817
+isolcpus removed,model1,tight,0.6,85,3,5,12,0.1411764705882353
+isolcpus removed,model1,tight,0.7,80,2,4,8,0.1
+isolcpus removed,model5,soft,0.1,0,0,0,0,
+isolcpus removed,model5,soft,0.2,2,1,0,0,0.0
+isolcpus removed,model5,soft,0.3,1,1,0,0,0.0
+isolcpus removed,model5,soft,0.4,0,0,0,0,
+isolcpus removed,model5,soft,0.5,1,1,0,0,0.0
+isolcpus removed,model5,soft,0.6,0,0,0,0,
+isolcpus removed,model5,soft,0.7,0,0,0,0,
+isolcpus removed,model5,tight,0.1,8,1,0,0,0.0
+isolcpus removed,model5,tight,0.2,8,1,0,0,0.0
+isolcpus removed,model5,tight,0.3,4,1,0,0,0.0
+isolcpus removed,model5,tight,0.4,2,1,0,0,0.0
+isolcpus removed,model5,tight,0.5,8,1,0,0,0.0
+isolcpus removed,model5,tight,0.6,4,1,0,0,0.0
+isolcpus removed,model5,tight,0.7,58,3,4,9,0.15517241379310345
+nohz_full removed,model1,soft,0.1,108,2,7,14,0.12962962962962962
+nohz_full removed,model1,soft,0.2,50,1,0,0,0.0
+nohz_full removed,model1,soft,0.3,12,1,0,0,0.0
+nohz_full removed,model1,soft,0.4,1,1,0,0,0.0
+nohz_full removed,model1,soft,0.5,0,0,0,0,
+nohz_full removed,model1,soft,0.6,1,1,0,0,0.0
+nohz_full removed,model1,soft,0.7,0,0,0,0,
+nohz_full removed,model1,soft,0.8,0,0,0,0,
+nohz_full removed,model1,soft,0.9,0,0,0,0,
+nohz_full removed,model1,soft,0.94,0,0,0,0,
+nohz_full removed,model1,tight,0.1,25,2,1,2,0.08
+nohz_full removed,model1,tight,0.2,27,1,0,0,0.0
+nohz_full removed,model1,tight,0.3,23,2,1,2,0.08695652173913043
+nohz_full removed,model1,tight,0.4,5,1,0,0,0.0
+nohz_full removed,model1,tight,0.5,5,2,1,2,0.4
+nohz_full removed,model1,tight,0.6,7,1,0,0,0.0
+nohz_full removed,model1,tight,0.7,3,1,0,0,0.0
+nohz_full removed,model1,tight,0.8,1,1,0,0,0.0
+nohz_full removed,model1,tight,0.9,2,1,0,0,0.0
+nohz_full removed,model1,tight,0.94,6,1,0,0,0.0
+nohz_full removed,model5,soft,0.1,0,0,0,0,
+nohz_full removed,model5,soft,0.2,0,0,0,0,
+nohz_full removed,model5,soft,0.3,0,0,0,0,
+nohz_full removed,model5,soft,0.4,0,0,0,0,
+nohz_full removed,model5,soft,0.5,0,0,0,0,
+nohz_full removed,model5,soft,0.6,1,1,0,0,0.0
+nohz_full removed,model5,soft,0.7,0,0,0,0,
+nohz_full removed,model5,soft,0.8,0,0,0,0,
+nohz_full removed,model5,soft,0.9,0,0,0,0,
+nohz_full removed,model5,soft,0.94,0,0,0,0,
+nohz_full removed,model5,tight,0.1,1,1,0,0,0.0
+nohz_full removed,model5,tight,0.2,2,1,0,0,0.0
+nohz_full removed,model5,tight,0.3,0,0,0,0,
+nohz_full removed,model5,tight,0.4,2,1,0,0,0.0
+nohz_full removed,model5,tight,0.5,0,0,0,0,
+nohz_full removed,model5,tight,0.6,1,1,0,0,0.0
+nohz_full removed,model5,tight,0.7,0,0,0,0,
+nohz_full removed,model5,tight,0.8,42,4,3,11,0.2619047619047619
+nohz_full removed,model5,tight,0.9,25,2,2,4,0.16
+nohz_full removed,model5,tight,0.94,45,4,5,15,0.3333333333333333
+rcu_nocbs removed,model1,soft,0.1,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.2,1,1,0,0,0.0
+rcu_nocbs removed,model1,soft,0.3,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.4,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.5,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.6,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.7,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.8,1,1,0,0,0.0
+rcu_nocbs removed,model1,soft,0.9,0,0,0,0,
+rcu_nocbs removed,model1,soft,0.94,0,0,0,0,
+rcu_nocbs removed,model1,tight,0.1,0,0,0,0,
+rcu_nocbs removed,model1,tight,0.2,1,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.3,2,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.5,3,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.6,4,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.7,3,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.8,2,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.9,1,1,0,0,0.0
+rcu_nocbs removed,model1,tight,0.94,1,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.1,46,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.2,1,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.3,2,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.4,1,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.5,4,2,1,2,0.5
+rcu_nocbs removed,model5,soft,0.6,30,2,2,4,0.13333333333333333
+rcu_nocbs removed,model5,soft,0.7,4,1,0,0,0.0
+rcu_nocbs removed,model5,soft,0.8,21,4,1,4,0.19047619047619047
+rcu_nocbs removed,model5,soft,0.9,3,2,1,2,0.6666666666666666
+rcu_nocbs removed,model5,soft,0.94,31,3,2,5,0.16129032258064516
+rcu_nocbs removed,model5,tight,0.1,311,3,17,38,0.12218649517684887
+rcu_nocbs removed,model5,tight,0.3,45,2,1,2,0.044444444444444446
+rcu_nocbs removed,model5,tight,0.4,18,1,0,0,0.0
+rcu_nocbs removed,model5,tight,0.5,13,1,0,0,0.0
+rcu_nocbs removed,model5,tight,0.6,61,2,2,4,0.06557377049180328
+rcu_nocbs removed,model5,tight,0.7,105,8,7,23,0.21904761904761905
+rcu_nocbs removed,model5,tight,0.8,17,1,0,0,0.0
+rcu_nocbs removed,model5,tight,0.9,152,6,13,38,0.25
+rcu_nocbs removed,model5,tight,0.94,188,5,17,42,0.22340425531914893
+systemd containment removed,model1,soft,0.1,110,3,4,9,0.08181818181818182
+systemd containment removed,model1,soft,0.2,50,1,0,0,0.0
+systemd containment removed,model1,soft,0.3,17,2,2,4,0.23529411764705882
+systemd containment removed,model1,soft,0.4,12,1,0,0,0.0
+systemd containment removed,model1,soft,0.5,3,1,0,0,0.0
+systemd containment removed,model1,soft,0.6,14,1,0,0,0.0
+systemd containment removed,model1,soft,0.7,1,1,0,0,0.0
+systemd containment removed,model1,soft,0.8,1,1,0,0,0.0
+systemd containment removed,model1,soft,0.9,0,0,0,0,
+systemd containment removed,model1,soft,0.94,0,0,0,0,
+systemd containment removed,model1,tight,0.1,82,2,2,4,0.04878048780487805
+systemd containment removed,model1,tight,0.2,38,1,0,0,0.0
+systemd containment removed,model1,tight,0.3,51,3,2,5,0.09803921568627451
+systemd containment removed,model1,tight,0.4,24,2,1,2,0.08333333333333333
+systemd containment removed,model1,tight,0.5,26,2,1,2,0.07692307692307693
+systemd containment removed,model1,tight,0.6,16,1,0,0,0.0
+systemd containment removed,model1,tight,0.7,7,1,0,0,0.0
+systemd containment removed,model1,tight,0.8,7,1,0,0,0.0
+systemd containment removed,model1,tight,0.9,10,1,0,0,0.0
+systemd containment removed,model1,tight,0.94,7,2,1,2,0.2857142857142857
+systemd containment removed,model5,soft,0.1,0,0,0,0,
+systemd containment removed,model5,soft,0.2,0,0,0,0,
+systemd containment removed,model5,soft,0.3,0,0,0,0,
+systemd containment removed,model5,soft,0.4,0,0,0,0,
+systemd containment removed,model5,soft,0.5,1,1,0,0,0.0
+systemd containment removed,model5,soft,0.6,0,0,0,0,
+systemd containment removed,model5,soft,0.7,2,1,0,0,0.0
+systemd containment removed,model5,soft,0.8,0,0,0,0,
+systemd containment removed,model5,soft,0.9,3,1,0,0,0.0
+systemd containment removed,model5,soft,0.94,1,1,0,0,0.0
+systemd containment removed,model5,tight,0.1,18,1,0,0,0.0
+systemd containment removed,model5,tight,0.2,4,1,0,0,0.0
+systemd containment removed,model5,tight,0.3,5,1,0,0,0.0
+systemd containment removed,model5,tight,0.4,1,1,0,0,0.0
+systemd containment removed,model5,tight,0.5,2,1,0,0,0.0
+systemd containment removed,model5,tight,0.6,14,3,1,3,0.21428571428571427
+systemd containment removed,model5,tight,0.7,4,1,0,0,0.0
+systemd containment removed,model5,tight,0.8,52,4,5,13,0.25
+systemd containment removed,model5,tight,0.9,54,3,5,12,0.2222222222222222
+systemd containment removed,model5,tight,0.94,74,4,9,24,0.32432432432432434

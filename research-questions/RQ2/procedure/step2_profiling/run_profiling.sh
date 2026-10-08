@@ -17,7 +17,7 @@
 #   --timeout-s    per run (default 7200), --attempts (default 2), --settle-s pause between runs (default 10)
 #
 # The workload contract (any workload that follows it works):
-#   - a pod YAML with ONE Pod, whose nodeSelector is a one-line flow mapping ("nodeSelector: { key: value }"); this script adds the node.
+#   - a pod YAML with ONE Pod, whose nodeSelector is a one-line flow mapping ("nodeSelector: { key: value }"); this script pins it to the node (keeps the entries the node carries, drops the others).
 #   - the pod writes /results/<prefix>_instance<N>.csv and .meta.json (N = 0, 1, ...) to a hostPath directory of the node (--node-dir).
 #   - the CSV has the columns job_id, skipped, warmup, cpu_ns, release_ns, response_ns (more is welcome: see step 4's README).
 #   - the number of jobs of a run is set in the pod YAML (jobs=N or --jobs=N), or overridden with --jobs.
@@ -51,7 +51,24 @@ for o in (d["items"] if d.get("kind") == "List" else [d]):
     [ -n "${POD:-}" ] || die "no Pod found in $POD_YAML"
     if kubectl -n "$POD_NS" get pod "$POD" > /dev/null 2>&1; then die "pod $POD_NS/$POD already exists: wait for it or kubectl -n $POD_NS delete pod $POD"; fi
     PINNED="$(mktemp)"
-    sed -E "s#^([[:space:]]*nodeSelector:.*[^[:space:]])[[:space:]]*\}[[:space:]]*\$#\1, kubernetes.io/hostname: $HOST }#" "$POD_YAML" > "$PINNED"
+    # pin to the node: keep the nodeSelector entries this node carries (e.g. experiment-model), DROP the ones it does not (a role label of the OTHER node, which would
+    # make the pod unschedulable when a scenario runs on the other node), and add the hostname
+    kubectl get node "$NODE" -o json | python3 -c '
+import json, re, sys
+labels = json.load(sys.stdin)["metadata"]["labels"]
+src, dst, host = sys.argv[1:4]
+out = []
+for line in open(src):
+    m = re.match(r"^(\s*nodeSelector:\s*\{)(.*)\}\s*$", line.rstrip("\n"))
+    if m:
+        pairs = [(k.strip(), v.strip().strip("\"\x27")) for k, v in (p.split(":", 1) for p in m.group(2).split(",") if ":" in p)]
+        keep = [(k, v) for k, v in pairs if k != "kubernetes.io/hostname" and labels.get(k) == v]
+        drop = [f"{k}: {v}" for k, v in pairs if (k, v) not in keep and k != "kubernetes.io/hostname"]
+        line = m.group(1) + " " + ", ".join([f"{k}: {v}" for k, v in keep] + [f"kubernetes.io/hostname: {host}"]) + " }"
+        if drop:
+            print("note: nodeSelector entries that " + host + " does not carry are dropped: " + ", ".join(drop), file=sys.stderr)
+    out.append(line.rstrip("\n") + "\n")
+open(dst, "w").write("".join(out))' "$POD_YAML" "$PINNED" "$HOST" || die "could not pin the pod to $HOST"
     grep -q "kubernetes.io/hostname: $HOST" "$PINNED" || die "could not pin the pod to $HOST"
     if [ -n "$JOBS" ]; then        # --jobs N replaces jobs=N / --jobs=N in the pinned copy; the check below then wants exactly N rows
         sed -E -i "s#(-{0,2}jobs=)[0-9]+#\1$JOBS#" "$PINNED"

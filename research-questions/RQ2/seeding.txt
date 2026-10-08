@@ -19,21 +19,20 @@ for c in ("baseline1", "cache", "memory", "baseline2"):
     print(f"{c:10s} n={len(x)} median={s.median(x):.2f} p99={q(.99):.2f} max={x[-1]:.2f} cv={s.stdev(x) / s.mean(x):.3f} skipped={skipped} late={late}")
 EOF
 
-for w in 7 6; do 
-  A=$(kubectl -n rq2-node-prep-worker$w get pod -l app=rq1-agent --field-selector spec.nodeName=rt-k8s-worker-$w -o jsonpath='{.items[0].metadata.name}')
+for w in 6 7; do
+  NS=rq2-node-prep-worker$w; NODE=rt-k8s-worker-$w
+  A=$(kubectl -n $NS get pod -l app=rq1-agent --field-selector spec.nodeName=$NODE -o jsonpath='{.items[0].metadata.name}')
   echo "######## worker$w"
-  kubectl -n rq2-node-prep-worker$w exec -i $A -- nsenter --target 1 --mount --pid -- bash -s <<'EOF'
-echo "--- free DEADLINE bandwidth per cpu (a 9300/10000 reservation needs 975175 on each of its cpus)"
-awk '/^dl_rq\[/{cpu=$1} /dl_bw->bw/{bw=$NF} /dl_bw->total_bw/{tot=$NF; f=bw-tot; printf "%-9s bw=%d total_bw=%d free=%d (%.3f of a core) %s\n", cpu, bw, tot, f, f/1048576, (f >= 975175 ? 
-"fits 9300/10000" : "does NOT fit 9300/10000")}' /sys/kernel/debug/sched/debug
-echo "--- raw lines, in case the format differs:"
-grep -E 'dl_rq\[|dl_bw->' /sys/kernel/debug/sched/debug | head -24
-echo "--- RT cgroups under kubepods (period, runtime per cpu 0..3):"
-for f in $(find /sys/fs/cgroup/kubepods.slice -maxdepth 2 -name cpu.rt_runtime_us | sort); do d=$(dirname $f); echo "$(basename $d): period $(cat $d/cpu.rt_period_us)  runtime $(cat $f)";
-done
-echo "--- last kernel messages about it:"; dmesg | grep -iE "rt_schedulable|Set Bw" | tail -6
+  kubectl -n $NS exec -i $A -- nsenter --target 1 --mount --pid -- bash -s <<'EOF'
+echo "before:"; ps -o pid,lstart,psr,pcpu,args -C rq2-enemy || echo "  none"
+pkill -x rq2-enemy
+for i in 1 2 3 4 5 6 7 8 9 10; do pgrep -x rq2-enemy > /dev/null || break; sleep 1; done
+pgrep -x rq2-enemy > /dev/null && { echo "still alive, SIGKILL"; pkill -9 -x rq2-enemy; sleep 1; }
+rm -f /tmp/rq2_campaign_enemy.pids
+pgrep -x rq2-enemy > /dev/null && echo "STILL RUNNING" || echo "after: no rq2-enemy running"
 EOF
 done
+
 
 A=$(kubectl -n rq2-node-prep-worker7 get pod -l app=rq1-agent --field-selector spec.nodeName=rt-k8s-worker-7 -o jsonpath='{.items[0].metadata.name}')
 kubectl -n rq2-node-prep-worker7 exec -i $A -- nsenter --target 1 --mount --pid -- bash -s <<'EOF'
@@ -43,4 +42,8 @@ echo 0 > $d/cpu.rt_runtime_us && echo 10000 > $d/cpu.rt_period_us
 echo "after:  period $(cat $d/cpu.rt_period_us)  runtime $(cat $d/cpu.rt_runtime_us)"
 EOF
 
- nohup workload3/run_experiments.sh swap > workload3/results/swap.out 2>&1 &
+
+
+  nohup workload2/run_experiments.sh swap    > workload2/results/swap.out 2>&1 &      # 30000 jobs per run, about 1.75 h
+  tail -f workload2/results/seg_single_profile.log                                    # also seg_multi, and the swap logs
+  pkill -TERM -f "[w]orkload2/run_experiments.sh"                                     # stop it
