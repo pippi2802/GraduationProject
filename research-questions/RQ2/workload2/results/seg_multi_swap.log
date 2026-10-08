@@ -1,0 +1,3 @@
+node slice on worker6: period 100000 runtime 0 93000 0 0 
+[17:51:15] node rt-k8s-worker-6 (agent rq1-agent-9l4bs), pod rq2/rq2-multi, 2 instance(s), enemy cpus none
+[17:51:15] === baseline swap
