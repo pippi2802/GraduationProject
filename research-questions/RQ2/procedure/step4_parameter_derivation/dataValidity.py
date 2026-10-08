@@ -27,7 +27,7 @@ class DataSummary:
 class PFloor:
     """p_floor: the stalls and late jobs that remain with a generous budget (VM stalls, late starts). A job is bad when it was skipped
     or late; an event is a run of consecutive bad jobs (one stall that skips 56 jobs counts once), merged across the instances of a run.
-    Tolerances below the bad-job rate are not meaningful."""
+    p_floor is a property of the platform, not of the budget: p bounds P(C > Q) only, so the application sees roughly p + p_floor deadline misses."""
 
     def __init__(self, cfg, bound):
         self.cfg, self.bound = cfg, bound
@@ -58,8 +58,8 @@ class PFloor:
                              "95% upper": self.bound.cp_upper(events, jobs), "bad-job rate": bad_jobs / jobs, "longest event (jobs)": longest})
         t = pd.DataFrame(rows).set_index(["scenario", "runs"])
         worst = t["bad-job rate"].max()
-        return t, [check("p_floor below the smallest tolerance", worst < min(self.cfg.tolerances),
-                         f"worst bad-job rate {worst:.1e} against p = {min(self.cfg.tolerances):g}")]
+        return t, [check("p_floor (deadline misses that no budget removes)", None,
+                         f"worst bad-job rate {worst:.1e}: on top of the overruns allowed by p, the application sees about this many deadline misses")]
 
 
 class PlatformEvents:

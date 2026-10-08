@@ -36,7 +36,7 @@ class RiskCurve:
         return float(np.exp(np.interp(np.log(p), np.log(self.P_GRID), np.log(self.curve(route)))))
 
     def risk_at(self, route, q_ms):
-        """per-job miss probability of the budget Q (ms); the end values (1e-4, 0.3) outside the curve"""
+        """per-job overrun probability P(C > Q) of the budget Q (ms); the end values (1e-4, 0.3) outside the curve"""
         q = self.curve(route)
         o = np.argsort(q)
         return float(np.exp(np.interp(np.log(q_ms), np.log(q[o]), np.log(self.P_GRID[o]))))

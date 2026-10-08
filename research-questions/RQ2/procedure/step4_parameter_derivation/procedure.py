@@ -121,8 +121,8 @@ class Procedure:
         replay = Replay(cfg)
         for name, run, title in (
                 ("bound_check", lambda: BoundCheck(cfg, self.bound).run(scenarios, bounds), "C_p of baseline1 applied to baseline2 (cluster-aware exceedance test)"),
-                ("held_out_replay", lambda: HeldOutReplay(cfg, replay).run(scenarios, dep)[:2], "budgets replayed on held-out traces (miss rate / p <= 1 meets p)"),
-                ("burst_check", lambda: BurstCheck(cfg, replay).run(scenarios, dep), "budgets replayed on the stressed profiling traces: bursts of misses"),
+                ("held_out_replay", lambda: HeldOutReplay(cfg, replay).run(scenarios, dep)[:2], "budgets replayed on held-out traces (overrun rate P(C > Q) / p <= 1 meets p)"),
+                ("burst_check", lambda: BurstCheck(cfg, replay).run(scenarios, dep), "budgets replayed on the stressed profiling traces: bursts of overruns"),
                 ("leave_one_out", lambda: LeaveOneOut(cfg, self.bound).run(scenarios, bounds), "alpha_drift from the other baselines, tested on the held-out one (worst instance)"),
                 ("stress_run_check", lambda: StressRunCheck(cfg, self.bound).run(scenarios, per_instance, bounds), "budgets against the bound measured on the extra stressed run")):
             t, checks = run()

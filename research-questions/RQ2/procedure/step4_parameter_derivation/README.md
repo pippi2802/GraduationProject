@@ -19,7 +19,9 @@ the method constants are in `config.py`.
 6. **`validity_summary`**: every check as PASS / FAIL / info. FAIL needs attention (for example fewer than 3 baseline runs, a budget that does not cover the stressed run); info lines are for your judgement.
 
 ## The routes
-Route 1: Q = C_p of the stress runs x alpha_drift. Route 2b: Q = C_p of the baselines x alpha_platform(m) x alpha_drift. HWM: the largest C of the stress runs x alpha_drift / 0.96, one budget for every p.
+Route 1: Q = C_p of the stress runs x alpha_drift. Route 2b: Q = C_p of the baselines x alpha_platform(m) x alpha_drift. HWM: the largest C of the stress runs x alpha_drift, one budget for every p.
+The tolerance p is the admissible probability that a job's execution time exceeds its budget, P(C > Q) <= p (the pWCET meaning of MBPTA),
+not a deadline-miss rate: deadline misses not caused by an overrun (platform stalls, late starts, reservation overheads) are reported apart (`p_floor`, step 5).
 Multi-instance scenarios have one reservation: the budget is the maximum over the instances.
 
 ## The code

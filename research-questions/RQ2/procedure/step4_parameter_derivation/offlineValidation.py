@@ -7,50 +7,50 @@ from report import check
 
 
 class Replay:
-    """The miss model C > Q on a trace: miss rate / p, longest run of misses, worst-case (m, k)."""
+    """Budget overruns C > Q on a trace: overrun rate / p, longest run of overruns, worst-case (m, k)."""
 
     def __init__(self, cfg):
         self.cfg = cfg
 
     @staticmethod
-    def mk_worst(miss, k):
-        """minimum number of MET deadlines in any window of k consecutive jobs"""
-        if len(miss) < k:
+    def mk_worst(over, k):
+        """minimum number of jobs within the budget (C <= Q) in any window of k consecutive jobs"""
+        if len(over) < k:
             return np.nan
-        return int(np.convolve((~miss).astype(np.int64), np.ones(k, dtype=np.int64), mode="valid").min())
+        return int(np.convolve((~over).astype(np.int64), np.ones(k, dtype=np.int64), mode="valid").min())
 
     @staticmethod
-    def max_consecutive(miss):
-        if not miss.any():
+    def max_consecutive(over):
+        if not over.any():
             return 0
-        e = np.diff(np.concatenate(([0], miss.astype(np.int8), [0])))
+        e = np.diff(np.concatenate(([0], over.astype(np.int8), [0])))
         return int((np.flatnonzero(e == -1) - np.flatnonzero(e == 1)).max())
 
     def run(self, x, q, p):
-        miss = x > q
-        out = dict(miss_rate=miss.mean(), miss_over_p=miss.mean() / p, max_consec=self.max_consecutive(miss))
+        over = x > q
+        out = dict(overrun_rate=over.mean(), overrun_over_p=over.mean() / p, max_consec=self.max_consecutive(over))
         for k in self.cfg.k_list:
-            out[f"mk_worst_k{k}"] = self.mk_worst(miss, k)
+            out[f"mk_worst_k{k}"] = self.mk_worst(over, k)
         return out
 
     def summarise(self, rows, with_over_budget):
         """worst case over runs and instances, for the test tolerances"""
         d = pd.DataFrame(rows)
         d = d[d.p.isin(self.cfg.test_tolerances)]
-        agg = dict(miss_over_p=("miss_over_p", "max"), max_consec=("max_consec", "max"),
+        agg = dict(overrun_over_p=("overrun_over_p", "max"), max_consec=("max_consec", "max"),
                    **{f"mk_worst_k{k}": (f"mk_worst_k{k}", "min") for k in self.cfg.k_list})
         if with_over_budget:
             agg["over_budget_pct"] = ("over_budget", lambda v: v.mean() * 100)
         return d.groupby(["scenario", "route", "p"]).agg(**agg)
 
     def checks(self, summary, name):
-        return [check(f"{name}: {s} {r} meets p", bool((g.miss_over_p <= 1).all()), f"worst miss rate / p = {g.miss_over_p.max():.2f}")
+        return [check(f"{name}: {s} {r} meets p", bool((g.overrun_over_p <= 1).all()), f"worst overrun rate / p = {g.overrun_over_p.max():.2f}")
                 for (s, r), g in summary.reset_index().groupby(["scenario", "route"])]
 
 
 class HeldOutReplay:
     """Each budget replayed on traces that were not used to derive it: the extra baselines (baseline2 when there are none).
-    Reports miss rate / p, the longest burst of misses, the worst-case (m, k) and the over-budget against the oracle budget
+    Reports overrun rate / p, the longest burst of overruns, the worst-case (m, k) and the over-budget against the oracle budget
     (the (1-p) quantile of the held-out trace)."""
 
     def __init__(self, cfg, replay):
@@ -74,7 +74,7 @@ class HeldOutReplay:
 
 
 class BurstCheck:
-    """Each budget replayed on the stressed profiling traces: the structure of the misses (bursts, (m, k)), not the calibration:
+    """Each budget replayed on the stressed profiling traces: the structure of the overruns (bursts, (m, k)), not the calibration:
     these traces are the profiling data."""
 
     def __init__(self, cfg, replay):

@@ -41,7 +41,7 @@ class Route2b(Route):
 
 
 class HighWaterMark(Route):
-    """Q = largest C of the stress runs x alpha_drift / accounting margin; one budget for every p. Platform events stay in,
+    """Q = largest C of the stress runs x alpha_drift; one budget for every p. Platform events stay in,
     stalls (C > 2 T) are left out."""
     name = "HWM"
 
@@ -56,7 +56,7 @@ class HighWaterMark(Route):
         return self._max[(scenario.name, inst)]
 
     def budget(self, scenario, inst, p, factors):
-        return self._high_water_mark(scenario, inst) * factors.drift.value(scenario.name, self.cfg.hwm_p) / self.cfg.hwm_margin
+        return self._high_water_mark(scenario, inst) * factors.drift.value(scenario.name, self.cfg.hwm_p)
 
 
 class ParameterDerivation:

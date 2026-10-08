@@ -55,7 +55,7 @@ class Config:
     period_ms: float = None                 # task period T; inferred from release_ns when None
     out_dir: str = "results"
     show_figures: bool = False
-    tolerances: tuple = (1e-1, 1e-2, 1e-3)  # per-job miss tolerances p
+    tolerances: tuple = (1e-1, 1e-2, 1e-3)  # tolerances p: a budget Q is valid when P(C > Q) <= p (not a deadline-miss rate)
     test_tolerances: tuple = (1e-2, 1e-3)   # the p used in the pass tests and the replays
     block: int = 600                        # block maxima size (jobs)
     p_gev: float = 1e-3                     # the GEV bound is computed at this p only
@@ -63,7 +63,6 @@ class Config:
     l_boot: int = 600                       # moving-block bootstrap block length (jobs)
     n_boot: int = 300
     alpha: float = 0.05                     # one-sided 95% upper confidence bound
-    hwm_margin: float = 0.96                # high-water mark route: divide by this accounting margin
     hwm_p: float = 1e-3                     # p of the alpha_drift used by the high-water mark route
     admission_max: float = 0.95             # Q / T must not exceed this
     k_list: tuple = (10, 100)               # window lengths of the worst-case (m, k)
