@@ -1,3 +1,24 @@
 node slice on worker6: period 100000 runtime 0 93000 0 0 
 [17:51:15] node rt-k8s-worker-6 (agent rq1-agent-9l4bs), pod rq2/rq2-multi, 2 instance(s), enemy cpus none
 [17:51:15] === baseline swap
+node slice on worker6: period 100000 runtime 0 93000 0 0 
+note: nodeSelector entries that rt-k8s-worker-6 does not carry are dropped: rq2-role: multi-core
+[18:08:28] node rt-k8s-worker-6 (agent rq1-agent-9l4bs), pod rq2/rq2-multi, 2 instance(s), enemy cpus none
+[18:08:28] === baseline swap
+[18:59:12] baseline swap done -> /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/extra_baselines/swap
+[18:59:13] baseline swap done -> /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/extra_baselines/swap
+[18:59:22] done: /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/extra_baselines/swap
+[18:59:23] done: /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/extra_baselines/swap
+note: nodeSelector entries that rt-k8s-worker-6 does not carry are dropped: rq2-role: multi-core
+[18:59:23] node rt-k8s-worker-6 (agent rq1-agent-9l4bs), pod rq2/rq2-multi, 2 instance(s), enemy cpus 3,0
+[18:59:23] === stress (paired with swap)
+note: nodeSelector entries that rt-k8s-worker-6 does not carry are dropped: rq2-role: multi-core
+[18:59:24] FATAL: an rq2-enemy is running on rt-k8s-worker-6 that this script did not start (at the start): the data would be contaminated
+        PID                  STARTED PSR %CPU COMMAND
+      64956 Thu Oct  8 18:59:23 2026   3  0.0 /usr/local/bin/rq2-enemy --size-kb 2662400 --stride-bytes 64 --mode rw --cpu 3
+      64957 Thu Oct  8 18:59:23 2026   0  0.0 /usr/local/bin/rq2-enemy --size-kb 2662400 --stride-bytes 64 --mode rw --cpu 0
+[18:59:24] if nothing else uses rt-k8s-worker-6, stop it: kubectl -n rq2-node-prep-worker6 exec -i rq1-agent-9l4bs -- nsenter --target 1 --mount --pid -- pkill -x rq2-enemy
+    OK   64956   3 90.3 rq2-enemy
+    OK   64957   0 96.8 rq2-enemy
+[19:50:15] stress (paired with swap) done -> /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/stress_run
+[19:50:25] done: /home/azureuser/GraduationProject/research-questions/RQ2/procedure/step3_drift_runs/results/seg_multi/stress_run
