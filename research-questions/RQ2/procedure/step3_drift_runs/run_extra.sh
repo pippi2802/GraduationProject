@@ -56,6 +56,7 @@ for o in (d["items"] if d.get("kind") == "List" else [d]):
         sed -E -i "s#(-{0,2}jobs=)[0-9]+#\1$JOBS#" "$PINNED"
         grep -qE "(-{0,2}jobs=)$JOBS([^0-9]|$)" "$PINNED" || die "--jobs given, but $POD_YAML has no jobs=N or --jobs=N to replace"
     fi
+    trap '' PIPE                                              # a dead reader of our output (tee) must not kill us before the enemies are stopped
     trap 'stop_enemies' EXIT; trap 'exit 130' INT TERM       # whatever happens, no enemy is left running
     stop_enemies                                              # clean start
     no_strays "at the start"
