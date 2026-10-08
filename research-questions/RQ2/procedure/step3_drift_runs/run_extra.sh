@@ -13,18 +13,19 @@
 #   The arguments are those of step 2 (see ../step2_profiling/run_profiling.sh), with the YAML of the SAME workload as in step 2.
 #   --paired-with  (stress) the label of the baseline measured next to it; step 4 uses it for the stress ratio on that run and the rule for m
 #   --enemy        (stress) memory (default) or cache
+#   --jobs N       jobs per run: replaces jobs=N / --jobs=N in the pod YAML; the run must then have exactly N rows
 #
 # The workload contract (any workload that follows it works):
 #   - a pod YAML with ONE Pod, whose nodeSelector is a one-line flow mapping ("nodeSelector: { key: value }"); this script adds the node.
 #   - the pod writes /results/<prefix>_instance<N>.csv and .meta.json (N = 0, 1, ...) to a hostPath directory of the node (--node-dir).
 #   - the CSV has the columns job_id, skipped, warmup, cpu_ns, release_ns, response_ns (more is welcome: see step 4's README).
-#   - the number of jobs of a run is set in the pod YAML (edit it there).
+#   - the number of jobs of a run is set in the pod YAML (jobs=N or --jobs=N), or overridden with --jobs.
 # Prerequisites: kubectl on this machine; a node-prep agent pod (label app=rq1-agent) in --agent-ns on that node, as in setup/;
 # the enemy binary installed on the node as /usr/local/bin/rq2-enemy (./install_enemy.sh in step 2).
 set -uo pipefail
 
 SCENARIO="" POD_YAML="" NODE="" AGENT_NS="" NODE_DIR="" PREFIX="" INSTANCES=1 ENEMY_CPUS=""
-CACHE_KB=266240 MEMORY_KB=2662400 STRIDE=64 TIMEOUT_S=7200 ATTEMPTS=2 SETTLE_S=10
+CACHE_KB=266240 MEMORY_KB=2662400 STRIDE=64 TIMEOUT_S=7200 ATTEMPTS=2 SETTLE_S=10 JOBS=""
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 usage() { sed -n '2,/^[^#]/p' "$0" | grep '^#' | sed 's/^# \{0,1\}//'; }
@@ -51,6 +52,10 @@ for o in (d["items"] if d.get("kind") == "List" else [d]):
     PINNED="$(mktemp)"
     sed -E "s#^([[:space:]]*nodeSelector:.*[^[:space:]])[[:space:]]*\}[[:space:]]*\$#\1, kubernetes.io/hostname: $HOST }#" "$POD_YAML" > "$PINNED"
     grep -q "kubernetes.io/hostname: $HOST" "$PINNED" || die "could not pin the pod to $HOST"
+    if [ -n "$JOBS" ]; then        # --jobs N replaces jobs=N / --jobs=N in the pinned copy; the check below then wants exactly N rows
+        sed -E -i "s#(-{0,2}jobs=)[0-9]+#\1$JOBS#" "$PINNED"
+        grep -qE "(-{0,2}jobs=)$JOBS([^0-9]|$)" "$PINNED" || die "--jobs given, but $POD_YAML has no jobs=N or --jobs=N to replace"
+    fi
     trap 'stop_enemies' EXIT; trap 'exit 130' INT TERM       # whatever happens, no enemy is left running
     stop_enemies                                              # clean start
     no_strays "at the start"
@@ -106,16 +111,17 @@ pull() {            # <out dir>: every instance's csv + meta from the node; an e
     done
 }
 
-check() {           # <out dir>: rows in every csv, and the real-time flags of the meta file when it has them
+check() {           # <out dir>: rows in every csv (exactly --jobs when given), and the real-time flags of the meta file when it has them
     local out="$1" i
     for i in $(seq 0 $((INSTANCES - 1))); do
-        python3 - "$out/instance$i.csv" "$out/instance$i.meta.json" <<'PY' || return 1
+        python3 - "$out/instance$i.csv" "$out/instance$i.meta.json" "${JOBS:-}" <<'PY' || return 1
 import json, sys
 rows = sum(1 for _ in open(sys.argv[1])) - 1
 meta = json.load(open(sys.argv[2]))
 bad = [k for k in ("mlockall_ok", "sched_fifo_ok", "affinity_ok") if k in meta and meta[k] is not True]
-if rows < 1000 or bad:
-    print("check failed: %s has %d rows%s" % (sys.argv[1], rows, ", not true in the meta file: " + ", ".join(bad) if bad else ""))
+want = int(sys.argv[3]) if sys.argv[3] else None
+if rows < 1000 or (want is not None and rows != want) or bad:
+    print("check failed: %s has %d rows%s%s" % (sys.argv[1], rows, "" if want is None else " (expected %d)" % want, ", not true in the meta file: " + ", ".join(bad) if bad else ""))
     sys.exit(1)
 PY
     done
@@ -151,7 +157,7 @@ while [ $# -gt 0 ]; do
         --scenario) SCENARIO="$2"; shift 2 ;; --pod-yaml) POD_YAML="$2"; shift 2 ;; --node) NODE="$2"; shift 2 ;;
         --agent-ns) AGENT_NS="$2"; shift 2 ;; --node-dir) NODE_DIR="$2"; shift 2 ;; --prefix) PREFIX="$2"; shift 2 ;;
         --instances) INSTANCES="$2"; shift 2 ;; --enemy-cpus) ENEMY_CPUS="$2"; shift 2 ;; --cache-kb) CACHE_KB="$2"; shift 2 ;;
-        --memory-kb) MEMORY_KB="$2"; shift 2 ;; --timeout-s) TIMEOUT_S="$2"; shift 2 ;; --attempts) ATTEMPTS="$2"; shift 2 ;; --settle-s) SETTLE_S="$2"; shift 2 ;;
+        --memory-kb) MEMORY_KB="$2"; shift 2 ;; --timeout-s) TIMEOUT_S="$2"; shift 2 ;; --attempts) ATTEMPTS="$2"; shift 2 ;; --settle-s) SETTLE_S="$2"; shift 2 ;; --jobs) JOBS="$2"; shift 2 ;;
         --label) LABEL="$2"; shift 2 ;; --paired-with) PAIRED="$2"; shift 2 ;; --enemy) ENEMY="$2"; shift 2 ;; --out) OUT="$2"; shift 2 ;;
         *) usage; exit 2 ;;
     esac

@@ -1,8 +1,7 @@
 # Single-core run: one instance on cpu1 under a KubeDeadline CBS reservation (same shape as ../../workload/pods).
-# Continuous mode (period_ms 0 in the config) wants 100% of the core, and SCHED_FIFO still needs a claim, so the claim is the
-# largest the node accepts: 93000 of 100000 us. About 7% of the time the task is throttled; cpu_ns is not affected.
-# Once the period is chosen: set period_ms in configs/single_core.json and use a runtime/period derived from the CPU times.
-# Edit before running: image (docker push first), jobs in the config (rebuild the image after editing it).
+# Periodic, period 100 ms (period_ms=100 on the command line, no rebuild needed). The claim is generous for profiling: 93000 of 100000 us (the node's cap is 0.94),
+# far above the task's CPU time (about 46-56 ms), so the budget never limits it. Jobs: 50000 here; step 3 overrides with --jobs 30000.
+# Edit before running: image (docker push first).
 # Pod name, hostPath and file names match workload/pull_results.sh (run from the RQ2 folder):
 #   OUT_ROOT=workload2/results workload/pull_results.sh single_core <condition>
 ---
@@ -37,7 +36,7 @@ spec:
     - name: seg
       image: pippina2/rq2-seg:v2
       imagePullPolicy: IfNotPresent
-      command: ["python3", "run.py", "configs/single_core.json", "jobs=3000", "n_images=100"]   # pilot: 3000 jobs over 100 pictures (30 repetitions each); remove both overrides for the full baseline
+      command: ["python3", "run.py", "configs/single_core.json", "period_ms=100", "jobs=50000"]   # period 100 ms; 50000 jobs for profiling (step 2), step 3 passes --jobs 30000
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]

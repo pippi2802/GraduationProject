@@ -33,7 +33,7 @@ spec:
     - name: seg
       image: pippina2/rq2-seg:v2
       imagePullPolicy: IfNotPresent
-      command: ["python3", "run.py", "configs/multi_core.json"]
+      command: ["python3", "run.py", "configs/multi_core.json", "period_ms=100", "jobs=50000"]   # period 100 ms; 50000 jobs for profiling (step 2), step 3 passes --jobs 30000
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]

@@ -6,7 +6,7 @@ One node, unattended, in this order: baseline (no stress), cache enemy, memory e
 - a pod YAML with ONE Pod; its `nodeSelector` is a one-line flow mapping (`nodeSelector: { key: value }`), the script adds the node.
 - the pod writes `/results/<prefix>_instance<N>.csv` and `.meta.json` (N = 0, 1, ...) to a hostPath directory of the node.
 - columns of the CSV: `job_id, skipped, warmup, cpu_ns, release_ns, response_ns` (CPU time of the job, release time, response time); `start_ns, end_ns, frame_idx` for the platform-event check of step 4. The meta file may hold `sched_fifo_ok`, `affinity_ok`, `mlockall_ok`: the script rejects a run where one is false.
-- the number of jobs is set in the pod YAML (at least 50000 for p = 1e-3; the profiling of the thesis used 100000).
+- the number of jobs is set in the pod YAML (`jobs=N` or `--jobs=N`; at least 50000 for p = 1e-3); `--jobs N` overrides it without editing the YAML, and the run must then have exactly N rows.
 - prerequisites: kubectl on this machine, a node-prep agent pod (label `app=rq1-agent`) on the node (as in `setup/`), the enemy installed on the node once:
   `./install_enemy.sh <agent-namespace> <node>`.
 
