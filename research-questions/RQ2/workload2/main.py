@@ -85,13 +85,6 @@ def preprocess_test(x):
     image = tf.reshape(image, (H, W, 3))    # In the Images, number of channels = 3.  
     return image
 
-
-
-
-
-
-
-
 # Main execution
 # Split dataset into training and validation sets
 names = sorted([img for img in os.listdir(IMG_PATH) if img.endswith('.png')])

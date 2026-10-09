@@ -1,19 +1,19 @@
 scenario,route,p,Q_ms,Q_over_T,runtime_us,period_us,admitted
-multi_core,Route 1,0.001,1.572,0.1572,1572,10000,True
+multi_core,Route 1,0.001,1.593,0.1593,1593,10000,True
 multi_core,Route 1,0.01,1.341,0.1341,1341,10000,True
-multi_core,Route 1,0.1,1.176,0.1176,1176,10000,True
-multi_core,Route 2b (m=2),0.001,2.401,0.2401,2401,10000,True
-multi_core,Route 2b (m=2),0.01,1.432,0.1432,1432,10000,True
-multi_core,Route 2b (m=2),0.1,1.24,0.124,1240,10000,True
-multi_core,HWM,0.001,3.544,0.3544,3544,10000,True
-multi_core,HWM,0.01,3.544,0.3544,3544,10000,True
-multi_core,HWM,0.1,3.544,0.3544,3544,10000,True
+multi_core,Route 1,0.1,1.178,0.1178,1178,10000,True
+multi_core,Route 2b (m=2),0.001,2.438,0.2438,2438,10000,True
+multi_core,Route 2b (m=2),0.01,1.434,0.1434,1434,10000,True
+multi_core,Route 2b (m=2),0.1,1.243,0.1243,1243,10000,True
+multi_core,HWM,0.001,3.446,0.3446,3446,10000,True
+multi_core,HWM,0.01,3.446,0.3446,3446,10000,True
+multi_core,HWM,0.1,3.446,0.3446,3446,10000,True
 single_core,Route 1,0.001,1.348,0.1348,1348,10000,True
-single_core,Route 1,0.01,1.091,0.1091,1091,10000,True
-single_core,Route 1,0.1,1.031,0.1031,1031,10000,True
-single_core,Route 2b (m=3),0.001,1.497,0.1497,1497,10000,True
+single_core,Route 1,0.01,1.092,0.1092,1092,10000,True
+single_core,Route 1,0.1,1.032,0.1032,1032,10000,True
+single_core,Route 2b (m=3),0.001,1.496,0.1496,1496,10000,True
 single_core,Route 2b (m=3),0.01,1.207,0.1207,1207,10000,True
 single_core,Route 2b (m=3),0.1,1.161,0.1161,1161,10000,True
-single_core,HWM,0.001,7.584,0.7584,7584,10000,True
-single_core,HWM,0.01,7.584,0.7584,7584,10000,True
-single_core,HWM,0.1,7.584,0.7584,7584,10000,True
+single_core,HWM,0.001,7.281,0.7281,7281,10000,True
+single_core,HWM,0.01,7.281,0.7281,7281,10000,True
+single_core,HWM,0.1,7.281,0.7281,7281,10000,True
