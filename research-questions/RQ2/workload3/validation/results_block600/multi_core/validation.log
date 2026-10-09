@@ -1,0 +1,70 @@
+[2026-10-06T15:13:17Z] multi_core: start: 14 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-06T15:13:17Z] multi_core: FATAL: an rq2-enemy is still running on rt-k8s-worker-6
+[2026-10-06T15:17:27Z] multi_core: start: 14 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-06T15:17:27Z] multi_core: node slice: period 10000 runtime 0 9300 9300 0 
+[2026-10-06T15:17:27Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-06T15:17:27Z] multi_core: === rq2-val-aud-multi-r1-p1e-3-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T15:22:28Z] multi_core: rq2-val-aud-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-06T15:26:00Z] multi_core: rq2-val-aud-multi-r1-p1e-3-none done: instance0: 37 misses (late 17, skipped 20) of 50000; instance1: 131 misses (late 62, skipped 69) of 50000
+[2026-10-06T15:26:10Z] multi_core: === rq2-val-aud-multi-r1-p1e-3-mem (memory, 2 instance(s), 50000 jobs)
+    OK   35048   3 92.1 rq2-enemy
+    OK   35049   0 98.3 rq2-enemy
+[2026-10-06T15:31:19Z] multi_core: rq2-val-aud-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-06T15:34:51Z] multi_core: rq2-val-aud-multi-r1-p1e-3-mem done: instance0: 43 misses (late 20, skipped 23) of 50000; instance1: 308 misses (late 137, skipped 171) of 50000
+[2026-10-06T15:35:01Z] multi_core: === rq2-val-aud-multi-r2b-p1e-3-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T15:40:02Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-06T15:43:33Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-none done: instance0: 8 misses (late 4, skipped 4) of 50000; instance1: 36 misses (late 18, skipped 18) of 50000
+[2026-10-06T15:43:43Z] multi_core: === rq2-val-aud-multi-r2b-p1e-3-mem (memory, 2 instance(s), 50000 jobs)
+    OK   37307   3 97.6 rq2-enemy
+    OK   37308   0 98.2 rq2-enemy
+[2026-10-06T15:48:52Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-06T15:52:24Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-mem done: instance0: 8 misses (late 4, skipped 4) of 50000; instance1: 126 misses (late 62, skipped 64) of 50000
+[2026-10-06T15:52:34Z] multi_core: === rq2-val-aud-multi-r1-p1e-2-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T15:58:22Z] multi_core: start: 14 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-06T15:58:23Z] multi_core: node slice: period 10000 runtime 0 1341 1341 0 
+[2026-10-06T15:58:23Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-06T15:58:23Z] multi_core: rq2-val-aud-multi-r1-p1e-3-none: already collected, skipped
+[2026-10-06T15:58:23Z] multi_core: rq2-val-aud-multi-r1-p1e-3-mem: already collected, skipped
+[2026-10-06T15:58:23Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-none: already collected, skipped
+[2026-10-06T15:58:23Z] multi_core: rq2-val-aud-multi-r2b-p1e-3-mem: already collected, skipped
+[2026-10-06T15:58:23Z] multi_core: === rq2-val-aud-multi-r1-p1e-2-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T16:03:24Z] multi_core: rq2-val-aud-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-06T16:06:55Z] multi_core: rq2-val-aud-multi-r1-p1e-2-none done: instance0: 851 misses (late 424, skipped 427) of 50000; instance1: 567 misses (late 282, skipped 285) of 50000
+[2026-10-06T16:07:05Z] multi_core: === rq2-val-aud-multi-r1-p1e-2-mem (memory, 2 instance(s), 50000 jobs)
+    OK   40480   3 88.3 rq2-enemy
+    OK   40481   0 98.1 rq2-enemy
+[2026-10-06T16:12:15Z] multi_core: rq2-val-aud-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-06T16:15:47Z] multi_core: rq2-val-aud-multi-r1-p1e-2-mem done: instance0: 46 misses (late 23, skipped 23) of 50000; instance1: 36 misses (late 18, skipped 18) of 50000
+[2026-10-06T16:15:57Z] multi_core: === rq2-val-aud-multi-r2b-p1e-2-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T16:20:58Z] multi_core: rq2-val-aud-multi-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-06T16:24:29Z] multi_core: rq2-val-aud-multi-r2b-p1e-2-none done: instance0: 26 misses (late 13, skipped 13) of 50000; instance1: 8 misses (late 4, skipped 4) of 50000
+[2026-10-06T16:24:39Z] multi_core: === rq2-val-aud-multi-r2b-p1e-2-mem (memory, 2 instance(s), 50000 jobs)
+    OK   42822   3  100 rq2-enemy
+    OK   42823   0 98.6 rq2-enemy
+[2026-10-06T16:29:48Z] multi_core: rq2-val-aud-multi-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-06T16:33:20Z] multi_core: rq2-val-aud-multi-r2b-p1e-2-mem done: instance0: 95 misses (late 47, skipped 48) of 50000; instance1: 76 misses (late 38, skipped 38) of 50000
+[2026-10-06T16:33:30Z] multi_core: === rq2-val-aud-multi-r1-p1e-1-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T16:38:31Z] multi_core: rq2-val-aud-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-06T16:42:03Z] multi_core: rq2-val-aud-multi-r1-p1e-1-none done: instance0: 10061 misses (late 5030, skipped 5031) of 50000; instance1: 9877 misses (late 4938, skipped 4939) of 50000
+[2026-10-06T16:42:13Z] multi_core: === rq2-val-aud-multi-r1-p1e-1-mem (memory, 2 instance(s), 50000 jobs)
+    OK   45154   3 88.3 rq2-enemy
+    OK   45155   0 98.5 rq2-enemy
+[2026-10-06T16:47:22Z] multi_core: rq2-val-aud-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-06T16:50:54Z] multi_core: rq2-val-aud-multi-r1-p1e-1-mem done: instance0: 554 misses (late 277, skipped 277) of 50000; instance1: 220 misses (late 110, skipped 110) of 50000
+[2026-10-06T16:51:04Z] multi_core: === rq2-val-aud-multi-r2b-p1e-1-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T16:56:05Z] multi_core: rq2-val-aud-multi-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-06T16:59:37Z] multi_core: rq2-val-aud-multi-r2b-p1e-1-none done: instance0: 5030 misses (late 2509, skipped 2521) of 50000; instance1: 2817 misses (late 1406, skipped 1411) of 50000
+[2026-10-06T16:59:47Z] multi_core: === rq2-val-aud-multi-r2b-p1e-1-mem (memory, 2 instance(s), 50000 jobs)
+    OK   47494   3  100 rq2-enemy
+    OK   47495   0 98.2 rq2-enemy
+[2026-10-06T17:04:56Z] multi_core: rq2-val-aud-multi-r2b-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-06T17:08:28Z] multi_core: rq2-val-aud-multi-r2b-p1e-1-mem done: instance0: 556 misses (late 276, skipped 280) of 50000; instance1: 172 misses (late 86, skipped 86) of 50000
+[2026-10-06T17:08:38Z] multi_core: === rq2-val-aud-multi-hwm-all-none (none, 2 instance(s), 50000 jobs)
+[2026-10-06T17:13:39Z] multi_core: rq2-val-aud-multi-hwm-all-none: still waiting (Running, 300s)
+[2026-10-06T17:17:10Z] multi_core: rq2-val-aud-multi-hwm-all-none done: instance0: 2 misses (late 1, skipped 1) of 50000; instance1: 0 misses (late 0, skipped 0) of 50000
+[2026-10-06T17:17:20Z] multi_core: === rq2-val-aud-multi-hwm-all-mem (memory, 2 instance(s), 50000 jobs)
+    OK   49837   3 99.5 rq2-enemy
+    OK   49838   0 97.0 rq2-enemy
+[2026-10-06T17:22:29Z] multi_core: rq2-val-aud-multi-hwm-all-mem: still waiting (Running, 300s)
+[2026-10-06T17:26:02Z] multi_core: rq2-val-aud-multi-hwm-all-mem done: instance0: 2 misses (late 1, skipped 1) of 50000; instance1: 0 misses (late 0, skipped 0) of 50000
+[2026-10-06T17:26:12Z] multi_core: all 14 runs collected

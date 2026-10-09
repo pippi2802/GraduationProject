@@ -17,7 +17,7 @@
   "mlockall_ok": true,
   "sched_fifo_ok": true,
   "affinity_ok": true,
-  "start_time_utc": "2026-10-06T17:25:51Z",
+  "start_time_utc": "2026-10-09T12:56:54Z",
   "hostname": "rq2-val-aud-single-hwm-all-mem",
   "kernel_version": "7.0.0+",
   "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
