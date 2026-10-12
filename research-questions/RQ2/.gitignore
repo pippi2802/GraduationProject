@@ -57,3 +57,7 @@ procedure/*/__pycache__/
 # workload3 online validation: collected results
 workload3/validation/results/*
 !workload3/validation/results/.gitkeep
+
+# workload2 online validation: collected results
+workload2/validation/results/*
+!workload2/validation/results/.gitkeep

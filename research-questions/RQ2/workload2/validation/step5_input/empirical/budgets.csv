@@ -1,0 +1,13 @@
+scenario,route,p,Q_ms,Q_over_T,runtime_us,period_us,admitted
+multi_core,Route 1,0.001,71.532,0.71532,71532,100000,True
+multi_core,Route 1,0.01,70.053,0.70053,70053,100000,True
+multi_core,Route 1,0.1,68.287,0.68287,68287,100000,True
+multi_core,Route 2b (m=2),0.001,71.634,0.71634,71634,100000,True
+multi_core,Route 2b (m=2),0.01,70.695,0.70695,70695,100000,True
+multi_core,Route 2b (m=2),0.1,69.213,0.69213,69213,100000,True
+single_core,Route 1,0.001,59.549,0.59549,59549,100000,True
+single_core,Route 1,0.01,62.86,0.6286,62860,100000,True
+single_core,Route 1,0.1,61.25,0.6125,61250,100000,True
+single_core,Route 2b (m=3),0.001,61.901,0.61901,61901,100000,True
+single_core,Route 2b (m=3),0.01,66.0,0.66,66000,100000,True
+single_core,Route 2b (m=3),0.1,65.279,0.65279,65279,100000,True
