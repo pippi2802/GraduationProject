@@ -7,7 +7,7 @@
 #   tail -f results/single_core/validation.log                    progress (and results/multi_core/validation.log)
 #
 # For every run (order: p1e-3, then p1e-2, then p1e-1; inside each, route1 then route2b, without then with interference; HWM last):
-# the memory enemy is started first when the run is a _memory one (confirmed to burn cpu), the pod is applied as it is in pods/ (already
+# the memory or cache enemy is started first when the run is a _memory or _cache one (confirmed to burn cpu), the pod is applied as it is in pods/ (already
 # pinned to its node), its phase is polled until it ends (a failed pod is seen at once, with its state and logs in the log), the CSV and meta.json
 # of every instance are pulled through the node-prep agent into results/<scenario>/<route>/<p>_<interference>/, checked (row count = jobs,
 # SCHED_FIFO / affinity / mlock flags true), the number of misses is logged, the pod is deleted, the enemy is stopped (confirmed) and the script
@@ -38,8 +38,8 @@ plan() {   # <scenario>: run_id|pod_file|node|interference|enemy_cpus|save_dir|j
 import csv, sys
 rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["scenario"] == sys.argv[2] and (not sys.argv[3] or r["route"] == sys.argv[3])]
 p, route = {"0.001": 0, "0.01": 1, "0.1": 2, "all": 3}, {"route1": 0, "route2b": 1, "hwm": 2}
-for r in sorted(rows, key=lambda r: (p[r["p"]], route[r["route"]], r["interference"] != "none")):
-    print("|".join([r["run_id"], r["pod_file"], r["node"], r["interference"], r["enemy_cpus"], r["save_results_in"], r["jobs"], r["period_us"]]))
+for r in sorted(rows, key=lambda r: (p[r["p"]], route[r["route"]], {"none": 0, "memory": 1, "cache": 2}[r["interference"]])):
+    print("|".join([r["run_id"], r["pod_file"], r["node"], r["interference"], r["enemy_cpus"], r["save_results_in"], r["jobs"], r["period_us"], r["enemy_kb"]]))
 PY
 }
 
@@ -55,8 +55,8 @@ validate_scenario() {   # <scenario>: runs in its own subshell, so its variables
     say "start: ${#RUNS[@]} runs on $NODE (agent namespace $NS)"
     if [ "$DRY_RUN" = 1 ]; then
         for r in "${RUNS[@]}"; do
-            IFS='|' read -r id pod node cond cpus out jobs period <<< "$r"
-            if [ "$cond" = memory ]; then desc="memory enemy on cpus $cpus"; else desc="no enemy"; fi
+            IFS='|' read -r id pod node cond cpus out jobs period kb <<< "$r"
+            if [ "$cond" != none ]; then desc="$cond enemy (${kb} KB) on cpus $cpus"; else desc="no enemy"; fi
             say "[dry-run] $id: $pod, $desc -> $out"
         done
         return 0
@@ -92,7 +92,7 @@ EOS
 
     FAILED=()
     for r in "${RUNS[@]}"; do
-        IFS='|' read -r ID POD_FILE _ COND CPUS OUT JOBS _ <<< "$r"
+        IFS='|' read -r ID POD_FILE _ COND CPUS OUT JOBS _ KB <<< "$r"
         DIR="$HERE/$OUT"
         if [ -f "$DIR/.done" ]; then say "$ID: already collected, skipped"; continue; fi
         INST=$(grep -o 'cpus=\[[0-9,]*\]' "$HERE/$POD_FILE" | head -1 | tr -cd ',' | wc -c); INST=$((INST + 1))
@@ -101,14 +101,14 @@ EOS
         if kubectl -n rq2 get pod "$ID" > /dev/null 2>&1; then say "FATAL: pod $ID already exists"; return 1; fi
         ok=0
         for try in $(seq 1 "$ATTEMPTS"); do
-            if [ "$COND" = memory ]; then
-                o=$(on_node bash -s -- "$MEM_KB" "$STRIDE" "$CPUS" < "$STRESS/campaign_start_enemies.sh" 2>&1); echo "$o" | sed 's/^/    /' >> "$LOG"
+            if [ "$COND" != none ]; then
+                o=$(on_node bash -s -- "${KB:-$MEM_KB}" "$STRIDE" "$CPUS" < "$STRESS/campaign_start_enemies.sh" 2>&1); echo "$o" | sed 's/^/    /' >> "$LOG"
                 if echo "$o" | grep -qE "MISSING|LOW_CPU"; then say "FATAL: an enemy is not running (install it on the node first)"; return 1; fi
             fi
             if kubectl apply -f "$HERE/$POD_FILE" > /dev/null 2>&1 && wait_pod "$ID" $((JOBS / 100 + 900)) && pull "$ID" "$DIR" "$INST" && check "$DIR" "$INST" "$JOBS"; then ok=1; fi
             [ "$ok" = 1 ] || { say "attempt $try failed"; diag "$ID"; }
             kubectl -n rq2 delete pod "$ID" --ignore-not-found > /dev/null 2>&1
-            [ "$COND" = memory ] && { stop_enemies || return 1; }
+            [ "$COND" != none ] && { stop_enemies || return 1; }
             no_strays "after $ID" || return 1
             [ "$ok" = 1 ] && break
         done

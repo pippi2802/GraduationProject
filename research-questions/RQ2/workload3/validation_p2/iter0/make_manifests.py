@@ -3,11 +3,11 @@
 
     python3 make_manifests.py
 
-One self-contained file per scenario x route x tolerance x interference in pods/<scenario>/<route>/<p>_<none|memory>.yaml:
+One self-contained file per scenario x route x tolerance x interference in pods/<scenario>/<route>/<p>_<none|memory|cache>.yaml:
 the RtClaimParameters with runtime = the budget (us) of period 10000 us, the ResourceClaimTemplate and the Pod. The HWM route has
 no tolerance: one budget, pods/<scenario>/hwm/all_none.yaml and all_memory.yaml. 28 files, plus runs.csv (what each run is, where it
 runs, where its files appear on the node and where to save them for step 5) and step5_input/budgets.csv (the budgets in step 4's format). The interference is NOT in a pod: the memory enemy is
-started on the node around the runs whose file name ends in _memory.yaml (see README.md).
+started on the node around the runs whose file name ends in _memory.yaml or _cache.yaml (see README.md).
 
 To change a budget, edit budgets.csv and run this again."""
 import csv, pathlib
@@ -26,7 +26,9 @@ ROUTES = {"route1": ("r1", "Route 1: Q = C_p of the stress runs x alpha_drift"),
           "hwm": ("hwm", "Route 3 (HWM): Q = largest C of the stress runs x alpha_drift (one budget for every tolerance)")}
 TOL = {"0.1": "p1e-1", "0.01": "p1e-2", "0.001": "p1e-3"}
 M = {"single_core": 3, "multi_core": 2}          # enemy cores of the profiling (the label of Route 2b)
-COND = {"none": ("none", "without interference"), "memory": ("mem", "with the memory enemy (started on the node around the run)")}
+COND = {"none": ("none", "without interference"), "memory": ("mem", "with the memory enemy (started on the node around the run)"),
+        "cache": ("cache", "with the cache enemy (started on the node around the run)")}
+ENEMY_KB = {"memory": 2662400, "cache": 266240}      # enemy buffer: 10 x the last-level cache (memory) and the last-level cache (cache), as in the profiling
 
 
 def pod_file(scen, route, ptag, cond, row):
@@ -96,7 +98,7 @@ def main():
                     run_id, text = pod_file(scen, route, ptag, cond, row)
                     path = out / f"{ptag}_{cond}.yaml"
                     path.write_text(text)
-                    runs.append(dict(run_id=run_id, scenario=scen, route=route, p=p, interference=cond, node=s["node"], enemy_cpus=s["enemy_cpus"] if cond == "memory" else "",
+                    runs.append(dict(run_id=run_id, scenario=scen, route=route, p=p, interference=cond, node=s["node"], enemy_cpus=s["enemy_cpus"] if cond != "none" else "", enemy_kb=ENEMY_KB.get(cond, ""),
                                      runtime_us=row["runtime_us"], period_us=row["period_us"], jobs=JOBS, pod_file=str(path.relative_to(HERE)),
                                      node_files=f"{NODE_DIR}/{run_id}_instance*.csv", save_results_in=f"results/{scen}/{route}/{ptag}_{cond}"))
     # the same budgets in the format of step 4's budgets.csv, so that step 5's validate.py can check the online runs against exactly these
