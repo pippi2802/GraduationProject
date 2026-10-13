@@ -31,7 +31,7 @@ spec:
     - name: seg
       image: pippina2/rq2-seg:v2
       imagePullPolicy: IfNotPresent
-      command: ["python3", "run.py", "configs/single_core.json", "period_ms=100", "jobs=10000", "output=/results/rq2-val2-seg-single-r1-p1e-3-none"]
+      command: ["python3", "run.py", "configs/single_core.json", "period_ms=100", "jobs=10000", 'output="/results/rq2-val2-seg-single-r1-p1e-3-none"']
       securityContext: { capabilities: { add: ["SYS_NICE", "IPC_LOCK"] } }
       resources: { claims: [{ name: rtcpu }] }
       volumeMounts: [{ name: results, mountPath: /results }]

@@ -1,0 +1,278 @@
+nohup: ignoring input
+[2026-10-12T15:51:30Z] multi_core: start: 14 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-12T15:51:30Z] single_core: start: 14 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-12T15:51:30Z] single_core: node slice: period 100000 runtime 0 62873 0 0 
+[2026-10-12T15:51:30Z] multi_core: node slice: period 100000 runtime 0 71874 71874 0 
+[2026-10-12T15:51:30Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-12T15:51:30Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-12T15:51:30Z] single_core: === rq2-val2-seg-single-r1-p1e-3-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T15:51:30Z] multi_core: === rq2-val2-seg-multi-r1-p1e-3-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T15:56:32Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T15:56:32Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T16:01:32Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:01:32Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:06:33Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T16:06:33Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:10:04Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:10:04Z] multi_core: attempt 1 failed
+[2026-10-12T16:15:05Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T16:15:06Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T16:20:06Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:20:06Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:25:07Z] single_core: rq2-val2-seg-single-r1-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T16:25:07Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:27:37Z] single_core: attempt 2 failed
+[2026-10-12T16:27:38Z] single_core: rq2-val2-seg-single-r1-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:27:38Z] multi_core: attempt 2 failed
+[2026-10-12T16:27:38Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T16:27:48Z] single_core: === rq2-val2-seg-single-r1-p1e-3-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T16:27:48Z] multi_core: === rq2-val2-seg-multi-r1-p1e-3-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T16:32:57Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:32:57Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:37:58Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T16:37:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T16:42:58Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T16:42:59Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:45:29Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T16:45:30Z] multi_core: attempt 1 failed
+[2026-10-12T16:50:39Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:50:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:55:39Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T16:55:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T17:00:40Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T17:00:41Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:03:11Z] single_core: attempt 2 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:03:12Z] multi_core: attempt 2 failed
+[2026-10-12T17:03:12Z] single_core: rq2-val2-seg-single-r1-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T17:03:13Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T17:03:22Z] single_core: === rq2-val2-seg-single-r2b-p1e-3-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T17:03:23Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-3-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T17:08:23Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:08:24Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:13:23Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:13:24Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:18:24Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T17:18:25Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:20:55Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:20:56Z] multi_core: attempt 1 failed
+[2026-10-12T17:25:56Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:25:57Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:30:57Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:30:58Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:35:57Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T17:35:58Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:38:28Z] single_core: attempt 2 failed
+[2026-10-12T17:38:28Z] single_core: rq2-val2-seg-single-r2b-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-3_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:38:29Z] multi_core: attempt 2 failed
+[2026-10-12T17:38:29Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T17:38:38Z] single_core: === rq2-val2-seg-single-r2b-p1e-3-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T17:38:39Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-3-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T17:43:47Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T17:43:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T17:48:48Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T17:48:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T17:53:48Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T17:53:50Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:56:19Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T17:56:21Z] multi_core: attempt 1 failed
+[2026-10-12T18:01:29Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T18:01:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T18:06:30Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T18:06:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T18:11:30Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T18:11:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:14:01Z] single_core: attempt 2 failed
+[2026-10-12T18:14:02Z] single_core: rq2-val2-seg-single-r2b-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-3_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:14:03Z] multi_core: attempt 2 failed
+[2026-10-12T18:14:04Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T18:14:12Z] single_core: === rq2-val2-seg-single-r1-p1e-2-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T18:14:14Z] multi_core: === rq2-val2-seg-multi-r1-p1e-2-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T18:19:13Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:19:15Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:24:14Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:24:16Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:29:14Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T18:29:16Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:31:45Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:31:47Z] multi_core: attempt 1 failed
+[2026-10-12T18:36:46Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:36:48Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:41:47Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:41:49Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:46:47Z] single_core: rq2-val2-seg-single-r1-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T18:46:49Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:49:18Z] single_core: attempt 2 failed
+[2026-10-12T18:49:18Z] single_core: rq2-val2-seg-single-r1-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T18:49:20Z] multi_core: attempt 2 failed
+[2026-10-12T18:49:20Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T18:49:28Z] single_core: === rq2-val2-seg-single-r1-p1e-2-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T18:49:30Z] multi_core: === rq2-val2-seg-multi-r1-p1e-2-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T18:54:37Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T18:54:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T18:59:38Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T18:59:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T19:04:39Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T19:04:41Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:07:09Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:07:12Z] multi_core: attempt 1 failed
+[2026-10-12T19:12:19Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T19:12:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T19:17:20Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T19:17:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T19:22:20Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T19:22:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:24:51Z] single_core: attempt 2 failed
+[2026-10-12T19:24:52Z] single_core: rq2-val2-seg-single-r1-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:24:54Z] multi_core: attempt 2 failed
+[2026-10-12T19:24:55Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T19:25:02Z] single_core: === rq2-val2-seg-single-r2b-p1e-2-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T19:25:05Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-2-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T19:30:03Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:30:06Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:35:04Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:35:07Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:40:04Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T19:40:07Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:42:35Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T19:42:38Z] multi_core: attempt 1 failed
+[2026-10-12T19:47:36Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:47:39Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:52:37Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:52:40Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:57:37Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T19:57:40Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:00:08Z] single_core: attempt 2 failed
+[2026-10-12T20:00:08Z] single_core: rq2-val2-seg-single-r2b-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-2_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:00:11Z] multi_core: attempt 2 failed
+[2026-10-12T20:00:12Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T20:00:18Z] single_core: === rq2-val2-seg-single-r2b-p1e-2-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T20:00:22Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-2-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T20:05:27Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:05:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:10:28Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:10:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:15:29Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T20:15:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:17:59Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:18:03Z] multi_core: attempt 1 failed
+[2026-10-12T20:23:09Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:23:13Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:28:10Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:28:14Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:33:11Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T20:33:14Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:35:41Z] single_core: attempt 2 failed
+[2026-10-12T20:35:42Z] single_core: rq2-val2-seg-single-r2b-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-2_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:35:45Z] multi_core: attempt 2 failed
+[2026-10-12T20:35:46Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T20:35:52Z] single_core: === rq2-val2-seg-single-r1-p1e-1-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T20:35:56Z] multi_core: === rq2-val2-seg-multi-r1-p1e-1-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T20:40:53Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T20:40:57Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T20:45:54Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T20:45:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T20:50:54Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T20:50:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:53:25Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T20:53:29Z] multi_core: attempt 1 failed
+[2026-10-12T20:58:26Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T20:58:30Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T21:03:27Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T21:03:31Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T21:08:27Z] single_core: rq2-val2-seg-single-r1-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T21:08:31Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:10:58Z] single_core: attempt 2 failed
+[2026-10-12T21:10:58Z] single_core: rq2-val2-seg-single-r1-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:11:02Z] multi_core: attempt 2 failed
+[2026-10-12T21:11:03Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T21:11:08Z] single_core: === rq2-val2-seg-single-r1-p1e-1-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T21:11:13Z] multi_core: === rq2-val2-seg-multi-r1-p1e-1-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T21:16:17Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:16:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:21:18Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:21:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:26:19Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 900s)
+[2026-10-12T21:26:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-1_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:28:49Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-1_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:28:54Z] multi_core: attempt 1 failed
+[2026-10-12T21:33:59Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:34:04Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:39:00Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:39:04Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:44:00Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem: still waiting (Running, 900s)
+[2026-10-12T21:44:05Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route1/p1e-1_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:46:31Z] single_core: attempt 2 failed
+[2026-10-12T21:46:32Z] single_core: rq2-val2-seg-single-r1-p1e-1-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route1/p1e-1_memory/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T21:46:36Z] multi_core: attempt 2 failed
+[2026-10-12T21:46:37Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T21:46:42Z] single_core: === rq2-val2-seg-single-r2b-p1e-1-none (none, 1 instance(s), 10000 jobs)
+[2026-10-12T21:46:47Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-1-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T21:51:43Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T21:51:48Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T21:56:44Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T21:56:48Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T22:01:44Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T22:01:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T22:04:15Z] single_core: attempt 1 failed
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T22:04:20Z] multi_core: attempt 1 failed
+[2026-10-12T22:09:16Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T22:09:21Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T22:14:17Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T22:14:21Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T22:19:17Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T22:19:22Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 900s)
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/single_core/route2b/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T22:21:48Z] single_core: attempt 2 failed
+[2026-10-12T22:21:48Z] single_core: rq2-val2-seg-single-r2b-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+check failed: /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p2/iter0/results/multi_core/route2b/p1e-1_none/instance0.csv has 10000 rows (expected 10000), not true in the meta file: mlockall_ok, sched_fifo_ok, affinity_ok
+[2026-10-12T22:21:53Z] multi_core: attempt 2 failed
+[2026-10-12T22:21:53Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T22:21:58Z] single_core: === rq2-val2-seg-single-r2b-p1e-1-mem (memory, 1 instance(s), 10000 jobs)
+[2026-10-12T22:22:03Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-1-mem (memory, 2 instance(s), 10000 jobs)
+[2026-10-12T22:27:07Z] single_core: rq2-val2-seg-single-r2b-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T22:27:12Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-mem: still waiting (Running, 300s)
+interrupted: stopping the runs and the enemies
+Terminated
+Terminated

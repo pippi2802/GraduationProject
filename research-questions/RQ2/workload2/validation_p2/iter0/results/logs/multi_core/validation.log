@@ -1,0 +1,555 @@
+[2026-10-12T15:51:30Z] multi_core: start: 14 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-12T15:51:30Z] multi_core: node slice: period 100000 runtime 0 71874 71874 0 
+[2026-10-12T15:51:30Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-12T15:51:30Z] multi_core: === rq2-val2-seg-multi-r1-p1e-3-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T15:56:32Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T16:01:32Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:06:33Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T16:10:04Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-3-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-3-none   0/1     Completed   0          18m   192.168.32.149   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  18m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         18m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-3-none to rt-k8s-worker-6
+      Normal   Pulled            18m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           18m   kubelet            Created container seg
+      Normal   Started           18m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 15:51:34.061212451 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.71 p99=39.01 max=42.31
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.84 p99=50.46 max=54.94
+[2026-10-12T16:15:06Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T16:20:06Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T16:25:07Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T16:27:38Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-3-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-3-none   0/1     Completed   0          17m   192.168.32.150   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-3-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 16:10:07.705069460 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.48 p99=38.44 max=39.28
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.23 p99=50.84 max=51.77
+[2026-10-12T16:27:38Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T16:27:48Z] multi_core: === rq2-val2-seg-multi-r1-p1e-3-mem (memory, 2 instance(s), 10000 jobs)
+    OK   27060   3 97.3 rq2-enemy
+    OK   27061   0 96.8 rq2-enemy
+[2026-10-12T16:32:57Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:37:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T16:42:59Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T16:45:30Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-3-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-3-mem   0/1     Completed   0          17m   192.168.32.151   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-3-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 16:27:59.738711057 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=38.32 p99=39.60 max=64.68
+    [instance0] 9999 jobs run, 1 skipped; cpu_ms median=49.89 p99=51.25 max=79.96
+    OK   29063   3 93.7 rq2-enemy
+    OK   29064   0 98.6 rq2-enemy
+[2026-10-12T16:50:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T16:55:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T17:00:41Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T17:03:12Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-3-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-3-mem   0/1     Completed   0          17m   192.168.32.152   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-3-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 16:45:42.333763995 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.53 p99=38.65 max=46.40
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.15 p99=51.52 max=57.97
+[2026-10-12T17:03:13Z] multi_core: rq2-val2-seg-multi-r1-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T17:03:23Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-3-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T17:08:24Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:13:24Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:18:25Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T17:20:56Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-3-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-3-none   0/1     Completed   0          17m   192.168.32.153   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-3-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 17:03:25.772109706 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.91 p99=37.73 max=39.40
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=42.66 p99=43.54 max=45.04
+[2026-10-12T17:25:57Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-12T17:30:58Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 600s)
+[2026-10-12T17:35:58Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none: still waiting (Running, 900s)
+[2026-10-12T17:38:29Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-3-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-3-none   0/1     Completed   0          17m   192.168.32.154   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-3-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 17:20:59.512004450 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.81 p99=37.56 max=38.66
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.37 p99=49.14 max=51.70
+[2026-10-12T17:38:29Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T17:38:39Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-3-mem (memory, 2 instance(s), 10000 jobs)
+    OK   35561   3 90.3 rq2-enemy
+    OK   35562   0 98.2 rq2-enemy
+[2026-10-12T17:43:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T17:48:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T17:53:50Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T17:56:21Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-3-mem at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-3-mem   0/1     Completed   0          17m   192.168.32.155   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-3-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 17:38:51.386131998 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.36 p99=38.45 max=39.50
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=44.00 p99=45.08 max=46.96
+    OK   37540   3  100 rq2-enemy
+    OK   37541   0 86.8 rq2-enemy
+[2026-10-12T18:01:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-12T18:06:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 600s)
+[2026-10-12T18:11:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem: still waiting (Running, 900s)
+[2026-10-12T18:14:03Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-3-mem at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-3-mem   0/1     Completed   0          17m   192.168.32.156   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-3-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 17:56:33.119727005 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.46 p99=38.48 max=41.46
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.09 p99=50.10 max=55.23
+[2026-10-12T18:14:04Z] multi_core: rq2-val2-seg-multi-r2b-p1e-3-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T18:14:14Z] multi_core: === rq2-val2-seg-multi-r1-p1e-2-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T18:19:15Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:24:16Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:29:16Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T18:31:47Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-2-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-2-none   0/1     Completed   0          17m   192.168.32.136   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-2-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 18:14:17.544653753 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.85 p99=37.71 max=38.82
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=42.51 p99=43.44 max=44.71
+[2026-10-12T18:36:48Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T18:41:49Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T18:46:49Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T18:49:20Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-2-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-2-none   0/1     Completed   0          17m   192.168.32.135   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-2-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 18:31:50.261117805 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=40.00 p99=40.84 max=41.66
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.37 p99=49.20 max=50.97
+[2026-10-12T18:49:20Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T18:49:30Z] multi_core: === rq2-val2-seg-multi-r1-p1e-2-mem (memory, 2 instance(s), 10000 jobs)
+    OK   43433   3 97.2 rq2-enemy
+    OK   43434   0 98.2 rq2-enemy
+[2026-10-12T18:54:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T18:59:40Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T19:04:41Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T19:07:12Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-2-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-2-mem   0/1     Completed   0          17m   192.168.32.134   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-2-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 18:49:42.411578965 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.36 p99=38.40 max=40.46
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.36 p99=51.42 max=52.39
+    OK   45400   3 93.7 rq2-enemy
+    OK   45401   0 97.5 rq2-enemy
+[2026-10-12T19:12:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T19:17:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T19:22:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T19:24:54Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-2-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-2-mem   0/1     Completed   0          17m   192.168.32.191   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-2-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 19:07:23.809516603 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.31 p99=38.30 max=47.19
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.38 p99=51.48 max=58.71
+[2026-10-12T19:24:55Z] multi_core: rq2-val2-seg-multi-r1-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T19:25:05Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-2-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T19:30:06Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:35:07Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:40:07Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T19:42:38Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-2-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-2-none   0/1     Completed   0          17m   192.168.32.189   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-2-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 19:25:08.392850741 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.80 p99=37.69 max=39.25
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=42.12 p99=43.04 max=44.31
+[2026-10-12T19:47:39Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-12T19:52:40Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 600s)
+[2026-10-12T19:57:40Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none: still waiting (Running, 900s)
+[2026-10-12T20:00:11Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-2-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-2-none   0/1     Completed   0          17m   192.168.32.190   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-2-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 19:42:41.996576016 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.05 p99=37.86 max=38.87
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.37 p99=49.19 max=51.07
+[2026-10-12T20:00:12Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T20:00:22Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-2-mem (memory, 2 instance(s), 10000 jobs)
+    OK   51275   3 90.7 rq2-enemy
+    OK   51276   0 97.7 rq2-enemy
+[2026-10-12T20:05:31Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:10:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:15:32Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T20:18:03Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-2-mem at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-2-mem   0/1     Completed   0          17m   192.168.32.163   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-2-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 20:00:32.920238358 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.25 p99=38.34 max=39.47
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.06 p99=51.24 max=53.46
+    OK   53264   3 97.7 rq2-enemy
+    OK   53265   0 98.3 rq2-enemy
+[2026-10-12T20:23:13Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-12T20:28:14Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 600s)
+[2026-10-12T20:33:14Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem: still waiting (Running, 900s)
+[2026-10-12T20:35:45Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-2-mem at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-2-mem   0/1     Completed   0          17m   192.168.32.157   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-2-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 20:18:15.582932781 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.62 p99=38.65 max=39.57
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.82 p99=51.41 max=53.26
+[2026-10-12T20:35:46Z] multi_core: rq2-val2-seg-multi-r2b-p1e-2-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T20:35:56Z] multi_core: === rq2-val2-seg-multi-r1-p1e-1-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T20:40:57Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T20:45:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T20:50:58Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T20:53:29Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-1-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-1-none   0/1     Completed   0          17m   192.168.32.159   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-1-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 20:35:59.085344583 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.96 p99=38.78 max=40.37
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=41.87 p99=42.74 max=44.14
+[2026-10-12T20:58:30Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T21:03:31Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T21:08:31Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T21:11:02Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-1-none at the failure:
+    NAME                               READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-1-none   0/1     Completed   0          17m   192.168.32.158   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-1-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 20:53:32.732835275 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.98 p99=37.78 max=47.91
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.01 p99=48.82 max=61.08
+[2026-10-12T21:11:03Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T21:11:13Z] multi_core: === rq2-val2-seg-multi-r1-p1e-1-mem (memory, 2 instance(s), 10000 jobs)
+    OK   59147   3 99.7 rq2-enemy
+    OK   59148   0 98.1 rq2-enemy
+[2026-10-12T21:16:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:21:22Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:26:23Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 900s)
+[2026-10-12T21:28:54Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-1-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-1-mem   0/1     Completed   0          17m   192.168.32.167   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-1-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 21:11:24.762933294 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=37.35 p99=38.33 max=39.26
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=49.15 p99=51.21 max=52.25
+    OK   61186   3 95.7 rq2-enemy
+    OK   61187   0 96.8 rq2-enemy
+[2026-10-12T21:34:04Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-12T21:39:04Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 600s)
+[2026-10-12T21:44:05Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem: still waiting (Running, 900s)
+[2026-10-12T21:46:36Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r1-p1e-1-mem at the failure:
+    NAME                              READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r1-p1e-1-mem   0/1     Completed   0          17m   192.168.32.168   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r1-p1e-1-mem to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 21:29:06.402198669 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=37.27 p99=38.22 max=39.53
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=49.15 p99=50.13 max=51.06
+[2026-10-12T21:46:37Z] multi_core: rq2-val2-seg-multi-r1-p1e-1-mem FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T21:46:47Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-1-none (none, 2 instance(s), 10000 jobs)
+[2026-10-12T21:51:48Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T21:56:48Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T22:01:49Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T22:04:20Z] multi_core: attempt 1 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-1-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-1-none   0/1     Completed   0          17m   192.168.32.164   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-1-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 21:46:49.802203476 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.83 p99=37.60 max=38.76
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=42.64 p99=43.49 max=45.02
+[2026-10-12T22:09:21Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 300s)
+[2026-10-12T22:14:21Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 600s)
+[2026-10-12T22:19:22Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none: still waiting (Running, 900s)
+[2026-10-12T22:21:53Z] multi_core: attempt 2 failed
+    --- pod rq2-val2-seg-multi-r2b-p1e-1-none at the failure:
+    NAME                                READY   STATUS      RESTARTS   AGE   IP               NODE              NOMINATED NODE   READINESS GATES
+    rq2-val2-seg-multi-r2b-p1e-1-none   0/1     Completed   0          17m   192.168.32.162   rt-k8s-worker-6   <none>           <none>
+    QoS Class:                   BestEffort
+    Node-Selectors:              experiment-model=rq2
+                                 kubernetes.io/hostname=rt-k8s-worker-6
+    Tolerations:                 op=Exists
+    Events:
+      Type     Reason            Age   From               Message
+      ----     ------            ----  ----               -------
+      Warning  FailedScheduling  17m   default-scheduler  0/1 nodes are available: 1 waiting for resource driver to allocate resource.
+      Normal   Scheduled         17m   default-scheduler  Successfully assigned rq2/rq2-val2-seg-multi-r2b-p1e-1-none to rt-k8s-worker-6
+      Normal   Pulled            17m   kubelet            Container image "pippina2/rq2-seg:v2" already present on machine
+      Normal   Created           17m   kubelet            Created container seg
+      Normal   Started           17m   kubelet            Started container seg
+    --- its logs:
+    [0;93m2026-10-12 22:04:23.495941495 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+    [instance1] 10000 jobs run, 0 skipped; cpu_ms median=36.64 p99=37.45 max=39.71
+    [instance0] 10000 jobs run, 0 skipped; cpu_ms median=48.38 p99=49.48 max=51.70
+[2026-10-12T22:21:53Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-none FAILED after 2 attempt(s): data missing or incomplete, do not trust it
+[2026-10-12T22:22:03Z] multi_core: === rq2-val2-seg-multi-r2b-p1e-1-mem (memory, 2 instance(s), 10000 jobs)
+    OK   67083   3 98.6 rq2-enemy
+    OK   67084   0 98.3 rq2-enemy
+[2026-10-12T22:27:12Z] multi_core: rq2-val2-seg-multi-r2b-p1e-1-mem: still waiting (Running, 300s)
