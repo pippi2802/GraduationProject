@@ -1,0 +1,52 @@
+nohup: ignoring input
+[2026-10-13T08:48:20Z] multi_core: start: 6 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-13T08:48:20Z] single_core: start: 8 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-13T08:48:20Z] single_core: node slice: period 0 runtime 0 -> reset to period 10000 
+[2026-10-13T08:48:20Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-13T08:48:20Z] multi_core: node slice: period 0 runtime 0 -> reset to period 10000 
+[2026-10-13T08:48:20Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-13T08:48:20Z] single_core: === rq2-val2i1-aud-single-r2b-p1e-3-none (none, 1 instance(s), 50000 jobs)
+[2026-10-13T08:48:20Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-3-none (none, 2 instance(s), 50000 jobs)
+[2026-10-13T08:53:22Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-3-none: still waiting (Running, 300s)
+[2026-10-13T08:53:22Z] single_core: rq2-val2i1-aud-single-r2b-p1e-3-none: still waiting (Running, 300s)
+[2026-10-13T08:57:24Z] single_core: rq2-val2i1-aud-single-r2b-p1e-3-none done: instance0: 22 misses (late 11, skipped 11) of 50000
+[2026-10-13T08:57:24Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-3-none done: instance0: 216 misses (late 102, skipped 114) of 50000; instance1: 197 misses (late 92, skipped 105) of 50000
+[2026-10-13T08:57:34Z] single_core: === rq2-val2i1-aud-single-r2b-p1e-3-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-13T08:57:34Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-3-mem (memory, 2 instance(s), 50000 jobs)
+[2026-10-13T09:02:43Z] single_core: rq2-val2i1-aud-single-r2b-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-13T09:02:44Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-3-mem: still waiting (Running, 300s)
+[2026-10-13T09:06:15Z] single_core: rq2-val2i1-aud-single-r2b-p1e-3-mem done: instance0: 18 misses (late 6, skipped 12) of 50000
+[2026-10-13T09:06:16Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-3-mem done: instance0: 72 misses (late 34, skipped 38) of 50000; instance1: 97 misses (late 45, skipped 52) of 50000
+[2026-10-13T09:06:25Z] single_core: === rq2-val2i1-aud-single-r1-p1e-2-none (none, 1 instance(s), 50000 jobs)
+[2026-10-13T09:06:26Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-2-none (none, 2 instance(s), 50000 jobs)
+[2026-10-13T09:11:26Z] single_core: rq2-val2i1-aud-single-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-13T09:11:27Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-2-none: still waiting (Running, 300s)
+[2026-10-13T09:14:58Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-2-none done: instance0: 52 misses (late 26, skipped 26) of 50000; instance1: 77 misses (late 37, skipped 40) of 50000
+[2026-10-13T09:15:08Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-2-mem (memory, 2 instance(s), 50000 jobs)
+[2026-10-13T09:15:27Z] single_core: rq2-val2i1-aud-single-r1-p1e-2-none done: instance0: 57 misses (late 26, skipped 31) of 50000
+[2026-10-13T09:15:37Z] single_core: === rq2-val2i1-aud-single-r1-p1e-2-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-13T09:20:17Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-13T09:20:46Z] single_core: rq2-val2i1-aud-single-r1-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-13T09:23:50Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-2-mem done: instance0: 19 misses (late 8, skipped 11) of 50000; instance1: 146 misses (late 64, skipped 82) of 50000
+[2026-10-13T09:24:00Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-1-none (none, 2 instance(s), 50000 jobs)
+[2026-10-13T09:24:18Z] single_core: rq2-val2i1-aud-single-r1-p1e-2-mem done: instance0: 172 misses (late 83, skipped 89) of 50000
+[2026-10-13T09:24:28Z] single_core: === rq2-val2i1-aud-single-r2b-p1e-2-none (none, 1 instance(s), 50000 jobs)
+[2026-10-13T09:29:01Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-13T09:29:29Z] single_core: rq2-val2i1-aud-single-r2b-p1e-2-none: still waiting (Running, 300s)
+[2026-10-13T09:32:32Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-1-none done: instance0: 66 misses (late 33, skipped 33) of 50000; instance1: 151 misses (late 73, skipped 78) of 50000
+[2026-10-13T09:32:42Z] multi_core: === rq2-val2i1-aud-multi-r1-p1e-1-mem (memory, 2 instance(s), 50000 jobs)
+[2026-10-13T09:33:00Z] single_core: rq2-val2i1-aud-single-r2b-p1e-2-none done: instance0: 8 misses (late 4, skipped 4) of 50000
+[2026-10-13T09:33:10Z] single_core: === rq2-val2i1-aud-single-r2b-p1e-2-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-13T09:37:51Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-13T09:38:19Z] single_core: rq2-val2i1-aud-single-r2b-p1e-2-mem: still waiting (Running, 300s)
+[2026-10-13T09:41:23Z] multi_core: rq2-val2i1-aud-multi-r1-p1e-1-mem done: instance0: 285 misses (late 134, skipped 151) of 50000; instance1: 228 misses (late 106, skipped 122) of 50000
+[2026-10-13T09:41:33Z] multi_core: all 6 runs collected
+[2026-10-13T09:41:51Z] single_core: rq2-val2i1-aud-single-r2b-p1e-2-mem done: instance0: 22 misses (late 11, skipped 11) of 50000
+[2026-10-13T09:42:01Z] single_core: === rq2-val2i1-aud-single-r1-p1e-1-none (none, 1 instance(s), 50000 jobs)
+[2026-10-13T09:47:02Z] single_core: rq2-val2i1-aud-single-r1-p1e-1-none: still waiting (Running, 300s)
+[2026-10-13T09:50:33Z] single_core: rq2-val2i1-aud-single-r1-p1e-1-none done: instance0: 590 misses (late 295, skipped 295) of 50000
+[2026-10-13T09:50:43Z] single_core: === rq2-val2i1-aud-single-r1-p1e-1-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-13T09:55:52Z] single_core: rq2-val2i1-aud-single-r1-p1e-1-mem: still waiting (Running, 300s)
+[2026-10-13T09:59:24Z] single_core: rq2-val2i1-aud-single-r1-p1e-1-mem done: instance0: 503 misses (late 250, skipped 253) of 50000
+[2026-10-13T09:59:34Z] single_core: all 8 runs collected
+online validation: all runs collected. Check them: see README.md (step 5)
