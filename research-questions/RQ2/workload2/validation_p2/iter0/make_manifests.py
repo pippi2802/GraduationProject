@@ -16,7 +16,7 @@ import csv, pathlib
 
 HERE = pathlib.Path(__file__).resolve().parent
 JOBS = 10000                                   # jobs per instance: 16.7 minutes at the 100 ms period, about 10 expected exceedances at p = 1e-3
-IMAGE = "pippina2/rq2-seg:v2"
+IMAGE = "pippina2/rq2-seg:v2"            # its run.py parses every key=value override as JSON, so a string value (output) must be quoted
 NODE_DIR = "/var/lib/rq2/results/seg_validation_p2"       # hostPath on the node; the pod writes <run id>_instance<N>.csv there
 # each scenario is validated on the node that did NOT profile it (profiling: single-core on worker6, multi-core on worker7)
 SCEN = {
@@ -72,7 +72,7 @@ spec:
     - name: seg
       image: {IMAGE}
       imagePullPolicy: IfNotPresent
-      command: ["python3", "run.py", "{s['config']}", "period_ms={period // 1000}", "jobs={JOBS}", "output=/results/{run_id}"]
+      command: ["python3", "run.py", "{s['config']}", "period_ms={period // 1000}", "jobs={JOBS}", 'output="/results/{run_id}"']
       securityContext: {{ capabilities: {{ add: ["SYS_NICE", "IPC_LOCK"] }} }}
       resources: {{ claims: [{{ name: rtcpu }}] }}
       volumeMounts: [{{ name: results, mountPath: /results }}]
