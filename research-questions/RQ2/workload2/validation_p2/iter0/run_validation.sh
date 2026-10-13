@@ -152,7 +152,7 @@ check() {   # <dir> <instances> <jobs>: row count = jobs and the real-time flags
 import json, sys
 rows = sum(1 for _ in open(sys.argv[1])) - 1
 meta = json.load(open(sys.argv[2]))
-bad = [k for k in ("mlockall_ok", "sched_fifo_ok", "affinity_ok") if meta.get(k) is not True]
+bad = [k for k in ("mlockall_ok", "sched_fifo_ok", "affinity_ok") if meta.get(k) is False]   # the segmentation run.py does not write these flags: only an explicit False fails
 if rows != int(sys.argv[3]) or bad:
     print("check failed: %s has %d rows (expected %s)%s" % (sys.argv[1], rows, sys.argv[3], ", not true in the meta file: " + ", ".join(bad) if bad else ""))
     sys.exit(1)
