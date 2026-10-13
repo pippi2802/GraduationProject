@@ -1,0 +1,15 @@
+scenario,route,p,Q_ms,Q_over_T,admitted,baseline_heldout,stress_heldout,status
+single_core,route1,0.1,18.289789498071933,0.43895143634223566,True,True,True,ready
+single_core,route1,0.01,23.657274362622783,0.5677700425426064,True,True,True,ready
+single_core,route1,0.001,24.023284307662564,0.5765542109502139,True,True,True,ready
+single_core,route2b,0.1,19.823394190982896,0.4757576545223533,True,True,True,ready
+single_core,route2b,0.01,25.777890534060305,0.6186644235020593,True,True,True,ready
+single_core,route2b,0.001,26.024180275601523,0.6245753300117964,True,True,True,ready
+single_core,hwm,all,33.040939634217224,0.7929762074115541,True,,,ready
+multi_core,route1,0.1,17.819785209795715,0.4276714236637078,True,True,True,ready
+multi_core,route1,0.01,22.915632068862685,0.5499707698865454,True,True,True,ready
+multi_core,route1,0.001,23.328778622737936,0.5598862078560476,True,True,True,ready
+multi_core,route2b,0.1,18.72201945899966,0.4493248724170125,True,True,True,ready
+multi_core,route2b,0.01,24.116586078147087,0.5787934355280459,True,True,True,ready
+multi_core,route2b,0.001,24.510129834624557,0.5882384101237084,True,True,True,ready
+multi_core,hwm,all,26.45642434211109,0.6349491046178293,True,,,ready
