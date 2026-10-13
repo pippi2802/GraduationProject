@@ -32,17 +32,23 @@ OUT="${OUT:-/tmp/budget-rewrite-$(date +%Y%m%d-%H%M%S).log}"
 
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
 exec > >(tee -a "$OUT") 2>&1
+trap 'sleep 1' EXIT   # let tee flush before the container dies (else last lines are lost)
 
 log() { printf '[%s] %s\n' "$(date +%T)" "$*"; }
 rt()  { cat "$1/cpu.rt_runtime_us" 2>/dev/null; }
 
 # --- locate the container leaf cgroup -----------------------------------------
 uid_part="${PATTERN//-/_}"
-leaf="$(find "$CG/kubepods.slice" -type d -name 'cri-containerd-*.scope' 2>/dev/null |
-  while read -r d; do
-    case "$d" in *"$PATTERN"*|*"$uid_part"*) echo "$d";; esac
-  done | head -1)"
-[ -n "$leaf" ] || { echo "no container scope matching '$PATTERN' (pass the pod UID; kubectl get pod -o jsonpath='{.metadata.uid}')"; exit 1; }
+# A pod has several cri-containerd scopes (pause sandbox + app container). Pick the
+# one that actually carries an RT budget (non-zero period and some non-zero runtime).
+leaf=""
+while read -r d; do
+  case "$d" in *"$PATTERN"*|*"$uid_part"*) ;; *) continue;; esac
+  [ "$(cat "$d/cpu.rt_period_us" 2>/dev/null || echo 0)" != 0 ] || continue
+  tr ' ' '\n' < "$d/cpu.rt_runtime_us" 2>/dev/null | grep -qE '^[1-9]' || continue
+  leaf="$d"; break
+done < <(find "$CG/kubepods.slice" -type d -name 'cri-containerd-*.scope' 2>/dev/null)
+[ -n "$leaf" ] || { echo "no container scope with an RT budget matching '$PATTERN' (pass the pod UID; kubectl get pod -o jsonpath='{.metadata.uid}')"; exit 1; }
 podcg="$(dirname "$leaf")"
 slice="$(dirname "$podcg")"
 log "leaf   = $leaf"
