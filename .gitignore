@@ -32,3 +32,6 @@ research-questions/RQ1_final/os-experiments/.venv
 research-questions/RQ1_final/os-experiments/analysis/data
 
 docs/MS_Thesis_Brighi
+
+# raw source video (1.7 GB, exceeds GitHub 100 MB limit); regenerate via prepare_clip.sh
+*.y4m
