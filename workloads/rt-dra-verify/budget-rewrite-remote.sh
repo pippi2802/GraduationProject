@@ -8,12 +8,12 @@
 #   ./budget-rewrite-remote.sh <pod> [-n namespace] [-c cpu]
 #
 # Env:
-#   SSH_TARGET=user@host   use ssh (+sudo) instead of `kubectl debug node`
+#   SSH_TARGET=user@host   use ssh (+sudo) instead of the privileged pod
 #   WATCH_SECS=60          passive revert-watch window
 #   DEBUG_IMAGE=ubuntu:24.04
 #
-# Default transport: `kubectl debug node/<node> --profile=sysadmin` (privileged,
-# hostPID) + chroot /host. The temporary debug pod is deleted afterwards.
+# Default transport: a temporary privileged hostPID pod pinned to the node
+# (kubectl run --rm) + chroot /host.
 
 set -uo pipefail
 
@@ -42,12 +42,15 @@ if [ -n "${SSH_TARGET:-}" ]; then
 fi
 
 IMAGE="${DEBUG_IMAGE:-ubuntu:24.04}"
-# snapshot existing debugger pods so only ours gets cleaned up
-before="$(kubectl -n "$NS" get pods -o name | grep "node-debugger-$NODE" || true)"
-trap '
-  for p in $(kubectl -n "$NS" get pods -o name | grep "node-debugger-$NODE" || true); do
-    echo "$before" | grep -qx "$p" || kubectl -n "$NS" delete "$p" --wait=false >/dev/null 2>&1
-  done' EXIT
+RUNNER="budget-rewrite-$RANDOM"
+# Own privileged pod pinned to the node (no `kubectl debug --profile`, which old
+# kubectl lacks). --rm deletes it when the command ends.
+OVERRIDES='{"spec":{"nodeName":"'"$NODE"'","hostPID":true,"hostNetwork":true,
+ "tolerations":[{"operator":"Exists"}],
+ "containers":[{"name":"'"$RUNNER"'","image":"'"$IMAGE"'","stdin":true,
+   "securityContext":{"privileged":true},
+   "volumeMounts":[{"name":"host","mountPath":"/host"}]}],
+ "volumes":[{"name":"host","hostPath":{"path":"/"}}]}}'
 
-kubectl -n "$NS" debug "node/$NODE" --profile=sysadmin --image="$IMAGE" -i --quiet -- \
-  chroot /host bash -c "$REMOTE"
+kubectl -n "$NS" run "$RUNNER" --rm -i --quiet --restart=Never --image="$IMAGE" \
+  --overrides="$OVERRIDES" -- chroot /host bash -c "$REMOTE"
