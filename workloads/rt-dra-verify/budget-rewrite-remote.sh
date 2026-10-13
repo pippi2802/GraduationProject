@@ -44,13 +44,15 @@ fi
 IMAGE="${DEBUG_IMAGE:-ubuntu:24.04}"
 RUNNER="budget-rewrite-$RANDOM"
 # Own privileged pod pinned to the node (no `kubectl debug --profile`, which old
-# kubectl lacks). --rm deletes it when the command ends.
+# kubectl lacks). --rm deletes it when the command ends. The command MUST be in
+# the override: trailing `-- args` are dropped and the image's default bash runs.
 OVERRIDES='{"spec":{"nodeName":"'"$NODE"'","hostPID":true,"hostNetwork":true,
  "tolerations":[{"operator":"Exists"}],
  "containers":[{"name":"'"$RUNNER"'","image":"'"$IMAGE"'","stdin":true,
+   "command":["chroot","/host","bash","-c","'"$REMOTE"'"],
    "securityContext":{"privileged":true},
    "volumeMounts":[{"name":"host","mountPath":"/host"}]}],
  "volumes":[{"name":"host","hostPath":{"path":"/"}}]}}'
 
 kubectl -n "$NS" run "$RUNNER" --rm -i --quiet --restart=Never --image="$IMAGE" \
-  --overrides="$OVERRIDES" -- chroot /host bash -c "$REMOTE"
+  --overrides="$OVERRIDES"
