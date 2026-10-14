@@ -1,0 +1,7 @@
+nohup: ignoring input
+[2026-10-14T09:18:10Z] workload3: start (iter 0)
+[2026-10-14T10:28:58Z] workload3: finished, exit 0 (see /home/azureuser/GraduationProject/research-questions/RQ2/workload3/validation_p3/iter0/run_validation.out and results/logs/ or results/*/summary.tsv)
+[2026-10-14T10:28:58Z] workload1: start (iter 0)
+[2026-10-14T11:56:31Z] workload1: finished, exit 0 (see /home/azureuser/GraduationProject/research-questions/RQ2/workload1/validation_p3/iter0/run_validation.out and results/logs/ or results/*/summary.tsv)
+[2026-10-14T11:56:31Z] workload2: start (iter 0)
+[2026-10-14T14:15:36Z] workload2: finished, exit 0 (see /home/azureuser/GraduationProject/research-questions/RQ2/workload2/validation_p3/iter0/run_validation.out and results/logs/ or results/*/summary.tsv)

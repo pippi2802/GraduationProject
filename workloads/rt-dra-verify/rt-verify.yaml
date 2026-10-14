@@ -28,6 +28,7 @@ spec:
   count: 1
   runtime: 100
   period: 1000
+  requestedCpus: [2]
 
 ---
 apiVersion: resource.k8s.io/v1alpha2
@@ -57,7 +58,7 @@ spec:
   # nodeSelector (not nodeName) keeps the scheduler in the loop so the DRA
   # resource claim is still allocated normally.
   nodeSelector:
-    kubernetes.io/hostname: rt-cluster-worker-0
+    kubernetes.io/hostname: rt-k8s-worker-6
   containers:
   - name: probe
     image: ubuntu:22.04
