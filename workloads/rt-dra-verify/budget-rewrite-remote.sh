@@ -10,6 +10,7 @@
 # Env:
 #   SSH_TARGET=user@host   use ssh (+sudo) instead of the privileged pod
 #   WATCH_SECS=60          passive revert-watch window
+#   LOG_ONLY=1             just print the newest test log from the worker
 #   DEBUG_IMAGE=ubuntu:24.04
 #
 # Default transport: a temporary privileged hostPID pod pinned to the node
@@ -35,6 +36,12 @@ echo "pod=$NS/$POD uid=$UID_ node=$NODE cpu=$CPU"
 
 B64="$(base64 -w0 < "$NODE_SCRIPT")"
 REMOTE="echo $B64 | base64 -d > /tmp/budget-rewrite-test.sh && WATCH_SECS=${WATCH_SECS:-60} bash /tmp/budget-rewrite-test.sh $UID_ $CPU"
+
+# LOG_ONLY=1: don't run the test, just print the newest log on the worker
+# (the kubelet-restart step drops the attach stream; the script still finishes).
+if [ -n "${LOG_ONLY:-}" ]; then
+  REMOTE='f=$(ls -t /tmp/budget-rewrite-2*.log | head -1); echo "== $f"; cat "$f"'
+fi
 
 if [ -n "${SSH_TARGET:-}" ]; then
   ssh "$SSH_TARGET" "sudo bash -c '$REMOTE'"
