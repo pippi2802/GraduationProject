@@ -1,0 +1,36 @@
+[2026-10-14T16:21:52Z] multi_core: start: 4 runs on rt-k8s-worker-6 (agent namespace rq2-node-prep-worker6)
+[2026-10-14T16:21:52Z] multi_core: node slice: period 10000 runtime 0 1560 1560 0 bash: line 5: echo: write error: Invalid argument RESET FAILED 
+[2026-10-14T16:21:52Z] multi_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-14T16:21:52Z] multi_core: === rq2-val4-vid-multi-r1-str-mem (memory, 2 instance(s), 30000 jobs)
+    OK   51305   3 90.5 rq2-enemy
+    OK   51306   0 97.6 rq2-enemy
+[2026-10-14T16:27:01Z] multi_core: rq2-val4-vid-multi-r1-str-mem: still waiting (Running, 300s)
+[2026-10-14T16:32:02Z] multi_core: rq2-val4-vid-multi-r1-str-mem: still waiting (Running, 600s)
+[2026-10-14T16:37:03Z] multi_core: rq2-val4-vid-multi-r1-str-mem: still waiting (Running, 900s)
+[2026-10-14T16:42:04Z] multi_core: rq2-val4-vid-multi-r1-str-mem: still waiting (Running, 1200s)
+[2026-10-14T16:43:35Z] multi_core: rq2-val4-vid-multi-r1-str-mem done: instance0: 12 misses (late 6, skipped 6) of 30000; instance1: 14 misses (late 7, skipped 7) of 30000
+[2026-10-14T16:43:45Z] multi_core: === rq2-val4-vid-multi-r2b-str-mem (memory, 2 instance(s), 30000 jobs)
+    OK   53675   3 95.8 rq2-enemy
+    OK   53676   0 97.3 rq2-enemy
+[2026-10-14T16:48:55Z] multi_core: rq2-val4-vid-multi-r2b-str-mem: still waiting (Running, 300s)
+[2026-10-14T16:53:55Z] multi_core: rq2-val4-vid-multi-r2b-str-mem: still waiting (Running, 600s)
+[2026-10-14T16:58:56Z] multi_core: rq2-val4-vid-multi-r2b-str-mem: still waiting (Running, 900s)
+[2026-10-14T17:03:56Z] multi_core: rq2-val4-vid-multi-r2b-str-mem: still waiting (Running, 1200s)
+[2026-10-14T17:05:28Z] multi_core: rq2-val4-vid-multi-r2b-str-mem done: instance0: 8 misses (late 4, skipped 4) of 30000; instance1: 8 misses (late 4, skipped 4) of 30000
+[2026-10-14T17:05:38Z] multi_core: === rq2-val4-vid-multi-r1-rel-mem (memory, 2 instance(s), 30000 jobs)
+    OK   56010   3 99.1 rq2-enemy
+    OK   56011   0 97.1 rq2-enemy
+[2026-10-14T17:10:47Z] multi_core: rq2-val4-vid-multi-r1-rel-mem: still waiting (Running, 300s)
+[2026-10-14T17:15:48Z] multi_core: rq2-val4-vid-multi-r1-rel-mem: still waiting (Running, 600s)
+[2026-10-14T17:20:48Z] multi_core: rq2-val4-vid-multi-r1-rel-mem: still waiting (Running, 900s)
+[2026-10-14T17:25:49Z] multi_core: rq2-val4-vid-multi-r1-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T17:27:21Z] multi_core: rq2-val4-vid-multi-r1-rel-mem done: instance0: 22 misses (late 11, skipped 11) of 30000; instance1: 42 misses (late 21, skipped 21) of 30000
+[2026-10-14T17:27:31Z] multi_core: === rq2-val4-vid-multi-r2b-rel-mem (memory, 2 instance(s), 30000 jobs)
+    OK   58405   3  100 rq2-enemy
+    OK   58406   0 98.5 rq2-enemy
+[2026-10-14T17:32:40Z] multi_core: rq2-val4-vid-multi-r2b-rel-mem: still waiting (Running, 300s)
+[2026-10-14T17:37:40Z] multi_core: rq2-val4-vid-multi-r2b-rel-mem: still waiting (Running, 600s)
+[2026-10-14T17:42:41Z] multi_core: rq2-val4-vid-multi-r2b-rel-mem: still waiting (Running, 900s)
+[2026-10-14T17:47:41Z] multi_core: rq2-val4-vid-multi-r2b-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T17:49:13Z] multi_core: rq2-val4-vid-multi-r2b-rel-mem done: instance0: 8 misses (late 4, skipped 4) of 30000; instance1: 10 misses (late 5, skipped 5) of 30000
+[2026-10-14T17:49:23Z] multi_core: all 4 runs collected

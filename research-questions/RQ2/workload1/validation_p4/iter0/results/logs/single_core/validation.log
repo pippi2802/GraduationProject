@@ -1,0 +1,40 @@
+[2026-10-14T16:21:52Z] single_core: start: 4 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-14T16:21:52Z] single_core: node slice: period 10000 runtime 0 1321 0 0 RESET FAILED bash: line 5: echo: write error: Invalid argument 
+[2026-10-14T16:21:52Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-14T16:21:52Z] single_core: === rq2-val4-vid-single-r1-str-mem (memory, 1 instance(s), 30000 jobs)
+    OK   50120   2 90.2 rq2-enemy
+    OK   50121   3 90.2 rq2-enemy
+    OK   50122   0 98.7 rq2-enemy
+[2026-10-14T16:27:01Z] single_core: rq2-val4-vid-single-r1-str-mem: still waiting (Running, 300s)
+[2026-10-14T16:32:02Z] single_core: rq2-val4-vid-single-r1-str-mem: still waiting (Running, 600s)
+[2026-10-14T16:37:03Z] single_core: rq2-val4-vid-single-r1-str-mem: still waiting (Running, 900s)
+[2026-10-14T16:42:04Z] single_core: rq2-val4-vid-single-r1-str-mem: still waiting (Running, 1200s)
+[2026-10-14T16:43:05Z] single_core: rq2-val4-vid-single-r1-str-mem done: instance0: 26 misses (late 13, skipped 13) of 30000
+[2026-10-14T16:43:15Z] single_core: === rq2-val4-vid-single-r2b-str-mem (memory, 1 instance(s), 30000 jobs)
+    OK   52428   2 93.1 rq2-enemy
+    OK   52429   3 82.6 rq2-enemy
+    OK   52430   0 87.3 rq2-enemy
+[2026-10-14T16:48:24Z] single_core: rq2-val4-vid-single-r2b-str-mem: still waiting (Running, 300s)
+[2026-10-14T16:53:25Z] single_core: rq2-val4-vid-single-r2b-str-mem: still waiting (Running, 600s)
+[2026-10-14T16:58:25Z] single_core: rq2-val4-vid-single-r2b-str-mem: still waiting (Running, 900s)
+[2026-10-14T17:03:26Z] single_core: rq2-val4-vid-single-r2b-str-mem: still waiting (Running, 1200s)
+[2026-10-14T17:04:27Z] single_core: rq2-val4-vid-single-r2b-str-mem done: instance0: 12 misses (late 6, skipped 6) of 30000
+[2026-10-14T17:04:37Z] single_core: === rq2-val4-vid-single-r1-rel-mem (memory, 1 instance(s), 30000 jobs)
+    OK   54675   2 93.1 rq2-enemy
+    OK   54676   3 93.1 rq2-enemy
+    OK   54677   0 97.6 rq2-enemy
+[2026-10-14T17:09:46Z] single_core: rq2-val4-vid-single-r1-rel-mem: still waiting (Running, 300s)
+[2026-10-14T17:14:47Z] single_core: rq2-val4-vid-single-r1-rel-mem: still waiting (Running, 600s)
+[2026-10-14T17:19:47Z] single_core: rq2-val4-vid-single-r1-rel-mem: still waiting (Running, 900s)
+[2026-10-14T17:24:48Z] single_core: rq2-val4-vid-single-r1-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T17:25:49Z] single_core: rq2-val4-vid-single-r1-rel-mem done: instance0: 12 misses (late 6, skipped 6) of 30000
+[2026-10-14T17:25:59Z] single_core: === rq2-val4-vid-single-r2b-rel-mem (memory, 1 instance(s), 30000 jobs)
+    OK   56969   2 90.2 rq2-enemy
+    OK   56970   3 90.2 rq2-enemy
+    OK   56971   0 97.3 rq2-enemy
+[2026-10-14T17:31:09Z] single_core: rq2-val4-vid-single-r2b-rel-mem: still waiting (Running, 300s)
+[2026-10-14T17:36:09Z] single_core: rq2-val4-vid-single-r2b-rel-mem: still waiting (Running, 600s)
+[2026-10-14T17:41:10Z] single_core: rq2-val4-vid-single-r2b-rel-mem: still waiting (Running, 900s)
+[2026-10-14T17:46:10Z] single_core: rq2-val4-vid-single-r2b-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T17:47:12Z] single_core: rq2-val4-vid-single-r2b-rel-mem done: instance0: 6 misses (late 3, skipped 3) of 30000
+[2026-10-14T17:47:22Z] single_core: all 4 runs collected

@@ -1,0 +1,40 @@
+[2026-10-14T15:10:36Z] single_core: start: 8 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-14T15:10:37Z] single_core: node slice: period 100000 runtime 0 66322 0 0 -> reset to period 10000 
+[2026-10-14T15:10:37Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-14T15:10:37Z] single_core: === rq2-val4-aud-single-r1-str-none (none, 1 instance(s), 50000 jobs)
+[2026-10-14T15:15:38Z] single_core: rq2-val4-aud-single-r1-str-none: still waiting (Running, 300s)
+[2026-10-14T15:19:09Z] single_core: rq2-val4-aud-single-r1-str-none done: instance0: 16 misses (late 8, skipped 8) of 50000
+[2026-10-14T15:19:19Z] single_core: === rq2-val4-aud-single-r1-str-mem (memory, 1 instance(s), 50000 jobs)
+    OK   41908   2 93.3 rq2-enemy
+    OK   41909   3 93.2 rq2-enemy
+    OK   41910   0 98.3 rq2-enemy
+[2026-10-14T15:24:28Z] single_core: rq2-val4-aud-single-r1-str-mem: still waiting (Running, 300s)
+[2026-10-14T15:28:00Z] single_core: rq2-val4-aud-single-r1-str-mem done: instance0: 82 misses (late 40, skipped 42) of 50000
+[2026-10-14T15:28:10Z] single_core: === rq2-val4-aud-single-r2b-str-none (none, 1 instance(s), 50000 jobs)
+[2026-10-14T15:33:11Z] single_core: rq2-val4-aud-single-r2b-str-none: still waiting (Running, 300s)
+[2026-10-14T15:36:42Z] single_core: rq2-val4-aud-single-r2b-str-none done: instance0: 38 misses (late 18, skipped 20) of 50000
+[2026-10-14T15:36:52Z] single_core: === rq2-val4-aud-single-r2b-str-mem (memory, 1 instance(s), 50000 jobs)
+    OK   44180   2 91.2 rq2-enemy
+    OK   44181   3 91.2 rq2-enemy
+    OK   44182   0 98.2 rq2-enemy
+[2026-10-14T15:42:01Z] single_core: rq2-val4-aud-single-r2b-str-mem: still waiting (Running, 300s)
+[2026-10-14T15:45:33Z] single_core: rq2-val4-aud-single-r2b-str-mem done: instance0: 243 misses (late 118, skipped 125) of 50000
+[2026-10-14T15:45:43Z] single_core: === rq2-val4-aud-single-r1-rel-none (none, 1 instance(s), 50000 jobs)
+[2026-10-14T15:50:43Z] single_core: rq2-val4-aud-single-r1-rel-none: still waiting (Running, 300s)
+[2026-10-14T15:54:14Z] single_core: rq2-val4-aud-single-r1-rel-none done: instance0: 7103 misses (late 3536, skipped 3567) of 50000
+[2026-10-14T15:54:24Z] single_core: === rq2-val4-aud-single-r1-rel-mem (memory, 1 instance(s), 50000 jobs)
+    OK   46446   2 90.7 rq2-enemy
+    OK   46447   3 90.7 rq2-enemy
+    OK   46448   0 98.7 rq2-enemy
+[2026-10-14T15:59:34Z] single_core: rq2-val4-aud-single-r1-rel-mem: still waiting (Running, 300s)
+[2026-10-14T16:03:05Z] single_core: rq2-val4-aud-single-r1-rel-mem done: instance0: 22053 misses (late 10914, skipped 11139) of 50000
+[2026-10-14T16:03:15Z] single_core: === rq2-val4-aud-single-r2b-rel-none (none, 1 instance(s), 50000 jobs)
+[2026-10-14T16:08:16Z] single_core: rq2-val4-aud-single-r2b-rel-none: still waiting (Running, 300s)
+[2026-10-14T16:11:47Z] single_core: rq2-val4-aud-single-r2b-rel-none done: instance0: 481 misses (late 237, skipped 244) of 50000
+[2026-10-14T16:11:57Z] single_core: === rq2-val4-aud-single-r2b-rel-mem (memory, 1 instance(s), 50000 jobs)
+    OK   48725   2 89.2 rq2-enemy
+    OK   48726   3 89.3 rq2-enemy
+    OK   48727   0 97.5 rq2-enemy
+[2026-10-14T16:17:06Z] single_core: rq2-val4-aud-single-r2b-rel-mem: still waiting (Running, 300s)
+[2026-10-14T16:20:38Z] single_core: rq2-val4-aud-single-r2b-rel-mem done: instance0: 2409 misses (late 1170, skipped 1239) of 50000
+[2026-10-14T16:20:48Z] single_core: all 8 runs collected

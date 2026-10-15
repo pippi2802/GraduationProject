@@ -1,0 +1,48 @@
+[2026-10-14T17:49:24Z] single_core: start: 4 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-14T17:49:24Z] single_core: node slice: period 41667 runtime 0 26167 0 0 RESET FAILED bash: line 5: echo: write error: Invalid argument 
+[2026-10-14T17:49:24Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-14T17:49:24Z] single_core: === rq2-val4-seg-single-r1-str-mem (memory, 1 instance(s), 20000 jobs)
+    OK   59550   2 93.8 rq2-enemy
+    OK   59551   3 93.8 rq2-enemy
+    OK   59552   0 87.6 rq2-enemy
+[2026-10-14T17:54:33Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 300s)
+[2026-10-14T17:59:34Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 600s)
+[2026-10-14T18:04:34Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 900s)
+[2026-10-14T18:09:35Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 1200s)
+[2026-10-14T18:14:35Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 1500s)
+[2026-10-14T18:19:36Z] single_core: rq2-val4-seg-single-r1-str-mem: still waiting (Running, 1800s)
+[2026-10-14T18:23:37Z] single_core: rq2-val4-seg-single-r1-str-mem done: instance0: 20 misses (late 10, skipped 10) of 20000
+[2026-10-14T18:23:47Z] single_core: === rq2-val4-seg-single-r2b-str-mem (memory, 1 instance(s), 20000 jobs)
+    OK   62979   2 91.3 rq2-enemy
+    OK   62980   3 91.3 rq2-enemy
+    OK   62981   0 98.8 rq2-enemy
+[2026-10-14T18:28:57Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 300s)
+[2026-10-14T18:33:57Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 600s)
+[2026-10-14T18:38:58Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 900s)
+[2026-10-14T18:43:58Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 1200s)
+[2026-10-14T18:48:59Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 1500s)
+[2026-10-14T18:53:59Z] single_core: rq2-val4-seg-single-r2b-str-mem: still waiting (Running, 1800s)
+[2026-10-14T18:58:01Z] single_core: rq2-val4-seg-single-r2b-str-mem done: instance0: 8 misses (late 4, skipped 4) of 20000
+[2026-10-14T18:58:11Z] single_core: === rq2-val4-seg-single-r1-rel-mem (memory, 1 instance(s), 20000 jobs)
+    OK   67167   2 90.7 rq2-enemy
+    OK   67168   3 90.7 rq2-enemy
+    OK   67169   0 97.8 rq2-enemy
+[2026-10-14T19:03:20Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 300s)
+[2026-10-14T19:08:21Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 600s)
+[2026-10-14T19:13:21Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 900s)
+[2026-10-14T19:18:22Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T19:23:22Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 1500s)
+[2026-10-14T19:28:23Z] single_core: rq2-val4-seg-single-r1-rel-mem: still waiting (Running, 1800s)
+[2026-10-14T19:32:24Z] single_core: rq2-val4-seg-single-r1-rel-mem done: instance0: 4 misses (late 2, skipped 2) of 20000
+[2026-10-14T19:32:34Z] single_core: === rq2-val4-seg-single-r2b-rel-mem (memory, 1 instance(s), 20000 jobs)
+    OK   70590   2 90.0 rq2-enemy
+    OK   70591   3 90.0 rq2-enemy
+    OK   70592   0 97.6 rq2-enemy
+[2026-10-14T19:37:43Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 300s)
+[2026-10-14T19:42:44Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 600s)
+[2026-10-14T19:47:45Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 900s)
+[2026-10-14T19:52:45Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 1200s)
+[2026-10-14T19:57:46Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 1500s)
+[2026-10-14T20:02:46Z] single_core: rq2-val4-seg-single-r2b-rel-mem: still waiting (Running, 1800s)
+[2026-10-14T20:06:48Z] single_core: rq2-val4-seg-single-r2b-rel-mem done: instance0: 39 misses (late 5, skipped 34) of 20000
+[2026-10-14T20:06:58Z] single_core: all 4 runs collected
