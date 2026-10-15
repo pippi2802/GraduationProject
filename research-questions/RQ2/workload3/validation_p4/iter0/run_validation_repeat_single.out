@@ -1,0 +1,22 @@
+nohup: ignoring input
+[2026-10-15T10:44:58Z] single_core: start: 8 runs on rt-k8s-worker-7 (agent namespace rq2-node-prep-worker7)
+[2026-10-15T10:44:58Z] single_core: node slice: period 0 runtime 0 -> reset to period 10000 
+[2026-10-15T10:44:58Z] single_core: (a slice at the pods' period is what a two-core pod needs; a different period is reset here)
+[2026-10-15T10:44:58Z] single_core: rq2-val4-aud-single-r1-str-none: already collected, skipped
+[2026-10-15T10:44:58Z] single_core: rq2-val4-aud-single-r1-str-mem: already collected, skipped
+[2026-10-15T10:44:58Z] single_core: rq2-val4-aud-single-r2b-str-none: already collected, skipped
+[2026-10-15T10:44:58Z] single_core: rq2-val4-aud-single-r2b-str-mem: already collected, skipped
+[2026-10-15T10:44:58Z] single_core: === rq2-val4-aud-single-r1-rel-none (none, 1 instance(s), 50000 jobs)
+[2026-10-15T10:50:00Z] single_core: rq2-val4-aud-single-r1-rel-none: still waiting (Running, 300s)
+[2026-10-15T10:54:01Z] single_core: rq2-val4-aud-single-r1-rel-none done: instance0: 23 misses (late 11, skipped 12) of 50000
+[2026-10-15T10:54:11Z] single_core: === rq2-val4-aud-single-r1-rel-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-15T10:59:20Z] single_core: rq2-val4-aud-single-r1-rel-mem: still waiting (Running, 300s)
+[2026-10-15T11:02:52Z] single_core: rq2-val4-aud-single-r1-rel-mem done: instance0: 10 misses (late 5, skipped 5) of 50000
+[2026-10-15T11:03:02Z] single_core: === rq2-val4-aud-single-r2b-rel-none (none, 1 instance(s), 50000 jobs)
+[2026-10-15T11:08:03Z] single_core: rq2-val4-aud-single-r2b-rel-none: still waiting (Running, 300s)
+[2026-10-15T11:11:34Z] single_core: rq2-val4-aud-single-r2b-rel-none done: instance0: 18 misses (late 9, skipped 9) of 50000
+[2026-10-15T11:11:44Z] single_core: === rq2-val4-aud-single-r2b-rel-mem (memory, 1 instance(s), 50000 jobs)
+[2026-10-15T11:16:54Z] single_core: rq2-val4-aud-single-r2b-rel-mem: still waiting (Running, 300s)
+[2026-10-15T11:20:25Z] single_core: rq2-val4-aud-single-r2b-rel-mem done: instance0: 18 misses (late 9, skipped 9) of 50000
+[2026-10-15T11:20:35Z] single_core: all 8 runs collected
+online validation: all runs collected. Check them: see README.md (step 5)
