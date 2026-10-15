@@ -1,0 +1,64 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllrrrrrrrrr}
+\toprule
+Workload & Deploy. & Variant & Level & $p$ & (m,k) & $Q$ [ms] & $Q/T$ & Overrun rate & Viol. windows & incl. stalls & Stalls & Over-budget \\
+\midrule
+Video & single & Stress profile & relaxed & $10^{-2}$ & (22,24) & 24.12 & 0.58 & 0.02\% & 0.00\% & 0.00\% & 1 & +7\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (23,24) & 24.13 & 0.58 & 0.04\% & 0.93\% & 0.93\% & 1 & +0\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (22,24) & 26.17 & 0.63 & 0.01\% & 0.00\% & 0.00\% & 1 & +17\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (23,24) & 26.15 & 0.63 & 0.02\% & 0.46\% & 0.46\% & 1 & +5\% \\
+ & single & HWM & -- & $10^{-3}$ & (23,24) & 33.04 & 0.79 & 0.00\% & 0.00\% & 0.00\% & 0 & +50\% \\
+ & multi & Stress profile & relaxed & $10^{-2}$ & (22,24) & 23.25 & 0.56 & 0.04\% & 0.15\% & 0.31\% & 0 & +2\% \\
+ & multi & Stress profile & strict & $10^{-3}$ & (23,24) & 23.44 & 0.56 & 0.02\% & 0.32\% & 0.40\% & 2 & +3\% \\
+ & multi & Platform factor & relaxed & $10^{-2}$ & (22,24) & 24.47 & 0.59 & 0.02\% & 0.07\% & 0.07\% & 0 & +8\% \\
+ & multi & Platform factor & strict & $10^{-3}$ & (23,24) & 24.65 & 0.59 & 0.01\% & 0.24\% & 0.24\% & 0 & +6\% \\
+ & multi & HWM & -- & $10^{-3}$ & (23,24) & 26.46 & 0.63 & 0.00\% & 0.00\% & 0.00\% & 0 & +15\% \\
+\midrule
+Segmentation & single & Stress profile & relaxed & $10^{-2}$ & (8,10) & 62.94 & 0.63 & 0.01\% & 0.00\% & 0.00\% & 0 & +22\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (9,10) & 58.85 & 0.59 & 0.05\% & 0.41\% & 0.45\% & 0 & +2\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (8,10) & 66.03 & 0.66 & 0.02\% & 0.00\% & 0.18\% & 2 & +31\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (9,10) & 61.17 & 0.61 & 0.02\% & 0.15\% & 0.15\% & 0 & +9\% \\
+\midrule
+Audio & single & Stress profile & relaxed & $10^{-2}$ & (95,100) & 1.22 & 0.12 & 26.80\% & 87.71\% & 88.77\% & 22 & -58\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (99,100) & 2.64 & 0.26 & 0.07\% & 6.80\% & 7.36\% & 8 & -40\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (95,100) & 1.32 & 0.13 & 2.05\% & 28.38\% & 32.14\% & 12 & -29\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (99,100) & 2.49 & 0.25 & 0.19\% & 16.35\% & 19.12\% & 20 & -62\% \\
+ & single & HWM & -- & $10^{-3}$ & (99,100) & 7.28 & 0.73 & 0.00\% & 0.00\% & 1.79\% & 11 & +391\% \\
+ & multi & Stress profile & relaxed & $10^{-2}$ & (95,100) & 1.42 & 0.14 & 0.01\% & 0.00\% & 0.00\% & 23 & +20\% \\
+ & multi & Stress profile & strict & $10^{-3}$ & (99,100) & 1.79 & 0.18 & 0.01\% & 0.60\% & 1.00\% & 8 & +20\% \\
+ & multi & Platform factor & relaxed & $10^{-2}$ & (95,100) & 1.56 & 0.16 & 0.01\% & 0.00\% & 0.00\% & 22 & +44\% \\
+ & multi & Platform factor & strict & $10^{-3}$ & (99,100) & 2.46 & 0.25 & 0.04\% & 1.56\% & 1.96\% & 13 & -10\% \\
+ & multi & HWM & -- & $10^{-3}$ & (99,100) & 3.45 & 0.34 & 0.00\% & 0.00\% & 0.00\% & 22 & +99\% \\
+\bottomrule
+\end{tabular}}
+\caption{Online validation of procedure 3 with its final budgets (validation\_p4). Variants: budget from the stress profile, from the platform factor, and the high-water mark (HWM, one budget for every tolerance, judged with the tolerance and window requirement of the strict level). Worst case over the runs of each cell (without interference and with the memory enemy, every instance). Overrun rate: share of jobs with $C+\delta>Q$. Viol. windows: share of sliding windows of $k$ jobs (one second) violating $(m,k)$ because of overruns; ``incl. stalls'' also counts stalls and late starts, which the budget does not control. Over-budget: $Q/\hat C-1$ in the worst run of the cell, with $\hat C=\max(C_p,C_{(m,k)})$ of that run, the budget that would just have met both requirements; negative means the budget was too small.}
+\label{tab:p4-results-table}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrrrrrr}
+\toprule
+Workload & Deploy. & Budgets & $Q/T$ & Cells within $p$ and $\varepsilon$ & Worst overrun rate & Worst viol. windows & incl. stalls & Stalls & Over-budget min / max \\
+\midrule
+Video & single & HWM & 0.79 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 0 & +50\% / +50\% \\
+ & single & Level budgets & 0.58--0.63 & 4/4 & 0.04\% & 0.93\% & 0.93\% & 4 & +0\% / +17\% \\
+ & multi & HWM & 0.63 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 0 & +15\% / +15\% \\
+ & multi & Level budgets & 0.56--0.59 & 4/4 & 0.04\% & 0.32\% & 0.40\% & 2 & +2\% / +8\% \\
+\midrule
+Segmentation & single & Level budgets & 0.59--0.66 & 4/4 & 0.05\% & 0.41\% & 0.45\% & 2 & +2\% / +31\% \\
+\midrule
+Audio & single & HWM & 0.73 & 1/1 & 0.00\% & 0.00\% & 1.79\% & 11 & +391\% / +391\% \\
+ & single & Level budgets & 0.12--0.26 & 0/4 & 26.80\% & 87.71\% & 88.77\% & 62 & -62\% / -29\% \\
+ & multi & HWM & 0.34 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 22 & +99\% / +99\% \\
+ & multi & Level budgets & 0.14--0.25 & 3/4 & 0.04\% & 1.56\% & 1.96\% & 66 & -10\% / +44\% \\
+\bottomrule
+\end{tabular}}
+\caption{Summary per workload and deployment. A cell is within the requirements when its observed overrun rate is at most $p$ and the share of violating windows at most $\varepsilon=1\%$ (overruns only).}
+\label{tab:p4-results-table-summary}
+\end{table}

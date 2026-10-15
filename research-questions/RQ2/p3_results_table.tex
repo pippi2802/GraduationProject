@@ -2,34 +2,63 @@
 \centering
 \small
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{llllrrrrrcrcrr}
+\begin{tabular}{llllrrrrrrrrr}
 \toprule
-Workload & Deploy. & Route & Level & $p$ & (m,k) & $Q$ [ms] & $Q/T$ & Overrun rate & Rate & Viol. windows & Window & incl. stalls & Stalls \\
+Workload & Deploy. & Variant & Level & $p$ & (m,k) & $Q$ [ms] & $Q/T$ & Overrun rate & Viol. windows & incl. stalls & Stalls & Over-budget \\
 \midrule
-Video & single & Route 1 & relaxed & $10^{-2}$ & (22,24) & 23.34 & 0.56 & 0.05\% & pass & 0.16\% & pass & 0.16\% & 1 \\
- & single & Route 1 & strict & $10^{-3}$ & (23,24) & 23.81 & 0.57 & 0.08\% & inconcl. & 1.50\% & \textbf{FAIL} & 1.50\% & 0 \\
- & single & Route 2 & relaxed & $10^{-2}$ & (22,24) & 25.35 & 0.61 & 0.03\% & pass & 0.00\% & pass & 0.00\% & 0 \\
- & single & Route 2 & strict & $10^{-3}$ & (23,24) & 25.77 & 0.62 & 0.01\% & pass & 0.15\% & pass & 0.15\% & 0 \\
- & multi & Route 1 & relaxed & $10^{-2}$ & (22,24) & 23.30 & 0.56 & 0.05\% & pass & 0.32\% & pass & 0.40\% & 0 \\
- & multi & Route 1 & strict & $10^{-3}$ & (23,24) & 23.71 & 0.57 & 0.01\% & pass & 0.08\% & pass & 0.50\% & 2 \\
- & multi & Route 2 & relaxed & $10^{-2}$ & (22,24) & 24.55 & 0.59 & 0.02\% & pass & 0.10\% & pass & 0.10\% & 0 \\
- & multi & Route 2 & strict & $10^{-3}$ & (23,24) & 24.93 & 0.60 & 0.01\% & pass & 0.15\% & pass & 0.15\% & 0 \\
+Video & single & Stress profile & relaxed & $10^{-2}$ & (22,24) & 23.34 & 0.56 & 0.05\% & 0.16\% & 0.16\% & 1 & +4\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (23,24) & 23.81 & 0.57 & 0.08\% & 1.50\% & 1.50\% & 0 & -3\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (22,24) & 25.35 & 0.61 & 0.03\% & 0.00\% & 0.00\% & 0 & +11\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (23,24) & 25.77 & 0.62 & 0.01\% & 0.15\% & 0.15\% & 0 & +9\% \\
+ & single & HWM & -- & $10^{-3}$ & (23,24) & 33.04 & 0.79 & 0.00\% & 0.00\% & 0.00\% & 0 & +50\% \\
+ & multi & Stress profile & relaxed & $10^{-2}$ & (22,24) & 23.30 & 0.56 & 0.05\% & 0.32\% & 0.40\% & 0 & +2\% \\
+ & multi & Stress profile & strict & $10^{-3}$ & (23,24) & 23.71 & 0.57 & 0.01\% & 0.08\% & 0.50\% & 2 & +6\% \\
+ & multi & Platform factor & relaxed & $10^{-2}$ & (22,24) & 24.55 & 0.59 & 0.02\% & 0.10\% & 0.10\% & 0 & +5\% \\
+ & multi & Platform factor & strict & $10^{-3}$ & (23,24) & 24.93 & 0.60 & 0.01\% & 0.15\% & 0.15\% & 0 & +11\% \\
+ & multi & HWM & -- & $10^{-3}$ & (23,24) & 26.46 & 0.63 & 0.00\% & 0.00\% & 0.00\% & 0 & +15\% \\
 \midrule
-Segmentation & single & Route 1 & relaxed & $10^{-2}$ & (8,10) & 63.13 & 0.63 & 0.04\% & pass & 0.00\% & pass & 0.00\% & 0 \\
- & single & Route 1 & strict & $10^{-3}$ & (9,10) & 64.58 & 0.65 & 0.06\% & pass & 0.50\% & pass & 0.54\% & 0 \\
- & single & Route 2 & relaxed & $10^{-2}$ & (8,10) & 66.32 & 0.66 & 0.02\% & pass & 0.05\% & pass & 0.05\% & 1 \\
- & single & Route 2 & strict & $10^{-3}$ & (9,10) & 66.97 & 0.67 & 0.03\% & pass & 0.19\% & pass & 0.19\% & 0 \\
+Segmentation & single & Stress profile & relaxed & $10^{-2}$ & (8,10) & 63.13 & 0.63 & 0.04\% & 0.00\% & 0.00\% & 0 & +15\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (9,10) & 64.58 & 0.65 & 0.06\% & 0.50\% & 0.54\% & 0 & +3\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (8,10) & 66.32 & 0.66 & 0.02\% & 0.05\% & 0.05\% & 1 & +19\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (9,10) & 66.97 & 0.67 & 0.03\% & 0.19\% & 0.19\% & 0 & +10\% \\
 \midrule
-Audio & single & Route 1 & relaxed & $10^{-2}$ & (95,100) & 1.28 & 0.13 & 1.00\% & \textbf{FAIL} & 14.92\% & \textbf{FAIL} & 16.80\% & 8 \\
- & single & Route 1 & strict & $10^{-3}$ & (99,100) & 2.56 & 0.26 & 0.09\% & inconcl. & 8.54\% & \textbf{FAIL} & 10.07\% & 15 \\
- & single & Route 2 & relaxed & $10^{-2}$ & (95,100) & 1.39 & 0.14 & 0.65\% & pass & 8.77\% & \textbf{FAIL} & 9.27\% & 14 \\
- & single & Route 2 & strict & $10^{-3}$ & (99,100) & 2.46 & 0.25 & 0.12\% & \textbf{FAIL} & 11.26\% & \textbf{FAIL} & 12.41\% & 10 \\
- & multi & Route 1 & relaxed & $10^{-2}$ & (95,100) & 1.57 & 0.16 & 0.03\% & pass & 0.22\% & pass & 0.22\% & 8 \\
- & multi & Route 1 & strict & $10^{-3}$ & (99,100) & 1.79 & 0.18 & 0.01\% & pass & 0.63\% & pass & 1.03\% & 33 \\
- & multi & Route 2 & relaxed & $10^{-2}$ & (95,100) & 1.70 & 0.17 & 0.00\% & pass & 0.00\% & pass & 0.00\% & 6 \\
- & multi & Route 2 & strict & $10^{-3}$ & (99,100) & 2.45 & 0.24 & 0.00\% & pass & 0.00\% & pass & 0.20\% & 22 \\
+Audio & single & Stress profile & relaxed & $10^{-2}$ & (95,100) & 1.28 & 0.13 & 1.00\% & 14.92\% & 16.80\% & 8 & -23\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (99,100) & 2.56 & 0.26 & 0.09\% & 8.54\% & 10.07\% & 15 & -34\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (95,100) & 1.39 & 0.14 & 0.65\% & 8.77\% & 9.27\% & 14 & -15\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (99,100) & 2.46 & 0.25 & 0.12\% & 11.26\% & 12.41\% & 10 & -52\% \\
+ & single & HWM & -- & $10^{-3}$ & (99,100) & 7.28 & 0.73 & 0.00\% & 0.00\% & 1.79\% & 11 & +391\% \\
+ & multi & Stress profile & relaxed & $10^{-2}$ & (95,100) & 1.57 & 0.16 & 0.03\% & 0.22\% & 0.22\% & 8 & +23\% \\
+ & multi & Stress profile & strict & $10^{-3}$ & (99,100) & 1.79 & 0.18 & 0.01\% & 0.63\% & 1.03\% & 33 & +2\% \\
+ & multi & Platform factor & relaxed & $10^{-2}$ & (95,100) & 1.70 & 0.17 & 0.00\% & 0.00\% & 0.00\% & 6 & +28\% \\
+ & multi & Platform factor & strict & $10^{-3}$ & (99,100) & 2.45 & 0.24 & 0.00\% & 0.00\% & 0.20\% & 22 & +47\% \\
+ & multi & HWM & -- & $10^{-3}$ & (99,100) & 3.45 & 0.34 & 0.00\% & 0.00\% & 0.00\% & 22 & +99\% \\
 \bottomrule
 \end{tabular}}
-\caption{Online validation of procedure 3 (iteration 0). Worst case over the runs of each cell (without interference and with the memory enemy, every instance). Rate: $P_{ucb}(C+\delta>Q)\le p$. Window: share of sliding windows of $k$ jobs (one second) violating $(m,k)$ because of overruns, at most $1\%$; ``incl. stalls'' also counts stalls and late starts, which the budget does not control.}
+\caption{Online validation of procedure 3. Variants: budget from the stress profile, from the platform factor, and the high-water mark (HWM, one budget for every tolerance, judged with the tolerance and window requirement of the strict level). Worst case over the runs of each cell (without interference and with the memory enemy, every instance). Overrun rate: share of jobs with $C+\delta>Q$. Viol. windows: share of sliding windows of $k$ jobs (one second) violating $(m,k)$ because of overruns; ``incl. stalls'' also counts stalls and late starts, which the budget does not control. Over-budget: $Q/\hat C-1$ in the worst run of the cell, with $\hat C=\max(C_p,C_{(m,k)})$ of that run, the budget that would just have met both requirements; negative means the budget was too small.}
 \label{tab:p3-results-table}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrrrrrr}
+\toprule
+Workload & Deploy. & Budgets & $Q/T$ & Cells within $p$ and $\varepsilon$ & Worst overrun rate & Worst viol. windows & incl. stalls & Stalls & Over-budget min / max \\
+\midrule
+Video & single & HWM & 0.79 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 0 & +50\% / +50\% \\
+ & single & Level budgets & 0.56--0.62 & 3/4 & 0.08\% & 1.50\% & 1.50\% & 1 & -3\% / +11\% \\
+ & multi & HWM & 0.63 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 0 & +15\% / +15\% \\
+ & multi & Level budgets & 0.56--0.60 & 4/4 & 0.05\% & 0.32\% & 0.50\% & 2 & +2\% / +11\% \\
+\midrule
+Segmentation & single & Level budgets & 0.63--0.67 & 4/4 & 0.06\% & 0.50\% & 0.54\% & 1 & +3\% / +19\% \\
+\midrule
+Audio & single & HWM & 0.73 & 1/1 & 0.00\% & 0.00\% & 1.79\% & 11 & +391\% / +391\% \\
+ & single & Level budgets & 0.13--0.26 & 0/4 & 1.00\% & 14.92\% & 16.80\% & 47 & -52\% / -15\% \\
+ & multi & HWM & 0.34 & 1/1 & 0.00\% & 0.00\% & 0.00\% & 22 & +99\% / +99\% \\
+ & multi & Level budgets & 0.16--0.24 & 4/4 & 0.03\% & 0.63\% & 1.03\% & 69 & +2\% / +47\% \\
+\bottomrule
+\end{tabular}}
+\caption{Summary per workload and deployment. A cell is within the requirements when its observed overrun rate is at most $p$ and the share of violating windows at most $\varepsilon=1\%$ (overruns only).}
+\label{tab:p3-results-table-summary}
 \end{table}
