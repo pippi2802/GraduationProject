@@ -35,3 +35,7 @@ docs/MS_Thesis_Brighi
 
 # raw source video (1.7 GB, exceeds GitHub 100 MB limit); regenerate via prepare_clip.sh
 *.y4m
+
+# KITTI data (CC BY-NC-SA, do not redistribute)
+research-questions/RQ2/data/
+research-questions/RQ2/workload4/scans/*.bin

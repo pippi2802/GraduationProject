@@ -4,7 +4,7 @@
 #
 #   DRY_RUN=1 ./run_validation_p4_all.sh              # the plan of all three, touches nothing
 #   nohup ./run_validation_p4_all.sh > run_validation_p4_all.out 2>&1 &
-#   ONLY="workload3" ./run_validation_p4_all.sh        # only one (workload3 = audio, workload1 = video, workload2 = segmentation)
+#   ONLY="workload3" ./run_validation_p4_all.sh        # only one (workload3 = audio, workload1 = video, workload2 = segmentation, workload4 = LiDAR: not in the default list, run it with ONLY="workload4")
 #
 # Audio 16 runs (about 1.4 h), video 8 runs (about 1.6 h), segmentation 4 runs (about 2.4 h): about 5.5 h in total.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

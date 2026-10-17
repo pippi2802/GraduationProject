@@ -28,7 +28,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ITER = sys.argv[1] if len(sys.argv) > 1 else "0"
 VALIDATION = "validation_p4"                                                 # the final budgets of procedure 3
 OUT = "p4_results_table"
-WORKLOADS = [("Video", "workload1"), ("Segmentation", "workload2"), ("Audio", "workload3")]
+WORKLOADS = [("Video", "workload1"), ("Segmentation", "workload2"), ("Audio", "workload3"), ("LiDAR", "workload4")]
 VARIANT = {"route1": "Stress profile", "route2b": "Platform factor", "hwm": "HWM"}
 DELTA_MS, CONF, GAP_JOBS, EPS, STALL_FRAC = 0.02, 0.95, 50, 0.01, 0.5      # as in the notebooks (configuration cell)
 

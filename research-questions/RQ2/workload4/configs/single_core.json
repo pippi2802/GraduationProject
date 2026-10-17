@@ -1,0 +1,11 @@
+{
+  "scans": "scans",
+  "cpus": [1],
+  "fifo_prio": 50,
+  "period_ms": 0,
+  "jobs": 5000,
+  "voxel_m": 0.5,
+  "plane_dist_m": 0.2,
+  "plane_iters": 100,
+  "output": "/results/single_core"
+}
