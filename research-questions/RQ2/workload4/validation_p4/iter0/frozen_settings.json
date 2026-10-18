@@ -1,0 +1,52 @@
+{
+  "frozen_at_utc": "2026-10-18T16:31:47+00:00",
+  "note": "Frozen before the online validation of workload 4 (LiDAR). Nothing below is changed after the validation runs start.",
+  "settings": {
+    "DELTA_MS": 0.02,
+    "EPS_MK": 0.01,
+    "CONF": 0.95,
+    "NP_MIN": 10,
+    "P_LIST": [
+      0.1,
+      0.01,
+      0.001
+    ],
+    "HWM_P": 0.001,
+    "ALPHA_PLATFORM": {
+      "1": 1.03,
+      "2": 1.06,
+      "3": 1.11
+    },
+    "M_USED": {
+      "single_core": 3,
+      "multi_core": 2
+    },
+    "ADMISSION_MAX": 0.95,
+    "L_BOOT": 1000,
+    "N_BOOT": 200,
+    "GAP_JOBS": 50,
+    "STALL_FRAC": 0.5,
+    "K_MAX": 2,
+    "levels": {
+      "relaxed": {
+        "p": 0.01,
+        "m": 18,
+        "k": 20
+      },
+      "strict": {
+        "p": 0.001,
+        "m": 19,
+        "k": 20
+      }
+    },
+    "alpha_drift_from": "all baseline runs: profiling + drift worker6 + worker7 (section 4.1)"
+  },
+  "files": {
+    "workload4/validation_p4/iter0/budgets.csv": "852049f254cd039359b6000bed9e32d9b0172619d6fd748bd4d345ac94d0eac5",
+    "analysis_procedure3/budgets/budgets_workload4_p3_iter0.csv": "2154189a01ffe8d3c42b8a7dcdbd37537b6653a451a66901995d17d0db7a383b",
+    "analysis_procedure3/budgets/budgets_workload4_iter0.csv": "31bb16a81a0b5a17e981128a407bdb93684dbfdb6bb2509bed7bd529ecc9c010",
+    "analysis_procedure3/analysis_workload4.ipynb": "b7f44c284f33f231623dea10e6572e73b29e69fe0f49029620cdabfb07f13304"
+  },
+  "git_head": "6a1df0e18dd1c5ef6193c30e4f819f487e7e9409",
+  "git_dirty": false
+}
