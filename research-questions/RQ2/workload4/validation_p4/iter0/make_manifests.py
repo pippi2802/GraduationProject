@@ -24,7 +24,8 @@ SCEN = {
     "single_core": dict(short="single", node="rt-k8s-worker-7", cpus=[1], enemy_cpus="2,3,0", config="configs/single_core.json"),
 }
 ROUTES = {"route1": ("r1", "Route 1: Q_p = C_p of the stress runs x alpha_drift"),
-          "route2b": ("r2b", "Route 2: Q_p = C_p of the baselines x alpha_platform(m) x alpha_drift")}
+          "route2b": ("r2b", "Route 2: Q_p = C_p of the baselines x alpha_platform(m) x alpha_drift"),
+          "hwm": ("hwm", "Route 3: Q = high-water mark of the stressed profiling runs x alpha_drift (one budget for every level)")}
 LEVEL = {"relaxed": "rel", "strict": "str"}
 COND = {"memory": ("mem", "with the memory enemy (started on the node around the run)")}
 ENEMY_KB = {"memory": 2662400}                   # enemy buffer: 10 x the last-level cache, as in the profiling
@@ -91,6 +92,8 @@ def main():
         for route in ROUTES:
             out = HERE / "pods" / scen / route
             for level in LEVEL:
+                if route == "hwm" and level == "relaxed":              # one HWM run per scenario (strict folder), judged on both levels by the notebook
+                    continue
                 row = rows[(scen, route, level)]
                 if str(row["admitted"]).strip().lower() != "true":     # the driver would reject this reservation: nothing to validate
                     print(f"skipped (not admitted, Q/T = {float(row['Q_over_T']):.2f}): {scen} {route} {level}")

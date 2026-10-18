@@ -120,7 +120,7 @@ for label, folder in WORKLOADS:
         continue
     budgets = pd.read_csv(base / "budgets.csv")
     for b in budgets.itertuples():                                                    # stress profile and platform factor, per level
-        folders = [base / "results" / b.scenario / b.route / f"{b.level}_{i}" for i in ("none", "memory")]
+        folders = [base / "results" / b.scenario / b.route / f"{'strict' if b.route == 'hwm' else b.level}_{i}" for i in ("none", "memory")]   # HWM of workload 4: one run, judged on both levels
         res = judge(folders, b.runtime_us / 1000, b.period_us / 1000, b.p, b.m, b.k)
         if res:
             rows.append(dict(workload=label, scenario=b.scenario.replace("_core", ""), variant=VARIANT[b.route], level=b.level, **res))
