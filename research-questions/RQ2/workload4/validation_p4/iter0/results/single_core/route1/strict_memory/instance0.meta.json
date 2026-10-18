@@ -1,0 +1,24 @@
+{
+  "args": {
+    "scans": "scans",
+    "cpus": [
+      1
+    ],
+    "fifo_prio": 50,
+    "period_ms": 50,
+    "jobs": 40000,
+    "voxel_m": 0.5,
+    "plane_dist_m": 0.2,
+    "plane_iters": 100,
+    "output": "/results/rq2-val4-lidar-single-r1-str-mem",
+    "instance_id": "instance0",
+    "cpu": 1
+  },
+  "instance_id": "instance0",
+  "n_scans": 1022,
+  "start_time_utc": "2026-10-18T16:17:30Z",
+  "hostname": "rq2-val4-lidar-single-r1-str-mem",
+  "kernel_version": "7.0.0+",
+  "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "open3d": "0.20.0"
+}
