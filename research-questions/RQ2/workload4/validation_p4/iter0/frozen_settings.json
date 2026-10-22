@@ -1,6 +1,6 @@
 {
-  "frozen_at_utc": "2026-10-18T16:31:47+00:00",
-  "note": "Frozen before the online validation of workload 4 (LiDAR). Nothing below is changed after the validation runs start.",
+  "frozen_at_utc": "2026-10-18T18:01:13+00:00",
+  "note": "Frozen before the online validation of workload 4 (LiDAR). Nothing below is changed after the validation runs start. Refrozen after renaming route to variant (identifiers variant1/variant2/variant3); budget values unchanged.",
   "settings": {
     "DELTA_MS": 0.02,
     "EPS_MK": 0.01,
@@ -42,10 +42,10 @@
     "alpha_drift_from": "all baseline runs: profiling + drift worker6 + worker7 (section 4.1)"
   },
   "files": {
-    "workload4/validation_p4/iter0/budgets.csv": "852049f254cd039359b6000bed9e32d9b0172619d6fd748bd4d345ac94d0eac5",
-    "analysis_procedure3/budgets/budgets_workload4_p3_iter0.csv": "2154189a01ffe8d3c42b8a7dcdbd37537b6653a451a66901995d17d0db7a383b",
-    "analysis_procedure3/budgets/budgets_workload4_iter0.csv": "31bb16a81a0b5a17e981128a407bdb93684dbfdb6bb2509bed7bd529ecc9c010",
-    "analysis_procedure3/analysis_workload4.ipynb": "b7f44c284f33f231623dea10e6572e73b29e69fe0f49029620cdabfb07f13304"
+    "workload4/validation_p4/iter0/budgets.csv": "78832a11239db3b67993f8d6cfeda8aa429c7d2776dfa1da31ff476cd8924816",
+    "analysis_procedure3/budgets/budgets_workload4_p3_iter0.csv": "56d403f92d02e59bd30661be118cc3654f88f67a464d628637c69cda4bd2ce8f",
+    "analysis_procedure3/budgets/budgets_workload4_iter0.csv": "b25a2521204d2f2127ba6b11ee04a3be1fbd01cf8eb51ca15e28bc0ee04c01c7",
+    "analysis_procedure3/analysis_workload4.ipynb": "6d6ef56f637915b3a9d95855c3d3144ec09da4fa95f4713644f49bda71b34eaa"
   },
   "git_head": "6a1df0e18dd1c5ef6193c30e4f819f487e7e9409",
   "git_dirty": false

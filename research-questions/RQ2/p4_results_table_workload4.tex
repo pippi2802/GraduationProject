@@ -1,0 +1,43 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllrrrrrrrrr}
+\toprule
+Workload & Deploy. & Variant & Level & $p$ & (m,k) & $Q$ [ms] & $Q/T$ & Overrun rate & Viol. windows & incl. stalls & Stalls & Over-budget \\
+\midrule
+LiDAR & single & Stress profile & relaxed & $10^{-2}$ & (18,20) & 29.66 & 0.59 & 0.01\% & 0.00\% & 0.00\% & 0 & +5\% \\
+ & single & Stress profile & strict & $10^{-3}$ & (19,20) & 30.18 & 0.60 & 0.00\% & 0.00\% & 0.00\% & 0 & +5\% \\
+ & single & Platform factor & relaxed & $10^{-2}$ & (18,20) & 32.27 & 0.65 & 0.00\% & 0.00\% & 0.00\% & 0 & +14\% \\
+ & single & Platform factor & strict & $10^{-3}$ & (19,20) & 32.91 & 0.66 & 0.00\% & 0.00\% & 0.15\% & 2 & +12\% \\
+ & single & HWM & relaxed & $10^{-2}$ & (18,20) & 43.75 & 0.88 & 0.00\% & 0.00\% & 0.00\% & 0 & +54\% \\
+ & single & HWM & strict & $10^{-3}$ & (19,20) & 43.75 & 0.88 & 0.00\% & 0.00\% & 0.00\% & 0 & +52\% \\
+ & multi & Stress profile & relaxed & $10^{-2}$ & (18,20) & 28.97 & 0.58 & 0.00\% & 0.00\% & 0.00\% & 0 & +6\% \\
+ & multi & Stress profile & strict & $10^{-3}$ & (19,20) & 29.27 & 0.59 & 0.00\% & 0.05\% & 0.05\% & 0 & +4\% \\
+ & multi & Platform factor & relaxed & $10^{-2}$ & (18,20) & 29.87 & 0.60 & 0.00\% & 0.00\% & 0.00\% & 0 & +10\% \\
+ & multi & Platform factor & strict & $10^{-3}$ & (19,20) & 30.25 & 0.61 & 0.00\% & 0.05\% & 0.10\% & 0 & +8\% \\
+ & multi & HWM & relaxed & $10^{-2}$ & (18,20) & 33.56 & 0.67 & 0.00\% & 0.00\% & 0.00\% & 0 & +23\% \\
+ & multi & HWM & strict & $10^{-3}$ & (19,20) & 33.56 & 0.67 & 0.00\% & 0.05\% & 0.05\% & 0 & +22\% \\
+\bottomrule
+\end{tabular}}
+\caption{Online validation of procedure 3 with its final budgets (validation\_p4). Variants: budget from the stress profile, from the platform factor, and the high-water mark (HWM, one budget for every tolerance, judged with the tolerance and window requirement of the strict level). Worst case over the runs of each cell (without interference and with the memory enemy, every instance). Overrun rate: share of jobs with $C+\delta>Q$. Viol. windows: share of sliding windows of $k$ jobs (one second) violating $(m,k)$ because of overruns; ``incl. stalls'' also counts stalls and late starts, which the budget does not control. Over-budget: $Q/\hat C-1$ in the worst run of the cell, with $\hat C=\max(C_p,C_{(m,k)})$ of that run, the budget that would just have met both requirements; negative means the budget was too small.}
+\label{tab:p4-results-table-workload4}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrrrrrr}
+\toprule
+Workload & Deploy. & Budgets & $Q/T$ & Cells within $p$ and $\varepsilon$ & Worst overrun rate & Worst viol. windows & incl. stalls & Stalls & Over-budget min / max \\
+\midrule
+LiDAR & single & HWM & 0.88 & 2/2 & 0.00\% & 0.00\% & 0.00\% & 0 & +52\% / +54\% \\
+ & single & Level budgets & 0.59--0.66 & 4/4 & 0.01\% & 0.00\% & 0.15\% & 2 & +5\% / +14\% \\
+ & multi & HWM & 0.67 & 2/2 & 0.00\% & 0.05\% & 0.05\% & 0 & +22\% / +23\% \\
+ & multi & Level budgets & 0.58--0.61 & 4/4 & 0.00\% & 0.05\% & 0.10\% & 0 & +4\% / +10\% \\
+\bottomrule
+\end{tabular}}
+\caption{Summary per workload and deployment. A cell is within the requirements when its observed overrun rate is at most $p$ and the share of violating windows at most $\varepsilon=1\%$ (overruns only).}
+\label{tab:p4-results-table-workload4-summary}
+\end{table}

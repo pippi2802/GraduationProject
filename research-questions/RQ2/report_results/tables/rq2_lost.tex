@@ -1,0 +1,25 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+Workload ($P$) & Deploy. & \multicolumn{2}{c}{Stress-based} & \multicolumn{2}{c}{Baseline-based} & High-water mark \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-7}
+ &  & relaxed & strict & relaxed & strict &  \\
+\midrule
+Video ($P=41.7$\,ms) & single & 0.04 & 0.09 & 0.02 & 0.04$^\dagger$ & 0 \\
+ & multi & 0.14 & 0.05 & 0.03 & 0.03 & 0 \\
+\midrule
+Segmentation ($P=100$\,ms) & single & 0.02 & 0.04$^\dagger$ & 0.19 & 0.03$^\dagger$ & -- \\
+\midrule
+LiDAR ($P=50$\,ms) & single & 0.01 & 0 & 0.01 & 0.06 & 0 \\
+ & multi & 0.01 & 0.01 & 0 & 0.01 & 0.01 \\
+\midrule
+Audio ($P=10$\,ms) & single & 0.05 & 0.16 & 0.04 & 0.49 & 0.04 \\
+ & multi & 0.04 & 0.03 & 0.04 & 0.11 & 0 \\
+\bottomrule
+\end{tabular}}
+\caption{Lost releases in the online validation, the consequence of the budgets of Table~\ref{tab:rq2-soundness}. Each cell gives the miss rate: the share of releases lost, that is with a deadline miss ($R>D$) or skipped, in percent of all releases (worst run of the cell); it does not depend on $p$ or $(m,k)$. These are reported, not judged: the tolerance $p$ bounds $P(C>Q)$ only, and misses caused by the platform (stalls, late starts) are included. $^\dagger$ Budget raised by the monotonicity rule; the bursts of lost releases that held an overrun only at the online budget are removed from the replay.}
+\label{tab:rq2-lost}
+\end{table}

@@ -2,14 +2,14 @@
 # Online validation of the LiDAR workload (validation_p4: the final budgets of procedure 3, the two levels relaxed / strict): runs the pods of pods/ one after the other, unattended, and saves the data in results/.
 #
 #   nohup ./run_validation.sh > run_validation.out 2>&1 &        both scenarios at the same time, each on its own node (about 2.8 h)
-#   ./run_validation.sh --scenario single_core                    only one scenario        (--route route1|route2b|hwm)
+#   ./run_validation.sh --scenario single_core                    only one scenario        (--variant variant1|variant2|variant3)
 #   DRY_RUN=1 ./run_validation.sh                                 prints the plan and touches nothing
 #   tail -f results/logs/single_core/validation.log               progress (and results/logs/multi_core/validation.log)
 #
-# For every run (order: the strict level first, then the relaxed one; inside each, route1 then route2b, without then with interference):
+# For every run (order: the strict level first, then the relaxed one; inside each, variant1 then variant2 then variant3, without then with interference):
 # the memory or cache enemy is started first when the run is a _memory or _cache one (confirmed to burn cpu), the pod is applied as it is in pods/ (already
 # pinned to its node), its phase is polled until it ends (a failed pod is seen at once, with its state and logs in the log), the CSV and meta.json
-# of every instance are pulled through the node-prep agent into results/<scenario>/<route>/<p>_<interference>/, checked (row count = jobs,
+# of every instance are pulled through the node-prep agent into results/<scenario>/<variant>/<p>_<interference>/, checked (row count = jobs,
 # SCHED_FIFO / affinity / mlock flags true), the number of misses is logged, the pod is deleted, the enemy is stopped (confirmed) and the script
 # settles for 10 s.
 #   - safe to restart: a finished run (.done in its folder) is skipped; a failed run is retried once, then recorded as FAILED in results/logs/<scenario>/summary.tsv
@@ -25,20 +25,20 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STRESS="$HERE/../../../stress1"
 NODE_DIR="${NODE_DIR:-/var/lib/rq2/results/lidar_validation_p4}"
 MEM_KB="${MEM_KB:-2662400}" STRIDE=64 SETTLE_S="${SETTLE_S:-10}" ATTEMPTS="${ATTEMPTS:-2}" DRY_RUN="${DRY_RUN:-0}"
-SCENARIOS="$(python3 -c "import csv,sys; print(' '.join(sorted({r['scenario'] for r in csv.DictReader(open(sys.argv[1]))})))" "$HERE/runs.csv")" ROUTE="" SLICE_RESET=1   # the scenarios of runs.csv
+SCENARIOS="$(python3 -c "import csv,sys; print(' '.join(sorted({r['scenario'] for r in csv.DictReader(open(sys.argv[1]))})))" "$HERE/runs.csv")" VARIANT="" SLICE_RESET=1   # the scenarios of runs.csv
 while [ $# -gt 0 ]; do
     case "$1" in
-        --scenario) SCENARIOS="$2"; shift 2 ;; --route) ROUTE="$2"; shift 2 ;; --no-slice-reset) SLICE_RESET=0; shift ;;
+        --scenario) SCENARIOS="$2"; shift 2 ;; --variant) VARIANT="$2"; shift 2 ;; --no-slice-reset) SLICE_RESET=0; shift ;;
         *) sed -n '2,/^set /p' "$0" | grep '^#' | sed 's/^# \{0,1\}//'; exit 2 ;;
     esac
 done
 
 plan() {   # <scenario>: run_id|pod_file|node|interference|enemy_cpus|save_dir|jobs|period_us, in the order of the validation
-    python3 - "$HERE/runs.csv" "$1" "$ROUTE" <<'PY'
+    python3 - "$HERE/runs.csv" "$1" "$VARIANT" <<'PY'
 import csv, sys
-rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["scenario"] == sys.argv[2] and (not sys.argv[3] or r["route"] == sys.argv[3])]
-p, route = {"0.001": 0, "0.01": 1, "0.1": 2, "all": 3}, {"route1": 0, "route2b": 1, "hwm": 2}
-for r in sorted(rows, key=lambda r: (p[r["p"]], route[r["route"]], {"none": 0, "memory": 1, "cache": 2}[r["interference"]])):
+rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["scenario"] == sys.argv[2] and (not sys.argv[3] or r["variant"] == sys.argv[3])]
+p, variant = {"0.001": 0, "0.01": 1, "0.1": 2, "all": 3}, {"variant1": 0, "variant2": 1, "variant3": 2}
+for r in sorted(rows, key=lambda r: (p[r["p"]], variant[r["variant"]], {"none": 0, "memory": 1, "cache": 2}[r["interference"]])):
     print("|".join([r["run_id"], r["pod_file"], r["node"], r["interference"], r["enemy_cpus"], r["save_results_in"], r["jobs"], r["period_us"], r["enemy_kb"]]))
 PY
 }
@@ -49,7 +49,7 @@ validate_scenario() {   # <scenario>: runs in its own subshell, so its variables
     if [ "$DRY_RUN" = 1 ]; then LOG=/dev/null; else mkdir -p "$LOGDIR"; fi
     say() { printf '[%s] %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$SC: $*" | tee -a "$LOG"; }
     mapfile -t RUNS < <(plan "$SC")
-    [ ${#RUNS[@]} -gt 0 ] || { say "no runs in runs.csv for $SC ${ROUTE:+route $ROUTE}"; return 1; }
+    [ ${#RUNS[@]} -gt 0 ] || { say "no runs in runs.csv for $SC ${VARIANT:+variant $VARIANT}"; return 1; }
     IFS='|' read -r _ _ NODE _ _ _ _ PERIOD <<< "${RUNS[0]}"
     NS="rq2-node-prep-worker${NODE##*-}"
     say "start: ${#RUNS[@]} runs on $NODE (agent namespace $NS)"

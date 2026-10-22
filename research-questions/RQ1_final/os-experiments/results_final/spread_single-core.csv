@@ -1,0 +1,65 @@
+placement,configuration,scale,U,tail_spread,relative_spread,startup_share,group,single_burst
+single-core,full isolation,tight,0.1,1.0679504171551963,1.0,0.0,reference,False
+single-core,full isolation,tight,0.5,1.0621587034904585,1.0,0.0,reference,False
+single-core,full isolation,tight,0.7,1.024965055713565,1.0,0.0,reference,False
+single-core,full isolation,tight,0.94,1.0374938182818159,1.0,0.0,reference,False
+single-core,full isolation,soft,0.1,1.043740084354393,1.0,0.0,reference,False
+single-core,full isolation,soft,0.5,1.0480894420065876,1.0,0.0,reference,False
+single-core,full isolation,soft,0.7,1.0327451578025246,1.0,0.0,reference,False
+single-core,full isolation,soft,0.94,1.023600655582897,1.0,0.0,reference,False
+single-core,isolcpus removed,tight,0.1,13.18192508476762,12.343199527822273,0.0,own line,False
+single-core,isolcpus removed,tight,0.5,2.803697835822573,2.639622333846233,0.0,own line,False
+single-core,isolcpus removed,tight,0.7,1.9623944693971676,1.9145964620530196,0.0,own line,False
+single-core,isolcpus removed,tight,0.94,,,,own line,False
+single-core,isolcpus removed,soft,0.1,12.170422019594717,11.660395343657566,0.0,own line,False
+single-core,isolcpus removed,soft,0.5,2.6033228096434953,2.4838746630816004,0.0,own line,False
+single-core,isolcpus removed,soft,0.7,1.8745425277284384,1.8151065764540504,0.0,own line,False
+single-core,isolcpus removed,soft,0.94,,,,own line,False
+single-core,nohz_full removed,tight,0.1,13.844820514376506,12.963916949680403,0.0,own line,False
+single-core,nohz_full removed,tight,0.5,1.1729460495735886,1.104303947911985,0.0,own line,False
+single-core,nohz_full removed,tight,0.7,1.1359132938153846,1.1082458738308685,0.0,own line,False
+single-core,nohz_full removed,tight,0.94,1.2797720975420426,1.233522624415692,0.0,own line,False
+single-core,nohz_full removed,soft,0.1,11.826996522818494,11.331361801759392,0.0,own line,False
+single-core,nohz_full removed,soft,0.5,1.173306652336126,1.119471874547088,0.0,own line,False
+single-core,nohz_full removed,soft,0.7,1.1685337907890248,1.1314831950172792,0.0,own line,False
+single-core,nohz_full removed,soft,0.94,1.0970232616968267,1.0717297372891177,0.0,own line,False
+single-core,rcu_nocbs removed,tight,0.1,1.0559334828420224,0.9887476664458031,0.0,own line,False
+single-core,rcu_nocbs removed,tight,0.5,1.0480925326808421,0.9867569970820818,0.0,own line,False
+single-core,rcu_nocbs removed,tight,0.7,1.0501205749577578,1.0245428067073759,0.0,own line,False
+single-core,rcu_nocbs removed,tight,0.94,1.0177592249641436,0.9809785919010539,0.0,own line,False
+single-core,rcu_nocbs removed,soft,0.1,1.0578815444408656,1.0135488329886457,0.0,own line,False
+single-core,rcu_nocbs removed,soft,0.5,1.0136845788272708,0.9671737336524944,0.0,own line,False
+single-core,rcu_nocbs removed,soft,0.7,1.0760474833617164,1.0419293426185898,0.0,own line,False
+single-core,rcu_nocbs removed,soft,0.94,1.0351806346083061,1.0113129851590559,0.0,own line,False
+single-core,systemd containment removed,tight,0.1,12.29326716679384,11.511084193909127,0.0,own line,False
+single-core,systemd containment removed,tight,0.5,2.5279458260071612,2.380007636994211,0.0,own line,False
+single-core,systemd containment removed,tight,0.7,1.1657544239455735,1.1373601640828557,0.0,own line,False
+single-core,systemd containment removed,tight,0.94,1.1596260861842407,1.117718549981037,0.0,own line,False
+single-core,systemd containment removed,soft,0.1,12.009642392479845,11.506353518949528,0.0,own line,False
+single-core,systemd containment removed,soft,0.5,1.0889791781955904,1.0390135942126453,0.0,own line,False
+single-core,systemd containment removed,soft,0.7,1.109041563831113,1.0738772827470158,0.0,own line,False
+single-core,systemd containment removed,soft,0.94,1.0444575934341411,1.0203760497196703,0.0,own line,False
+single-core,IRQ steering removed,tight,0.1,1.0644727279400974,0.9967435855080587,0.0,other settings (band),False
+single-core,IRQ steering removed,tight,0.5,1.0921295541915224,1.028216923330359,0.0,other settings (band),False
+single-core,IRQ steering removed,tight,0.7,1.0289451590767384,1.00388316005603,0.0,other settings (band),False
+single-core,IRQ steering removed,tight,0.94,1.0740668508790838,1.0352513257937634,0.0,other settings (band),False
+single-core,IRQ steering removed,soft,0.1,1.0461073778222887,1.0022680871448566,0.0,other settings (band),False
+single-core,IRQ steering removed,soft,0.5,1.0330632381479827,0.9856632427955415,0.0,other settings (band),False
+single-core,IRQ steering removed,soft,0.7,1.0312030429602048,0.9985067808542418,0.0,other settings (band),False
+single-core,IRQ steering removed,soft,0.94,1.050157364566305,1.0259444040393713,0.0,other settings (band),False
+single-core,boot-params bundle removed,tight,0.1,1.0751944765610482,1.0067831420724087,0.0,other settings (band),False
+single-core,boot-params bundle removed,tight,0.5,1.0837033157737566,1.0202837977154433,0.0,other settings (band),False
+single-core,boot-params bundle removed,tight,0.7,1.0518962749896703,1.0262752560450523,0.0,other settings (band),False
+single-core,boot-params bundle removed,tight,0.94,1.0552900511006136,1.017153097691001,0.0,other settings (band),False
+single-core,boot-params bundle removed,soft,0.1,1.0431119116977892,0.999398152216227,0.0,other settings (band),False
+single-core,boot-params bundle removed,soft,0.5,1.0431715338739094,0.9953077400309817,0.0,other settings (band),False
+single-core,boot-params bundle removed,soft,0.7,1.0371174658581859,1.0042336756775163,0.0,other settings (band),False
+single-core,boot-params bundle removed,soft,0.94,1.0517585429867535,1.0275086648785134,0.0,other settings (band),False
+single-core,frequency pinning removed,tight,0.1,1.083872287472514,1.014908810429355,0.0,other settings (band),False
+single-core,frequency pinning removed,tight,0.5,1.0906401838877071,1.0268147126259504,0.0,other settings (band),False
+single-core,frequency pinning removed,tight,0.7,1.076078675830766,1.049868646577045,0.0,other settings (band),False
+single-core,frequency pinning removed,tight,0.94,1.0487357335690632,1.0108356455615948,0.0,other settings (band),False
+single-core,frequency pinning removed,soft,0.1,1.0636873496438526,1.0191113339311846,0.0,other settings (band),False
+single-core,frequency pinning removed,soft,0.5,1.0375849418362995,0.9899774773513823,0.0,other settings (band),False
+single-core,frequency pinning removed,soft,0.7,1.05670073452622,1.0231960194077967,0.0,other settings (band),False
+single-core,frequency pinning removed,soft,0.94,1.0471552606013295,1.0230115181051922,0.0,other settings (band),False

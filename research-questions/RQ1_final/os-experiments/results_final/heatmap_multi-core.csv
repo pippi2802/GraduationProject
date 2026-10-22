@@ -1,0 +1,73 @@
+placement,configuration,scale,U,max_lost_k100,m,status,k,loss_fraction
+multi-core,full isolation,tight,0.1,7.0,93.0,measured,100,0.07
+multi-core,full isolation,tight,0.5,8.0,92.0,measured,100,0.08
+multi-core,full isolation,tight,0.7,4.0,96.0,measured,100,0.04
+multi-core,full isolation,tight,0.94,18.0,82.0,measured,100,0.18
+multi-core,full isolation,soft,0.1,0.0,100.0,measured,100,0.0
+multi-core,full isolation,soft,0.5,0.0,100.0,measured,100,0.0
+multi-core,full isolation,soft,0.7,0.0,100.0,measured,100,0.0
+multi-core,full isolation,soft,0.94,22.0,78.0,measured,100,0.22
+multi-core,isolcpus removed,tight,0.1,2.0,98.0,measured,100,0.02
+multi-core,isolcpus removed,tight,0.5,4.0,96.0,measured,100,0.04
+multi-core,isolcpus removed,tight,0.7,12.0,88.0,measured,100,0.12
+multi-core,isolcpus removed,tight,0.94,,,not run,100,
+multi-core,isolcpus removed,soft,0.1,0.0,100.0,measured,100,0.0
+multi-core,isolcpus removed,soft,0.5,9.0,91.0,measured,100,0.09
+multi-core,isolcpus removed,soft,0.7,0.0,100.0,measured,100,0.0
+multi-core,isolcpus removed,soft,0.94,,,not run,100,
+multi-core,nohz_full removed,tight,0.1,2.0,98.0,measured,100,0.02
+multi-core,nohz_full removed,tight,0.5,0.0,100.0,measured,100,0.0
+multi-core,nohz_full removed,tight,0.7,0.0,100.0,measured,100,0.0
+multi-core,nohz_full removed,tight,0.94,12.0,88.0,measured,100,0.12
+multi-core,nohz_full removed,soft,0.1,0.0,100.0,measured,100,0.0
+multi-core,nohz_full removed,soft,0.5,0.0,100.0,measured,100,0.0
+multi-core,nohz_full removed,soft,0.7,0.0,100.0,measured,100,0.0
+multi-core,nohz_full removed,soft,0.94,0.0,100.0,measured,100,0.0
+multi-core,rcu_nocbs removed,tight,0.1,24.0,76.0,measured,100,0.24
+multi-core,rcu_nocbs removed,tight,0.5,4.0,96.0,measured,100,0.04
+multi-core,rcu_nocbs removed,tight,0.7,22.0,78.0,measured,100,0.22
+multi-core,rcu_nocbs removed,tight,0.94,18.0,82.0,measured,100,0.18
+multi-core,rcu_nocbs removed,soft,0.1,6.0,94.0,measured,100,0.06
+multi-core,rcu_nocbs removed,soft,0.5,4.0,96.0,measured,100,0.04
+multi-core,rcu_nocbs removed,soft,0.7,3.0,97.0,measured,100,0.03
+multi-core,rcu_nocbs removed,soft,0.94,7.0,93.0,measured,100,0.07
+multi-core,systemd containment removed,tight,0.1,6.0,94.0,measured,100,0.06
+multi-core,systemd containment removed,tight,0.5,6.0,94.0,measured,100,0.06
+multi-core,systemd containment removed,tight,0.7,13.0,87.0,measured,100,0.13
+multi-core,systemd containment removed,tight,0.94,12.0,88.0,measured,100,0.12
+multi-core,systemd containment removed,soft,0.1,0.0,100.0,measured,100,0.0
+multi-core,systemd containment removed,soft,0.5,24.0,76.0,measured,100,0.24
+multi-core,systemd containment removed,soft,0.7,2.0,98.0,measured,100,0.02
+multi-core,systemd containment removed,soft,0.94,2.0,98.0,measured,100,0.02
+multi-core,IRQ steering removed,tight,0.1,6.0,94.0,measured,100,0.06
+multi-core,IRQ steering removed,tight,0.5,2.0,98.0,measured,100,0.02
+multi-core,IRQ steering removed,tight,0.7,8.0,92.0,measured,100,0.08
+multi-core,IRQ steering removed,tight,0.94,18.0,82.0,measured,100,0.18
+multi-core,IRQ steering removed,soft,0.1,0.0,100.0,measured,100,0.0
+multi-core,IRQ steering removed,soft,0.5,0.0,100.0,measured,100,0.0
+multi-core,IRQ steering removed,soft,0.7,4.0,96.0,measured,100,0.04
+multi-core,IRQ steering removed,soft,0.94,24.0,76.0,measured,100,0.24
+multi-core,boot-params bundle removed,tight,0.1,2.0,98.0,measured,100,0.02
+multi-core,boot-params bundle removed,tight,0.5,6.0,94.0,measured,100,0.06
+multi-core,boot-params bundle removed,tight,0.7,14.0,86.0,measured,100,0.14
+multi-core,boot-params bundle removed,tight,0.94,16.0,84.0,measured,100,0.16
+multi-core,boot-params bundle removed,soft,0.1,15.0,85.0,measured,100,0.15
+multi-core,boot-params bundle removed,soft,0.5,0.0,100.0,measured,100,0.0
+multi-core,boot-params bundle removed,soft,0.7,0.0,100.0,measured,100,0.0
+multi-core,boot-params bundle removed,soft,0.94,0.0,100.0,measured,100,0.0
+multi-core,frequency pinning removed,tight,0.1,6.0,94.0,measured,100,0.06
+multi-core,frequency pinning removed,tight,0.5,4.0,96.0,measured,100,0.04
+multi-core,frequency pinning removed,tight,0.7,4.0,96.0,measured,100,0.04
+multi-core,frequency pinning removed,tight,0.94,13.0,87.0,measured,100,0.13
+multi-core,frequency pinning removed,soft,0.1,13.0,87.0,measured,100,0.13
+multi-core,frequency pinning removed,soft,0.5,12.0,88.0,measured,100,0.12
+multi-core,frequency pinning removed,soft,0.7,19.0,81.0,measured,100,0.19
+multi-core,frequency pinning removed,soft,0.94,0.0,100.0,measured,100,0.0
+multi-core,SMT enabled,tight,0.1,68.0,32.0,measured,100,0.68
+multi-core,SMT enabled,tight,0.5,100.0,0.0,measured,100,1.0
+multi-core,SMT enabled,tight,0.7,100.0,0.0,measured,100,1.0
+multi-core,SMT enabled,tight,0.94,100.0,0.0,measured,100,1.0
+multi-core,SMT enabled,soft,0.1,6.0,94.0,measured,100,0.06
+multi-core,SMT enabled,soft,0.5,100.0,0.0,measured,100,1.0
+multi-core,SMT enabled,soft,0.7,67.0,33.0,measured,100,0.67
+multi-core,SMT enabled,soft,0.94,100.0,0.0,measured,100,1.0

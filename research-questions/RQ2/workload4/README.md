@@ -42,7 +42,7 @@ A second drift VM (as `worker0` for the video) is optional; the notebook reads `
 
 ## 4. Budgets and validation
 1. `analysis_procedure3/analysis_workload4.ipynb`: run it (section 5.5 writes `budgets/budgets_workload4_p3_iter0.csv`).
-2. Copy that file to `validation_p4/iter0/budgets.csv`, then `python3 make_manifests.py` there (writes `pods/` and `runs.csv`; 40 000 jobs of 50 ms = 33 min per run, memory enemy, both routes, both levels, both scenarios: 8 runs, about 2.8 h with the two scenarios at the same time).
+2. Copy that file to `validation_p4/iter0/budgets.csv`, then `python3 make_manifests.py` there (writes `pods/` and `runs.csv`; 40 000 jobs of 50 ms = 33 min per run, memory enemy, the three variants, both levels, both scenarios: 8 runs, about 2.8 h with the two scenarios at the same time).
 3. `DRY_RUN=1 ./run_validation.sh`, then `nohup ./run_validation.sh > run_validation.out 2>&1 &` (or `ONLY=workload4 ../../../run_validation_p4_all.sh`). Tables: `python3 ../../../p4_results_table.py`.
    The notebook's section 7 reads the same folder (`VALID_DIR` = `workload4/validation_p4`); a recalibration (section 8) is a new `iter1`.
 

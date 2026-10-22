@@ -1,0 +1,40 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll|rrrr|rrrr}
+\toprule
+ &  & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & Metric & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+\multirow[t]{2}{*}{full isolation} & Miss rate [\%] & 0.018 & 0.050 & 0.035 & 0.706 & 0.000 & 0.000 & 0.000 & 0.170 \\
+ & Tail spread & 11.12 & 1.57 & 1.57 & 1.61 & 1.34 & 1.17 & 1.21 & 1.40 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{isolcpus removed} & Miss rate [\%] & 0.080 & 0.080 & 0.589 & -- & 0.000 & 0.045 & 0.000 & -- \\
+ & Tail spread & 11.69 & 1.65 & 2.11 & -- & 1.34 & 1.22 & 1.14 & -- \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{nohz\_full removed} & Miss rate [\%] & 0.010 & 0.000 & 0.000 & 0.450 & 0.000 & 0.000 & 0.000 & 0.000 \\
+ & Tail spread & 11.34 & 1.59 & 1.57 & 1.61 & 1.37 & 1.22 & 1.09 & 1.19 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{rcu\_nocbs removed} & Miss rate [\%] & 3.061 & 0.120 & 1.051 & 1.870 & 0.459 & 0.040 & 0.045 & 0.330 \\
+ & Tail spread & 22.02 & 2.61 & 2.26 & 1.84 & 12.70 & 1.63 & 1.60 & 1.46 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{systemd containment removed} & Miss rate [\%] & 0.180 & 0.040 & 0.095 & 0.738 & 0.000 & 0.120 & 0.020 & 0.010 \\
+ & Tail spread & 13.11 & 1.70 & 1.60 & 1.59 & 1.55 & 1.28 & 1.33 & 1.24 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{IRQ steering removed} & Miss rate [\%] & 0.310 & 0.030 & 0.150 & 0.912 & 0.000 & 0.000 & 0.030 & 0.220 \\
+ & Tail spread & 13.43 & 1.82 & 1.76 & 1.64 & 1.67 & 1.27 & 1.29 & 2.14 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{boot-params bundle removed} & Miss rate [\%] & 0.010 & 0.060 & 0.370 & 0.330 & 0.075 & 0.000 & 0.000 & 0.000 \\
+ & Tail spread & 1.62 & 2.16 & 2.12 & 1.59 & 1.36 & 1.27 & 1.21 & 1.17 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{frequency pinning removed} & Miss rate [\%] & 0.140 & 0.150 & 0.100 & 1.046 & 0.095 & 0.105 & 0.125 & 0.000 \\
+ & Tail spread & 12.43 & 2.54 & 1.79 & 1.60 & 2.04 & 1.30 & 1.30 & 1.19 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{SMT enabled} & Miss rate [\%] & 22.774 & 66.744 & 28.391 & 87.607 & 0.325 & 62.613 & 18.832 & 76.722 \\
+ & Tail spread & 12.08 & 1.24 & 2.25 & 1.29 & 13.70 & 1.25 & 1.87 & 1.19 \\
+\bottomrule
+\end{tabular}}
+\caption{Isolation levers, multi-core. Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run.}
+\label{tab:rq1-multi-core}
+\end{table}

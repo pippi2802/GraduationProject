@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""LiDAR point-cloud preprocessing on the worker, one scan per job (20 Hz, period 50 ms).
+"""
+LiDAR point-cloud preprocessing on the worker, one scan per job (20 Hz, period 50 ms).
 
     python3 run.py configs/single_core.json [key=value ...]      e.g. jobs=100 period_ms=50
 
@@ -36,7 +37,9 @@ def sleep_until(t_ns):
 
 
 def load_scans(folder, n_scans):
-    """all scans of the folder (or the first n_scans): float32 [N, 4] each, as KITTI stores them"""
+    """
+    Load all scans of the folder (or the first n_scans): float32 [N, 4] each, as KITTI stores them
+    """
     files = sorted(f for f in os.listdir(folder) if f.endswith(".bin"))[:n_scans]
     return [np.fromfile(os.path.join(folder, f), dtype=np.float32).reshape(-1, 4) for f in files]
 
@@ -101,12 +104,14 @@ def run_instance(cfg, i, ready, shared_t0):
         wr.writerow(["instance_id", "job_id", "frame_idx", "release_ns", "start_ns", "end_ns", "cpu_ns", "response_ns",
                      "wait_ns", "lateness_ns", "deadline_met", "skipped", "warmup"])
         wr.writerows(rows)
+
     cpu_model = next((l.split(":", 1)[1].strip() for l in open("/proc/cpuinfo") if l.startswith("model name")), None)
     json.dump({"args": {**cfg, "instance_id": inst, "cpu": cpu}, "instance_id": inst, "n_scans": len(scans),
                "start_time_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "hostname": socket.gethostname(),
                "kernel_version": platform.release(), "cpu_model": cpu_model, "open3d": o3d.__version__},
               open(out + ".meta.json", "w"), indent=2)
     ran = np.array([r[6] for r in rows if r[6] != ""]) / 1e6
+    
     print(f"[{inst}] {len(ran)} jobs run, {n - len(ran)} skipped; cpu_ms median={np.median(ran):.2f} "
           f"p99={np.percentile(ran, 99):.2f} max={ran.max():.2f}", flush=True)
 

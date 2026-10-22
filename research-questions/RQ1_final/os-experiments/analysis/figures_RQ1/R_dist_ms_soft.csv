@@ -1,0 +1,69 @@
+placement,configuration,U,soft (100ms) median [ms],soft (100ms) p99 [ms],soft (100ms) p99.9 [ms],soft (100ms) max [ms]
+single-core,baseline (full isolation),0.1,8.49,8.741,8.862,100.239
+single-core,baseline (full isolation),0.5,41.165,42.693,43.143,100.033
+single-core,baseline (full isolation),0.7,55.79,56.64,57.617,638.711
+single-core,baseline (full isolation),0.94,76.744,77.49,78.555,109.901
+single-core,isolcpus removed,0.1,8.415,100.23,102.417,200.314
+single-core,isolcpus removed,0.5,41.801,100.774,108.819,296.916
+single-core,isolcpus removed,0.7,55.168,66.742,103.411,112.551
+single-core,isolcpus removed,0.94,,,,
+single-core,nohz_full removed,0.1,8.577,9.447,101.437,103.819
+single-core,nohz_full removed,0.5,34.776,36.664,40.799,48.835
+single-core,nohz_full removed,0.7,48.106,49.268,56.212,61.923
+single-core,nohz_full removed,0.94,67.445,68.955,74.0,79.708
+single-core,rcu_nocbs removed,0.1,6.534,6.858,6.912,18.157
+single-core,rcu_nocbs removed,0.5,35.472,35.73,35.957,60.594
+single-core,rcu_nocbs removed,0.7,47.869,49.482,51.507,62.242
+single-core,rcu_nocbs removed,0.94,66.597,67.604,68.939,91.169
+single-core,systemd containment removed,0.1,8.47,9.38,101.722,104.65
+single-core,systemd containment removed,0.5,41.174,42.403,44.828,106.751
+single-core,systemd containment removed,0.7,54.773,56.262,60.739,106.507
+single-core,systemd containment removed,0.94,76.383,77.364,79.777,87.261
+single-core,IRQ steering removed,0.1,8.588,8.793,8.983,506.792
+single-core,IRQ steering removed,0.5,41.393,42.005,42.761,46.453
+single-core,IRQ steering removed,0.7,55.896,56.483,57.633,70.968
+single-core,IRQ steering removed,0.94,76.521,78.422,80.359,1160.87
+single-core,boot-params bundle removed,0.1,6.528,6.712,6.809,13.457
+single-core,boot-params bundle removed,0.5,35.011,36.301,36.519,44.047
+single-core,boot-params bundle removed,0.7,49.519,50.528,51.357,56.872
+single-core,boot-params bundle removed,0.94,63.974,66.181,67.284,72.3
+single-core,frequency pinning removed,0.1,6.48,6.667,6.893,17.072
+single-core,frequency pinning removed,0.5,34.581,35.591,35.878,57.972
+single-core,frequency pinning removed,0.7,49.817,51.383,52.635,64.496
+single-core,frequency pinning removed,0.94,62.82,64.521,65.782,91.405
+multi-core on physical cores,baseline (full isolation),0.1,6.421,6.7,8.774,16.382
+multi-core on physical cores,baseline (full isolation),0.5,35.493,38.244,41.659,64.538
+multi-core on physical cores,baseline (full isolation),0.7,50.179,53.376,60.571,91.095
+multi-core on physical cores,baseline (full isolation),0.94,66.933,71.893,93.568,103.717
+multi-core on physical cores,isolcpus removed,0.1,6.226,6.682,8.331,9.059
+multi-core on physical cores,isolcpus removed,0.5,34.762,37.774,42.611,894.127
+multi-core on physical cores,isolcpus removed,0.7,49.967,53.435,56.771,63.926
+multi-core on physical cores,isolcpus removed,0.94,,,,
+multi-core on physical cores,nohz_full removed,0.1,6.223,7.307,8.515,9.423
+multi-core on physical cores,nohz_full removed,0.5,34.37,36.473,43.803,68.125
+multi-core on physical cores,nohz_full removed,0.7,48.4,50.523,52.992,63.776
+multi-core on physical cores,nohz_full removed,0.94,67.846,71.235,80.66,89.027
+multi-core on physical cores,rcu_nocbs removed,0.1,7.921,17.214,100.551,123.508
+multi-core on physical cores,rcu_nocbs removed,0.5,36.857,47.74,80.986,151.454
+multi-core on physical cores,rcu_nocbs removed,0.7,52.61,64.093,84.237,218.595
+multi-core on physical cores,rcu_nocbs removed,0.94,71.437,84.429,104.076,305.879
+multi-core on physical cores,systemd containment removed,0.1,6.427,7.635,10.145,89.923
+multi-core on physical cores,systemd containment removed,0.5,35.402,37.442,47.077,2375.273
+multi-core on physical cores,systemd containment removed,0.7,50.132,54.227,66.923,136.684
+multi-core on physical cores,systemd containment removed,0.94,66.606,71.244,82.49,100.05
+multi-core on physical cores,IRQ steering removed,0.1,6.419,7.897,10.815,18.407
+multi-core on physical cores,IRQ steering removed,0.5,35.642,38.157,45.396,60.952
+multi-core on physical cores,IRQ steering removed,0.7,50.082,54.005,64.538,114.396
+multi-core on physical cores,IRQ steering removed,0.94,66.784,71.131,143.072,152.038
+multi-core on physical cores,boot-params bundle removed,0.1,6.254,6.737,8.493,1439.453
+multi-core on physical cores,boot-params bundle removed,0.5,35.135,36.536,44.524,62.176
+multi-core on physical cores,boot-params bundle removed,0.7,48.025,52.925,58.153,70.627
+multi-core on physical cores,boot-params bundle removed,0.94,64.96,68.192,76.105,96.934
+multi-core on physical cores,frequency pinning removed,0.1,6.354,8.174,13.219,1295.613
+multi-core on physical cores,frequency pinning removed,0.5,35.418,39.413,46.386,1129.861
+multi-core on physical cores,frequency pinning removed,0.7,50.509,60.042,65.572,1843.786
+multi-core on physical cores,frequency pinning removed,0.94,66.84,71.336,79.516,85.492
+multi-core on physical cores,SMT enabled (multi-core),0.1,7.355,8.742,100.729,108.462
+multi-core on physical cores,SMT enabled (multi-core),0.5,98.967,122.348,123.67,129.177
+multi-core on physical cores,SMT enabled (multi-core),0.7,59.386,109.356,111.104,119.469
+multi-core on physical cores,SMT enabled (multi-core),0.94,105.259,123.244,125.137,163.69

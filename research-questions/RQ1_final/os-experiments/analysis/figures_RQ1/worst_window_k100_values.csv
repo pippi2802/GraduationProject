@@ -1,0 +1,137 @@
+placement,configuration,scale,U,k,max_misses,m,loss_fraction,status,loss_sqrt
+single-core,baseline (full isolation),soft,0.1,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),soft,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),soft,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),soft,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),tight,0.1,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),tight,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),tight,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,baseline (full isolation),tight,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,isolcpus removed,soft,0.1,100,20.0,80.0,0.2,measured,0.4472135954999579
+single-core,isolcpus removed,soft,0.5,100,19.0,81.0,0.19,measured,0.43588989435406733
+single-core,isolcpus removed,soft,0.7,100,8.0,92.0,0.08,measured,0.282842712474619
+single-core,isolcpus removed,soft,0.94,100,,,,not run,
+single-core,isolcpus removed,tight,0.1,100,12.0,88.0,0.12,measured,0.34641016151377546
+single-core,isolcpus removed,tight,0.5,100,12.0,88.0,0.12,measured,0.34641016151377546
+single-core,isolcpus removed,tight,0.7,100,8.0,92.0,0.08,measured,0.282842712474619
+single-core,isolcpus removed,tight,0.94,100,,,,not run,
+single-core,nohz_full removed,soft,0.1,100,7.0,93.0,0.07,measured,0.2645751311064591
+single-core,nohz_full removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+single-core,nohz_full removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+single-core,nohz_full removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+single-core,nohz_full removed,tight,0.1,100,5.0,95.0,0.05,measured,0.22360679774997896
+single-core,nohz_full removed,tight,0.5,100,3.0,97.0,0.03,measured,0.17320508075688773
+single-core,nohz_full removed,tight,0.7,100,2.0,98.0,0.02,measured,0.1414213562373095
+single-core,nohz_full removed,tight,0.94,100,2.0,98.0,0.02,measured,0.1414213562373095
+single-core,rcu_nocbs removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+single-core,rcu_nocbs removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+single-core,rcu_nocbs removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+single-core,rcu_nocbs removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+single-core,rcu_nocbs removed,tight,0.1,100,0.0,100.0,0.0,measured,0.0
+single-core,rcu_nocbs removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,rcu_nocbs removed,tight,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,rcu_nocbs removed,tight,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,systemd containment removed,soft,0.1,100,7.0,93.0,0.07,measured,0.2645751311064591
+single-core,systemd containment removed,soft,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,systemd containment removed,soft,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,systemd containment removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+single-core,systemd containment removed,tight,0.1,100,5.0,95.0,0.05,measured,0.22360679774997896
+single-core,systemd containment removed,tight,0.5,100,8.0,92.0,0.08,measured,0.282842712474619
+single-core,systemd containment removed,tight,0.7,100,2.0,98.0,0.02,measured,0.1414213562373095
+single-core,systemd containment removed,tight,0.94,100,2.0,98.0,0.02,measured,0.1414213562373095
+single-core,IRQ steering removed,soft,0.1,100,1.0,99.0,0.01,measured,0.1
+single-core,IRQ steering removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+single-core,IRQ steering removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+single-core,IRQ steering removed,soft,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,IRQ steering removed,tight,0.1,100,2.0,98.0,0.02,measured,0.1414213562373095
+single-core,IRQ steering removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,IRQ steering removed,tight,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,IRQ steering removed,tight,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,boot-params bundle removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+single-core,boot-params bundle removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+single-core,boot-params bundle removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+single-core,boot-params bundle removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+single-core,boot-params bundle removed,tight,0.1,100,1.0,99.0,0.01,measured,0.1
+single-core,boot-params bundle removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,boot-params bundle removed,tight,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,boot-params bundle removed,tight,0.94,100,1.0,99.0,0.01,measured,0.1
+single-core,frequency pinning removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+single-core,frequency pinning removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+single-core,frequency pinning removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+single-core,frequency pinning removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+single-core,frequency pinning removed,tight,0.1,100,1.0,99.0,0.01,measured,0.1
+single-core,frequency pinning removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+single-core,frequency pinning removed,tight,0.7,100,1.0,99.0,0.01,measured,0.1
+single-core,frequency pinning removed,tight,0.94,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,baseline (full isolation),soft,0.1,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,baseline (full isolation),soft,0.5,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,baseline (full isolation),soft,0.7,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,baseline (full isolation),soft,0.94,100,11.0,89.0,0.11,measured,0.33166247903553997
+multi-core on physical cores,baseline (full isolation),tight,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,baseline (full isolation),tight,0.5,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,baseline (full isolation),tight,0.7,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,baseline (full isolation),tight,0.94,100,8.0,92.0,0.08,measured,0.282842712474619
+multi-core on physical cores,isolcpus removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,isolcpus removed,soft,0.5,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,isolcpus removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,isolcpus removed,soft,0.94,100,,,,not run,
+multi-core on physical cores,isolcpus removed,tight,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,isolcpus removed,tight,0.5,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,isolcpus removed,tight,0.7,100,6.0,94.0,0.06,measured,0.2449489742783178
+multi-core on physical cores,isolcpus removed,tight,0.94,100,,,,not run,
+multi-core on physical cores,nohz_full removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,tight,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,nohz_full removed,tight,0.5,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,tight,0.7,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,nohz_full removed,tight,0.94,100,6.0,94.0,0.06,measured,0.2449489742783178
+multi-core on physical cores,rcu_nocbs removed,soft,0.1,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,rcu_nocbs removed,soft,0.5,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,rcu_nocbs removed,soft,0.7,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,rcu_nocbs removed,soft,0.94,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,rcu_nocbs removed,tight,0.1,100,13.0,87.0,0.13,measured,0.36055512754639896
+multi-core on physical cores,rcu_nocbs removed,tight,0.5,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,rcu_nocbs removed,tight,0.7,100,12.0,88.0,0.12,measured,0.34641016151377546
+multi-core on physical cores,rcu_nocbs removed,tight,0.94,100,10.0,90.0,0.1,measured,0.31622776601683794
+multi-core on physical cores,systemd containment removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,systemd containment removed,soft,0.5,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,systemd containment removed,soft,0.7,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,systemd containment removed,soft,0.94,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,systemd containment removed,tight,0.1,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,systemd containment removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,systemd containment removed,tight,0.7,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,systemd containment removed,tight,0.94,100,6.0,94.0,0.06,measured,0.2449489742783178
+multi-core on physical cores,IRQ steering removed,soft,0.1,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,IRQ steering removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,IRQ steering removed,soft,0.7,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,IRQ steering removed,soft,0.94,100,12.0,88.0,0.12,measured,0.34641016151377546
+multi-core on physical cores,IRQ steering removed,tight,0.1,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,IRQ steering removed,tight,0.5,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,IRQ steering removed,tight,0.7,100,4.0,96.0,0.04,measured,0.2
+multi-core on physical cores,IRQ steering removed,tight,0.94,100,9.0,91.0,0.09,measured,0.3
+multi-core on physical cores,boot-params bundle removed,soft,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,boot-params bundle removed,soft,0.5,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,boot-params bundle removed,soft,0.7,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,boot-params bundle removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,boot-params bundle removed,tight,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,boot-params bundle removed,tight,0.5,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,boot-params bundle removed,tight,0.7,100,7.0,93.0,0.07,measured,0.2645751311064591
+multi-core on physical cores,boot-params bundle removed,tight,0.94,100,8.0,92.0,0.08,measured,0.282842712474619
+multi-core on physical cores,frequency pinning removed,soft,0.1,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,frequency pinning removed,soft,0.5,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,frequency pinning removed,soft,0.7,100,1.0,99.0,0.01,measured,0.1
+multi-core on physical cores,frequency pinning removed,soft,0.94,100,0.0,100.0,0.0,measured,0.0
+multi-core on physical cores,frequency pinning removed,tight,0.1,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,frequency pinning removed,tight,0.5,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,frequency pinning removed,tight,0.7,100,2.0,98.0,0.02,measured,0.1414213562373095
+multi-core on physical cores,frequency pinning removed,tight,0.94,100,7.0,93.0,0.07,measured,0.2645751311064591
+multi-core on physical cores,SMT enabled (multi-core),soft,0.1,100,3.0,97.0,0.03,measured,0.17320508075688773
+multi-core on physical cores,SMT enabled (multi-core),soft,0.5,100,100.0,0.0,1.0,measured,1.0
+multi-core on physical cores,SMT enabled (multi-core),soft,0.7,100,50.0,50.0,0.5,measured,0.7071067811865476
+multi-core on physical cores,SMT enabled (multi-core),soft,0.94,100,98.0,2.0,0.98,measured,0.9899494936611666
+multi-core on physical cores,SMT enabled (multi-core),tight,0.1,100,51.0,49.0,0.51,measured,0.714142842854285
+multi-core on physical cores,SMT enabled (multi-core),tight,0.5,100,100.0,0.0,1.0,measured,1.0
+multi-core on physical cores,SMT enabled (multi-core),tight,0.7,100,61.0,39.0,0.61,measured,0.7810249675906654
+multi-core on physical cores,SMT enabled (multi-core),tight,0.94,100,100.0,0.0,1.0,measured,1.0

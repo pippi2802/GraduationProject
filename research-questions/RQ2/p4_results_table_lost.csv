@@ -1,0 +1,37 @@
+workload,scenario,variant,level,p,m,k,miss,skip,lost,V_total,stalls
+Video,single,Stress profile,relaxed,0.01,22,24,0.0002,0.0002,0.0004,0.0,1
+Video,single,Stress profile,strict,0.001,23,24,0.0004333333333333333,0.0004333333333333333,0.0008666666666666666,0.009340494379023918,1
+Video,single,Platform factor,relaxed,0.01,22,24,0.0001,0.0001,0.0002,0.0,1
+Video,single,Platform factor,strict,0.001,23,24,0.0002,0.0002,0.0004,0.004603529372518931,1
+Video,single,HWM,--,0.001,23,24,0.0,0.0,0.0,0.0,0
+Video,multi,Stress profile,relaxed,0.01,22,24,0.0007,0.0007,0.0014,0.0030690195816792873,0
+Video,multi,Stress profile,strict,0.001,23,24,0.00023333333333333333,0.00023333333333333333,0.00046666666666666666,0.003969710111085165,2
+Video,multi,Platform factor,relaxed,0.01,22,24,0.00016666666666666666,0.00016666666666666666,0.0003333333333333333,0.0007338959869233079,0
+Video,multi,Platform factor,strict,0.001,23,24,0.00013333333333333334,0.00013333333333333334,0.0002666666666666667,0.0023684825032524934,0
+Video,multi,HWM,--,0.001,23,24,0.0,0.0,0.0,0.0,0
+Segmentation,single,Stress profile,relaxed,0.01,8,10,0.0001,0.0001,0.0002,0.0,0
+Segmentation,single,Stress profile,strict,0.001,9,10,0.0005,0.0005,0.001,0.004502025911660247,0
+Segmentation,single,Platform factor,relaxed,0.01,8,10,0.00025,0.0017,0.00195,0.0018008103646640987,2
+Segmentation,single,Platform factor,strict,0.001,9,10,0.0002,0.0002,0.0004,0.0014506527937571908,0
+Audio,single,Stress profile,relaxed,0.01,95,100,0.00022,0.00024,0.00046,0.0014829362137031322,7
+Audio,single,Stress profile,strict,0.001,99,100,0.0008,0.00084,0.00164,0.07364581872106771,8
+Audio,single,Platform factor,relaxed,0.01,95,100,0.00018,0.00018,0.00036,0.0,13
+Audio,single,Platform factor,strict,0.001,99,100,0.00236,0.0025,0.00486,0.19117853349632272,20
+Audio,single,HWM,--,0.001,99,100,0.00018,0.00018,0.00036,0.017855353600128254,11
+Audio,multi,Stress profile,relaxed,0.01,95,100,0.0002,0.00024,0.00044,0.0,23
+Audio,multi,Stress profile,strict,0.001,99,100,0.00014,0.00014,0.00028,0.009979759924650809,8
+Audio,multi,Platform factor,relaxed,0.01,95,100,0.00018,0.00018,0.00036,0.0,22
+Audio,multi,Platform factor,strict,0.001,99,100,0.00048,0.00066,0.00114,0.019578765956594055,13
+Audio,multi,HWM,--,0.001,99,100,0.0,0.0,0.0,0.0,22
+LiDAR,single,Stress profile,relaxed,0.01,18,20,5e-05,5e-05,0.0001,0.0,0
+LiDAR,single,Stress profile,strict,0.001,19,20,0.0,0.0,0.0,0.0,0
+LiDAR,single,Platform factor,relaxed,0.01,18,20,2.5e-05,2.5e-05,5e-05,0.0,0
+LiDAR,single,Platform factor,strict,0.001,19,20,5e-05,0.00055,0.0006,0.001450689077311723,2
+LiDAR,single,HWM,relaxed,0.01,18,20,0.0,0.0,0.0,0.0,0
+LiDAR,single,HWM,strict,0.001,19,20,0.0,0.0,0.0,0.0,0
+LiDAR,multi,Stress profile,relaxed,0.01,18,20,2.5e-05,2.5e-05,5e-05,0.0,0
+LiDAR,multi,Stress profile,strict,0.001,19,20,2.5e-05,2.5e-05,5e-05,0.00047522573222280584,0
+LiDAR,multi,Platform factor,relaxed,0.01,18,20,0.0,0.0,0.0,0.0,0
+LiDAR,multi,Platform factor,strict,0.001,19,20,5e-05,5e-05,0.0001,0.0009504514644456117,0
+LiDAR,multi,HWM,relaxed,0.01,18,20,2.5e-05,2.5e-05,5e-05,0.0,0
+LiDAR,multi,HWM,strict,0.001,19,20,2.5e-05,2.5e-05,5e-05,0.00047522573222280584,0

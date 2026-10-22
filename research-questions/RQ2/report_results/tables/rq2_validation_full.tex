@@ -1,0 +1,54 @@
+\begin{longtable}{lllllrrrrrrrr}
+\caption{Online validation of the budgets, one row per workload, deployment, variant and level (worst run of the cell over instances and interference conditions). Rate ratio: observed overrun rate relative to $p$. Window ratio: share of sliding windows of $k$ jobs (one second) with more than $k-m$ overruns ($C>Q$) relative to $\varepsilon=1\%$ (both requirements are judged on $C>Q$, as in the derivation). Miss, skipped: share of releases with $R>D$ and share skipped; lost-window ratio: share of windows with more than $k-m$ lost releases ($R>D$ or skipped) relative to $\varepsilon$; stalls: platform stalls and late starts, which the budget does not control. These four are reported, not judged. Over-budget: reserved budget relative to the smallest budget that would just have met both requirements on the run; negative means too small. The high-water mark is judged against the strict level. $^\dagger$ Budget raised by the monotonicity rule, evaluated by replaying the online trace.} \label{tab:rq2-validation-full} \\
+\toprule
+Workload & Deploy. & Variant & Level & $Q$ [ms] / $Q/P$ & rate ratio & window ratio & miss [\%] & skipped [\%] & lost-window ratio & stalls & over-budget & runs \\
+\midrule
+\endfirsthead
+\toprule
+Workload & Deploy. & Variant & Level & $Q$ [ms] / $Q/P$ & rate ratio & window ratio & miss [\%] & skipped [\%] & lost-window ratio & stalls & over-budget & runs \\
+\midrule
+\endhead
+\midrule \multicolumn{13}{r}{\emph{continued on the next page}} \\ \endfoot
+\bottomrule
+\endlastfoot
+Video & single & Stress-based & relaxed & 24.12 / 0.58 & 0.02 & 0 & 0.02 & 0.02 & 0 & 1 & +7\% & 1 \\
+ &  & Stress-based & strict & 24.13 / 0.58 & 0.43 & 0.07 & 0.04 & 0.04 & 0.93 & 1 & +0\% & 1 \\
+ &  & Baseline-based & relaxed & 26.17 / 0.63 & 0.01 & 0 & 0.01 & 0.01 & 0 & 1 & +17\% & 1 \\
+ &  & Baseline-based & strict & 26.17$^\dagger$ / 0.63 & 0.20 & 0 & 0.02 & 0.02 & 0.46 & 1 & +5\% & 1 \\
+ &  & High-water mark & all (strict) & 33.04 / 0.79 & 0 & 0 & 0 & 0 & 0 & 0 & +50\% & 2 \\
+\midrule
+Video & multi & Stress-based & relaxed & 23.25 / 0.56 & 0.03 & 0 & 0.07 & 0.07 & 0.31 & 0 & +2\% & 2 \\
+ &  & Stress-based & strict & 23.44 / 0.56 & 0.20 & 0.08 & 0.02 & 0.02 & 0.40 & 2 & +3\% & 2 \\
+ &  & Baseline-based & relaxed & 24.47 / 0.59 & 0.02 & 0 & 0.02 & 0.02 & 0.07 & 0 & +9\% & 2 \\
+ &  & Baseline-based & strict & 24.65 / 0.59 & 0.13 & 0.08 & 0.01 & 0.01 & 0.24 & 0 & +6\% & 2 \\
+ &  & High-water mark & all (strict) & 26.46 / 0.63 & 0 & 0 & 0 & 0 & 0 & 0 & +15\% & 4 \\
+\midrule
+Segmentation & single & Stress-based & relaxed & 62.94 / 0.63 & 0.01 & 0 & 0.01 & 0.01 & 0 & 0 & +22\% & 1 \\
+ &  & Stress-based & strict & 62.94$^\dagger$ / 0.63 & 0.15 & 0 & 0.02 & 0.02 & 0.18 & 0 & +9\% & 1 \\
+ &  & Baseline-based & relaxed & 66.03 / 0.66 & 0.02 & 0 & 0.03 & 0.17 & 0.18 & 2 & +31\% & 1 \\
+ &  & Baseline-based & strict & 66.03$^\dagger$ / 0.66 & 0.15 & 0.05 & 0.01 & 0.01 & 0.10 & 0 & +17\% & 1 \\
+\midrule
+LiDAR & single & Stress-based & relaxed & 29.66 / 0.59 & 0.01 & 0 & 0.01 & 0.01 & 0 & 0 & +5\% & 1 \\
+ &  & Stress-based & strict & 30.18 / 0.60 & 0 & 0 & 0 & 0 & 0 & 0 & +5\% & 1 \\
+ &  & Baseline-based & relaxed & 32.27 / 0.65 & 0.00 & 0 & <0.01 & <0.01 & 0 & 0 & +15\% & 1 \\
+ &  & Baseline-based & strict & 32.91 / 0.66 & 0 & 0 & 0.01 & 0.06 & 0.15 & 2 & +12\% & 1 \\
+ &  & High-water mark & all (strict) & 43.75 / 0.88 & 0 & 0 & 0 & 0 & 0 & 0 & +52\% & 1 \\
+\midrule
+LiDAR & multi & Stress-based & relaxed & 28.97 / 0.58 & 0.00 & 0 & <0.01 & <0.01 & 0 & 0 & +6\% & 2 \\
+ &  & Stress-based & strict & 29.27 / 0.59 & 0.03 & 0 & <0.01 & <0.01 & 0.05 & 0 & +4\% & 2 \\
+ &  & Baseline-based & relaxed & 29.87 / 0.60 & 0 & 0 & 0 & 0 & 0 & 0 & +10\% & 2 \\
+ &  & Baseline-based & strict & 30.25 / 0.61 & 0.03 & 0 & 0.01 & 0.01 & 0.10 & 0 & +8\% & 2 \\
+ &  & High-water mark & all (strict) & 33.56 / 0.67 & 0.03 & 0 & <0.01 & <0.01 & 0.05 & 0 & +22\% & 2 \\
+\midrule
+Audio & single & Stress-based & relaxed & 1.22 / 0.12 & 0.01 & 0 & 0.02 & 0.02 & 0.15 & 7 & +26\% & 2 \\
+ &  & Stress-based & strict & 2.64 / 0.26 & 0.68 & 0.15 & 0.08 & 0.08 & \textbf{7.36} & 8 & -40\% & 2 \\
+ &  & Baseline-based & relaxed & 1.32 / 0.13 & 0.02 & 0 & 0.02 & 0.02 & 0 & 13 & +34\% & 2 \\
+ &  & Baseline-based & strict & 2.49 / 0.25 & \textbf{1.92} & \textbf{2.16} & 0.24 & 0.25 & \textbf{19.12} & 20 & -62\% & 2 \\
+ &  & High-water mark & all (strict) & 7.28 / 0.73 & 0 & 0 & 0.02 & 0.02 & \textbf{1.79} & 11 & +398\% & 2 \\
+\midrule
+Audio & multi & Stress-based & relaxed & 1.42 / 0.14 & 0.01 & 0 & 0.02 & 0.02 & 0 & 23 & +22\% & 4 \\
+ &  & Stress-based & strict & 1.79 / 0.18 & 0.08 & 0.20 & 0.01 & 0.01 & 1.00 & 8 & +22\% & 4 \\
+ &  & Baseline-based & relaxed & 1.56 / 0.16 & 0.01 & 0 & 0.02 & 0.02 & 0 & 22 & +47\% & 4 \\
+ &  & Baseline-based & strict & 2.46 / 0.25 & 0.42 & 0.33 & 0.05 & 0.07 & \textbf{1.96} & 13 & -9\% & 4 \\
+ &  & High-water mark & all (strict) & 3.45 / 0.34 & 0 & 0 & 0 & 0 & 0 & 22 & +101\% & 4 \\
+\end{longtable}

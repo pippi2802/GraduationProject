@@ -1,0 +1,73 @@
+placement,configuration,scale,U,tail_spread,relative_spread,startup_share,group,single_burst
+multi-core,full isolation,tight,0.1,11.123186900842244,1.0,0.0,reference,False
+multi-core,full isolation,tight,0.5,1.5748966738948726,1.0,0.0,reference,False
+multi-core,full isolation,tight,0.7,1.568625782472812,1.0,0.0,reference,False
+multi-core,full isolation,tight,0.94,1.6121470284454287,1.0,0.0,reference,False
+multi-core,full isolation,soft,0.1,1.3424019974407306,1.0,0.0,reference,False
+multi-core,full isolation,soft,0.5,1.1711190786713084,1.0,0.0,reference,False
+multi-core,full isolation,soft,0.7,1.2071768189056067,1.0,0.0,reference,False
+multi-core,full isolation,soft,0.94,1.3979626179137783,1.0,0.0,reference,False
+multi-core,isolcpus removed,tight,0.1,11.687214154486275,1.050707343018872,0.1,own line,False
+multi-core,isolcpus removed,tight,0.5,1.6466833156413603,1.0455818104999564,0.0,own line,False
+multi-core,isolcpus removed,tight,0.7,2.1053393526483397,1.3421552649284152,0.0,own line,False
+multi-core,isolcpus removed,tight,0.94,,,,own line,False
+multi-core,isolcpus removed,soft,0.1,1.3382642880330384,0.9969176823220014,0.0,own line,False
+multi-core,isolcpus removed,soft,0.5,1.2173088801788805,1.039440738648009,0.0,own line,False
+multi-core,isolcpus removed,soft,0.7,1.1361669191117765,0.9411768858697884,0.0,own line,False
+multi-core,isolcpus removed,soft,0.94,,,,own line,False
+multi-core,nohz_full removed,tight,0.1,11.336238073872439,1.0191537888313342,0.0,own line,False
+multi-core,nohz_full removed,tight,0.5,1.5934453601303329,1.0117777163054054,0.0,own line,False
+multi-core,nohz_full removed,tight,0.7,1.5749341853445902,1.0040216111084401,0.0,own line,False
+multi-core,nohz_full removed,tight,0.94,1.6085633250748594,0.997777061702601,0.0,own line,False
+multi-core,nohz_full removed,soft,0.1,1.3685960676730076,1.0195128361565429,0.0,own line,False
+multi-core,nohz_full removed,soft,0.5,1.216456744257071,1.0387131133045842,0.0,own line,False
+multi-core,nohz_full removed,soft,0.7,1.0949079362699088,0.9069988083953784,0.0,own line,False
+multi-core,nohz_full removed,soft,0.94,1.1891734304292785,0.8506475174593136,0.0,own line,False
+multi-core,rcu_nocbs removed,tight,0.1,22.015397893956518,1.9792347364305745,0.0,own line,False
+multi-core,rcu_nocbs removed,tight,0.5,2.6053215575047637,1.6542809447057565,0.0,own line,False
+multi-core,rcu_nocbs removed,tight,0.7,2.255259098694002,1.4377292046919998,0.0,own line,False
+multi-core,rcu_nocbs removed,tight,0.94,1.8438644823977477,1.1437322091991577,0.0,own line,False
+multi-core,rcu_nocbs removed,soft,0.1,12.69526505932142,9.457126169005077,0.0,own line,False
+multi-core,rcu_nocbs removed,soft,0.5,1.6283796153440397,1.3904475172512054,0.25,own line,True
+multi-core,rcu_nocbs removed,soft,0.7,1.6012680658422442,1.3264569371816715,0.0,own line,False
+multi-core,rcu_nocbs removed,soft,0.94,1.457113479963725,1.042312191536437,0.0,own line,False
+multi-core,systemd containment removed,tight,0.1,13.113933042230183,1.1789726414861554,0.0,own line,False
+multi-core,systemd containment removed,tight,0.5,1.6953503070360307,1.0764835148475262,0.0,own line,False
+multi-core,systemd containment removed,tight,0.7,1.5982713208724133,1.018899050832167,0.0,own line,False
+multi-core,systemd containment removed,tight,0.94,1.585613643797462,0.9835415851161216,0.0,own line,False
+multi-core,systemd containment removed,soft,0.1,1.5450404789010246,1.1509521602669106,0.0,own line,False
+multi-core,systemd containment removed,soft,0.5,1.2805111681767987,1.0934081695856248,0.25,own line,True
+multi-core,systemd containment removed,soft,0.7,1.3349532429331379,1.1058473141849838,0.0,own line,False
+multi-core,systemd containment removed,soft,0.94,1.2384975377048275,0.8859303688342358,0.0,own line,False
+multi-core,IRQ steering removed,tight,0.1,13.429226835339476,1.2073182762327421,0.0,other settings (band),False
+multi-core,IRQ steering removed,tight,0.5,1.8221822606612235,1.1570170226817418,0.0,other settings (band),False
+multi-core,IRQ steering removed,tight,0.7,1.7585173762925694,1.1210560198241857,0.0,other settings (band),False
+multi-core,IRQ steering removed,tight,0.94,1.636243269801394,1.0149466772762041,0.0,other settings (band),False
+multi-core,IRQ steering removed,soft,0.1,1.6747368264860014,1.2475672933136737,0.0,other settings (band),False
+multi-core,IRQ steering removed,soft,0.5,1.2734372379338836,1.087367852788002,0.0,other settings (band),False
+multi-core,IRQ steering removed,soft,0.7,1.2886994089484094,1.0675316066097995,0.0,other settings (band),False
+multi-core,IRQ steering removed,soft,0.94,2.1423246475922326,1.532462041645497,0.0,other settings (band),False
+multi-core,boot-params bundle removed,tight,0.1,1.615270005036266,0.14521647612645602,0.0,other settings (band),False
+multi-core,boot-params bundle removed,tight,0.5,2.163069396747691,1.373467499552342,0.0,other settings (band),False
+multi-core,boot-params bundle removed,tight,0.7,2.119768906694068,1.3513541154171413,0.0,other settings (band),False
+multi-core,boot-params bundle removed,tight,0.94,1.5912801756252466,0.9870564827822784,0.0,other settings (band),False
+multi-core,boot-params bundle removed,soft,0.1,1.3581906932026955,1.0117615258261428,0.0,other settings (band),False
+multi-core,boot-params bundle removed,soft,0.5,1.266883694747106,1.0817718862410195,0.0,other settings (band),False
+multi-core,boot-params bundle removed,soft,0.7,1.211017469206516,1.003181514290832,0.0,other settings (band),False
+multi-core,boot-params bundle removed,soft,0.94,1.17173554698245,0.8381737336661164,0.0,other settings (band),False
+multi-core,frequency pinning removed,tight,0.1,12.428886749041265,1.1173854094009832,0.0,other settings (band),False
+multi-core,frequency pinning removed,tight,0.5,2.541432135879467,1.613713571185758,0.0,other settings (band),False
+multi-core,frequency pinning removed,tight,0.7,1.7892981480117707,1.1406787826673908,0.0,other settings (band),False
+multi-core,frequency pinning removed,tight,0.94,1.5965306935139707,0.9903133308216208,0.0,other settings (band),False
+multi-core,frequency pinning removed,soft,0.1,2.035649776829714,1.516423381900988,0.0,other settings (band),False
+multi-core,frequency pinning removed,soft,0.5,1.29735151206201,1.1077878720359662,0.0,other settings (band),False
+multi-core,frequency pinning removed,soft,0.7,1.2982232196658838,1.0754209319914023,0.0,other settings (band),False
+multi-core,frequency pinning removed,soft,0.94,1.190285942827482,0.8514433272928152,0.0,other settings (band),False
+multi-core,SMT enabled,tight,0.1,12.080875167666967,1.0860983704905838,0.0,reference,False
+multi-core,SMT enabled,tight,0.5,1.2379297562483322,0.7860387140108763,0.0,reference,False
+multi-core,SMT enabled,tight,0.7,2.2527208425501346,1.4361110646791115,0.0,reference,False
+multi-core,SMT enabled,tight,0.94,1.2875684242322532,0.798666871888129,0.0,reference,False
+multi-core,SMT enabled,soft,0.1,13.695518421643948,10.202248244381526,0.0,reference,False
+multi-core,SMT enabled,soft,0.5,1.250897540144041,1.0681215624659153,0.0,reference,False
+multi-core,SMT enabled,soft,0.7,1.8708644533838243,1.5497849396080174,0.0,reference,False
+multi-core,SMT enabled,soft,0.94,1.1889937467087912,0.8505189848947194,0.0,reference,False

@@ -7,17 +7,17 @@
   done
 
 
-python3 - <<'EOF'
-import csv, statistics as s, os
-for c in ("baseline1", "cache", "memory", "baseline2"):
-    f = f"workload3/results/multi_core/{c}/instance0.csv"
-    if not os.path.exists(f): continue
+cd ~/GraduationProject/research-questions/RQ2/procedure/step2_profiling/results
+python3 - <<'E'
+import csv, glob, statistics as st
+for f in sorted(glob.glob("lidar_*/*/instance*.csv")):
     rows = list(csv.DictReader(open(f)))
-    x = sorted(int(r["cpu_ns"]) / 1e6 for r in rows if r["cpu_ns"])
-    skipped = sum(r["skipped"] == "1" for r in rows); late = sum(r["skipped"] == "0" and r["deadline_met"] == "0" for r in rows)
-    q = lambda p: x[min(len(x) - 1, int(p * len(x)))]
-    print(f"{c:10s} n={len(x)} median={s.median(x):.2f} p99={q(.99):.2f} max={x[-1]:.2f} cv={s.stdev(x) / s.mean(x):.3f} skipped={skipped} late={late}")
-EOF
+    c = sorted(int(r["cpu_ns"]) / 1e6 for r in rows if r["warmup"] == "0" and r["skipped"] == "0" and r["cpu_ns"])
+    sk = sum(r["skipped"] == "1" for r in rows)
+    print(f"{f:50s} rows={len(rows)} skipped={sk} C median={st.median(c):.1f} p99={c[int(.99*len(c))]:.1f} max={c[-1]:.1f} ms")
+E
+
+
 
 for w in 6 7; do
   NS=rq2-node-prep-worker$w; NODE=rt-k8s-worker-$w

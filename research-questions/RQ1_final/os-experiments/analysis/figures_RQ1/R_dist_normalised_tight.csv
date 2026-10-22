@@ -1,0 +1,37 @@
+configuration,U,single-core median [R/P],single-core p99 [R/P],single-core p99.9 [R/P],single-core max [R/P],multi-core on physical cores median [R/P],multi-core on physical cores p99 [R/P],multi-core on physical cores p99.9 [R/P],multi-core on physical cores max [R/P]
+baseline (full isolation),0.1,0.082,0.086,0.435,1.967,0.076,0.096,0.841,6.544
+baseline (full isolation),0.5,0.397,0.406,0.422,1.041,0.357,0.447,0.566,3.476
+baseline (full isolation),0.7,0.556,0.566,0.57,20.14,0.492,0.523,0.772,3.652
+baseline (full isolation),0.94,0.737,0.754,0.764,1.76,0.661,0.739,1.066,15.044
+isolcpus removed,0.1,0.081,1.004,1.067,2.087,0.074,0.093,0.875,1.016
+isolcpus removed,0.5,0.39,0.481,1.093,1.642,0.349,0.381,0.598,1.815
+isolcpus removed,0.7,0.541,0.635,1.062,1.303,0.492,0.572,1.036,3.556
+isolcpus removed,0.94,,,,,,,,
+nohz_full removed,0.1,0.073,0.089,1.004,2.045,0.073,0.078,0.831,1.003
+nohz_full removed,0.5,0.351,0.354,0.412,1.142,0.354,0.409,0.564,0.655
+nohz_full removed,0.7,0.491,0.495,0.557,1.023,0.496,0.552,0.782,0.826
+nohz_full removed,0.94,0.659,0.687,0.843,1.294,0.661,0.723,1.063,1.161
+rcu_nocbs removed,0.1,0.073,0.074,0.077,0.861,0.081,1.005,1.777,2.051
+rcu_nocbs removed,0.5,0.352,0.356,0.369,1.228,0.362,0.601,0.944,1.529
+rcu_nocbs removed,0.7,0.49,0.498,0.514,4.491,0.503,0.801,1.134,2.023
+rcu_nocbs removed,0.94,0.656,0.661,0.668,1.38,0.672,0.94,1.24,2.442
+systemd containment removed,0.1,0.082,0.091,1.009,3.004,0.074,0.878,0.977,1.923
+systemd containment removed,0.5,0.397,0.404,1.004,2.627,0.356,0.417,0.603,5.968
+systemd containment removed,0.7,0.553,0.564,0.645,1.239,0.493,0.615,0.789,12.424
+systemd containment removed,0.94,0.742,0.751,0.86,2.925,0.658,0.78,1.043,1.285
+IRQ steering removed,0.1,0.082,0.085,0.09,1.921,0.075,0.181,1.005,1.987
+IRQ steering removed,0.5,0.396,0.419,0.432,1.164,0.354,0.499,0.654,1.23
+IRQ steering removed,0.7,0.557,0.567,0.573,1.035,0.482,0.537,0.847,1.534
+IRQ steering removed,0.94,0.743,0.756,0.798,1.553,0.659,0.779,1.077,5.121
+boot-params bundle removed,0.1,0.072,0.075,0.079,2.653,0.074,0.085,0.123,1.241
+boot-params bundle removed,0.5,0.35,0.359,0.38,1.005,0.353,0.394,0.764,3.718
+boot-params bundle removed,0.7,0.485,0.502,0.51,1.32,0.493,0.543,1.045,1.518
+boot-params bundle removed,0.94,0.639,0.665,0.674,3.567,0.652,0.698,1.038,1.138
+frequency pinning removed,0.1,0.07,0.075,0.077,1.338,0.075,0.49,0.936,1.19
+frequency pinning removed,0.5,0.34,0.354,0.371,28.516,0.362,0.494,0.92,1.244
+frequency pinning removed,0.7,0.476,0.498,0.512,1.31,0.507,0.635,0.907,1.498
+frequency pinning removed,0.94,0.646,0.671,0.677,1.96,0.681,0.841,1.087,1.186
+SMT enabled (multi-core),0.1,,,,,0.084,1.01,1.015,1.579
+SMT enabled (multi-core),0.5,,,,,1.002,1.149,1.241,11.237
+SMT enabled (multi-core),0.7,,,,,0.665,1.185,1.499,71.433
+SMT enabled (multi-core),0.94,,,,,1.052,1.271,1.355,8.287

@@ -1,0 +1,30 @@
+\begin{tabular}{l|l|rrrr|rrrr}
+\toprule
+ &  & \multicolumn{4}{c}{Soft, $P = 100$ ms} & \multicolumn{4}{c}{Tight, $P = 10$ ms} \\
+Configuration (single-core) & Utilization $U$ & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+\multirow[t]{2}{*}{baseline (full isolation)} & deadline miss [\%] & 0.015 & 0.005 & 0.005 & 0.005 & 0.010 & 0.010 & 0.005 & 0.020 \\
+ & p99.9 / median & 1.04 & 1.05 & 1.03 & 1.02 & 5.27 & 1.06 & 1.02 & 1.04 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{isolcpus removed} & deadline miss [\%] & 2.480 & 1.440 & 0.440 & -- & 1.220 & 0.710 & 0.400 & -- \\
+ & p99.9 / median & 12.17 & 2.60 & 1.87 & -- & 13.18 & 2.80 & 1.96 & -- \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{nohz_full removed} & deadline miss [\%] & 0.540 & 0 & 0 & 0 & 0.125 & 0.025 & 0.015 & 0.030 \\
+ & p99.9 / median & 11.83 & 1.17 & 1.17 & 1.10 & 13.85 & 1.17 & 1.14 & 1.28 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{rcu_nocbs removed} & deadline miss [\%] & 0 & 0 & 0 & 0 & 0 & 0.015 & 0.015 & 0.005 \\
+ & p99.9 / median & 1.06 & 1.01 & 1.08 & 1.04 & 1.06 & 1.05 & 1.05 & 1.02 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{systemd containment removed} & deadline miss [\%] & 0.550 & 0.015 & 0.005 & 0 & 0.410 & 0.130 & 0.035 & 0.035 \\
+ & p99.9 / median & 12.01 & 1.09 & 1.11 & 1.04 & 12.29 & 2.53 & 1.17 & 1.16 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{IRQ steering removed} & deadline miss [\%] & 0.005 & 0 & 0 & 0.005 & 0.025 & 0.010 & 0.010 & 0.015 \\
+ & p99.9 / median & 1.05 & 1.03 & 1.03 & 1.05 & 1.10 & 1.09 & 1.03 & 1.07 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{boot-params bundle removed} & deadline miss [\%] & 0 & 0 & 0 & 0 & 0.015 & 0.005 & 0.005 & 0.005 \\
+ & p99.9 / median & 1.04 & 1.04 & 1.04 & 1.05 & 1.09 & 1.08 & 1.05 & 1.06 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{frequency pinning removed} & deadline miss [\%] & 0 & 0 & 0 & 0 & 0.010 & 0.010 & 0.010 & 0.005 \\
+ & p99.9 / median & 1.06 & 1.04 & 1.06 & 1.05 & 1.09 & 1.09 & 1.08 & 1.05 \\
+\bottomrule
+\end{tabular}

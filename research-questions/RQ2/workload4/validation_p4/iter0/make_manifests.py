@@ -3,11 +3,11 @@
 
     python3 make_manifests.py
 
-Input: budgets.csv, exported by analysis_procedure3/analysis_workload4.ipynb (section 5.5): the budgets of the two levels (relaxed, strict), Route 1 and Route 2,
-Q* = max(Q_p, Q_(m,k)). Columns: scenario, route, level, p, m, k, eps, Q_p_ms, Q_mk_ms, Q_ms, extra_over_Q_p, dominated_by, Q_over_T, runtime_us, period_us, admitted.
+Input: budgets.csv, exported by analysis_procedure3/analysis_workload4.ipynb (section 5.5): the budgets of the two levels (relaxed, strict), Variant 1 and Variant 2,
+Q* = max(Q_p, Q_(m,k)). Columns: scenario, variant, level, p, m, k, eps, Q_p_ms, Q_mk_ms, Q_ms, extra_over_Q_p, dominated_by, Q_over_T, runtime_us, period_us, admitted.
 A budget that is not admitted is skipped (the driver would reject it).
 
-One self-contained file per scenario x route x level x interference in pods/<scenario>/<route>/<level>_<memory>.yaml: the RtClaimParameters with runtime = Q* (us)
+One self-contained file per scenario x variant x level x interference in pods/<scenario>/<variant>/<level>_<memory>.yaml: the RtClaimParameters with runtime = Q* (us)
 of period 50000 us, the ResourceClaimTemplate and the Pod. Also runs.csv (what each run is, where it runs, where its files appear on the node and where to save them).
 The interference is NOT in a pod: the memory enemy is started on the node around the runs whose file name ends in _memory.yaml (run_validation.sh does it).
 
@@ -23,17 +23,17 @@ SCEN = {
     "multi_core": dict(short="multi", node="rt-k8s-worker-6", cpus=[1, 2], enemy_cpus="3,0", config="configs/multi_core.json"),
     "single_core": dict(short="single", node="rt-k8s-worker-7", cpus=[1], enemy_cpus="2,3,0", config="configs/single_core.json"),
 }
-ROUTES = {"route1": ("r1", "Route 1: Q_p = C_p of the stress runs x alpha_drift"),
-          "route2b": ("r2b", "Route 2: Q_p = C_p of the baselines x alpha_platform(m) x alpha_drift"),
-          "hwm": ("hwm", "Route 3: Q = high-water mark of the stressed profiling runs x alpha_drift (one budget for every level)")}
+VARIANTS = {"variant1": ("v1", "Variant 1 (stress-based budget): Q_p = C_p of the stress runs x alpha_drift"),
+          "variant2": ("v2", "Variant 2 (baseline-based budget): Q_p = C_p of the baselines x alpha_platform(m) x alpha_drift"),
+          "variant3": ("v3", "Variant 3 (high-water-mark budget): Q = high-water mark of the stressed profiling runs x alpha_drift (one budget for every level)")}
 LEVEL = {"relaxed": "rel", "strict": "str"}
 COND = {"memory": ("mem", "with the memory enemy (started on the node around the run)")}
 ENEMY_KB = {"memory": 2662400}                   # enemy buffer: 10 x the last-level cache, as in the profiling
 
 
-def pod_file(scen, route, level, cond, row):
+def pod_file(scen, variant, level, cond, row):
     s = SCEN[scen]
-    rshort, rdesc = ROUTES[route]
+    rshort, rdesc = VARIANTS[variant]
     cshort, cdesc = COND[cond]
     run_id = f"rq2-val4-lidar-{s['short']}-{rshort}-{LEVEL[level]}-{cshort}"
     runtime, period = int(row["runtime_us"]), int(row["period_us"])
@@ -86,26 +86,26 @@ spec:
 
 
 def main():
-    rows = {(r["scenario"], r["route"], r["level"]): r for r in csv.DictReader(open(HERE / "budgets.csv"))}
+    rows = {(r["scenario"], r["variant"], r["level"]): r for r in csv.DictReader(open(HERE / "budgets.csv"))}
     runs = []
     for scen, s in SCEN.items():
-        for route in ROUTES:
-            out = HERE / "pods" / scen / route
+        for variant in VARIANTS:
+            out = HERE / "pods" / scen / variant
             for level in LEVEL:
-                if route == "hwm" and level == "relaxed":              # one HWM run per scenario (strict folder), judged on both levels by the notebook
+                if variant == "variant3" and level == "relaxed":              # one HWM run per scenario (strict folder), judged on both levels by the notebook
                     continue
-                row = rows[(scen, route, level)]
+                row = rows[(scen, variant, level)]
                 if str(row["admitted"]).strip().lower() != "true":     # the driver would reject this reservation: nothing to validate
-                    print(f"skipped (not admitted, Q/T = {float(row['Q_over_T']):.2f}): {scen} {route} {level}")
+                    print(f"skipped (not admitted, Q/T = {float(row['Q_over_T']):.2f}): {scen} {variant} {level}")
                     continue
                 for cond in COND:
-                    run_id, text = pod_file(scen, route, level, cond, row)
+                    run_id, text = pod_file(scen, variant, level, cond, row)
                     path = out / f"{level}_{cond}.yaml"
                     out.mkdir(parents=True, exist_ok=True)
                     path.write_text(text)
-                    runs.append(dict(run_id=run_id, scenario=scen, route=route, level=level, p=row["p"], m=row["m"], k=row["k"], interference=cond, node=s["node"],
+                    runs.append(dict(run_id=run_id, scenario=scen, variant=variant, level=level, p=row["p"], m=row["m"], k=row["k"], interference=cond, node=s["node"],
                                      enemy_cpus=s["enemy_cpus"] if cond != "none" else "", enemy_kb=ENEMY_KB.get(cond, ""), runtime_us=row["runtime_us"], period_us=row["period_us"],
-                                     jobs=JOBS, pod_file=str(path.relative_to(HERE)), node_files=f"{NODE_DIR}/{run_id}_instance*.csv", save_results_in=f"results/{scen}/{route}/{level}_{cond}"))
+                                     jobs=JOBS, pod_file=str(path.relative_to(HERE)), node_files=f"{NODE_DIR}/{run_id}_instance*.csv", save_results_in=f"results/{scen}/{variant}/{level}_{cond}"))
     with open(HERE / "runs.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(runs[0]))
         w.writeheader()
