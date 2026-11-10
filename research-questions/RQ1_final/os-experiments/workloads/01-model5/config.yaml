@@ -27,7 +27,7 @@ node_label: experiment-model=01-model5
 host_path: /var/lib/rq1final/01-model5
 image: pippina2/rq1final-probe:v1
 headroom_frac: 0.7
-utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+utilizations: [0.1, 0.5, 0.7, 0.94]
 scales:
   soft: { period_us: 100000, sieve_n: 1048576 }
   tight: { period_us: 10000, sieve_n: 8192 }

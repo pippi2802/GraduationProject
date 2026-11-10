@@ -8,7 +8,7 @@ node_label: experiment-model=02-model1
 host_path: /var/lib/rq1final/02-model1
 image: pippina2/rq1final-probe:v1
 headroom_frac: 0.7            # calibrate median C -> 0.7*Q so R stays bounded
-utilizations: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.94]
+utilizations: [0.1, 0.5, 0.7, 0.94]
 # sieve_n is scale-dependent, deliberately -- see workload.c's header comment.
 # tight: small/cache-resident (8192, matches matmul.c's own in-cache design).
 # soft: 1MB, clearly past this hardware's 512KB L2 (measured directly on the
