@@ -455,7 +455,7 @@ SKIPPED_CELLS=()
 run_one_cell() {
   f="$1"
   scale=$(basename "$(dirname "$f")"); ul=$(basename "$f" .yaml)   # ul like U0.5
-  sub="$scale/$ul"; out="results/${MODEL}${OUT_TAG}/$scale/$ul"
+  sub="$scale/$ul"; out="${RESULTS_ROOT:-results}/${MODEL}${OUT_TAG}/$scale/$ul"
   echo "[run] === $sub ($f) ==="
   mkdir -p "$out"
 
@@ -795,4 +795,4 @@ else
   [ ${#SKIPPED_CELLS[@]} -gt 0 ] && printf '  - %s [not retried -- calibration issue, fix and rerun]\n' "${SKIPPED_CELLS[@]}"
   [ ${#FAILED_CELLS[@]} -gt 0 ] && printf '  - %s [failed even after end-of-sweep retry]\n' "${FAILED_CELLS[@]}"
 fi
-echo "[run] results under results/${MODEL}${OUT_TAG}/"
+echo "[run] results under ${RESULTS_ROOT:-results}/${MODEL}${OUT_TAG}/"
