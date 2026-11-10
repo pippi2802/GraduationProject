@@ -6,7 +6,7 @@
 # Run AFTER rebooting (for the grub-based scenarios) -- reads actually-booted
 # state via /sys and /proc, not the staged grub file.
 #
-# scenario: isolcpus_only | nohz_full_only | rcu_nocbs_only |
+# scenario: full_isolation | isolcpus_only | nohz_full_only | rcu_nocbs_only |
 #           systemd_contain | irq_steer | boot_params | freq_unpinned | worst_case
 set -euo pipefail
 NS="${1:?usage: verify_scenario.sh <namespace> <scenario> [keep_cpu]}"
@@ -85,6 +85,10 @@ case "$SCEN" in
     thp_never && check "THP should be back to always (removed)" 0 || check "THP back to always, as expected" 1
     rcu_poll_active && check "rcu_nocb_poll should be REMOVED" 0 || check "rcu_nocb_poll removed, as expected" 1
     baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_irq
+    ;;
+  full_isolation)
+    baseline_isolcpus; baseline_nohz; baseline_rcu; baseline_systemd; baseline_irq; baseline_boot
+    freq_pinned && check "frequency pinned (governor performance)" 1 || check "frequency pinned (governor performance)" 0
     ;;
   worst_case)
     isolcpus_active && check "isolcpus should be INACTIVE" 0 || check "isolcpus inactive" 1
