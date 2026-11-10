@@ -1,0 +1,233 @@
+configuration,placement,period,U,metric,n_c,n_FI,hodges_lehmann,unit
+IRQ steering removed,multi-core,tight,0.1,S,4,4,1.39173,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,tight,0.5,S,4,4,1.00902,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,tight,0.7,S,4,4,1.09076,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,tight,0.94,S,4,4,0.981393,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,soft,0.1,S,4,3,0.995595,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,soft,0.5,S,4,4,1.05576,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,soft,0.7,S,4,4,0.962661,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,soft,0.94,S,4,4,0.887817,factor (exp of median log-ratio)
+IRQ steering removed,multi-core,tight,0.1,M,4,4,0.045011,percentage points
+IRQ steering removed,multi-core,tight,0.5,M,4,4,-0.040036,percentage points
+IRQ steering removed,multi-core,tight,0.7,M,4,4,0.039997,percentage points
+IRQ steering removed,multi-core,tight,0.94,M,4,4,0.109403,percentage points
+IRQ steering removed,multi-core,soft,0.1,M,4,3,0,percentage points
+IRQ steering removed,multi-core,soft,0.5,M,4,4,0,percentage points
+IRQ steering removed,multi-core,soft,0.7,M,4,4,0,percentage points
+IRQ steering removed,multi-core,soft,0.94,M,4,4,0,percentage points
+SMT enabled,multi-core,tight,0.1,S,4,4,2.77573,factor (exp of median log-ratio)
+SMT enabled,multi-core,tight,0.5,S,4,4,0.975062,factor (exp of median log-ratio)
+SMT enabled,multi-core,tight,0.7,S,4,4,1.15023,factor (exp of median log-ratio)
+SMT enabled,multi-core,tight,0.94,S,4,4,0.791559,factor (exp of median log-ratio)
+SMT enabled,multi-core,soft,0.1,S,4,3,3.26105,factor (exp of median log-ratio)
+SMT enabled,multi-core,soft,0.5,S,4,4,1.35253,factor (exp of median log-ratio)
+SMT enabled,multi-core,soft,0.7,S,4,4,1.32391,factor (exp of median log-ratio)
+SMT enabled,multi-core,soft,0.94,S,4,4,0.854994,factor (exp of median log-ratio)
+SMT enabled,multi-core,tight,0.1,M,4,4,20.8024,percentage points
+SMT enabled,multi-core,tight,0.5,M,4,4,66.6333,percentage points
+SMT enabled,multi-core,tight,0.7,M,4,4,26.2585,percentage points
+SMT enabled,multi-core,tight,0.94,M,4,4,85.6876,percentage points
+SMT enabled,multi-core,soft,0.1,M,4,3,0.30958,percentage points
+SMT enabled,multi-core,soft,0.5,M,4,4,52.4056,percentage points
+SMT enabled,multi-core,soft,0.7,M,4,4,0.259972,percentage points
+SMT enabled,multi-core,soft,0.94,M,4,4,82.1146,percentage points
+boot-params bundle removed,multi-core,tight,0.1,S,4,4,0.303758,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,tight,0.5,S,4,4,1.14506,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,tight,0.7,S,4,4,0.980183,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,tight,0.94,S,4,4,0.708082,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,soft,0.1,S,4,3,1.00781,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,soft,0.5,S,4,4,0.924335,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,soft,0.7,S,4,4,0.874152,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,soft,0.94,S,4,4,0.830411,factor (exp of median log-ratio)
+boot-params bundle removed,multi-core,tight,0.1,M,4,4,0,percentage points
+boot-params bundle removed,multi-core,tight,0.5,M,4,4,-0.010011,percentage points
+boot-params bundle removed,multi-core,tight,0.7,M,4,4,0.010011,percentage points
+boot-params bundle removed,multi-core,tight,0.94,M,4,4,-0.618824,percentage points
+boot-params bundle removed,multi-core,soft,0.1,M,4,3,0,percentage points
+boot-params bundle removed,multi-core,soft,0.5,M,4,4,0,percentage points
+boot-params bundle removed,multi-core,soft,0.7,M,4,4,0,percentage points
+boot-params bundle removed,multi-core,soft,0.94,M,4,4,-0.169915,percentage points
+frequency pinning removed,multi-core,tight,0.1,S,4,4,2.32651,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,tight,0.5,S,4,4,1.40689,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,tight,0.7,S,4,4,1.06048,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,tight,0.94,S,4,4,0.999994,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,soft,0.1,S,4,3,1.38147,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,soft,0.5,S,4,4,1.07663,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,soft,0.7,S,4,4,1.02024,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,soft,0.94,S,4,4,0.841661,factor (exp of median log-ratio)
+frequency pinning removed,multi-core,tight,0.1,M,4,4,0,percentage points
+frequency pinning removed,multi-core,tight,0.5,M,4,4,0.090017,percentage points
+frequency pinning removed,multi-core,tight,0.7,M,4,4,0.080029,percentage points
+frequency pinning removed,multi-core,tight,0.94,M,4,4,0.357763,percentage points
+frequency pinning removed,multi-core,soft,0.1,M,4,3,0.02002,percentage points
+frequency pinning removed,multi-core,soft,0.5,M,4,4,0,percentage points
+frequency pinning removed,multi-core,soft,0.7,M,4,4,0.060036,percentage points
+frequency pinning removed,multi-core,soft,0.94,M,4,4,-0.169915,percentage points
+isolcpus removed,multi-core,tight,0.1,S,4,4,1.11504,factor (exp of median log-ratio)
+isolcpus removed,multi-core,tight,0.5,S,4,4,1.03219,factor (exp of median log-ratio)
+isolcpus removed,multi-core,tight,0.7,S,4,4,1.32958,factor (exp of median log-ratio)
+isolcpus removed,multi-core,soft,0.1,S,4,3,1.00372,factor (exp of median log-ratio)
+isolcpus removed,multi-core,soft,0.5,S,4,4,1.04162,factor (exp of median log-ratio)
+isolcpus removed,multi-core,soft,0.7,S,4,4,0.91448,factor (exp of median log-ratio)
+isolcpus removed,multi-core,tight,0.1,M,4,4,0.0800641,percentage points
+isolcpus removed,multi-core,tight,0.5,M,4,4,0.030022,percentage points
+isolcpus removed,multi-core,tight,0.7,M,4,4,0.618008,percentage points
+isolcpus removed,multi-core,soft,0.1,M,4,3,0,percentage points
+isolcpus removed,multi-core,soft,0.5,M,4,4,0,percentage points
+isolcpus removed,multi-core,soft,0.7,M,4,4,0,percentage points
+nohz_full removed,multi-core,tight,0.1,S,4,4,0.645223,factor (exp of median log-ratio)
+nohz_full removed,multi-core,tight,0.5,S,4,4,1.00193,factor (exp of median log-ratio)
+nohz_full removed,multi-core,tight,0.7,S,4,4,0.995361,factor (exp of median log-ratio)
+nohz_full removed,multi-core,tight,0.94,S,4,4,0.798474,factor (exp of median log-ratio)
+nohz_full removed,multi-core,soft,0.1,S,4,3,0.983496,factor (exp of median log-ratio)
+nohz_full removed,multi-core,soft,0.5,S,4,4,0.903708,factor (exp of median log-ratio)
+nohz_full removed,multi-core,soft,0.7,S,4,4,0.854288,factor (exp of median log-ratio)
+nohz_full removed,multi-core,soft,0.94,S,4,4,0.861437,factor (exp of median log-ratio)
+nohz_full removed,multi-core,tight,0.1,M,4,4,0,percentage points
+nohz_full removed,multi-core,tight,0.5,M,4,4,-0.050042,percentage points
+nohz_full removed,multi-core,tight,0.7,M,4,4,-0.030029,percentage points
+nohz_full removed,multi-core,tight,0.94,M,4,4,-0.393781,percentage points
+nohz_full removed,multi-core,soft,0.1,M,4,3,0,percentage points
+nohz_full removed,multi-core,soft,0.5,M,4,4,0,percentage points
+nohz_full removed,multi-core,soft,0.7,M,4,4,0,percentage points
+nohz_full removed,multi-core,soft,0.94,M,4,4,-0.169915,percentage points
+rcu_nocbs removed,multi-core,tight,0.1,S,4,4,4.11448,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,tight,0.5,S,4,4,1.59635,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,tight,0.7,S,4,4,1.39226,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,tight,0.94,S,4,4,1.07436,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,soft,0.1,S,4,3,8.9161,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,soft,0.5,S,4,4,1.30316,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,soft,0.7,S,4,4,1.1932,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,soft,0.94,S,4,4,0.969115,factor (exp of median log-ratio)
+rcu_nocbs removed,multi-core,tight,0.1,M,4,4,1.91558,percentage points
+rcu_nocbs removed,multi-core,tight,0.5,M,4,4,0.070029,percentage points
+rcu_nocbs removed,multi-core,tight,0.7,M,4,4,0.984055,percentage points
+rcu_nocbs removed,multi-core,tight,0.94,M,4,4,0.936073,percentage points
+rcu_nocbs removed,multi-core,soft,0.1,M,4,3,0.159936,percentage points
+rcu_nocbs removed,multi-core,soft,0.5,M,4,4,0.02002,percentage points
+rcu_nocbs removed,multi-core,soft,0.7,M,4,4,0,percentage points
+rcu_nocbs removed,multi-core,soft,0.94,M,4,4,0.160016,percentage points
+systemd containment removed,multi-core,tight,0.1,S,4,4,2.91359,factor (exp of median log-ratio)
+systemd containment removed,multi-core,tight,0.5,S,4,4,1.01982,factor (exp of median log-ratio)
+systemd containment removed,multi-core,tight,0.7,S,4,4,1.00161,factor (exp of median log-ratio)
+systemd containment removed,multi-core,tight,0.94,S,4,4,0.972452,factor (exp of median log-ratio)
+systemd containment removed,multi-core,soft,0.1,S,4,3,1.09347,factor (exp of median log-ratio)
+systemd containment removed,multi-core,soft,0.5,S,4,4,0.971365,factor (exp of median log-ratio)
+systemd containment removed,multi-core,soft,0.7,S,4,4,1.01984,factor (exp of median log-ratio)
+systemd containment removed,multi-core,soft,0.94,S,4,4,0.840301,factor (exp of median log-ratio)
+systemd containment removed,multi-core,tight,0.1,M,4,4,0.04004,percentage points
+systemd containment removed,multi-core,tight,0.5,M,4,4,-0.020022,percentage points
+systemd containment removed,multi-core,tight,0.7,M,4,4,0.010011,percentage points
+systemd containment removed,multi-core,tight,0.94,M,4,4,0.0996559,percentage points
+systemd containment removed,multi-core,soft,0.1,M,4,3,0,percentage points
+systemd containment removed,multi-core,soft,0.5,M,4,4,0,percentage points
+systemd containment removed,multi-core,soft,0.7,M,4,4,0,percentage points
+systemd containment removed,multi-core,soft,0.94,M,4,4,-0.149895,percentage points
+IRQ steering removed,single-core,tight,0.1,S,4,4,1.00668,factor (exp of median log-ratio)
+IRQ steering removed,single-core,tight,0.5,S,4,4,1.04287,factor (exp of median log-ratio)
+IRQ steering removed,single-core,tight,0.7,S,4,4,1.00045,factor (exp of median log-ratio)
+IRQ steering removed,single-core,tight,0.94,S,4,4,1.02061,factor (exp of median log-ratio)
+IRQ steering removed,single-core,soft,0.1,S,4,4,0.999916,factor (exp of median log-ratio)
+IRQ steering removed,single-core,soft,0.5,S,4,4,0.987351,factor (exp of median log-ratio)
+IRQ steering removed,single-core,soft,0.7,S,4,4,1.0051,factor (exp of median log-ratio)
+IRQ steering removed,single-core,soft,0.94,S,4,4,1.01434,factor (exp of median log-ratio)
+IRQ steering removed,single-core,tight,0.1,M,4,4,0.04004,percentage points
+IRQ steering removed,single-core,tight,0.5,M,4,4,0,percentage points
+IRQ steering removed,single-core,tight,0.7,M,4,4,0,percentage points
+IRQ steering removed,single-core,tight,0.94,M,4,4,0,percentage points
+IRQ steering removed,single-core,soft,0.1,M,4,4,0,percentage points
+IRQ steering removed,single-core,soft,0.5,M,4,4,0,percentage points
+IRQ steering removed,single-core,soft,0.7,M,4,4,0,percentage points
+IRQ steering removed,single-core,soft,0.94,M,4,4,0,percentage points
+boot-params bundle removed,single-core,tight,0.1,S,4,4,0.996551,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,tight,0.5,S,4,4,0.988551,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,tight,0.7,S,4,4,1.00306,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,tight,0.94,S,4,4,0.994981,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,soft,0.1,S,4,4,1.00265,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,soft,0.5,S,4,4,0.995253,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,soft,0.7,S,4,4,1.00633,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,soft,0.94,S,4,4,1.01729,factor (exp of median log-ratio)
+boot-params bundle removed,single-core,tight,0.1,M,4,4,0.04004,percentage points
+boot-params bundle removed,single-core,tight,0.5,M,4,4,0,percentage points
+boot-params bundle removed,single-core,tight,0.7,M,4,4,0,percentage points
+boot-params bundle removed,single-core,tight,0.94,M,4,4,-0.04004,percentage points
+boot-params bundle removed,single-core,soft,0.1,M,4,4,-0.02002,percentage points
+boot-params bundle removed,single-core,soft,0.5,M,4,4,0,percentage points
+boot-params bundle removed,single-core,soft,0.7,M,4,4,0,percentage points
+boot-params bundle removed,single-core,soft,0.94,M,4,4,0,percentage points
+frequency pinning removed,single-core,tight,0.1,S,4,4,1.01331,factor (exp of median log-ratio)
+frequency pinning removed,single-core,tight,0.5,S,4,4,0.996369,factor (exp of median log-ratio)
+frequency pinning removed,single-core,tight,0.7,S,4,4,1.03103,factor (exp of median log-ratio)
+frequency pinning removed,single-core,tight,0.94,S,4,4,1.00429,factor (exp of median log-ratio)
+frequency pinning removed,single-core,soft,0.1,S,4,4,1.00753,factor (exp of median log-ratio)
+frequency pinning removed,single-core,soft,0.5,S,4,4,0.995996,factor (exp of median log-ratio)
+frequency pinning removed,single-core,soft,0.7,S,4,4,1.0227,factor (exp of median log-ratio)
+frequency pinning removed,single-core,soft,0.94,S,4,4,1.01558,factor (exp of median log-ratio)
+frequency pinning removed,single-core,tight,0.1,M,4,4,0,percentage points
+frequency pinning removed,single-core,tight,0.5,M,4,4,0,percentage points
+frequency pinning removed,single-core,tight,0.7,M,4,4,0,percentage points
+frequency pinning removed,single-core,tight,0.94,M,4,4,-0.04004,percentage points
+frequency pinning removed,single-core,soft,0.1,M,4,4,-0.02002,percentage points
+frequency pinning removed,single-core,soft,0.5,M,4,4,0,percentage points
+frequency pinning removed,single-core,soft,0.7,M,4,4,0,percentage points
+frequency pinning removed,single-core,soft,0.94,M,4,4,0,percentage points
+isolcpus removed,single-core,tight,0.1,S,4,4,1.10158,factor (exp of median log-ratio)
+isolcpus removed,single-core,tight,0.5,S,4,4,1.35504,factor (exp of median log-ratio)
+isolcpus removed,single-core,tight,0.7,S,4,4,1.16851,factor (exp of median log-ratio)
+isolcpus removed,single-core,soft,0.1,S,4,4,3.61077,factor (exp of median log-ratio)
+isolcpus removed,single-core,soft,0.5,S,4,4,1.07263,factor (exp of median log-ratio)
+isolcpus removed,single-core,soft,0.7,S,4,4,1.04378,factor (exp of median log-ratio)
+isolcpus removed,single-core,tight,0.1,M,4,4,0.0800641,percentage points
+isolcpus removed,single-core,tight,0.5,M,4,4,0.120048,percentage points
+isolcpus removed,single-core,tight,0.7,M,4,4,0.120072,percentage points
+isolcpus removed,single-core,soft,0.1,M,4,4,1.61667,percentage points
+isolcpus removed,single-core,soft,0.5,M,4,4,0.07004,percentage points
+isolcpus removed,single-core,soft,0.7,M,4,4,0,percentage points
+nohz_full removed,single-core,tight,0.1,S,4,4,1.17146,factor (exp of median log-ratio)
+nohz_full removed,single-core,tight,0.5,S,4,4,1.04256,factor (exp of median log-ratio)
+nohz_full removed,single-core,tight,0.7,S,4,4,1.05842,factor (exp of median log-ratio)
+nohz_full removed,single-core,tight,0.94,S,4,4,1.04906,factor (exp of median log-ratio)
+nohz_full removed,single-core,soft,0.1,S,4,4,3.52892,factor (exp of median log-ratio)
+nohz_full removed,single-core,soft,0.5,S,4,4,1.09386,factor (exp of median log-ratio)
+nohz_full removed,single-core,soft,0.7,S,4,4,1.10412,factor (exp of median log-ratio)
+nohz_full removed,single-core,soft,0.94,S,4,4,1.03111,factor (exp of median log-ratio)
+nohz_full removed,single-core,tight,0.1,M,4,4,0.10002,percentage points
+nohz_full removed,single-core,tight,0.5,M,4,4,0.020012,percentage points
+nohz_full removed,single-core,tight,0.7,M,4,4,0,percentage points
+nohz_full removed,single-core,tight,0.94,M,4,4,-0.04004,percentage points
+nohz_full removed,single-core,soft,0.1,M,4,4,0.834874,percentage points
+nohz_full removed,single-core,soft,0.5,M,4,4,0,percentage points
+nohz_full removed,single-core,soft,0.7,M,4,4,0,percentage points
+nohz_full removed,single-core,soft,0.94,M,4,4,0,percentage points
+rcu_nocbs removed,single-core,tight,0.1,S,4,4,0.976342,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,tight,0.5,S,4,4,0.979884,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,tight,0.7,S,4,4,1.01954,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,tight,0.94,S,4,4,0.974422,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,soft,0.1,S,4,4,0.984659,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,soft,0.5,S,4,4,0.978336,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,soft,0.7,S,4,4,1.02525,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,soft,0.94,S,4,4,1.00423,factor (exp of median log-ratio)
+rcu_nocbs removed,single-core,tight,0.1,M,4,4,0,percentage points
+rcu_nocbs removed,single-core,tight,0.5,M,4,4,0,percentage points
+rcu_nocbs removed,single-core,tight,0.7,M,4,4,0.04004,percentage points
+rcu_nocbs removed,single-core,tight,0.94,M,4,4,-0.04004,percentage points
+rcu_nocbs removed,single-core,soft,0.1,M,4,4,-0.02002,percentage points
+rcu_nocbs removed,single-core,soft,0.5,M,4,4,0,percentage points
+rcu_nocbs removed,single-core,soft,0.7,M,4,4,0,percentage points
+rcu_nocbs removed,single-core,soft,0.94,M,4,4,0,percentage points
+systemd containment removed,single-core,tight,0.1,S,4,4,1.11856,factor (exp of median log-ratio)
+systemd containment removed,single-core,tight,0.5,S,4,4,0.989886,factor (exp of median log-ratio)
+systemd containment removed,single-core,tight,0.7,S,4,4,1.00677,factor (exp of median log-ratio)
+systemd containment removed,single-core,tight,0.94,S,4,4,1.05023,factor (exp of median log-ratio)
+systemd containment removed,single-core,soft,0.1,S,4,4,3.60468,factor (exp of median log-ratio)
+systemd containment removed,single-core,soft,0.5,S,4,4,1.03239,factor (exp of median log-ratio)
+systemd containment removed,single-core,soft,0.7,S,4,4,1.00221,factor (exp of median log-ratio)
+systemd containment removed,single-core,soft,0.94,S,4,4,1.03947,factor (exp of median log-ratio)
+systemd containment removed,single-core,tight,0.1,M,4,4,0.696341,percentage points
+systemd containment removed,single-core,tight,0.5,M,4,4,0.010004,percentage points
+systemd containment removed,single-core,tight,0.7,M,4,4,0.04004,percentage points
+systemd containment removed,single-core,tight,0.94,M,4,4,-0.02002,percentage points
+systemd containment removed,single-core,soft,0.1,M,4,4,0.498584,percentage points
+systemd containment removed,single-core,soft,0.5,M,4,4,0.04004,percentage points
+systemd containment removed,single-core,soft,0.7,M,4,4,0,percentage points
+systemd containment removed,single-core,soft,0.94,M,4,4,0,percentage points

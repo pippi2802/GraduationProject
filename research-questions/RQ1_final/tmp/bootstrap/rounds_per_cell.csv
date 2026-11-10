@@ -1,0 +1,137 @@
+placement,configuration,scale,U,rounds,jobs
+single-core,full isolation,tight,0.1,4,19976
+single-core,isolcpus removed,tight,0.1,4,19976
+single-core,nohz_full removed,tight,0.1,4,19976
+single-core,rcu_nocbs removed,tight,0.1,4,19976
+single-core,systemd containment removed,tight,0.1,4,19976
+single-core,IRQ steering removed,tight,0.1,4,19976
+single-core,boot-params bundle removed,tight,0.1,4,19976
+single-core,frequency pinning removed,tight,0.1,4,19976
+single-core,full isolation,tight,0.5,4,19976
+single-core,isolcpus removed,tight,0.5,4,19976
+single-core,nohz_full removed,tight,0.5,4,19976
+single-core,rcu_nocbs removed,tight,0.5,4,19976
+single-core,systemd containment removed,tight,0.5,4,19976
+single-core,IRQ steering removed,tight,0.5,4,19976
+single-core,boot-params bundle removed,tight,0.5,4,19976
+single-core,frequency pinning removed,tight,0.5,4,19976
+single-core,full isolation,tight,0.7,4,19976
+single-core,isolcpus removed,tight,0.7,4,19976
+single-core,nohz_full removed,tight,0.7,4,19976
+single-core,rcu_nocbs removed,tight,0.7,4,19976
+single-core,systemd containment removed,tight,0.7,4,19976
+single-core,IRQ steering removed,tight,0.7,4,19976
+single-core,boot-params bundle removed,tight,0.7,4,19976
+single-core,frequency pinning removed,tight,0.7,4,19976
+single-core,full isolation,tight,0.94,4,19976
+single-core,isolcpus removed,tight,0.94,0,0
+single-core,nohz_full removed,tight,0.94,4,19976
+single-core,rcu_nocbs removed,tight,0.94,4,19976
+single-core,systemd containment removed,tight,0.94,4,19976
+single-core,IRQ steering removed,tight,0.94,4,19976
+single-core,boot-params bundle removed,tight,0.94,4,19976
+single-core,frequency pinning removed,tight,0.94,4,19976
+single-core,full isolation,soft,0.1,4,19976
+single-core,isolcpus removed,soft,0.1,4,19976
+single-core,nohz_full removed,soft,0.1,4,19976
+single-core,rcu_nocbs removed,soft,0.1,4,19976
+single-core,systemd containment removed,soft,0.1,4,19976
+single-core,IRQ steering removed,soft,0.1,4,19976
+single-core,boot-params bundle removed,soft,0.1,4,19976
+single-core,frequency pinning removed,soft,0.1,4,19976
+single-core,full isolation,soft,0.5,4,19976
+single-core,isolcpus removed,soft,0.5,4,19976
+single-core,nohz_full removed,soft,0.5,4,19976
+single-core,rcu_nocbs removed,soft,0.5,4,19976
+single-core,systemd containment removed,soft,0.5,4,19976
+single-core,IRQ steering removed,soft,0.5,4,19976
+single-core,boot-params bundle removed,soft,0.5,4,19976
+single-core,frequency pinning removed,soft,0.5,4,19976
+single-core,full isolation,soft,0.7,4,19976
+single-core,isolcpus removed,soft,0.7,4,19976
+single-core,nohz_full removed,soft,0.7,4,19976
+single-core,rcu_nocbs removed,soft,0.7,4,19976
+single-core,systemd containment removed,soft,0.7,4,19976
+single-core,IRQ steering removed,soft,0.7,4,19976
+single-core,boot-params bundle removed,soft,0.7,4,19976
+single-core,frequency pinning removed,soft,0.7,4,19976
+single-core,full isolation,soft,0.94,4,19976
+single-core,isolcpus removed,soft,0.94,0,0
+single-core,nohz_full removed,soft,0.94,4,19976
+single-core,rcu_nocbs removed,soft,0.94,4,19976
+single-core,systemd containment removed,soft,0.94,4,19976
+single-core,IRQ steering removed,soft,0.94,4,19976
+single-core,boot-params bundle removed,soft,0.94,4,19976
+single-core,frequency pinning removed,soft,0.94,4,19976
+multi-core,full isolation,tight,0.1,4,39952
+multi-core,isolcpus removed,tight,0.1,4,19976
+multi-core,nohz_full removed,tight,0.1,4,19976
+multi-core,rcu_nocbs removed,tight,0.1,4,19976
+multi-core,systemd containment removed,tight,0.1,4,19976
+multi-core,IRQ steering removed,tight,0.1,4,19976
+multi-core,boot-params bundle removed,tight,0.1,4,19976
+multi-core,frequency pinning removed,tight,0.1,4,19976
+multi-core,SMT enabled,tight,0.1,4,39952
+multi-core,full isolation,tight,0.5,4,39952
+multi-core,isolcpus removed,tight,0.5,4,19976
+multi-core,nohz_full removed,tight,0.5,4,19976
+multi-core,rcu_nocbs removed,tight,0.5,4,19976
+multi-core,systemd containment removed,tight,0.5,4,19976
+multi-core,IRQ steering removed,tight,0.5,4,19976
+multi-core,boot-params bundle removed,tight,0.5,4,19976
+multi-core,frequency pinning removed,tight,0.5,4,19976
+multi-core,SMT enabled,tight,0.5,4,39952
+multi-core,full isolation,tight,0.7,4,39952
+multi-core,isolcpus removed,tight,0.7,4,19976
+multi-core,nohz_full removed,tight,0.7,4,19976
+multi-core,rcu_nocbs removed,tight,0.7,4,19976
+multi-core,systemd containment removed,tight,0.7,4,19976
+multi-core,IRQ steering removed,tight,0.7,4,19976
+multi-core,boot-params bundle removed,tight,0.7,4,19976
+multi-core,frequency pinning removed,tight,0.7,4,19976
+multi-core,SMT enabled,tight,0.7,4,39952
+multi-core,full isolation,tight,0.94,4,39952
+multi-core,isolcpus removed,tight,0.94,0,0
+multi-core,nohz_full removed,tight,0.94,4,19976
+multi-core,rcu_nocbs removed,tight,0.94,4,19976
+multi-core,systemd containment removed,tight,0.94,4,19976
+multi-core,IRQ steering removed,tight,0.94,4,19976
+multi-core,boot-params bundle removed,tight,0.94,4,19976
+multi-core,frequency pinning removed,tight,0.94,4,19976
+multi-core,SMT enabled,tight,0.94,4,39952
+multi-core,full isolation,soft,0.1,3,29964
+multi-core,isolcpus removed,soft,0.1,4,19976
+multi-core,nohz_full removed,soft,0.1,4,19976
+multi-core,rcu_nocbs removed,soft,0.1,4,19976
+multi-core,systemd containment removed,soft,0.1,4,19976
+multi-core,IRQ steering removed,soft,0.1,4,19976
+multi-core,boot-params bundle removed,soft,0.1,4,19976
+multi-core,frequency pinning removed,soft,0.1,4,19976
+multi-core,SMT enabled,soft,0.1,4,39952
+multi-core,full isolation,soft,0.5,4,39952
+multi-core,isolcpus removed,soft,0.5,4,19976
+multi-core,nohz_full removed,soft,0.5,4,19976
+multi-core,rcu_nocbs removed,soft,0.5,4,19976
+multi-core,systemd containment removed,soft,0.5,4,19976
+multi-core,IRQ steering removed,soft,0.5,4,19976
+multi-core,boot-params bundle removed,soft,0.5,4,19976
+multi-core,frequency pinning removed,soft,0.5,4,19976
+multi-core,SMT enabled,soft,0.5,4,39952
+multi-core,full isolation,soft,0.7,4,39952
+multi-core,isolcpus removed,soft,0.7,4,19976
+multi-core,nohz_full removed,soft,0.7,4,19976
+multi-core,rcu_nocbs removed,soft,0.7,4,19976
+multi-core,systemd containment removed,soft,0.7,4,19976
+multi-core,IRQ steering removed,soft,0.7,4,19976
+multi-core,boot-params bundle removed,soft,0.7,4,19976
+multi-core,frequency pinning removed,soft,0.7,4,19976
+multi-core,SMT enabled,soft,0.7,4,39952
+multi-core,full isolation,soft,0.94,4,39952
+multi-core,isolcpus removed,soft,0.94,0,0
+multi-core,nohz_full removed,soft,0.94,4,19976
+multi-core,rcu_nocbs removed,soft,0.94,4,19976
+multi-core,systemd containment removed,soft,0.94,4,19976
+multi-core,IRQ steering removed,soft,0.94,4,19976
+multi-core,boot-params bundle removed,soft,0.94,4,19976
+multi-core,frequency pinning removed,soft,0.94,4,19976
+multi-core,SMT enabled,soft,0.94,4,39952

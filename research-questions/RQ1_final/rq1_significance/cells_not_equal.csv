@@ -1,0 +1,13 @@
+placement,configuration,scale,U,n_runs,rounds,n_runs_FI,rounds_FI,status
+multi-core,IRQ steering removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,SMT enabled,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,boot-params bundle removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,frequency pinning removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,isolcpus removed,tight,0.94,0,,4,1 2 3 4,not run
+multi-core,isolcpus removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,isolcpus removed,soft,0.94,0,,4,1 2 3 4,not run
+multi-core,nohz_full removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,rcu_nocbs removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,systemd containment removed,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+single-core,isolcpus removed,tight,0.94,0,,4,1 2 3 4,not run
+single-core,isolcpus removed,soft,0.94,0,,4,1 2 3 4,not run

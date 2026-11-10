@@ -1,0 +1,37 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll|rrrr|rrrr}
+\toprule
+ &  & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & Metric & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+\multirow[t]{2}{*}{full isolation} & Median $C$ [ms] & 0.79 & 3.94 & 5.53 & 7.34 & 8.23 & 41.05 & 55.70 & 76.71 \\
+ & Tail spread & 1.05 & 1.04 & 1.02 & 1.04 & 1.04 & 1.05 & 1.03 & 1.02 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{isolcpus removed} & Median $C$ [ms] & 0.78 & 3.87 & 5.38 & -- & 8.33 & 41.70 & 55.10 & -- \\
+ & Tail spread & 1.97 & 1.59 & 1.48 & -- & 1.53 & 1.42 & 1.33 & -- \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{nohz\_full removed} & Median $C$ [ms] & 0.70 & 3.49 & 4.88 & 6.56 & 8.41 & 34.62 & 48.07 & 67.41 \\
+ & Tail spread & 1.39 & 1.13 & 1.13 & 1.27 & 1.43 & 1.18 & 1.17 & 1.10 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{rcu\_nocbs removed} & Median $C$ [ms] & 0.70 & 3.49 & 4.87 & 6.53 & 6.28 & 35.22 & 47.75 & 66.56 \\
+ & Tail spread & 1.05 & 1.03 & 1.03 & 1.02 & 1.05 & 1.01 & 1.07 & 1.03 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{systemd containment removed} & Median $C$ [ms] & 0.79 & 3.94 & 5.50 & 7.39 & 8.27 & 41.08 & 54.52 & 76.34 \\
+ & Tail spread & 1.55 & 1.29 & 1.14 & 1.14 & 1.50 & 1.08 & 1.11 & 1.04 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{IRQ steering removed} & Median $C$ [ms] & 0.79 & 3.92 & 5.54 & 7.40 & 8.33 & 41.33 & 55.78 & 76.49 \\
+ & Tail spread & 1.04 & 1.04 & 1.03 & 1.07 & 1.03 & 1.03 & 1.02 & 1.05 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{boot-params bundle removed} & Median $C$ [ms] & 0.69 & 3.47 & 4.81 & 6.36 & 6.27 & 34.75 & 49.37 & 63.93 \\
+ & Tail spread & 1.05 & 1.04 & 1.05 & 1.05 & 1.04 & 1.04 & 1.04 & 1.05 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{frequency pinning removed} & Median $C$ [ms] & 0.67 & 3.37 & 4.73 & 6.43 & 6.22 & 34.33 & 49.72 & 62.78 \\
+ & Tail spread & 1.08 & 1.06 & 1.06 & 1.05 & 1.05 & 1.04 & 1.05 & 1.05 \\
+\bottomrule
+\end{tabular}}
+\caption{Execution time of the jobs under the isolation levers, single-core. Median $C$: median CPU time of a job. Tail spread: $p_{99.9}/\mathrm{median}$ of $C$. The first six jobs after every restart are excluded. Cells marked -- were not run.}
+\label{tab:rq1-exec-single-core}
+\end{table}

@@ -101,7 +101,7 @@ def cell_metrics(label, scenario, variant, level, folders, Q_online, Q_final, p,
     r = pd.DataFrame(runs)
     return dict(workload=label, deploy=scenario.replace("_core", ""), variant=variant, level=level, Q_ms=Q_final, Q_over_P=Q_final / period_ms, dagger=abs(Q_final - Q_online) > 1e-9,
                 rate_ratio=r.rate_ratio.max(), window_ratio=r.window_ratio.max(), lost_window_ratio=r.lost_window_ratio.max(), miss=r.miss.max(), skip=r.skip.max(), lost=r.lost.max(), stalls=int(r.stalls.sum()),
-                over_budget=r.over_budget.min(), runs=len(r))
+                over_budget=r.over_budget.min(), over_budget_median=r.over_budget.median(), runs=len(r))
 
 
 # ---- collect the cells ----
@@ -223,7 +223,7 @@ ll += [r"\bottomrule", r"\end{tabular}}", r"\caption{" + lcap + "}", r"\label{ta
 
 # ---- Output 2: figure (two panels: relaxed on top, strict below) ----
 plt.rcParams.update({"font.size": 9, "font.family": "serif", "svg.fonttype": "path"})
-fig, axes = plt.subplots(2, 1, figsize=(6.5, 5.2), sharex=True, gridspec_kw=dict(height_ratios=[0.62, 1], hspace=0.12))
+fig, axes = plt.subplots(2, 1, figsize=(6.5, 5.7), sharex=True, gridspec_kw=dict(height_ratios=[0.62, 1], hspace=0.2))
 PANELS = [("relaxed", -12, 55, "relaxed"), ("strict", -70, 70, "strict")]
 BAR_W = 0.26
 for ax, (level, lo, hi, _) in zip(axes, PANELS):
@@ -235,11 +235,16 @@ for ax, (level, lo, hi, _) in zip(axes, PANELS):
             val = 100 * r.over_budget
             top = min(max(val, lo), hi)
             ax.bar(x, top, width=BAR_W, color=COLOR[v], edgecolor="white", linewidth=0.6, zorder=3)
+            med = 100 * r.over_budget_median                            # median over the runs of the cell (the bar is the worst run)
+            if lo < med < hi:
+                ax.plot([x - BAR_W / 2 - 0.02, x + BAR_W / 2 + 0.02], [med, med], color="black", lw=1.0, ls=(0, (1.5, 1.5)), zorder=5)
+            ax.annotate(f"{med:+.0f}", (x, 0), xycoords=("data", "axes fraction"), xytext=(0, -3), textcoords="offset points", ha="center", va="top",
+                        fontsize=5.8, color=COLOR[v], fontweight="bold", annotation_clip=False)      # the median as a number, under the panel
             txt = f"{val:+.0f}" if round(val) != 0 else "0"
             if val > hi:
                 ax.annotate(f"{txt} \u2191", (x, hi), xytext=(0, 2), textcoords="offset points", ha="center", va="bottom", fontsize=7, clip_on=False)
             elif val >= 0:
-                ax.annotate(txt, (x, val), xytext=(0, 2), textcoords="offset points", ha="center", va="bottom", fontsize=7)
+                ax.annotate(txt, (x, max(val, med) if med < hi else val), xytext=(0, 2.5), textcoords="offset points", ha="center", va="bottom", fontsize=7)
             else:
                 ax.annotate(txt, (x, val), xytext=(0, -2), textcoords="offset points", ha="center", va="top", fontsize=7)
     ax.set_ylim(lo, hi)
@@ -252,6 +257,10 @@ for ax, (level, lo, hi, _) in zip(axes, PANELS):
         ax.spines[sp].set_visible(False)
     ax.set_xlim(-0.55, len(ORDER) - 0.45)
 axes[0].set_yticks([0, 20, 40]); axes[1].set_yticks([-60, -40, -20, 0, 20, 40, 60])
+axes[0].annotate("median", (-0.43, 0), xycoords=("data", "axes fraction"), xytext=(0, -3), textcoords="offset points", ha="right", va="top", fontsize=5.8, color="#555555", style="italic", annotation_clip=False)
+axes[1].annotate("median", (-0.43, 0), xycoords=("data", "axes fraction"), xytext=(0, -3), textcoords="offset points", ha="right", va="top", fontsize=5.8, color="#555555", style="italic", annotation_clip=False)
+axes[0].tick_params(axis="x", length=0)                                   # no ticks through the median numbers
+axes[1].tick_params(axis="x", length=0, pad=13)                                  # room for the median numbers
 axes[1].set_xticks(range(len(ORDER))); axes[1].set_xticklabels([f"{a}\n{b} core" for a, b in ORDER], fontsize=8)
 handles = [matplotlib.patches.Patch(facecolor=COLOR[v], edgecolor="white", label=v) for v in VARIANTS] + [matplotlib.patches.Patch(facecolor="none", edgecolor="none", label=" ")]
 for w in ("Video", "Segmentation", "LiDAR", "Audio"):
@@ -259,12 +268,13 @@ for w in ("Video", "Segmentation", "LiDAR", "Audio"):
 order = [handles[i] for i in (0, 4, 1, 5, 2, 6, 3, 7)]                 # column by column: variant above, period below
 fig.legend(handles=order, loc="upper center", ncol=4, frameon=True, fancybox=False, edgecolor="#888888", fontsize=8, handlelength=1.4, handletextpad=0.5, columnspacing=1.2,
            bbox_to_anchor=(0.5, 1.0), borderpad=0.5)
-fig.subplots_adjust(top=0.87, left=0.11, right=0.98, bottom=0.11)
+axes[0].set_title("Bars: worst run of each cell (smallest over-budget).  Dotted line and numbers below: median over the runs.", fontsize=7, loc="left", pad=5)
+fig.subplots_adjust(top=0.86, left=0.11, right=0.98, bottom=0.11)
 fig.savefig(FIGURES / "rq2_overbudget.pdf"); fig.savefig(FIGURES / "rq2_overbudget.svg"); fig.savefig(FIGURES / "rq2_overbudget.png", dpi=200)
 (FIGURES / "rq2_overbudget.tex").write_text("\n".join([
     r"\begin{figure}[ht]", r"\centering", r"\includegraphics[width=\textwidth]{figures/rq2_overbudget.pdf}",
     r"\caption{Over-budget of each budget in the online validation: the reserved budget relative to the smallest budget that would just have met both requirements on the same run "
-    r"(worst run per cell). Top: relaxed level, bottom: strict level; the high-water mark is shown in the strict panel only. Values below zero are budgets that were too small; "
+    r"(worst run per cell; the dotted line and the number in the row below each bar give the median over the runs of the cell, equal to the bar for a cell with a single run). Top: relaxed level, bottom: strict level; the high-water mark is shown in the strict panel only. Values below zero are budgets that were too small; "
     r"bars beyond $+70\%$ are cut and their value is written above.}", r"\label{fig:rq2-overbudget}", r"\end{figure}"]) + "\n")
 
 # ---- Output 3: appendix longtable ----

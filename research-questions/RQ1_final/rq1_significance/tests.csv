@@ -1,0 +1,31 @@
+configuration,placement,metric,n_cells,T_obs,p_raw,p_holm,significant
+IRQ steering removed,multi-core,S,8,143,0.478205,1,False
+IRQ steering removed,multi-core,M,8,145,0.358866,1,False
+SMT enabled,multi-core,S,8,155,0.097289,1,False
+SMT enabled,multi-core,M,8,202,9.9999e-06,0.000299997,True
+boot-params bundle removed,multi-core,S,8,112,0.99937,1,False
+boot-params bundle removed,multi-core,M,8,136.5,0.784742,1,False
+frequency pinning removed,multi-core,S,8,164,0.0126999,0.253997,False
+frequency pinning removed,multi-core,M,8,165,0.00232998,0.0559194,False
+isolcpus removed,multi-core,S,6,119,0.0647394,1,False
+isolcpus removed,multi-core,M,6,121.5,0.00558994,0.122979,False
+nohz_full removed,multi-core,S,8,118,0.99475,1,False
+nohz_full removed,multi-core,M,8,120.5,0.99942,1,False
+rcu_nocbs removed,multi-core,S,8,188,9.9999e-06,0.000299997,True
+rcu_nocbs removed,multi-core,M,8,177,2.99997e-05,0.000809992,True
+systemd containment removed,multi-core,S,8,148,0.283887,1,False
+systemd containment removed,multi-core,M,8,149.5,0.180748,1,False
+IRQ steering removed,single-core,S,8,148,0.360746,1,False
+IRQ steering removed,single-core,M,8,143,0.561774,1,False
+boot-params bundle removed,single-core,S,8,145,0.482525,1,False
+boot-params bundle removed,single-core,M,8,132,0.95236,1,False
+frequency pinning removed,single-core,S,8,167,0.0101499,0.213148,False
+frequency pinning removed,single-core,M,8,132,0.948731,1,False
+isolcpus removed,single-core,S,6,152,9.9999e-06,0.000299997,True
+isolcpus removed,single-core,M,6,138.5,2.99997e-05,0.000809992,True
+nohz_full removed,single-core,S,8,175,0.000639994,0.0159998,True
+nohz_full removed,single-core,M,8,149.5,0.258787,1,False
+rcu_nocbs removed,single-core,S,8,125,0.97734,1,False
+rcu_nocbs removed,single-core,M,8,130.5,0.9738,1,False
+systemd containment removed,single-core,S,8,170,0.00429996,0.098899,False
+systemd containment removed,single-core,M,8,160.5,0.0273197,0.519075,False

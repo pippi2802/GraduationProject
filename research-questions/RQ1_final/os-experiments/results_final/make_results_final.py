@@ -222,7 +222,7 @@ LINE_MARK = {"isolcpus removed": "o", "nohz_full removed": "s", "systemd contain
 # SMT is not drawn: it shifts the whole distribution (the median moves to about P), so the tail-to-median ratio cannot show its effect (see the miss-rate table and the heatmap)
 OTHER = ["IRQ steering removed", "boot-params bundle removed", "frequency pinning removed"]          # drawn as one min-max band
 OTHER_NAME = "IRQ steering, boot-params, frequency pinning removed (min-max)"
-# hollow cell: start-up dominated (startup_share >= START_SHARE) in the configuration or in full isolation (the reference); left out of the band, not joined by a line
+# hollow cell: start-up dominated (startup_share >= START_SHARE) in the configuration or in full isolation (the reference); left out of the band, still joined by the line
 
 
 def spread_figure(t, label, stem):
@@ -246,9 +246,7 @@ def spread_figure(t, label, stem):
             ax.axhline(1, color="#555555", lw=0.8, ls=(0, (4, 2)), zorder=2)
             for c in lines:
                 y = get(c)
-                hol = np.array([burst(label, scale, u, c) for u in UTILS])
-                yl = np.where(hol, np.nan, y)                                        # the line is broken at hollow points
-                ax.plot(x, yl, color=LINES[c], lw=1.2, zorder=4)
+                ax.plot(x, y, color=LINES[c], lw=1.2, zorder=4)
                 for i, u in enumerate(UTILS):
                     if not np.isnan(y[i]):
                         ax.scatter(x[i], y[i], s=16, marker=LINE_MARK[c], facecolor="white" if burst(label, scale, u, c) else LINES[c], edgecolor=LINES[c], lw=1.0, zorder=5)
@@ -281,7 +279,7 @@ def spread_figure(t, label, stem):
         r"\caption{Relative spread against utilization, " + label + r": tail spread ($p_{99.9}/\mathrm{median}$ of the response time) of the configuration divided by that of full isolation "
         r"(dashed line, 1), for the 10\,ms (left) and 100\,ms (right) period. Each line is one removed setting" + "" + r"; the grey band spans the minimum and "
         r"maximum of IRQ steering, the boot-params bundle and frequency pinning. " + (r"Hollow points are cells whose $p_{99.9}$ is dominated by the start-up of the rounds: at least a quarter of the jobs above it are among the first five retained jobs of a round, "
-        r"in the configuration or in full isolation (the reference); they are left out of the band and not joined by a line. " if single.any() else "") +
+        r"in the configuration or in full isolation (the reference); they are left out of the band, but the lines still pass through them. " if single.any() else "") +
         r"The first six jobs after every restart are excluded. The vertical axis is logarithmic. SMT enabled is not drawn: it shifts the whole distribution, "
         r"including the median, so a tail-to-median ratio cannot show its effect (see Table~\ref{tab:rq1-multi-core} and the heatmap).}", r"\label{fig:rq1-" + stem.replace("_", "-") + "}", r"\end{figure}"]) + "\n")
 

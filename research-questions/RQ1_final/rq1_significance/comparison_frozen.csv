@@ -1,0 +1,16 @@
+placement,configuration,frozen_max_relative_spread,frozen_max_miss_rate_pct,frozen_effect,p_holm_S,p_holm_M,test_significant,agree
+single-core,IRQ steering removed,1.03525,0.060039,False,1,1,False,True
+single-core,boot-params bundle removed,1.02751,0.035035,False,1,1,False,True
+single-core,frequency pinning removed,1.04987,0.154961,False,0.213148,1,False,True
+single-core,isolcpus removed,12.3432,4.83122,True,0.000299997,0.000809992,True,True
+single-core,nohz_full removed,12.9639,1.06558,True,0.0159998,1,True,True
+single-core,rcu_nocbs removed,1.04193,0.0500425,False,1,1,False,True
+single-core,systemd containment removed,11.5111,1.09529,True,0.098899,0.519075,False,False
+multi-core,IRQ steering removed,1.53246,0.911809,False,1,1,False,True
+multi-core,SMT enabled,10.2022,87.6067,True,1,0.000299997,True,True
+multi-core,boot-params bundle removed,1.37347,0.36976,False,1,1,False,True
+multi-core,frequency pinning removed,1.61371,1.04576,False,0.253997,0.0559194,False,True
+multi-core,isolcpus removed,1.34216,0.58894,False,1,0.122979,False,True
+multi-core,nohz_full removed,1.03871,0.449528,False,1,1,False,True
+multi-core,rcu_nocbs removed,9.45713,3.06092,True,0.000299997,0.000809992,True,True
+multi-core,systemd containment removed,1.17897,0.738155,False,1,1,False,True
