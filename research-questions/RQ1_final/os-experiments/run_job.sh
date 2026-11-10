@@ -134,6 +134,16 @@ if [ -n "${U_MIN:-}${U_MAX:-}" ]; then
   FILES=("${keep[@]}")
   echo "[run] U_MIN=${U_MIN:-} U_MAX=${U_MAX:-} applied: ${#FILES[@]} cells remain"
 fi
+# U_LIST: comma-separated exact utilizations to run (e.g. U_LIST=0.1,0.5,0.7,0.94); unset = all.
+if [ -n "${U_LIST:-}" ]; then
+  keep=()
+  for f in "${FILES[@]}"; do
+    u="$(basename "$f" .yaml)"; u="${u#U}"
+    awk -v u="$u" -v l="$U_LIST" 'BEGIN{n=split(l,a,","); for(i=1;i<=n;i++) if (a[i]+0==u+0) exit 0; exit 1}' && keep+=("$f")
+  done
+  FILES=("${keep[@]}")
+  echo "[run] U_LIST=$U_LIST applied: ${#FILES[@]} cells remain"
+fi
 echo "[run] model=$MODEL ns=$NS agent=$AGENT cells=${#FILES[@]} has_neighbours=$HAS_NB has_competitor=$HAS_COMP"
 echo "[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=$WORKLOAD_KIND label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=$GEN_DIR k_table=$TAB_NAME ***"
 [ "$HAS_COMP" = 1 ] && echo "[run] model3 arm: PAIR_TYPE=$PAIR_TYPE COMPETITOR_TYPE=$COMPETITOR_TYPE"
