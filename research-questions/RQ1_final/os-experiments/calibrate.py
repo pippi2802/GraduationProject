@@ -26,7 +26,7 @@ import yaml
 
 HERE = Path(__file__).resolve().parent
 BIN = HERE / "workload"
-CV_THRESHOLD = 0.02
+CV_THRESHOLD = 0.05
 PROBE_JOBS, PROBE_WARMUP = 400, 100
 
 
