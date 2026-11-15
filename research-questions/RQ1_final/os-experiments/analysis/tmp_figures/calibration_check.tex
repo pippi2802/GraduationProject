@@ -1,0 +1,28 @@
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Placement & Period & $U$ & $0.7\,Q$ [$\mu$s] & min ratio & max ratio \\
+\midrule
+multi-core & soft & 0.1 & 7000 & 0.896 & 0.898 \\
+multi-core & soft & 0.5 & 35000 & 1.007 & 1.009 \\
+multi-core & soft & 0.7 & 49000 & 1.008 & 1.027 \\
+multi-core & soft & 0.94 & 65800 & 1.011 & 1.018 \\
+multi-core & tight & 0.1 & 700 & 0.993 & 1.006 \\
+multi-core & tight & 0.5 & 3500 & 0.997 & 1.009 \\
+multi-core & tight & 0.7 & 4900 & 0.959 & 0.997 \\
+multi-core & tight & 0.94 & 6580 & 0.995 & 1.005 \\
+single-core & soft & 0.1 & 7000 & 1.159 & 1.190 \\
+single-core & soft & 0.5 & 35000 & 1.151 & 1.206 \\
+single-core & soft & 0.7 & 49000 & 1.111 & 1.140 \\
+single-core & soft & 0.94 & 65800 & 1.156 & 1.169 \\
+single-core & tight & 0.1 & 700 & 1.129 & 1.132 \\
+single-core & tight & 0.5 & 3500 & 1.106 & 1.128 \\
+single-core & tight & 0.7 & 4900 & 1.118 & 1.131 \\
+single-core & tight & 0.94 & 6580 & 1.095 & 1.127 \\
+\bottomrule
+\end{tabular}
+\caption{Calibration of full isolation: median $C$ of every round divided by the target $0.7\,Q$, minimum and maximum over the rounds of the cell.}
+\label{tab:rq1-calibration}
+\end{table}

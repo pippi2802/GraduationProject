@@ -1,0 +1,17 @@
+placement,scale,U,target_us,rounds,ratio_min,ratio_max
+multi-core,soft,0.1000,7000.0000,3,0.8962,0.8976
+multi-core,soft,0.5000,35000.0000,4,1.0070,1.0091
+multi-core,soft,0.7000,49000.0000,4,1.0083,1.0270
+multi-core,soft,0.9400,65800.0000,4,1.0109,1.0182
+multi-core,tight,0.1000,700.0000,4,0.9932,1.0064
+multi-core,tight,0.5000,3500.0000,4,0.9965,1.0087
+multi-core,tight,0.7000,4900.0000,4,0.9586,0.9970
+multi-core,tight,0.9400,6580.0000,4,0.9954,1.0050
+single-core,soft,0.1000,7000.0000,4,1.1595,1.1901
+single-core,soft,0.5000,35000.0000,4,1.1514,1.2060
+single-core,soft,0.7000,49000.0000,4,1.1110,1.1404
+single-core,soft,0.9400,65800.0000,4,1.1560,1.1692
+single-core,tight,0.1000,700.0000,4,1.1291,1.1317
+single-core,tight,0.5000,3500.0000,4,1.1063,1.1282
+single-core,tight,0.7000,4900.0000,4,1.1177,1.1309
+single-core,tight,0.9400,6580.0000,4,1.0952,1.1272

@@ -1,0 +1,49 @@
+\begin{longtable}{ll|rrrr|rrrr}
+\toprule
+ &  & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & Metric & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+\endhead
+\multirow[t]{4}{*}{full isolation} & dispatch p99 / FI & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+ & interrupted jobs [\%] & 0.05 & 0.02 & 0.01 & 0.00 & 0.02 & 0.01 & 0.01 & 0.00 \\
+ & interruption p99 [$\mu$s] & 8474 & 4872 & 510 & -- & 89935 & 49755 & 11 & -- \\
+ & jobs with ctx switch [\%] & 0.05 & 0.02 & 0.01 & 0.00 & 0.02 & 0.01 & 0.00 & 0.00 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{isolcpus reverted} & dispatch p99 / FI & 3.24 & 3.04 & 2.86 & -- & 0.79 & 0.78 & 0.78 & -- \\
+ & interrupted jobs [\%] & 1.24 & 0.78 & 0.43 & -- & 2.61 & 1.51 & 0.47 & -- \\
+ & interruption p99 [$\mu$s] & 17920 & 5015 & 3092 & -- & 90055 & 50030 & 30560 & -- \\
+ & jobs with ctx switch [\%] & 1.22 & 0.72 & 0.40 & -- & 2.48 & 1.45 & 0.44 & -- \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{nohz\_full reverted} & dispatch p99 / FI & 2.30 & 0.86 & 0.97 & 1.70 & 1.18 & 1.31 & 0.98 & 2.10 \\
+ & interrupted jobs [\%] & 0.15 & 0.02 & 0.02 & 0.03 & 0.68 & 0.04 & 0.05 & 0.04 \\
+ & interruption p99 [$\mu$s] & 17962 & 6423 & 2800 & 317 & 90180 & 31 & 12 & 32 \\
+ & jobs with ctx switch [\%] & 0.13 & 0.21 & 0.08 & 0.10 & 1.16 & 0.63 & 0.01 & 2.50 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{rcu\_nocbs reverted} & dispatch p99 / FI & 0.98 & 0.92 & 0.99 & 0.96 & 0.93 & 1.02 & 0.85 & 1.03 \\
+ & interrupted jobs [\%] & 0.03 & 0.01 & 0.01 & 0.00 & 0.00 & 2.53 & 0.13 & 0.00 \\
+ & interruption p99 [$\mu$s] & 7479 & 4920 & 2715 & -- & -- & 13 & 12 & -- \\
+ & jobs with ctx switch [\%] & 0.03 & 0.01 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{systemd containment reverted} & dispatch p99 / FI & 2.39 & 1.62 & 1.57 & 1.22 & 1.06 & 1.13 & 1.02 & 2.46 \\
+ & interrupted jobs [\%] & 0.42 & 0.14 & 0.04 & 0.02 & 0.60 & 0.05 & 0.04 & 0.01 \\
+ & interruption p99 [$\mu$s] & 19288 & 5003 & 3002 & 525 & 90150 & 49962 & 28105 & 23 \\
+ & jobs with ctx switch [\%] & 0.41 & 0.14 & 0.03 & 0.02 & 0.55 & 0.02 & 0.01 & 0.00 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{IRQ steering reverted} & dispatch p99 / FI & 1.04 & 5.82 & 1.08 & 1.06 & 1.08 & 1.03 & 1.09 & 1.00 \\
+ & interrupted jobs [\%] & 0.06 & 0.04 & 0.02 & 0.01 & 0.07 & 0.01 & 0.01 & 0.00 \\
+ & interruption p99 [$\mu$s] & 8992 & 4451 & 2375 & 10 & 26233 & 11 & 13 & -- \\
+ & jobs with ctx switch [\%] & 0.06 & 0.02 & 0.02 & 0.00 & 0.02 & 0.00 & 0.00 & 0.00 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{frequency pinning reverted} & dispatch p99 / FI & 0.92 & 1.01 & 1.16 & 0.95 & 0.99 & 1.03 & 0.94 & 1.00 \\
+ & interrupted jobs [\%] & 0.02 & 0.01 & 0.02 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00 \\
+ & interruption p99 [$\mu$s] & 4652 & 2557 & 2737 & -- & -- & 10 & -- & -- \\
+ & jobs with ctx switch [\%] & 0.02 & 0.01 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+\cmidrule{1-10}
+\multirow[t]{4}{*}{boot-params bundle reverted} & dispatch p99 / FI & 1.11 & 1.13 & 1.10 & 1.13 & 1.04 & 1.06 & 1.01 & 1.14 \\
+ & interrupted jobs [\%] & 0.02 & 0.01 & 0.00 & 0.01 & 0.75 & 0.04 & 0.00 & 0.00 \\
+ & interruption p99 [$\mu$s] & 9016 & 4995 & -- & 12 & 15 & 12 & -- & -- \\
+ & jobs with ctx switch [\%] & 0.02 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+\bottomrule
+\caption{Where each configuration acts, single-core. Relative values are against full isolation (FI) at the same period and $U$. Interrupted: $\mathrm{mid\_job\_preempt}>10\,\mu$s; interruption p99 over the interrupted jobs. Context switch: involuntary, $\ge 1$ per job. First six jobs after every restart excluded; -- = not run or no such job.}
+\label{tab:rq1-acts-single-core}
+\end{longtable}

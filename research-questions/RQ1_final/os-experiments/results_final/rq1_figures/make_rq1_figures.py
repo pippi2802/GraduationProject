@@ -106,7 +106,7 @@ def figure(t, place, pslug, ptitle, scale, sslug, P, xl, xr):
     tests = tests[tests.placement == place].set_index(["configuration", "metric"])
     sub = t[(t.placement == place) & (t.scale == scale)]
     with plt.rc_context({"font.family": "sans-serif", "font.size": 10, "svg.fonttype": "path"}):
-        fig, axes = plt.subplots(1, 2, figsize=(8.2, 4.8), sharey=True)
+        fig, axes = plt.subplots(1, 2, figsize=(8.2, 4.4), sharey=True)
         for ax, col, ref, met in zip(axes, ["S", "dM"], [1, 0], ["S", "M"]):
             if met == "S":
               ax.text(1.02, 1.0, f"Holm p ({met})", transform=ax.transAxes, ha="left", va="bottom", fontsize=9, color=AXIS)
@@ -146,8 +146,7 @@ def figure(t, place, pslug, ptitle, scale, sslug, P, xl, xr):
         handles = [Line2D([], [], marker="o", ls="", ms=8, mfc=UCOL[u], mec="white", mew=1.5, label=f"U = {u:g}") for u in UTILS]
         fig.legend(handles=handles, loc="upper center", ncol=4, frameon=False, bbox_to_anchor=(0.5, 0.925), labelcolor=TEXT, handletextpad=0.1, columnspacing=1.2, fontsize=10)
         fig.suptitle(f"{ptitle}, {sslug} period (P = {P} ms)", x=0.01, ha="left", y=0.985, fontsize=12, fontweight="bold", color=TEXT)
-        fig.text(0.01, 0.01, "Left: tail spread of each configuration (full isolation included). Right: values below 0 mean better than full isolation.\nHolm p (tail spread only): one-sided permutation test vs full isolation,\nall cells of the placement; * = p < 0.05.", fontsize=8.5, color=AXIS, ha="left")
-        fig.subplots_adjust(left=0.285, right=0.985, top=0.80, bottom=0.27, wspace=0.30)
+        fig.subplots_adjust(left=0.285, right=0.985, top=0.80, bottom=0.20, wspace=0.30)
         for ext, kw in (("svg", {}), ("png", {"dpi": 200})):
             fig.savefig(HERE / f"rq1_{pslug}_{sslug}.{ext}", facecolor="white", **kw)
         plt.close(fig)

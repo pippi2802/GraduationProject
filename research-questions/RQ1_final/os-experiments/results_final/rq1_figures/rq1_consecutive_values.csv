@@ -1,0 +1,125 @@
+configuration,scale,U,longest_run,lost,placement
+full isolation,soft,0.1,2,6,single-core
+full isolation,soft,0.5,2,2,single-core
+full isolation,soft,0.7,7,7,single-core
+full isolation,soft,0.94,2,2,single-core
+full isolation,tight,0.1,2,2,single-core
+full isolation,tight,0.5,2,4,single-core
+full isolation,tight,0.7,21,21,single-core
+full isolation,tight,0.94,2,8,single-core
+isolcpus reverted,soft,0.1,8,989,single-core
+isolcpus reverted,soft,0.5,8,577,single-core
+isolcpus reverted,soft,0.7,6,176,single-core
+isolcpus reverted,tight,0.1,6,496,single-core
+isolcpus reverted,tight,0.5,6,282,single-core
+isolcpus reverted,tight,0.7,4,160,single-core
+nohz_full reverted,soft,0.1,4,214,single-core
+nohz_full reverted,soft,0.5,0,0,single-core
+nohz_full reverted,soft,0.7,0,0,single-core
+nohz_full reverted,soft,0.94,0,0,single-core
+nohz_full reverted,tight,0.1,4,53,single-core
+nohz_full reverted,tight,0.5,4,10,single-core
+nohz_full reverted,tight,0.7,2,6,single-core
+nohz_full reverted,tight,0.94,2,12,single-core
+rcu_nocbs reverted,soft,0.1,0,0,single-core
+rcu_nocbs reverted,soft,0.5,0,0,single-core
+rcu_nocbs reverted,soft,0.7,0,0,single-core
+rcu_nocbs reverted,soft,0.94,0,0,single-core
+rcu_nocbs reverted,tight,0.1,0,0,single-core
+rcu_nocbs reverted,tight,0.5,2,6,single-core
+rcu_nocbs reverted,tight,0.7,5,10,single-core
+rcu_nocbs reverted,tight,0.94,2,2,single-core
+systemd containment reverted,soft,0.1,6,220,single-core
+systemd containment reverted,soft,0.5,2,6,single-core
+systemd containment reverted,soft,0.7,2,2,single-core
+systemd containment reverted,soft,0.94,0,0,single-core
+systemd containment reverted,tight,0.1,4,163,single-core
+systemd containment reverted,tight,0.5,4,53,single-core
+systemd containment reverted,tight,0.7,2,14,single-core
+systemd containment reverted,tight,0.94,4,15,single-core
+IRQ steering reverted,soft,0.1,6,6,single-core
+IRQ steering reverted,soft,0.5,0,0,single-core
+IRQ steering reverted,soft,0.7,0,0,single-core
+IRQ steering reverted,soft,0.94,12,12,single-core
+IRQ steering reverted,tight,0.1,2,10,single-core
+IRQ steering reverted,tight,0.5,2,4,single-core
+IRQ steering reverted,tight,0.7,2,4,single-core
+IRQ steering reverted,tight,0.94,2,6,single-core
+frequency pinning reverted,soft,0.1,0,0,single-core
+frequency pinning reverted,soft,0.5,0,0,single-core
+frequency pinning reverted,soft,0.7,0,0,single-core
+frequency pinning reverted,soft,0.94,0,0,single-core
+frequency pinning reverted,tight,0.1,2,4,single-core
+frequency pinning reverted,tight,0.5,29,31,single-core
+frequency pinning reverted,tight,0.7,2,4,single-core
+frequency pinning reverted,tight,0.94,2,2,single-core
+boot-params bundle reverted,soft,0.1,0,0,single-core
+boot-params bundle reverted,soft,0.5,0,0,single-core
+boot-params bundle reverted,soft,0.7,0,0,single-core
+boot-params bundle reverted,soft,0.94,0,0,single-core
+boot-params bundle reverted,tight,0.1,3,7,single-core
+boot-params bundle reverted,tight,0.5,2,2,single-core
+boot-params bundle reverted,tight,0.7,2,2,single-core
+boot-params bundle reverted,tight,0.94,4,4,single-core
+full isolation,soft,0.1,0,0,multi-core
+full isolation,soft,0.5,0,0,multi-core
+full isolation,soft,0.7,0,0,multi-core
+full isolation,soft,0.94,16,68,multi-core
+full isolation,tight,0.1,7,7,multi-core
+full isolation,tight,0.5,4,20,multi-core
+full isolation,tight,0.7,4,14,multi-core
+full isolation,tight,0.94,16,283,multi-core
+isolcpus reverted,soft,0.1,0,0,multi-core
+isolcpus reverted,soft,0.5,9,9,multi-core
+isolcpus reverted,soft,0.7,0,0,multi-core
+isolcpus reverted,tight,0.1,2,16,multi-core
+isolcpus reverted,tight,0.5,2,16,multi-core
+isolcpus reverted,tight,0.7,6,118,multi-core
+nohz_full reverted,soft,0.1,0,0,multi-core
+nohz_full reverted,soft,0.5,0,0,multi-core
+nohz_full reverted,soft,0.7,0,0,multi-core
+nohz_full reverted,soft,0.94,0,0,multi-core
+nohz_full reverted,tight,0.1,2,2,multi-core
+nohz_full reverted,tight,0.5,0,0,multi-core
+nohz_full reverted,tight,0.7,0,0,multi-core
+nohz_full reverted,tight,0.94,8,90,multi-core
+rcu_nocbs reverted,soft,0.1,2,92,multi-core
+rcu_nocbs reverted,soft,0.5,4,8,multi-core
+rcu_nocbs reverted,soft,0.7,3,9,multi-core
+rcu_nocbs reverted,soft,0.94,7,66,multi-core
+rcu_nocbs reverted,tight,0.1,7,621,multi-core
+rcu_nocbs reverted,tight,0.5,2,24,multi-core
+rcu_nocbs reverted,tight,0.7,16,211,multi-core
+rcu_nocbs reverted,tight,0.94,10,377,multi-core
+systemd containment reverted,soft,0.1,0,0,multi-core
+systemd containment reverted,soft,0.5,24,24,multi-core
+systemd containment reverted,soft,0.7,2,4,multi-core
+systemd containment reverted,soft,0.94,2,2,multi-core
+systemd containment reverted,tight,0.1,2,36,multi-core
+systemd containment reverted,tight,0.5,6,8,multi-core
+systemd containment reverted,tight,0.7,13,19,multi-core
+systemd containment reverted,tight,0.94,8,148,multi-core
+IRQ steering reverted,soft,0.1,0,0,multi-core
+IRQ steering reverted,soft,0.5,0,0,multi-core
+IRQ steering reverted,soft,0.7,4,6,multi-core
+IRQ steering reverted,soft,0.94,24,44,multi-core
+IRQ steering reverted,tight,0.1,4,62,multi-core
+IRQ steering reverted,tight,0.5,2,6,multi-core
+IRQ steering reverted,tight,0.7,2,30,multi-core
+IRQ steering reverted,tight,0.94,10,183,multi-core
+frequency pinning reverted,soft,0.1,13,19,multi-core
+frequency pinning reverted,soft,0.5,12,21,multi-core
+frequency pinning reverted,soft,0.7,19,25,multi-core
+frequency pinning reverted,soft,0.94,0,0,multi-core
+frequency pinning reverted,tight,0.1,4,28,multi-core
+frequency pinning reverted,tight,0.5,2,30,multi-core
+frequency pinning reverted,tight,0.7,2,20,multi-core
+frequency pinning reverted,tight,0.94,10,210,multi-core
+boot-params bundle reverted,soft,0.1,15,15,multi-core
+boot-params bundle reverted,soft,0.5,0,0,multi-core
+boot-params bundle reverted,soft,0.7,0,0,multi-core
+boot-params bundle reverted,soft,0.94,0,0,multi-core
+boot-params bundle reverted,tight,0.1,2,2,multi-core
+boot-params bundle reverted,tight,0.5,6,12,multi-core
+boot-params bundle reverted,tight,0.7,8,74,multi-core
+boot-params bundle reverted,tight,0.94,8,66,multi-core
