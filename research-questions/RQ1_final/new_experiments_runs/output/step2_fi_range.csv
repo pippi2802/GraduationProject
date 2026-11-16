@@ -1,0 +1,17 @@
+placement,scale,U,fi_min,fi_max
+multi-core,soft,0.1,0.0,0.079968012794882
+multi-core,soft,0.5,0.0,0.0
+multi-core,soft,0.7,0.0,0.0
+multi-core,soft,0.94,0.0,0.0
+multi-core,tight,0.1,0.0,0.2796085480327541
+multi-core,tight,0.5,0.0,0.1198801198801198
+multi-core,tight,0.7,0.0,0.0599760095961615
+multi-core,tight,0.94,0.0,0.03999200159968
+single-core,soft,0.1,0.0,0.1998001998001998
+single-core,soft,0.5,0.0,0.0
+single-core,soft,0.7,0.0,0.03999200159968
+single-core,soft,0.94,0.0,0.0
+single-core,tight,0.1,0.0,0.079968012794882
+single-core,tight,0.5,0.0,0.03999200159968
+single-core,tight,0.7,0.0,0.079968012794882
+single-core,tight,0.94,0.0,0.0799520287827303

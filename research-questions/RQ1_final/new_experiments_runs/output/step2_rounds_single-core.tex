@@ -1,0 +1,24 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|rrrr|rrrr}
+\toprule
+ & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+full isolation & 0.000--0.080 & 0.000--0.040 & 0.000--0.080 & 0.000--0.080 & 0.000--0.200 & 0.000--0.000 & 0.000--0.040 & 0.000--0.000 \\
+\cmidrule{1-9}
+isolcpus removed & 3/4 & 0/4 & 1/4 & n/r & 1/4 & 1/4 & 0/4 & n/r \\
+nohz\_full removed & 2/4 & 1/4 & 1/4 & 0/4 & 2/4 & 0/4 & 0/4 & 0/4 \\
+rcu\_nocbs removed & 1/4 & 1/4 & 0/4 & 0/4 & 0/4 & 0/4 & 0/4 & 0/4 \\
+systemd containment removed & 2/4 & 0/4 & 0/4 & 0/4 & 0/4 & 0/4 & 0/4 & 0/4 \\
+IRQ steering removed & 3/4 & 2/4 & 0/4 & 2/4 & 2/4 & 0/4 & 0/4 & 1/4 \\
+frequency pinning removed & 2/4 & 1/4 & 1/4 & 1/4 & 1/4 & 0/4 & 0/4 & 0/4 \\
+boot-params bundle removed & 0/4 & 0/4 & 0/4 & 1/4 & 1/4 & 0/4 & 0/4 & 0/4 \\
+all defaults & 2/4 & 1/4 & 1/4 & n/r & 2/4 & 0/4 & 1/4 & n/r \\
+\bottomrule
+\end{tabular}}
+\caption{Rounds above full isolation, single-core. For every configuration and cell, the number of the four rounds whose miss+skip rate (lost releases over all releases of the run, in percent) is strictly larger than the maximum over the four full-isolation rounds of the same cell. The full-isolation row gives the minimum--maximum of its four rounds in percent. n/r: not run.}
+\label{tab:rq1-rerun-rounds-single-core}
+\end{table}

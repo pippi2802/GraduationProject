@@ -1,0 +1,601 @@
+placement,metric,scale,U,configuration,diff_round1,diff_round2,diff_round3,diff_round4,n_positive,n_negative,n_zero,same_sign
+single-core,miss_skip_pct,tight,0.1,isolcpus removed,0.09989608792869725,0.159744332390895,0.07990408952326342,0.0,3,0,1,3
+single-core,miss_skip_pct,tight,0.1,nohz_full removed,0.7566620513778144,2.0367481098559588,-0.07996801279488205,0.0,2,1,1,2
+single-core,miss_skip_pct,tight,0.1,rcu_nocbs removed,0.8558869551990458,-0.07996801279488205,-0.07996801279488205,0.07996801279488205,2,2,0,2
+single-core,miss_skip_pct,tight,0.1,systemd containment removed,0.31936116270457227,-0.07996801279488205,8.202240576162172,0.0,2,1,1,2
+single-core,miss_skip_pct,tight,0.1,IRQ steering removed,0.35920959520670714,-0.03997601119520199,0.39888274538548507,1.1135414595346989,3,1,0,3
+single-core,miss_skip_pct,tight,0.1,frequency pinning removed,0.438858756580687,-0.07996801279488205,-0.07996801279488205,0.2595846645367412,2,2,0,2
+single-core,miss_skip_pct,tight,0.1,boot-params bundle removed,-0.03999200159968006,-0.07996801279488205,-0.07996801279488205,0.03999200159968006,1,3,0,3
+single-core,miss_skip_pct,tight,0.1,all defaults,8.029447143764685,-0.07996801279488205,-0.07996801279488205,0.15987210231814547,2,2,0,2
+single-core,miss_skip_pct,tight,0.5,isolcpus removed,-0.03999200159968006,0.0,-0.03999200159968006,0.0,0,2,2,2
+single-core,miss_skip_pct,tight,0.5,nohz_full removed,0.0,0.7174172977281785,-0.03999200159968006,0.0,1,1,2,1
+single-core,miss_skip_pct,tight,0.5,rcu_nocbs removed,-0.03999200159968006,0.03999200159968006,0.3784180402413241,0.0,2,1,1,2
+single-core,miss_skip_pct,tight,0.5,systemd containment removed,-0.03999200159968006,0.0,-0.03999200159968006,0.03999200159968006,1,2,1,2
+single-core,miss_skip_pct,tight,0.5,IRQ steering removed,0.15980819820051975,0.03999200159968006,0.0,0.15987210231814547,3,0,1,3
+single-core,miss_skip_pct,tight,0.5,frequency pinning removed,0.03997601119520199,0.0,-0.03999200159968006,0.03999200159968006,2,1,1,2
+single-core,miss_skip_pct,tight,0.5,boot-params bundle removed,-0.03999200159968006,0.03999200159968006,-0.03999200159968006,0.0,1,2,1,2
+single-core,miss_skip_pct,tight,0.5,all defaults,3.9960581551401315,0.0,-0.03999200159968006,0.03999200159968006,2,1,1,2
+single-core,miss_skip_pct,tight,0.7,isolcpus removed,0.03999200159968006,0.11992804317409554,-0.07996801279488205,0.0,2,1,1,2
+single-core,miss_skip_pct,tight,0.7,nohz_full removed,0.03999200159968006,0.11992804317409554,-0.07996801279488205,0.0,2,1,1,2
+single-core,miss_skip_pct,tight,0.7,rcu_nocbs removed,0.03999200159968006,0.0,-0.03997601119520199,0.0,1,1,2,1
+single-core,miss_skip_pct,tight,0.7,systemd containment removed,0.07996801279488205,0.03999200159968006,-0.03997601119520199,0.03999200159968006,3,1,0,3
+single-core,miss_skip_pct,tight,0.7,IRQ steering removed,0.07996801279488205,0.07996801279488205,-0.03997601119520199,0.07996801279488205,3,1,0,3
+single-core,miss_skip_pct,tight,0.7,frequency pinning removed,0.11992804317409554,0.0,-0.07996801279488205,0.0,1,1,2,1
+single-core,miss_skip_pct,tight,0.7,boot-params bundle removed,0.0,0.03999200159968006,-0.07996801279488205,0.03999200159968006,2,1,1,2
+single-core,miss_skip_pct,tight,0.7,all defaults,2.0977637047298634,0.0,-0.07996801279488205,0.07996801279488205,2,1,1,2
+single-core,miss_skip_pct,tight,0.94,nohz_full removed,-0.03999200159968006,0.03999200159968006,-0.07995202878273036,-0.03999200159968006,1,3,0,3
+single-core,miss_skip_pct,tight,0.94,rcu_nocbs removed,0.0,0.03999200159968006,-0.07995202878273036,0.0,1,1,2,1
+single-core,miss_skip_pct,tight,0.94,systemd containment removed,0.0,0.07995202878273036,-0.07995202878273036,-0.03999200159968006,1,2,1,2
+single-core,miss_skip_pct,tight,0.94,IRQ steering removed,0.03997601119520199,0.03999200159968006,-0.0399600271830503,0.03997601119520199,3,1,0,3
+single-core,miss_skip_pct,tight,0.94,frequency pinning removed,0.0,0.0,-0.07995202878273036,0.11988010071846542,1,1,2,1
+single-core,miss_skip_pct,tight,0.94,boot-params bundle removed,0.019984007996481472,0.07996801279488205,-0.0399600271830503,0.0,2,1,1,2
+single-core,miss_skip_pct,soft,0.1,isolcpus removed,0.07996801279488205,4.296778490326877,-0.03999200159968006,0.0,2,1,1,2
+single-core,miss_skip_pct,soft,0.1,nohz_full removed,0.9554140127388535,7.640322782521091,-0.03999200159968006,0.03999200159968006,3,1,0,3
+single-core,miss_skip_pct,soft,0.1,rcu_nocbs removed,0.03999200159968006,-0.11983218700531775,0.0,0.0,1,1,2,1
+single-core,miss_skip_pct,soft,0.1,systemd containment removed,0.03999200159968006,-0.15980819820051975,0.0,0.0,1,1,2,1
+single-core,miss_skip_pct,soft,0.1,IRQ steering removed,0.03999200159968006,-0.15980819820051975,0.7171309312554703,0.3194888178913738,3,1,0,3
+single-core,miss_skip_pct,soft,0.1,frequency pinning removed,0.1998001998001998,-0.07987215662610427,-0.03999200159968006,0.8761449621664675,2,2,0,2
+single-core,miss_skip_pct,soft,0.1,boot-params bundle removed,0.0,1.6234261180753453,-0.03999200159968006,0.0,1,1,2,1
+single-core,miss_skip_pct,soft,0.1,all defaults,1.1928429423459244,-0.15980819820051975,-0.03999200159968006,0.7571229328551504,2,2,0,2
+single-core,miss_skip_pct,soft,0.5,isolcpus removed,0.0,0.11992804317409554,0.0,0.0,1,0,3,1
+single-core,miss_skip_pct,soft,0.5,nohz_full removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.5,all defaults,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.7,isolcpus removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,nohz_full removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,rcu_nocbs removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,systemd containment removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,IRQ steering removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,frequency pinning removed,0.0,0.03999200159968006,-0.03999200159968006,0.0,1,1,2,1
+single-core,miss_skip_pct,soft,0.7,boot-params bundle removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+single-core,miss_skip_pct,soft,0.7,all defaults,0.5573248407643312,0.0,-0.03999200159968006,0.0,1,1,2,1
+single-core,miss_skip_pct,soft,0.94,nohz_full removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.94,IRQ steering removed,0.03999200159968006,0.0,0.0,0.0,1,0,3,1
+single-core,miss_skip_pct,soft,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,miss_skip_pct,soft,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,dispatch_p99_us,tight,0.1,isolcpus removed,31.24970999999975,-4.733380000000317,146.6919599999992,-4.492250000000006,2,2,0,2
+single-core,dispatch_p99_us,tight,0.1,nohz_full removed,63.58275000000003,23.892459999999687,-9.297959999999982,1.2191699999999983,3,1,0,3
+single-core,dispatch_p99_us,tight,0.1,rcu_nocbs removed,151.11973999999987,-33.83372000000027,2.0297900000000197,-3.547660000000093,2,2,0,2
+single-core,dispatch_p99_us,tight,0.1,systemd containment removed,194.9652200000001,-28.360130000000254,279.26602,-2.539069999999981,2,2,0,2
+single-core,dispatch_p99_us,tight,0.1,IRQ steering removed,48.08454000000003,148.6756199999998,53.77373000000003,127.76001999999946,4,0,0,4
+single-core,dispatch_p99_us,tight,0.1,frequency pinning removed,47.87694000000003,-33.39571000000027,1.9253300000000237,60.15449999999999,3,1,0,3
+single-core,dispatch_p99_us,tight,0.1,boot-params bundle removed,181.8770100000001,-29.83703000000026,2.4576900000000137,23.06035000000007,3,1,0,3
+single-core,dispatch_p99_us,tight,0.1,all defaults,105.90918,-33.275620000000266,-8.275989999999979,46.92751999999998,2,2,0,2
+single-core,dispatch_p99_us,tight,0.5,isolcpus removed,150.92015000000043,-1.1569199999999924,49.567090000003375,-3.956009999999978,2,2,0,2
+single-core,dispatch_p99_us,tight,0.5,nohz_full removed,34.1894199999999,53.66918,1.467090000000006,-11.93742000000001,3,1,0,3
+single-core,dispatch_p99_us,tight,0.5,rcu_nocbs removed,47.520180000000636,-5.442949999999996,5.076909999999998,-5.471690000000017,2,2,0,2
+single-core,dispatch_p99_us,tight,0.5,systemd containment removed,5.400500000000072,-0.22543999999996345,16.265380000000007,-0.9454600000000895,2,2,0,2
+single-core,dispatch_p99_us,tight,0.5,IRQ steering removed,88.79083000000871,-3.7465799999999874,224.88231000000007,161.16327999999993,3,1,0,3
+single-core,dispatch_p99_us,tight,0.5,frequency pinning removed,54.53419000000021,-4.1008799999999965,230.24291000000022,231.95824,3,1,0,3
+single-core,dispatch_p99_us,tight,0.5,boot-params bundle removed,0.25594999999999857,0.09767000000001502,4.549090000000028,26.905710000000013,4,0,0,4
+single-core,dispatch_p99_us,tight,0.5,all defaults,93.90010999999997,-1.8059399999999926,2.1276100000000184,10.212180000000068,3,1,0,3
+single-core,dispatch_p99_us,tight,0.7,isolcpus removed,-0.22876000000007224,51.775389999995575,-2.6963899999999867,-1.0945899999999682,1,3,0,3
+single-core,dispatch_p99_us,tight,0.7,nohz_full removed,-2.092240000000345,10.814879999999938,-9.278479999999991,-8.423480000000005,1,3,0,3
+single-core,dispatch_p99_us,tight,0.7,rcu_nocbs removed,7.035559999999471,4.829710000000013,1.5051599999999965,22.33955000000089,4,0,0,4
+single-core,dispatch_p99_us,tight,0.7,systemd containment removed,1.5120199999999357,-2.0703800000000285,8.064730000000012,1.9972699999999861,3,1,0,3
+single-core,dispatch_p99_us,tight,0.7,IRQ steering removed,196.0520199999997,-5.498519999999992,154.04705999999996,66.32407999999981,3,1,0,3
+single-core,dispatch_p99_us,tight,0.7,frequency pinning removed,24.416289999998185,-7.36825000000001,0.7240100000000211,8.571320000000014,3,1,0,3
+single-core,dispatch_p99_us,tight,0.7,boot-params bundle removed,-0.3013300000000072,-2.5351200000000063,3.7656200000000126,1.625549999999997,2,2,0,2
+single-core,dispatch_p99_us,tight,0.7,all defaults,179.9010199999999,-4.00188,-9.09445999999999,40.314069999999404,2,2,0,2
+single-core,dispatch_p99_us,tight,0.94,nohz_full removed,-11.047809999999973,59.49358999999994,-10.466190000000005,-10.210790000000017,1,3,0,3
+single-core,dispatch_p99_us,tight,0.94,rcu_nocbs removed,-2.766910000000003,-5.099909999999994,-0.08755999999999631,0.7112399999999823,1,3,0,3
+single-core,dispatch_p99_us,tight,0.94,systemd containment removed,4.853919999999995,0.04811000000000121,-1.8442699999999839,-1.0589000000000226,2,2,0,2
+single-core,dispatch_p99_us,tight,0.94,IRQ steering removed,-0.4902100000000047,-4.064819999999997,4.045059999999992,22.861149999999427,2,2,0,2
+single-core,dispatch_p99_us,tight,0.94,frequency pinning removed,2.887340000000009,-5.877859999999995,0.7788200000000174,11.035080000000065,3,1,0,3
+single-core,dispatch_p99_us,tight,0.94,boot-params bundle removed,0.957969999999996,-1.022749999999995,1.863340000000008,-0.14896000000002374,2,2,0,2
+single-core,dispatch_p99_us,soft,0.1,isolcpus removed,-44.52738000000011,-36.31840999999997,-15.993149999999787,-21.960000000000036,0,4,0,4
+single-core,dispatch_p99_us,soft,0.1,nohz_full removed,-187.29974000000047,-131.00110999999964,-73.9884999999995,-30.889790000000062,0,4,0,4
+single-core,dispatch_p99_us,soft,0.1,rcu_nocbs removed,-59.71719000000019,-32.89483000000007,6.592439999999954,-21.89625000000001,1,3,0,3
+single-core,dispatch_p99_us,soft,0.1,systemd containment removed,-39.22953000000024,-14.865619999999979,22.610880000000066,5.8238099999999235,2,2,0,2
+single-core,dispatch_p99_us,soft,0.1,IRQ steering removed,-48.06457000000012,-23.21673000000004,8.069050000000118,61.79977000000025,2,2,0,2
+single-core,dispatch_p99_us,soft,0.1,frequency pinning removed,-30.5202299999998,-25.938150000000007,12.638340000000142,37.583709999998916,2,2,0,2
+single-core,dispatch_p99_us,soft,0.1,boot-params bundle removed,-39.27382000000006,-14.714669999999956,-8.150089999999864,-11.043749999999989,0,4,0,4
+single-core,dispatch_p99_us,soft,0.1,all defaults,-31.592530000000124,-62.089470000000006,-35.037279999999726,27.51602999999983,1,3,0,3
+single-core,dispatch_p99_us,soft,0.5,isolcpus removed,-14.050289999999961,-41.68761000000001,-14.92692999999997,-43.74295000000001,0,4,0,4
+single-core,dispatch_p99_us,soft,0.5,nohz_full removed,-114.55977999999914,-68.99954999999972,-74.45476999999948,-69.01187000000016,0,4,0,4
+single-core,dispatch_p99_us,soft,0.5,rcu_nocbs removed,21.215760000000273,-12.922399999999982,18.32698000000005,-35.75281000000007,2,2,0,2
+single-core,dispatch_p99_us,soft,0.5,systemd containment removed,-7.611630000000105,-14.761649999999918,26.57764000000003,-11.822300000000155,1,3,0,3
+single-core,dispatch_p99_us,soft,0.5,IRQ steering removed,-15.71127000000007,-16.45717999999988,16.74064000000004,50.617889999999875,2,2,0,2
+single-core,dispatch_p99_us,soft,0.5,frequency pinning removed,-1.8067200000000412,-29.98008999999979,14.92337000000009,42.556979999999896,2,2,0,2
+single-core,dispatch_p99_us,soft,0.5,boot-params bundle removed,3.044469999999933,-10.756539999999973,10.179050000000018,-14.275830000000099,2,2,0,2
+single-core,dispatch_p99_us,soft,0.5,all defaults,3.8407200000001467,-99.46013999999985,-105.11162999999996,0.669509999999832,2,2,0,2
+single-core,dispatch_p99_us,soft,0.7,isolcpus removed,-29.790800000000047,-36.66946999999999,3.817139999999995,-62.90276999999986,1,3,0,3
+single-core,dispatch_p99_us,soft,0.7,nohz_full removed,-177.72057999999979,-128.57811999999996,-245.84790000000012,-286.63481,0,4,0,4
+single-core,dispatch_p99_us,soft,0.7,rcu_nocbs removed,-36.01308999999992,-12.589060000000018,23.15685999999988,-31.133449999999925,1,3,0,3
+single-core,dispatch_p99_us,soft,0.7,systemd containment removed,-12.099840000000029,11.682499999999948,42.35861999999986,-10.619650000000036,2,2,0,2
+single-core,dispatch_p99_us,soft,0.7,IRQ steering removed,-41.48622999999992,-6.760949999999923,12.407469999999876,45.85880000000009,2,2,0,2
+single-core,dispatch_p99_us,soft,0.7,frequency pinning removed,-50.523100000000056,-64.28663999999998,9.047869999999875,22.581479999999942,2,2,0,2
+single-core,dispatch_p99_us,soft,0.7,boot-params bundle removed,-3.682960000000037,9.059479999999951,27.12104999999991,-34.334340000000054,2,2,0,2
+single-core,dispatch_p99_us,soft,0.7,all defaults,-20.7378700000001,-129.40332999999984,-91.88674000000003,-14.814050000000066,0,4,0,4
+single-core,dispatch_p99_us,soft,0.94,nohz_full removed,-12.74027000000001,-0.8549899999999582,-11.389630000000015,-13.615230000000007,0,4,0,4
+single-core,dispatch_p99_us,soft,0.94,rcu_nocbs removed,48.08840000000022,-84.02789,5.032809999999998,-0.3638999999999939,2,2,0,2
+single-core,dispatch_p99_us,soft,0.94,systemd containment removed,-0.3739800000000457,-78.61791000000001,6.491669999999992,-1.3020800000000037,1,3,0,3
+single-core,dispatch_p99_us,soft,0.94,IRQ steering removed,59.711750000000094,-81.57782,55.96164000000009,98.23725000000009,3,1,0,3
+single-core,dispatch_p99_us,soft,0.94,frequency pinning removed,51.92313999999993,-84.57059999999998,2.1175699999999935,104.87757000000003,3,1,0,3
+single-core,dispatch_p99_us,soft,0.94,boot-params bundle removed,-1.2777400000000583,-77.42835,3.6326199999999886,-3.422139999999999,1,3,0,3
+single-core,cv_C_pct,tight,0.1,isolcpus removed,-4.227083472919105,1.9272056681894556,2.8044566841620253,4.222781179129713,3,1,0,3
+single-core,cv_C_pct,tight,0.1,nohz_full removed,-1.569944668326734,7.910889272571975,-0.06736056674901159,4.9514576909196295,2,2,0,2
+single-core,cv_C_pct,tight,0.1,rcu_nocbs removed,2.104752411317379,-2.4382946798993004,0.4514762144822191,2.1433116976255002,3,1,0,3
+single-core,cv_C_pct,tight,0.1,systemd containment removed,-3.3063565741059495,-1.525536001681255,2.096050293509362,4.388142242398183,2,2,0,2
+single-core,cv_C_pct,tight,0.1,IRQ steering removed,-0.7611379331417396,-0.8776523789476194,5.763917582540431,7.275334896468909,2,2,0,2
+single-core,cv_C_pct,tight,0.1,frequency pinning removed,-2.254550465360703,4.618735006957313,0.3602426265360201,6.654478750908691,3,1,0,3
+single-core,cv_C_pct,tight,0.1,boot-params bundle removed,-3.9966654959026973,0.5062492190355248,1.124769538683458,1.6328653344683752,3,1,0,3
+single-core,cv_C_pct,tight,0.1,all defaults,6.632094663278852,0.8279063550953678,0.018564867116731998,5.513199063996579,4,0,0,4
+single-core,cv_C_pct,tight,0.5,isolcpus removed,0.1869034179174458,4.822871352998715,5.491152626462488,4.192638410338169,4,0,0,4
+single-core,cv_C_pct,tight,0.5,nohz_full removed,3.076019951581282,5.227428648265997,1.1647002228899122,0.33375165323028266,4,0,0,4
+single-core,cv_C_pct,tight,0.5,rcu_nocbs removed,4.8448357664014665,5.730101755055578,5.102730276461495,-0.08036320656970919,3,1,0,3
+single-core,cv_C_pct,tight,0.5,systemd containment removed,-0.4467587960950943,0.6422706208080923,0.6192524167558039,3.7990572531057243,3,1,0,3
+single-core,cv_C_pct,tight,0.5,IRQ steering removed,5.766908092542579,3.858022413698144,5.613137554273632,5.548171639468268,4,0,0,4
+single-core,cv_C_pct,tight,0.5,frequency pinning removed,5.102438960470481,5.601859255828639,5.426684156598126,0.6190301390971211,4,0,0,4
+single-core,cv_C_pct,tight,0.5,boot-params bundle removed,-0.07321010955765694,0.460396147984259,5.3363974035921675,4.5347356947716895,3,1,0,3
+single-core,cv_C_pct,tight,0.5,all defaults,11.214887697845656,5.2940792381314745,-0.0034248682553200682,5.957630995238693,3,1,0,3
+single-core,cv_C_pct,tight,0.7,isolcpus removed,0.7743665179287822,1.4249194824964042,-0.4029862365833834,-4.549879744708208,2,2,0,2
+single-core,cv_C_pct,tight,0.7,nohz_full removed,0.6448587230245317,2.57251451341585,-0.19160404612759507,-2.707989913028513,2,2,0,2
+single-core,cv_C_pct,tight,0.7,rcu_nocbs removed,1.577553289940604,0.10919840166270889,0.74964855949632,0.839624260324161,4,0,0,4
+single-core,cv_C_pct,tight,0.7,systemd containment removed,-0.29607572679466265,0.7304900439966774,0.43025096956123243,-3.620893899622864,2,2,0,2
+single-core,cv_C_pct,tight,0.7,IRQ steering removed,2.5419273123526818,0.3901227009001843,4.167821559875831,-2.5427308551918375,3,1,0,3
+single-core,cv_C_pct,tight,0.7,frequency pinning removed,2.140811038418764,4.805544133763559,0.07110400996756505,-3.739062470559519,3,1,0,3
+single-core,cv_C_pct,tight,0.7,boot-params bundle removed,4.076468807809874,0.5759385157392637,3.7905434065537946,-0.07213488128329715,3,1,0,3
+single-core,cv_C_pct,tight,0.7,all defaults,5.9135591026190095,6.113320815732569,-0.23887795773543063,1.1361306303403031,3,1,0,3
+single-core,cv_C_pct,tight,0.94,nohz_full removed,0.4900504323550535,1.6758302617192236,0.5178154637424666,0.4130248555636765,4,0,0,4
+single-core,cv_C_pct,tight,0.94,rcu_nocbs removed,1.0541463030355889,-3.720764555681351,3.724147463985295,4.502015133478533,3,1,0,3
+single-core,cv_C_pct,tight,0.94,systemd containment removed,4.573582885550982,1.4584727616522342,0.04518612584152093,0.553181065640295,4,0,0,4
+single-core,cv_C_pct,tight,0.94,IRQ steering removed,4.671115442872804,2.391479359560849,1.2855209510792536,0.8871151662768323,4,0,0,4
+single-core,cv_C_pct,tight,0.94,frequency pinning removed,4.86453799851899,-3.3135399728975017,0.6527202793586669,0.3118689480058431,3,1,0,3
+single-core,cv_C_pct,tight,0.94,boot-params bundle removed,5.336856842945025,-1.221775083223549,2.726820124120491,0.6312615100783793,3,1,0,3
+single-core,cv_C_pct,soft,0.1,isolcpus removed,0.8596627134002723,3.5572987862093757,0.3449846479461791,-0.8511978868416215,3,1,0,3
+single-core,cv_C_pct,soft,0.1,nohz_full removed,1.5005128568087178,4.652044670999054,0.3621002737376595,0.30260073670551924,4,0,0,4
+single-core,cv_C_pct,soft,0.1,rcu_nocbs removed,0.3934172336929491,-0.5092048974088663,0.5089720451148576,-1.0138869418286014,2,2,0,2
+single-core,cv_C_pct,soft,0.1,systemd containment removed,-0.5649480801757688,-0.5199591290189567,1.0823988019693767,0.02147677480783239,2,2,0,2
+single-core,cv_C_pct,soft,0.1,IRQ steering removed,0.30592317022122395,-0.6464356278848467,1.420344053250609,0.6921179412900433,3,1,0,3
+single-core,cv_C_pct,soft,0.1,frequency pinning removed,0.6381302421136308,-0.377501573657413,0.48823638230604005,0.9618288138725273,3,1,0,3
+single-core,cv_C_pct,soft,0.1,boot-params bundle removed,-0.542828918643533,1.6738276441089779,-0.3302013883784245,0.08868840154208457,2,2,0,2
+single-core,cv_C_pct,soft,0.1,all defaults,1.9674732529996244,-0.2655808345166075,0.16600067304424382,1.2184667660351036,3,1,0,3
+single-core,cv_C_pct,soft,0.5,isolcpus removed,0.8709591220596944,1.150849862978336,-0.18348171848524597,-0.350159762696167,2,2,0,2
+single-core,cv_C_pct,soft,0.5,nohz_full removed,0.9595160134928942,0.7855748079470971,0.04652364181424784,0.1321844586622002,4,0,0,4
+single-core,cv_C_pct,soft,0.5,rcu_nocbs removed,0.9382325249878731,-0.22762118827416988,0.29331298534504135,-0.43479908984701837,2,2,0,2
+single-core,cv_C_pct,soft,0.5,systemd containment removed,0.05640140369334867,-0.20754141433409468,0.23846496946799856,0.43538654253118547,3,1,0,3
+single-core,cv_C_pct,soft,0.5,IRQ steering removed,0.9295172784959442,0.09068329522604535,0.2549235622076784,0.25214960564806266,4,0,0,4
+single-core,cv_C_pct,soft,0.5,frequency pinning removed,0.9563484039831198,-0.22404424526962052,0.44770110167548416,0.10709458177353426,3,1,0,3
+single-core,cv_C_pct,soft,0.5,boot-params bundle removed,0.8494657190558439,-0.36366415191714974,-0.24228548026887747,0.2916145577367396,2,2,0,2
+single-core,cv_C_pct,soft,0.5,all defaults,0.7452370808935849,-0.12578584033748164,-0.06255130567264033,-0.037687551127267294,1,3,0,3
+single-core,cv_C_pct,soft,0.7,isolcpus removed,0.7796035736416143,-0.3028621486951777,-0.03335120296284111,-0.368528263738994,1,3,0,3
+single-core,cv_C_pct,soft,0.7,nohz_full removed,0.8051767467089785,-0.192158104344182,0.01876208628616155,0.2139760458204134,3,1,0,3
+single-core,cv_C_pct,soft,0.7,rcu_nocbs removed,0.8068935086672695,-1.0079609706880714,-0.018424377433924055,-0.14340321330490446,1,3,0,3
+single-core,cv_C_pct,soft,0.7,systemd containment removed,-0.06843946161823083,-0.39715878213022604,0.3037420575750911,0.21413568594733667,2,2,0,2
+single-core,cv_C_pct,soft,0.7,IRQ steering removed,0.9503003402274541,-0.615242094688089,0.29653709715021503,0.18986267624220254,3,1,0,3
+single-core,cv_C_pct,soft,0.7,frequency pinning removed,0.941599175509179,-0.9097311212274449,0.7095343885804865,0.14397450040995619,3,1,0,3
+single-core,cv_C_pct,soft,0.7,boot-params bundle removed,0.14656923334068345,-0.8046921681850973,-0.1599380494287475,0.2682179381353379,2,2,0,2
+single-core,cv_C_pct,soft,0.7,all defaults,2.9955360648962754,-0.37850828773697354,0.31892815019666565,0.1105202855825358,3,1,0,3
+single-core,cv_C_pct,soft,0.94,nohz_full removed,0.6415830840236344,0.33506855715255507,0.02910153613204497,-0.15585878551134136,3,1,0,3
+single-core,cv_C_pct,soft,0.94,rcu_nocbs removed,0.817426256427806,0.10891519172656278,0.05467647911581486,-0.4839680274475746,3,1,0,3
+single-core,cv_C_pct,soft,0.94,systemd containment removed,-0.13463132293496394,0.05134931005667237,0.5191012637474899,-0.20412207225841006,2,2,0,2
+single-core,cv_C_pct,soft,0.94,IRQ steering removed,0.7574820565660948,0.23266798226701774,0.20235209692252554,-0.5163581099204833,3,1,0,3
+single-core,cv_C_pct,soft,0.94,frequency pinning removed,0.7501205359693209,0.23852461714916412,0.5809182342702573,-0.3413057879513658,3,1,0,3
+single-core,cv_C_pct,soft,0.94,boot-params bundle removed,0.03492915576634653,0.4295446803858142,-0.09143130738645527,-0.1868675527532644,2,2,0,2
+single-core,interrupted_jobs_pct,tight,0.1,isolcpus removed,-0.04000000000000001,0.0,0.020000000000000004,0.0,1,1,2,1
+single-core,interrupted_jobs_pct,tight,0.1,nohz_full removed,0.36,0.9400000000000001,-0.06,-0.04,2,2,0,2
+single-core,interrupted_jobs_pct,tight,0.1,rcu_nocbs removed,0.31999999999999995,-0.060000000000000005,0.0,0.019999999999999997,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.1,systemd containment removed,0.13999999999999999,-0.1,4.260000000000001,-0.02,2,2,0,2
+single-core,interrupted_jobs_pct,tight,0.1,IRQ steering removed,0.13999999999999999,-0.08,0.2,0.5399999999999999,3,1,0,3
+single-core,interrupted_jobs_pct,tight,0.1,frequency pinning removed,0.13999999999999999,-0.04000000000000001,-0.06,0.18,2,2,0,2
+single-core,interrupted_jobs_pct,tight,0.1,boot-params bundle removed,-0.060000000000000005,-0.060000000000000005,0.0,0.019999999999999997,1,2,1,2
+single-core,interrupted_jobs_pct,tight,0.1,all defaults,3.6999999999999997,-0.1,-0.06,0.04,2,2,0,2
+single-core,interrupted_jobs_pct,tight,0.5,isolcpus removed,0.02,-0.02,0.0,0.0,1,1,2,1
+single-core,interrupted_jobs_pct,tight,0.5,nohz_full removed,0.04,0.39999999999999997,0.0,0.0,2,0,2,2
+single-core,interrupted_jobs_pct,tight,0.5,rcu_nocbs removed,0.02,-0.02,0.04,0.0,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.5,systemd containment removed,0.02,0.02,0.0,0.02,3,0,1,3
+single-core,interrupted_jobs_pct,tight,0.5,IRQ steering removed,0.1,-0.02,0.0,0.1,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.5,frequency pinning removed,0.04,-0.02,0.0,0.12,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.5,boot-params bundle removed,0.0,-0.02,0.0,0.0,0,1,3,1
+single-core,interrupted_jobs_pct,tight,0.5,all defaults,2.26,-0.02,0.0,0.02,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.7,isolcpus removed,0.02,0.04,-0.02,0.0,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.7,nohz_full removed,0.04,0.06,-0.02,0.0,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.7,rcu_nocbs removed,0.02,0.02,0.02,0.02,4,0,0,4
+single-core,interrupted_jobs_pct,tight,0.7,systemd containment removed,0.02,0.04,-0.02,0.02,3,1,0,3
+single-core,interrupted_jobs_pct,tight,0.7,IRQ steering removed,0.04,0.0,0.0,0.08,2,0,2,2
+single-core,interrupted_jobs_pct,tight,0.7,frequency pinning removed,0.04,0.0,-0.02,0.02,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.7,boot-params bundle removed,0.0,0.0,-0.02,0.0,0,1,3,1
+single-core,interrupted_jobs_pct,tight,0.7,all defaults,1.1400000000000001,0.0,-0.02,0.06,2,1,1,2
+single-core,interrupted_jobs_pct,tight,0.94,nohz_full removed,0.02,0.02,0.0,0.0,2,0,2,2
+single-core,interrupted_jobs_pct,tight,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,tight,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,tight,0.94,IRQ steering removed,0.0,0.0,0.02,0.04,2,0,2,2
+single-core,interrupted_jobs_pct,tight,0.94,frequency pinning removed,0.02,0.0,0.0,0.0,1,0,3,1
+single-core,interrupted_jobs_pct,tight,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,soft,0.1,isolcpus removed,-0.49999999999999994,2.36,0.039999999999999994,1.26,3,1,0,3
+single-core,interrupted_jobs_pct,soft,0.1,nohz_full removed,-0.1399999999999999,4.12,-0.02,0.02,2,2,0,2
+single-core,interrupted_jobs_pct,soft,0.1,rcu_nocbs removed,-0.6,-0.060000000000000005,0.0,0.0,0,2,2,2
+single-core,interrupted_jobs_pct,soft,0.1,systemd containment removed,-0.49999999999999994,-0.08,0.0,2.74,1,2,1,2
+single-core,interrupted_jobs_pct,soft,0.1,IRQ steering removed,-0.6599999999999999,-0.08,0.39999999999999997,0.18,2,2,0,2
+single-core,interrupted_jobs_pct,soft,0.1,frequency pinning removed,-0.5599999999999999,0.22,2.7399999999999998,0.52,3,1,0,3
+single-core,interrupted_jobs_pct,soft,0.1,boot-params bundle removed,-0.6,0.88,-0.02,0.0,1,2,1,2
+single-core,interrupted_jobs_pct,soft,0.1,all defaults,-0.019999999999999907,-0.08,0.02,0.7000000000000001,2,2,0,2
+single-core,interrupted_jobs_pct,soft,0.5,isolcpus removed,0.0,0.1,0.0,-0.04,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.5,nohz_full removed,0.04,0.06,0.0,-0.04,2,1,1,2
+single-core,interrupted_jobs_pct,soft,0.5,rcu_nocbs removed,0.0,0.0,0.0,-0.04,0,1,3,1
+single-core,interrupted_jobs_pct,soft,0.5,systemd containment removed,0.0,0.0,0.02,-0.04,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.5,IRQ steering removed,0.02,0.0,0.0,-0.04,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.5,frequency pinning removed,0.18,0.0,0.0,-0.04,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.5,boot-params bundle removed,0.0,0.0,1.06,-0.04,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.5,all defaults,0.04,0.02,0.02,-0.02,3,1,0,3
+single-core,interrupted_jobs_pct,soft,0.7,isolcpus removed,0.0,0.0,-0.02,0.08,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.7,nohz_full removed,0.08,0.13999999999999999,-0.02,0.0,2,1,1,2
+single-core,interrupted_jobs_pct,soft,0.7,rcu_nocbs removed,0.0,0.04,-0.02,0.0,1,1,2,1
+single-core,interrupted_jobs_pct,soft,0.7,systemd containment removed,0.02,0.0,0.0,0.0,1,0,3,1
+single-core,interrupted_jobs_pct,soft,0.7,IRQ steering removed,0.02,0.0,-0.02,0.04,2,1,1,2
+single-core,interrupted_jobs_pct,soft,0.7,frequency pinning removed,0.02,0.02,-0.02,0.0,2,1,1,2
+single-core,interrupted_jobs_pct,soft,0.7,boot-params bundle removed,0.24,0.0,1.06,0.0,2,0,2,2
+single-core,interrupted_jobs_pct,soft,0.7,all defaults,0.16,0.0,-0.02,0.1,2,1,1,2
+single-core,interrupted_jobs_pct,soft,0.94,nohz_full removed,0.02,0.04,0.0,0.0,2,0,2,2
+single-core,interrupted_jobs_pct,soft,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,soft,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,soft,0.94,IRQ steering removed,0.04,0.0,0.0,0.0,1,0,3,1
+single-core,interrupted_jobs_pct,soft,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,interrupted_jobs_pct,soft,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,tight,0.1,isolcpus removed,-0.04000000000000001,0.0,0.020000000000000004,0.0,1,1,2,1
+single-core,switched_jobs_pct,tight,0.1,nohz_full removed,0.36,0.9400000000000001,-0.06,-0.04,2,2,0,2
+single-core,switched_jobs_pct,tight,0.1,rcu_nocbs removed,0.31999999999999995,-0.060000000000000005,0.0,0.019999999999999997,2,1,1,2
+single-core,switched_jobs_pct,tight,0.1,systemd containment removed,0.13999999999999999,-0.1,4.44,-0.02,2,2,0,2
+single-core,switched_jobs_pct,tight,0.1,IRQ steering removed,0.13999999999999999,-0.060000000000000005,0.2,0.5399999999999999,3,1,0,3
+single-core,switched_jobs_pct,tight,0.1,frequency pinning removed,0.13999999999999999,-0.04000000000000001,-0.06,0.18,2,2,0,2
+single-core,switched_jobs_pct,tight,0.1,boot-params bundle removed,-0.060000000000000005,-0.060000000000000005,0.0,0.019999999999999997,1,2,1,2
+single-core,switched_jobs_pct,tight,0.1,all defaults,3.4999999999999996,-0.1,-0.06,0.04,2,2,0,2
+single-core,switched_jobs_pct,tight,0.5,isolcpus removed,0.0,-0.02,0.0,0.0,0,1,3,1
+single-core,switched_jobs_pct,tight,0.5,nohz_full removed,0.02,0.33999999999999997,0.24,0.0,3,0,1,3
+single-core,switched_jobs_pct,tight,0.5,rcu_nocbs removed,0.02,-0.02,0.04,0.0,2,1,1,2
+single-core,switched_jobs_pct,tight,0.5,systemd containment removed,0.02,0.02,0.0,0.02,3,0,1,3
+single-core,switched_jobs_pct,tight,0.5,IRQ steering removed,0.08,-0.02,0.0,0.08,2,1,1,2
+single-core,switched_jobs_pct,tight,0.5,frequency pinning removed,0.04,-0.02,0.0,0.08,2,1,1,2
+single-core,switched_jobs_pct,tight,0.5,boot-params bundle removed,0.0,-0.02,0.0,0.0,0,1,3,1
+single-core,switched_jobs_pct,tight,0.5,all defaults,2.04,-0.02,0.0,0.02,2,1,1,2
+single-core,switched_jobs_pct,tight,0.7,isolcpus removed,0.02,0.04,-0.02,0.0,2,1,1,2
+single-core,switched_jobs_pct,tight,0.7,nohz_full removed,0.26,0.32,0.24000000000000002,0.0,3,0,1,3
+single-core,switched_jobs_pct,tight,0.7,rcu_nocbs removed,0.02,0.02,0.02,0.02,4,0,0,4
+single-core,switched_jobs_pct,tight,0.7,systemd containment removed,0.02,0.04,-0.02,0.02,3,1,0,3
+single-core,switched_jobs_pct,tight,0.7,IRQ steering removed,0.04,0.0,0.0,0.06,2,0,2,2
+single-core,switched_jobs_pct,tight,0.7,frequency pinning removed,0.04,0.0,-0.02,0.02,2,1,1,2
+single-core,switched_jobs_pct,tight,0.7,boot-params bundle removed,0.0,0.0,-0.02,0.0,0,1,3,1
+single-core,switched_jobs_pct,tight,0.7,all defaults,1.06,0.24,0.22,0.27999999999999997,4,0,0,4
+single-core,switched_jobs_pct,tight,0.94,nohz_full removed,0.26,0.26,0.26,0.0,3,0,1,3
+single-core,switched_jobs_pct,tight,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,tight,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,tight,0.94,IRQ steering removed,0.0,0.0,0.02,0.04,2,0,2,2
+single-core,switched_jobs_pct,tight,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,tight,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.1,isolcpus removed,0.04,2.1999999999999997,-0.02,0.0,2,1,1,2
+single-core,switched_jobs_pct,soft,0.1,nohz_full removed,0.48,3.98,-0.02,0.02,3,1,0,3
+single-core,switched_jobs_pct,soft,0.1,rcu_nocbs removed,0.02,-0.060000000000000005,0.0,0.0,1,1,2,1
+single-core,switched_jobs_pct,soft,0.1,systemd containment removed,0.02,-0.08,0.0,0.0,1,1,2,1
+single-core,switched_jobs_pct,soft,0.1,IRQ steering removed,0.02,-0.08,0.36,0.18,3,1,0,3
+single-core,switched_jobs_pct,soft,0.1,frequency pinning removed,0.1,-0.04000000000000001,-0.02,0.44,2,2,0,2
+single-core,switched_jobs_pct,soft,0.1,boot-params bundle removed,0.02,0.82,-0.02,0.0,2,1,1,2
+single-core,switched_jobs_pct,soft,0.1,all defaults,0.6,-0.08,-0.02,0.38,2,2,0,2
+single-core,switched_jobs_pct,soft,0.5,isolcpus removed,0.0,0.06,0.0,0.0,1,0,3,1
+single-core,switched_jobs_pct,soft,0.5,nohz_full removed,2.5,2.5,0.0,0.0,2,0,2,2
+single-core,switched_jobs_pct,soft,0.5,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.5,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.5,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.5,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.5,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.5,all defaults,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,isolcpus removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,nohz_full removed,2.5,2.5,0.0,2.5,3,0,1,3
+single-core,switched_jobs_pct,soft,0.7,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,frequency pinning removed,0.0,0.02,0.0,0.0,1,0,3,1
+single-core,switched_jobs_pct,soft,0.7,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.7,all defaults,0.08,2.5,2.5,0.0,3,0,1,3
+single-core,switched_jobs_pct,soft,0.94,nohz_full removed,2.5,0.0,2.5,2.5,3,0,1,3
+single-core,switched_jobs_pct,soft,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.94,IRQ steering removed,0.02,0.0,0.0,0.0,1,0,3,1
+single-core,switched_jobs_pct,soft,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+single-core,switched_jobs_pct,soft,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,tight,0.1,isolcpus removed,0.5573315520353714,4.024832852867266,-0.03999200159968006,0.0,2,1,1,2
+multi-core,miss_skip_pct,tight,0.1,nohz_full removed,-0.21956087824351297,-0.27960854803275415,-0.03999200159968006,0.0,0,3,1,3
+multi-core,miss_skip_pct,tight,0.1,rcu_nocbs removed,-0.059688775925367504,-0.27960854803275415,-0.03999200159968006,0.2593774940143655,1,3,0,3
+multi-core,miss_skip_pct,tight,0.1,systemd containment removed,0.4978564194846655,-0.2396165464330741,0.03997601119520199,0.03999200159968006,3,1,0,3
+multi-core,miss_skip_pct,tight,0.1,IRQ steering removed,-0.17956887664383292,-0.2196325384365926,-0.03999200159968006,0.11990407673860912,1,3,0,3
+multi-core,miss_skip_pct,tight,0.1,frequency pinning removed,-0.17956887664383292,-0.27960854803275415,-0.03999200159968006,0.0,0,3,1,3
+multi-core,miss_skip_pct,tight,0.1,boot-params bundle removed,1.0522992171459942,-0.11973644571460867,0.0,0.03999200159968006,2,1,1,2
+multi-core,miss_skip_pct,tight,0.1,all defaults,0.3971091038531649,-0.27960854803275415,0.019984007996481472,0.23971234518577705,3,1,0,3
+multi-core,miss_skip_pct,tight,0.5,isolcpus removed,-0.059976009596161534,0.9938828077252898,-0.03999200159968006,0.03999200159968006,2,2,0,2
+multi-core,miss_skip_pct,tight,0.5,nohz_full removed,-0.059976009596161534,-0.11988011988011989,0.07988811828043982,0.0,1,2,1,2
+multi-core,miss_skip_pct,tight,0.5,rcu_nocbs removed,-0.059976009596161534,-0.07988811828043982,-0.03999200159968006,0.03999200159968006,1,3,0,3
+multi-core,miss_skip_pct,tight,0.5,systemd containment removed,-0.059976009596161534,-0.11988011988011989,-0.03999200159968006,0.03999200159968006,1,3,0,3
+multi-core,miss_skip_pct,tight,0.5,IRQ steering removed,-0.059976009596161534,-0.11988011988011989,-0.03999200159968006,0.0,0,3,1,3
+multi-core,miss_skip_pct,tight,0.5,frequency pinning removed,0.05995203357793401,-0.07988811828043982,-0.03999200159968006,0.0,1,2,1,2
+multi-core,miss_skip_pct,tight,0.5,boot-params bundle removed,-0.059976009596161534,-0.03991210708523783,-0.03999200159968006,0.0,0,3,1,3
+multi-core,miss_skip_pct,tight,0.5,all defaults,0.019976019186568827,-0.11988011988011989,-0.03999200159968006,0.0,1,2,1,2
+multi-core,miss_skip_pct,tight,0.7,isolcpus removed,0.15987210231814547,6.104009258866719,0.059976009596161534,0.0,3,0,1,3
+multi-core,miss_skip_pct,tight,0.7,nohz_full removed,0.0,-0.059976009596161534,0.0,0.0,0,1,3,1
+multi-core,miss_skip_pct,tight,0.7,rcu_nocbs removed,0.03999200159968006,-0.019984007996481472,0.0,0.0,1,1,2,1
+multi-core,miss_skip_pct,tight,0.7,systemd containment removed,0.07996801279488205,-0.059976009596161534,0.03999200159968006,0.07996801279488205,3,1,0,3
+multi-core,miss_skip_pct,tight,0.7,IRQ steering removed,0.03999200159968006,-0.059976009596161534,0.0,0.0,1,1,2,1
+multi-core,miss_skip_pct,tight,0.7,frequency pinning removed,0.0,-0.059976009596161534,0.03999200159968006,0.0,1,1,2,1
+multi-core,miss_skip_pct,tight,0.7,boot-params bundle removed,0.7571229328551504,-0.059976009596161534,0.03999200159968006,0.0,2,1,1,2
+multi-core,miss_skip_pct,tight,0.7,all defaults,0.17974835230677053,0.11973645046773623,0.0,0.23971234518577705,3,0,1,3
+multi-core,miss_skip_pct,tight,0.94,nohz_full removed,0.0,0.0,-0.03999200159968006,0.0,0,1,3,1
+multi-core,miss_skip_pct,tight,0.94,rcu_nocbs removed,0.3985651654045436,-0.03999200159968006,0.0,0.0,1,1,2,1
+multi-core,miss_skip_pct,tight,0.94,systemd containment removed,0.8761449621664675,0.0,0.0,0.03999200159968006,2,0,2,2
+multi-core,miss_skip_pct,tight,0.94,IRQ steering removed,0.03999200159968006,-0.03999200159968006,-0.03999200159968006,0.15987210231814547,2,2,0,2
+multi-core,miss_skip_pct,tight,0.94,frequency pinning removed,0.07996801279488205,0.03997601119520199,0.03997601119520199,0.1998001998001998,4,0,0,4
+multi-core,miss_skip_pct,tight,0.94,boot-params bundle removed,1.4297061159650517,-0.03999200159968006,0.0,0.0,1,1,2,1
+multi-core,miss_skip_pct,soft,0.1,isolcpus removed,0.1998001998001998,-0.07996801279488205,-0.03999200159968006,0.0,1,2,1,2
+multi-core,miss_skip_pct,soft,0.1,nohz_full removed,0.0,-0.07996801279488205,-0.03999200159968006,0.0,0,2,2,2
+multi-core,miss_skip_pct,soft,0.1,rcu_nocbs removed,0.0,-0.07996801279488205,-0.03999200159968006,0.0,0,2,2,2
+multi-core,miss_skip_pct,soft,0.1,systemd containment removed,0.0,-0.07996801279488205,0.03997601119520199,0.03999200159968006,2,1,1,2
+multi-core,miss_skip_pct,soft,0.1,IRQ steering removed,0.0,-0.07996801279488205,-0.03999200159968006,0.0,0,2,2,2
+multi-core,miss_skip_pct,soft,0.1,frequency pinning removed,0.0,-0.07996801279488205,-0.03999200159968006,0.07996801279488205,1,2,1,2
+multi-core,miss_skip_pct,soft,0.1,boot-params bundle removed,0.0,-0.07996801279488205,-0.03999200159968006,0.0,0,2,2,2
+multi-core,miss_skip_pct,soft,0.1,all defaults,2.7613412228796843,-0.07996801279488205,-0.03999200159968006,0.696656050955414,2,2,0,2
+multi-core,miss_skip_pct,soft,0.5,isolcpus removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,nohz_full removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.5,all defaults,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,isolcpus removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,nohz_full removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.7,all defaults,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,nohz_full removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,miss_skip_pct,soft,0.94,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,dispatch_p99_us,tight,0.1,isolcpus removed,54.38816000000135,106.79644999999995,-213.00241000000014,11.023830000000054,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.1,nohz_full removed,-3.5814599999986285,-72.52066000000002,-219.78204000000005,-6.471119999999992,0,4,0,4
+multi-core,dispatch_p99_us,tight,0.1,rcu_nocbs removed,-17.17992999999864,-59.887110000000035,-216.50735000000003,10.14287000000001,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.1,systemd containment removed,72.3078000000014,-18.98908,-215.31747000000004,7.35682999999991,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.1,IRQ steering removed,-24.43678999999861,-56.33485,-174.21563000000003,55.609230000000025,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.1,frequency pinning removed,71.99070999999934,-78.41099000000003,-222.37045000000006,70.64370999999996,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.1,boot-params bundle removed,77.49685000000143,-33.348440000000195,-0.9143999999998869,-0.9296000000000078,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.1,all defaults,13.858050000001356,-60.64683999999998,-229.16218000000003,74.67805999999997,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.5,isolcpus removed,157.11628999999803,175.65199000000172,7.715509999999959,5.238610000000037,4,0,0,4
+multi-core,dispatch_p99_us,tight,0.5,nohz_full removed,-0.1085100000000736,-23.334039999999575,-0.18488999999999578,-8.244159999999951,0,4,0,4
+multi-core,dispatch_p99_us,tight,0.5,rcu_nocbs removed,-1.894510000000075,-23.424449999999553,-9.513679999999994,10.318070000000077,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.5,systemd containment removed,11.062359999999927,71.86916000000001,225.98608000000002,11.69046000000003,4,0,0,4
+multi-core,dispatch_p99_us,tight,0.5,IRQ steering removed,27.06525999999969,190.50463000000053,8.664289999999994,300.5740500000003,4,0,0,4
+multi-core,dispatch_p99_us,tight,0.5,frequency pinning removed,164.88920000000132,-26.55259999999955,-4.220519999999993,56.10379999999986,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.5,boot-params bundle removed,232.4992999999999,-13.681599999999584,0.9889200000000002,3.004880000000064,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.5,all defaults,40.40065000000005,-14.793589999999554,-2.3994599999999835,47.11817999999989,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.7,isolcpus removed,127.78182999999947,213.8739299999997,32.95901000000002,-1.0020600000000002,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.7,nohz_full removed,-5.251440000000031,-26.075740000000046,-8.75865999999997,-4.82027999999999,0,4,0,4
+multi-core,dispatch_p99_us,tight,0.7,rcu_nocbs removed,-5.473220000000019,-26.653530000000046,-6.363010000000003,-5.038719999999998,0,4,0,4
+multi-core,dispatch_p99_us,tight,0.7,systemd containment removed,85.14607000000018,-15.56094000000001,5.706249999999997,12.819189999999942,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.7,IRQ steering removed,-12.663650000000047,-22.026700000000048,91.10854000000332,131.58645999999342,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.7,frequency pinning removed,-1.1070100000000167,-28.395880000000027,-1.1104699999999852,64.03467999999995,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.7,boot-params bundle removed,109.32627000000028,-15.274340000000038,-3.7969700000000515,-4.188159999999982,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.7,all defaults,17.14559999999991,-11.135670000000047,-11.729879999999994,52.775370000000315,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.94,nohz_full removed,-6.3691300000000055,-17.19470000000006,-10.95794,-3.6786499999999975,0,4,0,4
+multi-core,dispatch_p99_us,tight,0.94,rcu_nocbs removed,-1.5850000000000009,-14.230530000000059,-4.364930000000001,4.28219,1,3,0,3
+multi-core,dispatch_p99_us,tight,0.94,systemd containment removed,84.67774999999997,-6.132000000000048,6.498180000000005,0.4300099999999958,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.94,IRQ steering removed,0.27815999999999974,-7.29822000000005,5.55804000000002,85.13806999999935,3,1,0,3
+multi-core,dispatch_p99_us,tight,0.94,frequency pinning removed,6.736220000000046,-11.401950000000042,-2.7906699999999987,73.82586999999992,2,2,0,2
+multi-core,dispatch_p99_us,tight,0.94,boot-params bundle removed,150.2873300000005,-1.4894000000000531,1.803520000000006,3.114380000000004,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.1,isolcpus removed,-25.276370000000497,79.76870000000025,9.096230000000105,-29.003240000000062,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.1,nohz_full removed,-102.75721000000036,18.618220000000292,-40.99165999999988,-29.666380000000004,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.1,rcu_nocbs removed,-16.78406000000109,26.386450000000025,23.503360000000043,-17.484839999999963,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.1,systemd containment removed,-111.21080000000046,85.57423999999997,-7.574939999999913,25.803879999999594,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.1,IRQ steering removed,-73.47412000000082,44.036389999999926,1.3892100000000482,30.019690000000196,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.1,frequency pinning removed,-17.837860000000376,46.15735000000001,24.433910000000026,104.227790000001,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.1,boot-params bundle removed,-49.72658000000041,69.08811999999989,14.779160000000047,-8.768020000000035,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.1,all defaults,-18.247640000000445,26.166769999999985,-124.19670999999988,-13.968940000000089,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.5,isolcpus removed,-10.380209999999977,25.623309999999606,-10.894560000000183,-16.42360000000002,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.5,nohz_full removed,-44.68565000000001,-6.366240000000005,-1.7943299999998885,-36.494189999999946,0,4,0,4
+multi-core,dispatch_p99_us,soft,0.5,rcu_nocbs removed,-28.66968999999989,-3.5600300000003813,24.286479999999926,-17.019280000000094,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.5,systemd containment removed,-70.93256999999994,44.21441999999962,23.972429999999918,-28.80788000000001,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.5,IRQ steering removed,-18.606580000000008,14.55279999999965,11.764959999999917,25.230860000000007,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.5,frequency pinning removed,8.537210000000357,19.95304999999962,49.01306999999997,47.57263000000023,4,0,0,4
+multi-core,dispatch_p99_us,soft,0.5,boot-params bundle removed,-7.603589999999997,42.31509999999969,-2.6968200000000593,22.246960000000115,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.5,all defaults,-39.618359999999996,-10.898740000000373,-104.56253000000007,17.546889999999905,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.7,isolcpus removed,150.2258099999999,37.16903000000053,199.56214000000045,2.343119999999999,4,0,0,4
+multi-core,dispatch_p99_us,soft,0.7,nohz_full removed,-22.46030000000006,-187.40233999999998,-12.857180000000007,-11.061950000000046,0,4,0,4
+multi-core,dispatch_p99_us,soft,0.7,rcu_nocbs removed,179.32238,-7.236379999999883,220.46093999999994,-21.551960000000044,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.7,systemd containment removed,102.33940000000023,53.884250000000065,2.3921200000000056,203.18581999999992,4,0,0,4
+multi-core,dispatch_p99_us,soft,0.7,IRQ steering removed,172.79857000000004,-185.34937000000002,220.75874000000022,254.4803,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.7,frequency pinning removed,263.2865000000001,71.60252000000003,251.55119000000025,267.61371,4,0,0,4
+multi-core,dispatch_p99_us,soft,0.7,boot-params bundle removed,203.77953999999994,70.99259999999998,182.21479,-6.942379999999993,3,1,0,3
+multi-core,dispatch_p99_us,soft,0.7,all defaults,198.8144400000001,-24.51544999999996,-13.568829999999991,214.0488499999999,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.94,nohz_full removed,-56.12876000000004,-109.05421000000021,-8.778510000000011,-12.04732,0,4,0,4
+multi-core,dispatch_p99_us,soft,0.94,rcu_nocbs removed,-49.27217000000003,-115.03890000000024,-1.8478999999999957,-0.39384999999999337,0,4,0,4
+multi-core,dispatch_p99_us,soft,0.94,systemd containment removed,-38.286840000000026,-45.018570000000224,4.802449999999993,-8.844089999999973,1,3,0,3
+multi-core,dispatch_p99_us,soft,0.94,IRQ steering removed,-48.075670000000045,-104.58943000000023,3.4662600000000054,50.55950000000008,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.94,frequency pinning removed,-45.34830000000003,-109.54592000000025,6.896619999999999,87.52806000000001,2,2,0,2
+multi-core,dispatch_p99_us,soft,0.94,boot-params bundle removed,-24.953780000000023,-39.95651000000021,5.4046499999999895,-13.115159999999982,1,3,0,3
+multi-core,cv_C_pct,tight,0.1,isolcpus removed,1.3995557424574034,4.653948487470451,4.1253146706307255,6.497750180195175,4,0,0,4
+multi-core,cv_C_pct,tight,0.1,nohz_full removed,-2.203581754356333,-13.669025480443537,0.9699689443025705,0.09979130289086768,2,2,0,2
+multi-core,cv_C_pct,tight,0.1,rcu_nocbs removed,0.675134937818318,-10.080988002963577,5.280925030378722,0.8837628211436293,3,1,0,3
+multi-core,cv_C_pct,tight,0.1,systemd containment removed,6.079502320514788,-8.783412004146003,3.6396093394385294,2.784256895679899,3,1,0,3
+multi-core,cv_C_pct,tight,0.1,IRQ steering removed,-4.252832534097169,-13.62728723389168,1.7243095644238737,4.654290340541071,2,2,0,2
+multi-core,cv_C_pct,tight,0.1,frequency pinning removed,-3.7949706396618748,-13.637429779593226,1.639497818335601,7.134120456467587,2,2,0,2
+multi-core,cv_C_pct,tight,0.1,boot-params bundle removed,-1.1502453982928094,-13.310601885069076,-0.3484334302418377,1.1625022802820435,1,3,0,3
+multi-core,cv_C_pct,tight,0.1,all defaults,1.3631193648004007,-10.022053448073844,3.2996807801998744,2.2842510822846283,3,1,0,3
+multi-core,cv_C_pct,tight,0.5,isolcpus removed,0.33198249675083336,6.349425262019056,-2.701625120218049,-1.427688717372246,2,2,0,2
+multi-core,cv_C_pct,tight,0.5,nohz_full removed,0.5137554264002109,-0.7254669790059598,2.2803852762188157,-1.7805861198790407,2,2,0,2
+multi-core,cv_C_pct,tight,0.5,rcu_nocbs removed,-3.399787473409434,-4.005570067274971,-2.847444089598327,4.7705386841712585,1,3,0,3
+multi-core,cv_C_pct,tight,0.5,systemd containment removed,-4.327769170397685,1.0025100235882896,1.9298600460298623,3.6902241127440254,3,1,0,3
+multi-core,cv_C_pct,tight,0.5,IRQ steering removed,1.5543829707649586,-3.95881952355078,-1.662816808794755,0.7963137106372944,2,2,0,2
+multi-core,cv_C_pct,tight,0.5,frequency pinning removed,0.8536018636347489,-4.090464744290914,-2.2117118207773983,2.251238195573352,2,2,0,2
+multi-core,cv_C_pct,tight,0.5,boot-params bundle removed,0.979090940168347,0.1965000895797031,-2.89200590252284,-0.645686620127379,2,2,0,2
+multi-core,cv_C_pct,tight,0.5,all defaults,-1.086389759471142,0.8305499649947468,-2.203474410779318,0.16827458153768715,2,2,0,2
+multi-core,cv_C_pct,tight,0.7,isolcpus removed,4.013637994896426,8.109427530892816,2.4373467215228546,4.544628754166742,4,0,0,4
+multi-core,cv_C_pct,tight,0.7,nohz_full removed,0.1539789192954828,-0.40699934789139824,-1.2081335550210517,4.1924810925561,2,2,0,2
+multi-core,cv_C_pct,tight,0.7,rcu_nocbs removed,0.5774750051741231,-4.1702801658991095,-1.9786927627263105,5.11248207954036,2,2,0,2
+multi-core,cv_C_pct,tight,0.7,systemd containment removed,1.1465814709524746,0.679314343032833,-1.7921123494195532,1.4271410708250556,3,1,0,3
+multi-core,cv_C_pct,tight,0.7,IRQ steering removed,0.43815844677535143,-2.6343268226956447,0.18490098188990123,4.895337567934874,3,1,0,3
+multi-core,cv_C_pct,tight,0.7,frequency pinning removed,-5.1053115276753465,1.1256163387993583,-1.048031268118776,4.860271721694744,2,2,0,2
+multi-core,cv_C_pct,tight,0.7,boot-params bundle removed,-0.692632049353672,-5.473876988056009,4.133589111451222,2.830420395475585,2,2,0,2
+multi-core,cv_C_pct,tight,0.7,all defaults,-1.9891104149506047,-0.6429503865521244,-2.038471427115059,4.441607138333884,1,3,0,3
+multi-core,cv_C_pct,tight,0.94,nohz_full removed,4.739055854766195,2.051786526936562,-3.5271276751706266,-1.1746594039254163,2,2,0,2
+multi-core,cv_C_pct,tight,0.94,rcu_nocbs removed,2.5476358057754553,0.01311662136521452,-4.259073231055068,-0.38719591448449675,2,2,0,2
+multi-core,cv_C_pct,tight,0.94,systemd containment removed,4.793076718387937,-0.929126376884653,-4.109952362270017,2.5748368394742296,2,2,0,2
+multi-core,cv_C_pct,tight,0.94,IRQ steering removed,4.58500809454136,0.044169381021214926,0.3515838939988205,0.8123906057723147,4,0,0,4
+multi-core,cv_C_pct,tight,0.94,frequency pinning removed,-0.22846588649194188,-0.34844676958876053,-1.038740426143114,3.956575233991098,1,3,0,3
+multi-core,cv_C_pct,tight,0.94,boot-params bundle removed,7.318927466934062,3.8342127442570497,-0.8842844629760678,4.945727559104871,3,1,0,3
+multi-core,cv_C_pct,soft,0.1,isolcpus removed,1.3801285801855834,-4.637502100782621,-0.435173784459839,-0.7749161111115315,1,3,0,3
+multi-core,cv_C_pct,soft,0.1,nohz_full removed,1.4816639844975443,-1.4128248966223742,0.41223040886953666,0.08794752199466216,3,1,0,3
+multi-core,cv_C_pct,soft,0.1,rcu_nocbs removed,0.6244675938497881,-5.264436244034308,-0.27602561905776846,-0.6212077569247909,1,3,0,3
+multi-core,cv_C_pct,soft,0.1,systemd containment removed,7.439361494011296,-5.3974586041567685,1.6782645706895205,0.4067144795990858,3,1,0,3
+multi-core,cv_C_pct,soft,0.1,IRQ steering removed,0.6601780601326717,-5.34073747272301,0.7467511261669083,4.3766699823560495,3,1,0,3
+multi-core,cv_C_pct,soft,0.1,frequency pinning removed,-0.3068356477723513,-5.554879565240349,0.3230934886214146,0.926938813817261,2,2,0,2
+multi-core,cv_C_pct,soft,0.1,boot-params bundle removed,0.013419684636364337,-4.917166757515805,0.6465675971652546,0.6663340275493379,3,1,0,3
+multi-core,cv_C_pct,soft,0.1,all defaults,6.133324927067725,-5.440180875589124,0.20728324228002248,4.415357758784894,3,1,0,3
+multi-core,cv_C_pct,soft,0.5,isolcpus removed,0.43463095295594045,-1.2103400992884594,0.4002455111057184,-0.4837598214775868,2,2,0,2
+multi-core,cv_C_pct,soft,0.5,nohz_full removed,0.21233468605843786,-2.1135524949739772,0.3189341267521325,0.04731373580995968,3,1,0,3
+multi-core,cv_C_pct,soft,0.5,rcu_nocbs removed,0.47796995606629267,-2.586544025189033,0.6279464294768841,-0.03196093073793749,2,2,0,2
+multi-core,cv_C_pct,soft,0.5,systemd containment removed,1.732249100919668,-2.3021204221877305,-0.10488577963049683,0.28912607904253407,2,2,0,2
+multi-core,cv_C_pct,soft,0.5,IRQ steering removed,0.6075617678893543,-2.1907405748718336,0.256462832001387,1.3212616894070932,3,1,0,3
+multi-core,cv_C_pct,soft,0.5,frequency pinning removed,-0.04011416221228836,-2.298112000516335,0.4411453160110863,0.21484370663696928,2,2,0,2
+multi-core,cv_C_pct,soft,0.5,boot-params bundle removed,-0.12263728297913223,-1.681305534471546,0.04722417248002575,0.37721957784992965,2,2,0,2
+multi-core,cv_C_pct,soft,0.5,all defaults,3.4324886807645014,-2.241836266389835,0.2181473002168809,2.4273080387366175,3,1,0,3
+multi-core,cv_C_pct,soft,0.7,isolcpus removed,0.3774139127291136,2.158958658869733,-0.01722969906505789,-0.8589427421123166,2,2,0,2
+multi-core,cv_C_pct,soft,0.7,nohz_full removed,-0.24229595757205424,-1.238916898292182,0.19914022797973896,-0.5731743449414993,1,3,0,3
+multi-core,cv_C_pct,soft,0.7,rcu_nocbs removed,0.3639433213300478,-1.2753688509719245,0.31146911822597534,-0.7875726829536613,2,2,0,2
+multi-core,cv_C_pct,soft,0.7,systemd containment removed,1.5546468474582151,-1.2758939936204572,-0.4478363748397207,-0.33853168128100675,1,3,0,3
+multi-core,cv_C_pct,soft,0.7,IRQ steering removed,0.38727037265753195,-1.2803552702052015,0.23408178851485073,-0.4165530499577368,2,2,0,2
+multi-core,cv_C_pct,soft,0.7,frequency pinning removed,-0.3290073444986869,-1.5497194370428966,-0.05909113023927559,0.11887152559928649,1,3,0,3
+multi-core,cv_C_pct,soft,0.7,boot-params bundle removed,0.46228874816343946,-1.819704133625792,-0.4488966969641546,0.1423071007828316,2,2,0,2
+multi-core,cv_C_pct,soft,0.7,all defaults,0.269030625170386,-1.4493387649673823,-0.03650368027241491,-0.09906876632035844,1,3,0,3
+multi-core,cv_C_pct,soft,0.94,nohz_full removed,-0.17530290086165579,-0.5281215726018547,0.4221877816971666,-0.36263321387370395,1,3,0,3
+multi-core,cv_C_pct,soft,0.94,rcu_nocbs removed,0.5719625166941452,-0.3388054343720368,0.1852793091349592,-0.6790729524915657,2,2,0,2
+multi-core,cv_C_pct,soft,0.94,systemd containment removed,-0.1294692694863976,-0.5958087896848085,-0.027998671731774283,0.13052690826407298,1,3,0,3
+multi-core,cv_C_pct,soft,0.94,IRQ steering removed,0.5105844449291593,-0.3939528016426953,0.2402393768422017,-0.4613810753129718,2,2,0,2
+multi-core,cv_C_pct,soft,0.94,frequency pinning removed,-0.1855657287370026,-0.4317008901580811,0.3623994946419042,-0.3121749301205833,1,3,0,3
+multi-core,cv_C_pct,soft,0.94,boot-params bundle removed,-0.2689636635490008,-0.4411434617020049,-0.12822986065820974,-0.0848310437175619,0,4,0,4
+multi-core,interrupted_jobs_pct,tight,0.1,isolcpus removed,0.9399999999999998,4.379999999999999,-0.1,0.0,2,1,1,2
+multi-core,interrupted_jobs_pct,tight,0.1,nohz_full removed,-0.14,-2.2399999999999998,-0.24000000000000002,-0.04,0,4,0,4
+multi-core,interrupted_jobs_pct,tight,0.1,rcu_nocbs removed,0.04000000000000001,-2.2199999999999998,-0.22,0.019999999999999997,2,2,0,2
+multi-core,interrupted_jobs_pct,tight,0.1,systemd containment removed,3.02,-1.14,-0.22,0.22,2,2,0,2
+multi-core,interrupted_jobs_pct,tight,0.1,IRQ steering removed,-0.06,-0.47999999999999976,-0.1,0.38,1,3,0,3
+multi-core,interrupted_jobs_pct,tight,0.1,frequency pinning removed,0.43999999999999995,97.64,0.41999999999999993,1.92,4,0,0,4
+multi-core,interrupted_jobs_pct,tight,0.1,boot-params bundle removed,0.88,-2.0199999999999996,0.0,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,tight,0.1,all defaults,0.07999999999999999,-2.1199999999999997,71.82,0.3,3,1,0,3
+multi-core,interrupted_jobs_pct,tight,0.5,isolcpus removed,0.02,3.6999999999999997,0.04,-0.02,3,1,0,3
+multi-core,interrupted_jobs_pct,tight,0.5,nohz_full removed,-0.02,-0.04000000000000001,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,tight,0.5,rcu_nocbs removed,-0.02,-0.1,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,tight,0.5,systemd containment removed,0.02,0.1,0.0,0.0,2,0,2,2
+multi-core,interrupted_jobs_pct,tight,0.5,IRQ steering removed,0.0,-0.08,0.0,0.14,1,1,2,1
+multi-core,interrupted_jobs_pct,tight,0.5,frequency pinning removed,0.09999999999999999,-0.1,0.0,0.22,2,1,1,2
+multi-core,interrupted_jobs_pct,tight,0.5,boot-params bundle removed,0.5,-0.060000000000000005,0.0,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,tight,0.5,all defaults,0.039999999999999994,-0.1,0.0,0.02,2,1,1,2
+multi-core,interrupted_jobs_pct,tight,0.7,isolcpus removed,1.18,3.4,-0.02,0.0,2,1,1,2
+multi-core,interrupted_jobs_pct,tight,0.7,nohz_full removed,0.0,-0.12,-0.02,-0.02,0,3,1,3
+multi-core,interrupted_jobs_pct,tight,0.7,rcu_nocbs removed,0.02,-0.12,0.0,-0.02,1,2,1,2
+multi-core,interrupted_jobs_pct,tight,0.7,systemd containment removed,0.74,-0.12,0.0,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,tight,0.7,IRQ steering removed,0.0,-0.09999999999999999,0.0,0.0,0,1,3,1
+multi-core,interrupted_jobs_pct,tight,0.7,frequency pinning removed,0.0,-0.12,-0.02,0.039999999999999994,1,2,1,2
+multi-core,interrupted_jobs_pct,tight,0.7,boot-params bundle removed,0.48,-0.12,0.02,-0.02,2,2,0,2
+multi-core,interrupted_jobs_pct,tight,0.7,all defaults,0.08,-0.12,-0.02,0.11999999999999998,2,2,0,2
+multi-core,interrupted_jobs_pct,tight,0.94,nohz_full removed,0.0,0.02,0.0,0.0,1,0,3,1
+multi-core,interrupted_jobs_pct,tight,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.02,1,0,3,1
+multi-core,interrupted_jobs_pct,tight,0.94,systemd containment removed,0.5599999999999999,0.0,0.0,0.0,1,0,3,1
+multi-core,interrupted_jobs_pct,tight,0.94,IRQ steering removed,0.0,0.0,0.0,0.02,1,0,3,1
+multi-core,interrupted_jobs_pct,tight,0.94,frequency pinning removed,0.02,0.0,0.0,0.08,2,0,2,2
+multi-core,interrupted_jobs_pct,tight,0.94,boot-params bundle removed,0.5,0.02,0.0,0.0,2,0,2,2
+multi-core,interrupted_jobs_pct,soft,0.1,isolcpus removed,0.45999999999999996,-2.04,-0.02,0.0,1,2,1,2
+multi-core,interrupted_jobs_pct,soft,0.1,nohz_full removed,0.24000000000000002,0.0,-0.02,0.12,2,1,1,2
+multi-core,interrupted_jobs_pct,soft,0.1,rcu_nocbs removed,-0.02,-1.84,-0.02,0.0,0,3,1,3
+multi-core,interrupted_jobs_pct,soft,0.1,systemd containment removed,9.7,-2.08,0.09999999999999999,0.04,3,1,0,3
+multi-core,interrupted_jobs_pct,soft,0.1,IRQ steering removed,0.0,-2.08,0.2,2.02,2,1,1,2
+multi-core,interrupted_jobs_pct,soft,0.1,frequency pinning removed,-0.02,-2.06,-0.02,0.58,1,3,0,3
+multi-core,interrupted_jobs_pct,soft,0.1,boot-params bundle removed,-0.02,-1.7000000000000002,0.0,0.06,1,2,1,2
+multi-core,interrupted_jobs_pct,soft,0.1,all defaults,5.140000000000001,-2.08,-0.02,2.6599999999999997,2,2,0,2
+multi-core,interrupted_jobs_pct,soft,0.5,isolcpus removed,-0.02,-0.039999999999999994,0.13999999999999999,0.0,1,2,1,2
+multi-core,interrupted_jobs_pct,soft,0.5,nohz_full removed,-0.02,0.27999999999999997,0.0,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.5,rcu_nocbs removed,-0.02,-0.06,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.5,systemd containment removed,0.11999999999999998,-0.039999999999999994,0.0,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.5,IRQ steering removed,-0.02,-0.06,0.0,0.02,1,2,1,2
+multi-core,interrupted_jobs_pct,soft,0.5,frequency pinning removed,0.0,-0.039999999999999994,0.0,0.0,0,1,3,1
+multi-core,interrupted_jobs_pct,soft,0.5,boot-params bundle removed,-0.02,-0.039999999999999994,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.5,all defaults,0.25999999999999995,-0.039999999999999994,0.02,0.08,3,1,0,3
+multi-core,interrupted_jobs_pct,soft,0.7,isolcpus removed,0.0,0.18,0.0,0.0,1,0,3,1
+multi-core,interrupted_jobs_pct,soft,0.7,nohz_full removed,0.0,-0.08,0.0,0.0,0,1,3,1
+multi-core,interrupted_jobs_pct,soft,0.7,rcu_nocbs removed,0.0,-0.08,0.02,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.7,systemd containment removed,0.2,-0.06,0.0,0.02,2,1,1,2
+multi-core,interrupted_jobs_pct,soft,0.7,IRQ steering removed,0.0,-0.08,0.0,0.02,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.7,frequency pinning removed,0.0,-0.08,0.0,0.02,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.7,boot-params bundle removed,0.0,-0.08,0.04,0.0,1,1,2,1
+multi-core,interrupted_jobs_pct,soft,0.7,all defaults,0.02,0.15999999999999998,0.0,1.54,3,0,1,3
+multi-core,interrupted_jobs_pct,soft,0.94,nohz_full removed,-0.02,-0.06,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.94,rcu_nocbs removed,-0.02,-0.06,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.94,systemd containment removed,-0.02,-0.039999999999999994,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.94,IRQ steering removed,-0.02,-0.06,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.94,frequency pinning removed,-0.02,-0.06,0.0,0.0,0,2,2,2
+multi-core,interrupted_jobs_pct,soft,0.94,boot-params bundle removed,-0.02,0.04000000000000001,0.0,0.0,1,1,2,1
+multi-core,switched_jobs_pct,tight,0.1,isolcpus removed,1.04,4.4,0.5,-0.019999999999999997,3,1,0,3
+multi-core,switched_jobs_pct,tight,0.1,nohz_full removed,-0.12,-2.44,-0.24000000000000002,-0.06,0,4,0,4
+multi-core,switched_jobs_pct,tight,0.1,rcu_nocbs removed,0.04000000000000001,-2.42,-0.22,0.020000000000000004,2,2,0,2
+multi-core,switched_jobs_pct,tight,0.1,systemd containment removed,4.14,66.96,-0.22,85.78,3,1,0,3
+multi-core,switched_jobs_pct,tight,0.1,IRQ steering removed,-0.06,-0.6599999999999999,-0.06,0.52,1,3,0,3
+multi-core,switched_jobs_pct,tight,0.1,frequency pinning removed,0.45999999999999996,97.44,99.44,14.54,4,0,0,4
+multi-core,switched_jobs_pct,tight,0.1,boot-params bundle removed,0.86,-2.2199999999999998,0.0,0.0,1,1,2,1
+multi-core,switched_jobs_pct,tight,0.1,all defaults,0.1,-1.0999999999999999,71.82,0.3,3,1,0,3
+multi-core,switched_jobs_pct,tight,0.5,isolcpus removed,-1.5999999999999999,6.039999999999999,0.06,-0.04,2,2,0,2
+multi-core,switched_jobs_pct,tight,0.5,nohz_full removed,-1.42,1.7800000000000002,0.36,0.42,3,1,0,3
+multi-core,switched_jobs_pct,tight,0.5,rcu_nocbs removed,-1.66,-0.2,0.0,0.0,0,2,2,2
+multi-core,switched_jobs_pct,tight,0.5,systemd containment removed,-1.6199999999999999,0.21999999999999997,0.0,0.0,1,1,2,1
+multi-core,switched_jobs_pct,tight,0.5,IRQ steering removed,-1.46,-0.18000000000000002,0.02,0.12,2,2,0,2
+multi-core,switched_jobs_pct,tight,0.5,frequency pinning removed,-1.48,-0.18000000000000002,0.0,0.34,1,2,1,2
+multi-core,switched_jobs_pct,tight,0.5,boot-params bundle removed,-0.88,-0.14,0.0,-0.02,0,3,1,3
+multi-core,switched_jobs_pct,tight,0.5,all defaults,-1.46,-0.2,0.0,0.0,0,2,2,2
+multi-core,switched_jobs_pct,tight,0.7,isolcpus removed,1.6,3.32,-0.02,0.0,2,1,1,2
+multi-core,switched_jobs_pct,tight,0.7,nohz_full removed,0.24,-0.2,0.24000000000000002,-0.02,2,2,0,2
+multi-core,switched_jobs_pct,tight,0.7,rcu_nocbs removed,0.0,-0.2,0.0,-0.02,0,2,2,2
+multi-core,switched_jobs_pct,tight,0.7,systemd containment removed,0.8200000000000001,-0.2,0.02,0.0,2,1,1,2
+multi-core,switched_jobs_pct,tight,0.7,IRQ steering removed,0.02,-0.18000000000000002,0.0,0.09999999999999999,2,1,1,2
+multi-core,switched_jobs_pct,tight,0.7,frequency pinning removed,0.0,-0.16,-0.02,0.039999999999999994,1,2,1,2
+multi-core,switched_jobs_pct,tight,0.7,boot-params bundle removed,0.5599999999999999,-0.2,0.02,-0.02,2,2,0,2
+multi-core,switched_jobs_pct,tight,0.7,all defaults,0.08,-0.18000000000000002,0.0,0.36,2,1,1,2
+multi-core,switched_jobs_pct,tight,0.94,nohz_full removed,0.24,0.26,0.26,-0.02,3,1,0,3
+multi-core,switched_jobs_pct,tight,0.94,rcu_nocbs removed,0.0,0.0,0.0,-0.02,0,1,3,1
+multi-core,switched_jobs_pct,tight,0.94,systemd containment removed,0.4,0.0,0.0,-0.02,1,1,2,1
+multi-core,switched_jobs_pct,tight,0.94,IRQ steering removed,0.0,0.0,0.0,0.02,1,0,3,1
+multi-core,switched_jobs_pct,tight,0.94,frequency pinning removed,0.0,0.0,0.0,0.06,1,0,3,1
+multi-core,switched_jobs_pct,tight,0.94,boot-params bundle removed,0.32,0.0,0.0,-0.02,1,1,2,1
+multi-core,switched_jobs_pct,soft,0.1,isolcpus removed,0.54,-4.1000000000000005,-0.02,0.0,1,2,1,2
+multi-core,switched_jobs_pct,soft,0.1,nohz_full removed,0.32,-1.2600000000000002,-0.02,0.0,1,2,1,2
+multi-core,switched_jobs_pct,soft,0.1,rcu_nocbs removed,0.26,37.339999999999996,-0.02,0.0,2,1,1,2
+multi-core,switched_jobs_pct,soft,0.1,systemd containment removed,9.32,-4.2,0.33999999999999997,0.02,3,1,0,3
+multi-core,switched_jobs_pct,soft,0.1,IRQ steering removed,0.02,-4.2,40.8,2.2800000000000002,3,1,0,3
+multi-core,switched_jobs_pct,soft,0.1,frequency pinning removed,0.0,-4.2,-0.02,0.18,1,2,1,2
+multi-core,switched_jobs_pct,soft,0.1,boot-params bundle removed,0.0,-4.180000000000001,0.0,0.06,1,1,2,1
+multi-core,switched_jobs_pct,soft,0.1,all defaults,5.54,-4.2,2.48,2.6599999999999997,3,1,0,3
+multi-core,switched_jobs_pct,soft,0.5,isolcpus removed,0.02,0.0,8.18,0.02,3,0,1,3
+multi-core,switched_jobs_pct,soft,0.5,nohz_full removed,0.02,0.0,0.0,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.5,rcu_nocbs removed,0.02,0.0,0.0,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.5,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.5,IRQ steering removed,0.0,0.0,0.02,0.04,2,0,2,2
+multi-core,switched_jobs_pct,soft,0.5,frequency pinning removed,0.02,0.0,0.0,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.5,boot-params bundle removed,0.0,0.04,0.24,0.04,3,0,1,3
+multi-core,switched_jobs_pct,soft,0.5,all defaults,0.16,0.0,2.5,0.04,3,0,1,3
+multi-core,switched_jobs_pct,soft,0.7,isolcpus removed,0.0,0.18,0.0,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.7,nohz_full removed,2.5,2.5,0.0,0.0,2,0,2,2
+multi-core,switched_jobs_pct,soft,0.7,rcu_nocbs removed,0.0,0.0,0.02,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.7,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.7,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.7,frequency pinning removed,0.0,0.0,0.02,0.0,1,0,3,1
+multi-core,switched_jobs_pct,soft,0.7,boot-params bundle removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.7,all defaults,0.0,2.5,2.5,2.52,3,0,1,3
+multi-core,switched_jobs_pct,soft,0.94,nohz_full removed,2.5,0.0,0.0,2.5,2,0,2,2
+multi-core,switched_jobs_pct,soft,0.94,rcu_nocbs removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.94,systemd containment removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.94,IRQ steering removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.94,frequency pinning removed,0.0,0.0,0.0,0.0,0,0,4,0
+multi-core,switched_jobs_pct,soft,0.94,boot-params bundle removed,0.02,0.0,0.0,0.0,1,0,3,1

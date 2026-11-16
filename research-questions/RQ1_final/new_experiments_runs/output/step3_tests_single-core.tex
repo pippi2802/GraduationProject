@@ -1,0 +1,21 @@
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{l|rrr|rrr}
+\toprule
+ & \multicolumn{3}{c|}{Miss+skip rate} & \multicolumn{3}{c}{Tail spread} \\
+Configuration & $p$ & $p_{\mathrm{Holm}}$ & HL [pp] & $p$ & $p_{\mathrm{Holm}}$ & HL [factor] \\
+\midrule
+isolcpus removed & 0.3171 & 1.0000 & +0.000 & 0.0894 & 0.2556 & 1.03 \\
+nohz\_full removed & 0.4610 & 1.0000 & +0.000 & 0.0183 & 0.0730 & 1.02 \\
+rcu\_nocbs removed & 0.5412 & 1.0000 & +0.000 & 0.0054 & 0.0269 & 1.01 \\
+systemd containment removed & 0.4828 & 1.0000 & +0.000 & 0.0852 & 0.2556 & 1.00 \\
+IRQ steering removed & 0.0004 & 0.0034 & +0.000 & <0.0001 & 0.0002 & 1.05 \\
+frequency pinning removed & 0.2646 & 1.0000 & +0.000 & 0.0003 & 0.0018 & 1.02 \\
+boot-params bundle removed & 0.8038 & 1.0000 & +0.000 & 0.1421 & 0.2556 & 1.01 \\
+all defaults & 0.1212 & 0.8487 & +0.000 & 0.0026 & 0.0154 & 1.04 \\
+\bottomrule
+\end{tabular}
+\caption{Tests against full isolation, single-core. One-sided stratified Wilcoxon rank-sum permutation test (strata: cells; 100\,000 permutations), $p_{\mathrm{Holm}}$ within placement and metric. HL: Hodges--Lehmann shift (configuration minus full isolation; percentage points for the miss+skip rate, multiplicative factor for the tail spread), pooled over the cells with runs of both.}
+\label{tab:rq1-rerun-tests-single-core}
+\end{table}

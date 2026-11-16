@@ -1,0 +1,24 @@
+\begin{table}[ht]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|rrrr|rrrr}
+\toprule
+ & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+full isolation & 78\% (7/9) & 0\% (0/3) & 0\% (0/1) & 0\% (0/2) & -- & -- & -- & -- \\
+\cmidrule{1-9}
+isolcpus removed & 94\% (77/82) & 20\% (1/5) & 86\% (18/21) & n/r & 100\% (2/2) & -- & -- & n/r \\
+nohz\_full removed & -- & 0\% (0/1) & -- & -- & -- & -- & -- & -- \\
+rcu\_nocbs removed & 100\% (4/4) & 0\% (0/2) & 0\% (0/2) & 0\% (0/3) & -- & -- & -- & -- \\
+systemd containment removed & 79\% (11/14) & 0\% (0/1) & 0\% (0/3) & 29\% (2/7) & -- & -- & -- & -- \\
+IRQ steering removed & 100\% (4/4) & -- & 0\% (0/1) & 0\% (0/4) & -- & -- & -- & -- \\
+frequency pinning removed & 100\% (1/1) & 0\% (0/2) & 0\% (0/1) & 25\% (2/8) & -- & -- & -- & -- \\
+boot-params bundle removed & 91\% (32/35) & 0\% (0/2) & 100\% (1/1) & 25\% (2/8) & -- & -- & -- & -- \\
+all defaults & 57\% (4/7) & 0\% (0/1) & 25\% (1/4) & n/r & 93\% (14/15) & -- & -- & n/r \\
+\bottomrule
+\end{tabular}}
+\caption{Throttle test, multi-core: among the missed jobs with $C \le Q$, the share whose mid-job preemption lies within 10\% of $P-Q$ (number of such jobs in brackets, the four rounds pooled). --: no missed job with $C \le Q$. n/r: not run.}
+\label{tab:rq1-rerun-throttle-multi-core}
+\end{table}
