@@ -40,7 +40,8 @@ spec:
         - |
           set -e; mkdir -p /results; rm -f /results/jobs.csv /results/jobs_2.csv || true
           echo "RT_CPUSET=$RT_CPUSET"
-          CPU_A=$(echo "$RT_CPUSET" | cut -d, -f1); CPU_B=$(echo "$RT_CPUSET" | cut -d, -f2)
+          # the driver writes RT_CPUSET with ',' and '-' both as plain delimiters ("1-3" = cpus 1 and 3, NOT the range 1,2,3; see workload.c parse_cpu_list)
+          CPU_A=$(echo "$RT_CPUSET" | tr '-' ',' | cut -d, -f1); CPU_B=$(echo "$RT_CPUSET" | tr '-' ',' | cut -d, -f2)
           if [ -z "$CPU_A" ] || [ -z "$CPU_B" ] || [ "$CPU_A" = "$CPU_B" ]; then echo "ERROR: need two distinct cpus in RT_CPUSET, got '$RT_CPUSET'" >&2; exit 1; fi
           echo "pinning: thread 1 -> cpu $CPU_A, thread 2 -> cpu $CPU_B"
           taskset -c $CPU_A /usr/local/bin/workload --K 463 --sieve-n 8192 --period-us 10000 \
