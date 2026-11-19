@@ -1,0 +1,545 @@
+placement,configuration,scale,U,round,M,S,jobs
+single-core,full isolation,soft,0.1,1,0.0,1.0431210687609147,10000
+single-core,full isolation,soft,0.1,2,0.09995002498750624,1.1085357601819223,10000
+single-core,full isolation,soft,0.1,3,0.059982005398380486,1.053589578199355,10000
+single-core,full isolation,soft,0.1,4,0.019998000199980003,1.045275916379277,10000
+single-core,full isolation,soft,0.5,1,0.019998000199980003,1.0387376478917991,10000
+single-core,full isolation,soft,0.5,2,0.0,1.0613004781648891,10000
+single-core,full isolation,soft,0.5,3,0.0,1.0477439087864115,10000
+single-core,full isolation,soft,0.5,4,0.0,1.0446916445485717,10000
+single-core,full isolation,soft,0.7,1,0.06995802518488907,1.0344158524857763,10000
+single-core,full isolation,soft,0.7,2,0.0,1.0259561717687387,10000
+single-core,full isolation,soft,0.7,3,0.019998000199980003,1.0670286060695866,10000
+single-core,full isolation,soft,0.7,4,0.0,1.0407634165888962,10000
+single-core,full isolation,soft,0.94,1,0.019998000199980003,1.054418807980674,10000
+single-core,full isolation,soft,0.94,2,0.0,1.0353927109208698,10000
+single-core,full isolation,soft,0.94,3,0.0,1.0255218930415906,10000
+single-core,full isolation,soft,0.94,4,0.0,1.063792303854766,10000
+single-core,full isolation,tight,0.1,1,0.019998000199980003,6.592708741207271,10000
+single-core,full isolation,tight,0.1,2,0.059982005398380486,1.1318847350238488,10000
+single-core,full isolation,tight,0.1,3,0.059982005398380486,11.75937130696736,10000
+single-core,full isolation,tight,0.1,4,0.0,1.1102512613521738,10000
+single-core,full isolation,tight,0.5,1,0.019998000199980003,1.1521499524792054,10000
+single-core,full isolation,tight,0.5,2,0.019998000199980003,1.1413632399141578,10000
+single-core,full isolation,tight,0.5,3,0.019998000199980003,1.1080444525256792,10000
+single-core,full isolation,tight,0.5,4,0.019998000199980003,1.1026779781073373,10000
+single-core,full isolation,tight,0.7,1,0.20958083832335328,1.0703894767545707,10000
+single-core,full isolation,tight,0.7,2,0.0,1.0719847129265425,10000
+single-core,full isolation,tight,0.7,3,0.03999200159968006,1.0575740745276203,10000
+single-core,full isolation,tight,0.7,4,0.0,1.1352085961853486,10000
+single-core,full isolation,tight,0.94,1,0.03999200159968006,1.1102562999879368,10000
+single-core,full isolation,tight,0.94,2,0.019998000199980003,1.083713202336384,10000
+single-core,full isolation,tight,0.94,3,0.059976009596161534,1.1531258903068928,10000
+single-core,full isolation,tight,0.94,4,0.03999200159968006,1.1208853724026717,10000
+single-core,isolcpus reverted,soft,0.1,1,7.941232955636643,12.090496674301093,10000
+single-core,isolcpus reverted,soft,0.1,2,3.8446449588073754,12.01678673520766,10000
+single-core,isolcpus reverted,soft,0.1,3,0.0,1.0720584508602966,10000
+single-core,isolcpus reverted,soft,0.1,4,0.07996801279488205,1.1598195538312792,10000
+single-core,isolcpus reverted,soft,0.5,1,5.5231427460132245,2.7124639537562585,10000
+single-core,isolcpus reverted,soft,0.5,2,0.059982005398380486,1.1311601146202495,10000
+single-core,isolcpus reverted,soft,0.5,3,0.029994001199760048,1.0779899059799682,10000
+single-core,isolcpus reverted,soft,0.5,4,0.059982005398380486,1.1117054169536018,10000
+single-core,isolcpus reverted,soft,0.7,1,1.7446471054718478,1.940495809620206,10000
+single-core,isolcpus reverted,soft,0.7,2,0.0,1.0792502221597886,10000
+single-core,isolcpus reverted,soft,0.7,3,0.0,1.0664436841329081,10000
+single-core,isolcpus reverted,soft,0.7,4,0.0,1.1013266391678163,10000
+single-core,isolcpus reverted,tight,0.1,1,4.80881779165041,26.00171370545984,10000
+single-core,isolcpus reverted,tight,0.1,2,0.15987210231814547,12.574468617829853,10000
+single-core,isolcpus reverted,tight,0.1,3,0.09995002498750624,1.2981118359092656,10000
+single-core,isolcpus reverted,tight,0.1,4,0.059982005398380486,1.224113358323239,10000
+single-core,isolcpus reverted,tight,0.5,1,2.6445628577067297,3.0556462469624552,10000
+single-core,isolcpus reverted,tight,0.5,2,0.019998000199980003,1.1719975317724802,10000
+single-core,isolcpus reverted,tight,0.5,3,0.07996801279488205,1.2588388222875204,10000
+single-core,isolcpus reverted,tight,0.5,4,0.059982005398380486,1.2020420751050347,10000
+single-core,isolcpus reverted,tight,0.7,1,1.4494192395512757,2.1153759974476922,10000
+single-core,isolcpus reverted,tight,0.7,2,0.1399020685520136,1.2865799948433816,10000
+single-core,isolcpus reverted,tight,0.7,3,0.059982005398380486,1.1708251695585934,10000
+single-core,isolcpus reverted,tight,0.7,4,0.019998000199980003,1.165446491811128,10000
+single-core,nohz_full reverted,soft,0.1,1,1.685671789786812,11.989545648207852,10000
+single-core,nohz_full reverted,soft,0.1,2,4.113614103819785,11.70638862913988,10000
+single-core,nohz_full reverted,soft,0.1,3,0.7769698177109274,12.38069140486906,10000
+single-core,nohz_full reverted,soft,0.1,4,0.059982005398380486,1.056743350854687,10000
+single-core,nohz_full reverted,soft,0.5,1,0.0,1.106043419748937,10000
+single-core,nohz_full reverted,soft,0.5,2,0.0,1.1797317633827207,10000
+single-core,nohz_full reverted,soft,0.5,3,0.0,1.0842892431995776,10000
+single-core,nohz_full reverted,soft,0.5,4,0.0,1.0526246270048347,10000
+single-core,nohz_full reverted,soft,0.7,1,0.0,1.091500845829557,10000
+single-core,nohz_full reverted,soft,0.7,2,0.0,1.125663794289324,10000
+single-core,nohz_full reverted,soft,0.7,3,0.0,1.075644047338715,10000
+single-core,nohz_full reverted,soft,0.7,4,0.0,1.0648927543932432,10000
+single-core,nohz_full reverted,soft,0.94,1,0.0,1.043187015138988,10000
+single-core,nohz_full reverted,soft,0.94,2,0.0,1.100123306310612,10000
+single-core,nohz_full reverted,soft,0.94,3,0.0,1.045103281392886,10000
+single-core,nohz_full reverted,soft,0.94,4,0.0,1.0415299980457935,10000
+single-core,nohz_full reverted,tight,0.1,1,0.3991617603033629,13.986089479829628,10000
+single-core,nohz_full reverted,tight,0.1,2,1.4686910786940557,14.054256615709164,10000
+single-core,nohz_full reverted,tight,0.1,3,0.09995002498750624,1.3018275444384593,10000
+single-core,nohz_full reverted,tight,0.1,4,0.019998000199980003,1.2108700974863964,10000
+single-core,nohz_full reverted,tight,0.5,1,0.019998000199980003,1.1691565556129682,10000
+single-core,nohz_full reverted,tight,0.5,2,0.4191198483185311,2.859630769186979,10000
+single-core,nohz_full reverted,tight,0.5,3,0.03999200159968006,1.0709043194422796,10000
+single-core,nohz_full reverted,tight,0.5,4,0.0,1.0628951871183676,10000
+single-core,nohz_full reverted,tight,0.7,1,0.03999200159968006,1.2238120676997146,10000
+single-core,nohz_full reverted,tight,0.7,2,0.09995002498750624,1.26196186086891,10000
+single-core,nohz_full reverted,tight,0.7,3,0.0,1.0494188091004475,10000
+single-core,nohz_full reverted,tight,0.7,4,0.0,1.058674567952177,10000
+single-core,nohz_full reverted,tight,0.94,1,0.0,1.1351244082288636,10000
+single-core,nohz_full reverted,tight,0.94,2,0.1399020685520136,1.3641407901224727,10000
+single-core,nohz_full reverted,tight,0.94,3,0.0,1.039495263400463,10000
+single-core,nohz_full reverted,tight,0.94,4,0.0,1.051145167387249,10000
+single-core,rcu_nocbs reverted,soft,0.1,1,0.019998000199980003,1.144135228053771,10000
+single-core,rcu_nocbs reverted,soft,0.1,2,0.03999200159968006,1.103522344676876,10000
+single-core,rcu_nocbs reverted,soft,0.1,3,0.019998000199980003,1.0929626287212557,10000
+single-core,rcu_nocbs reverted,soft,0.1,4,0.0,1.1154541447814088,10000
+single-core,rcu_nocbs reverted,soft,0.5,1,0.0,1.075236266792458,10000
+single-core,rcu_nocbs reverted,soft,0.5,2,0.0,1.0434601758376276,10000
+single-core,rcu_nocbs reverted,soft,0.5,3,0.0,1.046205571912822,10000
+single-core,rcu_nocbs reverted,soft,0.5,4,0.0,1.0318697857119485,10000
+single-core,rcu_nocbs reverted,soft,0.7,1,0.0,1.055749423820388,10000
+single-core,rcu_nocbs reverted,soft,0.7,2,0.0,1.0391346781926725,10000
+single-core,rcu_nocbs reverted,soft,0.7,3,0.0,1.028053729666459,10000
+single-core,rcu_nocbs reverted,soft,0.7,4,0.0,1.0371164993632134,10000
+single-core,rcu_nocbs reverted,soft,0.94,1,0.0,1.0548125931259926,10000
+single-core,rcu_nocbs reverted,soft,0.94,2,0.0,1.0298650852254054,10000
+single-core,rcu_nocbs reverted,soft,0.94,3,0.0,1.0326693059445564,10000
+single-core,rcu_nocbs reverted,soft,0.94,4,0.0,1.059968859170762,10000
+single-core,rcu_nocbs reverted,tight,0.1,1,0.44896737503741396,13.75957744433125,10000
+single-core,rcu_nocbs reverted,tight,0.1,2,0.0,1.0898459617931318,10000
+single-core,rcu_nocbs reverted,tight,0.1,3,0.0,1.0880227330047796,10000
+single-core,rcu_nocbs reverted,tight,0.1,4,0.03999200159968006,1.0927647249423729,10000
+single-core,rcu_nocbs reverted,tight,0.5,1,0.019998000199980003,1.120678779515098,10000
+single-core,rcu_nocbs reverted,tight,0.5,2,0.019998000199980003,1.0630447292790983,10000
+single-core,rcu_nocbs reverted,tight,0.5,3,0.22954091816367264,1.0929521963237032,10000
+single-core,rcu_nocbs reverted,tight,0.5,4,0.019998000199980003,1.0458634582678206,10000
+single-core,rcu_nocbs reverted,tight,0.7,1,0.03999200159968006,1.0677528028854515,10000
+single-core,rcu_nocbs reverted,tight,0.7,2,0.04998000799680128,1.0375253581600088,10000
+single-core,rcu_nocbs reverted,tight,0.7,3,0.019998000199980003,1.1287531311473964,10000
+single-core,rcu_nocbs reverted,tight,0.7,4,0.029994001199760048,1.064762626013449,10000
+single-core,rcu_nocbs reverted,tight,0.94,1,0.019998000199980003,1.0705597754300016,10000
+single-core,rcu_nocbs reverted,tight,0.94,2,0.019998000199980003,1.0425202144107233,10000
+single-core,rcu_nocbs reverted,tight,0.94,3,0.0,1.061926129774795,10000
+single-core,rcu_nocbs reverted,tight,0.94,4,0.03999200159968006,1.0454846371896023,10000
+single-core,systemd containment reverted,soft,0.1,1,0.019998000199980003,1.0838716701977567,10000
+single-core,systemd containment reverted,soft,0.1,2,0.11992804317409554,1.0666848425003659,10000
+single-core,systemd containment reverted,soft,0.1,3,0.4589444278160231,11.907771865333274,10000
+single-core,systemd containment reverted,soft,0.1,4,1.6463354160468116,12.13260738804646,10000
+single-core,systemd containment reverted,soft,0.5,1,0.019998000199980003,1.0580358671233483,10000
+single-core,systemd containment reverted,soft,0.5,2,0.019998000199980003,1.139643572845037,10000
+single-core,systemd containment reverted,soft,0.5,3,0.019998000199980003,1.0884634584456991,10000
+single-core,systemd containment reverted,soft,0.5,4,0.0,1.0611387961474765,10000
+single-core,systemd containment reverted,soft,0.7,1,0.0,1.0481228712547124,10000
+single-core,systemd containment reverted,soft,0.7,2,0.0,1.0485393172972628,10000
+single-core,systemd containment reverted,soft,0.7,3,0.0,1.038739896468249,10000
+single-core,systemd containment reverted,soft,0.7,4,0.019998000199980003,1.2370390979809134,10000
+single-core,systemd containment reverted,soft,0.94,1,0.0,1.0747349021438095,10000
+single-core,systemd containment reverted,soft,0.94,2,0.0,1.0831468952222791,10000
+single-core,systemd containment reverted,soft,0.94,3,0.0,1.0235937631771468,10000
+single-core,systemd containment reverted,soft,0.94,4,0.0,1.1664907395147746,10000
+single-core,systemd containment reverted,tight,0.1,1,1.0642530336184604,13.273659967290763,10000
+single-core,systemd containment reverted,tight,0.1,2,0.09995002498750624,1.176655804547471,10000
+single-core,systemd containment reverted,tight,0.1,3,4.24782225702261,12.222903808934928,10000
+single-core,systemd containment reverted,tight,0.1,4,0.6577636037472593,13.704967560501428,10000
+single-core,systemd containment reverted,tight,0.5,1,0.0,1.1050692239818702,10000
+single-core,systemd containment reverted,tight,0.5,2,0.0,1.1075132494778241,10000
+single-core,systemd containment reverted,tight,0.5,3,0.029994001199760048,1.0916622510039002,10000
+single-core,systemd containment reverted,tight,0.5,4,0.5186515060841811,2.9834518770805643,10000
+single-core,systemd containment reverted,tight,0.7,1,0.059982005398380486,1.0605580635275398,10000
+single-core,systemd containment reverted,tight,0.7,2,0.019998000199980003,1.0406028589364524,10000
+single-core,systemd containment reverted,tight,0.7,3,0.059982005398380486,1.1095633235112867,10000
+single-core,systemd containment reverted,tight,0.7,4,0.09995002498750624,1.3941153046926629,10000
+single-core,systemd containment reverted,tight,0.94,1,0.019998000199980003,1.2150376659620872,10000
+single-core,systemd containment reverted,tight,0.94,2,0.039988003598920324,1.1036504813884056,10000
+single-core,systemd containment reverted,tight,0.94,3,0.019998000199980003,1.0662560433884698,10000
+single-core,systemd containment reverted,tight,0.94,4,0.1299090636554412,1.3293697498856203,10000
+single-core,IRQ steering reverted,soft,0.1,1,0.019998000199980003,1.098457171481684,10000
+single-core,IRQ steering reverted,soft,0.1,2,0.019998000199980003,1.0517790806516099,10000
+single-core,IRQ steering reverted,soft,0.1,3,0.3792793691985228,11.80876702005863,10000
+single-core,IRQ steering reverted,soft,0.1,4,0.21971437131728752,3.1793811140256474,10000
+single-core,IRQ steering reverted,soft,0.5,1,0.0,1.0521239928299897,10000
+single-core,IRQ steering reverted,soft,0.5,2,0.0,1.069744742816342,10000
+single-core,IRQ steering reverted,soft,0.5,3,0.0,1.0523272308702374,10000
+single-core,IRQ steering reverted,soft,0.5,4,0.0,1.0324854983521503,10000
+single-core,IRQ steering reverted,soft,0.7,1,0.0,1.0498789789162106,10000
+single-core,IRQ steering reverted,soft,0.7,2,0.0,1.059633791187639,10000
+single-core,IRQ steering reverted,soft,0.7,3,0.0,1.0344535392724097,10000
+single-core,IRQ steering reverted,soft,0.7,4,0.0,1.0204657512270736,10000
+single-core,IRQ steering reverted,soft,0.94,1,0.13983220135836996,1.0784403256504964,10000
+single-core,IRQ steering reverted,soft,0.94,2,0.0,1.0426132803651138,10000
+single-core,IRQ steering reverted,soft,0.94,3,0.0,1.1037571618198172,10000
+single-core,IRQ steering reverted,soft,0.94,4,0.0,1.0511707685880038,10000
+single-core,IRQ steering reverted,tight,0.1,1,0.21975826590750175,12.53745866337609,10000
+single-core,IRQ steering reverted,tight,0.1,2,0.019998000199980003,1.2557070186408248,10000
+single-core,IRQ steering reverted,tight,0.1,3,0.29955067398901647,12.818116981612244,10000
+single-core,IRQ steering reverted,tight,0.1,4,0.5782652043868395,12.394798847333854,10000
+single-core,IRQ steering reverted,tight,0.5,1,0.09995002498750624,1.1513246419633207,10000
+single-core,IRQ steering reverted,tight,0.5,2,0.03999200159968006,1.19353145309956,10000
+single-core,IRQ steering reverted,tight,0.5,3,0.019998000199980003,1.0565411497833188,10000
+single-core,IRQ steering reverted,tight,0.5,4,0.09995002498750624,1.316100798154055,10000
+single-core,IRQ steering reverted,tight,0.7,1,0.059982005398380486,1.0626719053778362,10000
+single-core,IRQ steering reverted,tight,0.7,2,0.03999200159968006,1.1236559487898865,10000
+single-core,IRQ steering reverted,tight,0.7,3,0.03999200159968006,1.0842665367596762,10000
+single-core,IRQ steering reverted,tight,0.7,4,0.03999200159968006,1.2257230708191702,10000
+single-core,IRQ steering reverted,tight,0.94,1,0.059982005398380486,1.138183838948398,10000
+single-core,IRQ steering reverted,tight,0.94,2,0.03999200159968006,1.1875321064201512,10000
+single-core,IRQ steering reverted,tight,0.94,3,0.019998000199980003,1.049486770181467,10000
+single-core,IRQ steering reverted,tight,0.94,4,0.059982005398380486,1.072167165339606,10000
+single-core,frequency pinning reverted,soft,0.1,1,0.09995002498750624,1.1784568083814275,10000
+single-core,frequency pinning reverted,soft,0.1,2,0.059982005398380486,1.0956497403167196,10000
+single-core,frequency pinning reverted,soft,0.1,3,0.0,1.0948489002549449,10000
+single-core,frequency pinning reverted,soft,0.1,4,0.43903412492516464,12.597882492333067,10000
+single-core,frequency pinning reverted,soft,0.5,1,0.0,1.068128359276987,10000
+single-core,frequency pinning reverted,soft,0.5,2,0.0,1.0606537994671896,10000
+single-core,frequency pinning reverted,soft,0.5,3,0.0,1.0526083190092266,10000
+single-core,frequency pinning reverted,soft,0.5,4,0.0,1.1034663123116335,10000
+single-core,frequency pinning reverted,soft,0.7,1,0.0,1.0762416078319161,10000
+single-core,frequency pinning reverted,soft,0.7,2,0.019998000199980003,1.0568225520772878,10000
+single-core,frequency pinning reverted,soft,0.7,3,0.0,1.0449542905631406,10000
+single-core,frequency pinning reverted,soft,0.7,4,0.0,1.0831311465470856,10000
+single-core,frequency pinning reverted,soft,0.94,1,0.0,1.0583735692076692,10000
+single-core,frequency pinning reverted,soft,0.94,2,0.0,1.037385479582682,10000
+single-core,frequency pinning reverted,soft,0.94,3,0.0,1.0650234769554254,10000
+single-core,frequency pinning reverted,soft,0.94,4,0.0,1.0768825552456487,10000
+single-core,frequency pinning reverted,tight,0.1,1,0.23971234518577705,13.886270032133982,10000
+single-core,frequency pinning reverted,tight,0.1,2,0.0,1.1073021995925527,10000
+single-core,frequency pinning reverted,tight,0.1,3,0.019998000199980003,1.0762282281872422,10000
+single-core,frequency pinning reverted,tight,0.1,4,0.14986512139074834,5.4706428534035645,10000
+single-core,frequency pinning reverted,tight,0.5,1,0.03999200159968006,1.1948157600264218,10000
+single-core,frequency pinning reverted,tight,0.5,2,0.019998000199980003,1.1454559486130511,10000
+single-core,frequency pinning reverted,tight,0.5,3,0.2891902672516953,1.160582284043575,10000
+single-core,frequency pinning reverted,tight,0.5,4,0.019998000199980003,1.3252402678575994,10000
+single-core,frequency pinning reverted,tight,0.7,1,0.07996801279488205,1.1565752708457124,10000
+single-core,frequency pinning reverted,tight,0.7,2,0.0,1.1011392038714374,10000
+single-core,frequency pinning reverted,tight,0.7,3,0.0,1.0615029961416538,10000
+single-core,frequency pinning reverted,tight,0.7,4,0.019998000199980003,1.0814279460190053,10000
+single-core,frequency pinning reverted,tight,0.94,1,0.019998000199980003,1.082723134419598,10000
+single-core,frequency pinning reverted,tight,0.94,2,0.019998000199980003,1.0440993503558997,10000
+single-core,frequency pinning reverted,tight,0.94,3,0.0,1.052690892924727,10000
+single-core,frequency pinning reverted,tight,0.94,4,0.07996801279488205,1.0764732509452701,10000
+single-core,boot-params bundle reverted,soft,0.1,1,0.0,1.091844221788769,10000
+single-core,boot-params bundle reverted,soft,0.1,2,0.9157873780609198,12.608703521973936,10000
+single-core,boot-params bundle reverted,soft,0.1,3,0.0,1.1310752498602574,10000
+single-core,boot-params bundle reverted,soft,0.1,4,0.0,1.1966860163399486,10000
+single-core,boot-params bundle reverted,soft,0.5,1,0.0,1.0506076250797576,10000
+single-core,boot-params bundle reverted,soft,0.5,2,0.0,1.067925436740077,10000
+single-core,boot-params bundle reverted,soft,0.5,3,0.0,1.0274589917917807,10000
+single-core,boot-params bundle reverted,soft,0.5,4,0.0,1.0478141348889718,10000
+single-core,boot-params bundle reverted,soft,0.7,1,0.0,1.02920667931393,10000
+single-core,boot-params bundle reverted,soft,0.7,2,0.0,1.0506702205047203,10000
+single-core,boot-params bundle reverted,soft,0.7,3,0.0,1.015486011979596,10000
+single-core,boot-params bundle reverted,soft,0.7,4,0.0,1.0482130163968084,10000
+single-core,boot-params bundle reverted,soft,0.94,1,0.0,1.0393637540030003,10000
+single-core,boot-params bundle reverted,soft,0.94,2,0.0,1.045440594493369,10000
+single-core,boot-params bundle reverted,soft,0.94,3,0.0,1.0222073602867052,10000
+single-core,boot-params bundle reverted,soft,0.94,4,0.0,1.060449518688973,10000
+single-core,boot-params bundle reverted,tight,0.1,1,0.0,1.342912374189151,10000
+single-core,boot-params bundle reverted,tight,0.1,2,0.019998000199980003,1.0932045147946823,10000
+single-core,boot-params bundle reverted,tight,0.1,3,0.029994001199760048,1.0669116493565096,10000
+single-core,boot-params bundle reverted,tight,0.1,4,0.03999200159968006,1.3252797333825852,10000
+single-core,boot-params bundle reverted,tight,0.5,1,0.019998000199980003,1.0880992200015391,10000
+single-core,boot-params bundle reverted,tight,0.5,2,0.019998000199980003,1.0983169007518898,10000
+single-core,boot-params bundle reverted,tight,0.5,3,0.0,1.0466020343768088,10000
+single-core,boot-params bundle reverted,tight,0.5,4,0.0,1.1290659843121356,10000
+single-core,boot-params bundle reverted,tight,0.7,1,0.0,1.0314036608521797,10000
+single-core,boot-params bundle reverted,tight,0.7,2,0.019998000199980003,1.0486812149396867,10000
+single-core,boot-params bundle reverted,tight,0.7,3,0.019998000199980003,1.056522760602684,10000
+single-core,boot-params bundle reverted,tight,0.7,4,0.019998000199980003,1.0807288458902031,10000
+single-core,boot-params bundle reverted,tight,0.94,1,0.029994001199760048,1.0537453032070356,10000
+single-core,boot-params bundle reverted,tight,0.94,2,0.03999200159968006,1.0710229864141285,10000
+single-core,boot-params bundle reverted,tight,0.94,3,0.059976009596161534,1.1325609613931558,10000
+single-core,boot-params bundle reverted,tight,0.94,4,0.019998000199980003,1.0723498738057953,10000
+single-core,all defaults,soft,0.1,1,1.1928429423459244,11.806256976391907,10000
+single-core,all defaults,soft,0.1,2,0.03999200159968006,1.03963715536157,10000
+single-core,all defaults,soft,0.1,3,0.0,1.0437134879588335,10000
+single-core,all defaults,soft,0.1,4,0.7571229328551504,11.84709767442459,10000
+single-core,all defaults,soft,0.5,1,0.0,1.1002565976862146,10000
+single-core,all defaults,soft,0.5,2,0.0,1.0227257538474002,10000
+single-core,all defaults,soft,0.5,3,0.0,1.0223372006331648,10000
+single-core,all defaults,soft,0.5,4,0.0,1.0701048047714867,10000
+single-core,all defaults,soft,0.7,1,0.5573248407643312,1.35057853590717,10000
+single-core,all defaults,soft,0.7,2,0.0,1.0264593824407304,10000
+single-core,all defaults,soft,0.7,3,0.0,1.1423133186272643,10000
+single-core,all defaults,soft,0.7,4,0.0,1.082060568210409,10000
+single-core,all defaults,tight,0.1,1,8.069439145364365,25.24770148166951,10000
+single-core,all defaults,tight,0.1,2,0.0,1.0845576991332353,10000
+single-core,all defaults,tight,0.1,3,0.0,1.0629459968922566,10000
+single-core,all defaults,tight,0.1,4,0.15987210231814547,1.2966428809415906,10000
+single-core,all defaults,tight,0.5,1,4.036050156739812,3.7010792589448727,10000
+single-core,all defaults,tight,0.5,2,0.0,1.081516118432715,10000
+single-core,all defaults,tight,0.5,3,0.0,1.0321962591597171,10000
+single-core,all defaults,tight,0.5,4,0.03999200159968006,1.0866708061912667,10000
+single-core,all defaults,tight,0.7,1,2.0977637047298634,2.24100805992601,10000
+single-core,all defaults,tight,0.7,2,0.0,1.1002891973582258,10000
+single-core,all defaults,tight,0.7,3,0.0,1.0322182021266266,10000
+single-core,all defaults,tight,0.7,4,0.07996801279488205,1.1554668539717563,10000
+multi-core,full isolation,soft,0.1,2,0.026663111585121985,15.160086450109127,15000
+multi-core,full isolation,soft,0.1,3,0.013332444503699753,1.351537498743038,15000
+multi-core,full isolation,soft,0.1,4,0.0,1.3509524081997835,15000
+multi-core,full isolation,soft,0.5,1,0.0,1.2995083628928685,15000
+multi-core,full isolation,soft,0.5,2,0.0,1.2630688932315137,15000
+multi-core,full isolation,soft,0.5,3,0.0,1.149982722860638,15000
+multi-core,full isolation,soft,0.5,4,0.0,1.1555325203769489,15000
+multi-core,full isolation,soft,0.7,1,0.0,1.2619420081490638,15000
+multi-core,full isolation,soft,0.7,2,0.0,1.1865378717679176,15000
+multi-core,full isolation,soft,0.7,3,0.0,1.1563970989461592,15000
+multi-core,full isolation,soft,0.7,4,0.0,1.172739121250684,15000
+multi-core,full isolation,soft,0.94,1,0.0,1.052314102900063,15000
+multi-core,full isolation,soft,0.94,2,0.22641006858893253,1.4861727906596747,15000
+multi-core,full isolation,soft,0.94,3,0.22641006858893253,1.507826408001594,15000
+multi-core,full isolation,soft,0.94,4,0.0,1.2886626976346331,15000
+multi-core,full isolation,tight,0.1,1,0.07328447701532312,11.211568552766778,15000
+multi-core,full isolation,tight,0.1,2,0.10660980810234541,12.686263511737698,15000
+multi-core,full isolation,tight,0.1,3,0.07329424307036247,1.6821824550358078,15000
+multi-core,full isolation,tight,0.1,4,0.0,11.050976813227667,15000
+multi-core,full isolation,tight,0.5,1,0.033326667999733384,1.5594305767077998,15000
+multi-core,full isolation,tight,0.5,2,0.06663113006396588,1.591728365259055,15000
+multi-core,full isolation,tight,0.5,3,0.06663557006730192,1.5559951716285823,15000
+multi-core,full isolation,tight,0.5,4,0.03998933617701946,1.5192054308141896,15000
+multi-core,full isolation,tight,0.7,1,0.03998933617701946,1.569592106980412,15000
+multi-core,full isolation,tight,0.7,2,0.033326667999733384,1.2467216040003968,15000
+multi-core,full isolation,tight,0.7,3,0.013332444503699753,1.7590304165460122,15000
+multi-core,full isolation,tight,0.7,4,0.02666133439978671,1.5390946252160496,15000
+multi-core,full isolation,tight,0.94,1,0.6048119101422305,1.6077215396444742,15000
+multi-core,full isolation,tight,0.94,2,0.4257583821181479,1.528004921160828,15000
+multi-core,full isolation,tight,0.94,3,0.4124808728627503,1.527931843771742,15000
+multi-core,full isolation,tight,0.94,4,0.46536364845100386,1.5826368554024675,15000
+multi-core,full isolation,soft,0.1,1,0.0,1.0405418052584103,5000
+multi-core,isolcpus reverted,soft,0.1,1,0.09995002498750624,1.5266372532302255,10000
+multi-core,isolcpus reverted,soft,0.1,2,0.0,1.1871892639855537,10000
+multi-core,isolcpus reverted,soft,0.1,3,0.0,1.0543948960251073,10000
+multi-core,isolcpus reverted,soft,0.1,4,0.0,1.066691848960359,10000
+multi-core,isolcpus reverted,soft,0.5,1,0.08992805755395683,1.1634512350584776,10000
+multi-core,isolcpus reverted,soft,0.5,2,0.0,1.1673905843838461,10000
+multi-core,isolcpus reverted,soft,0.5,3,0.0,1.1065813175419512,10000
+multi-core,isolcpus reverted,soft,0.5,4,0.0,1.1691338773200077,10000
+multi-core,isolcpus reverted,soft,0.7,1,0.0,1.1254093759488235,10000
+multi-core,isolcpus reverted,soft,0.7,2,0.0,1.3476663555222055,10000
+multi-core,isolcpus reverted,soft,0.7,3,0.0,1.081220098660503,10000
+multi-core,isolcpus reverted,soft,0.7,4,0.0,1.1292544061465524,10000
+multi-core,isolcpus reverted,tight,0.1,1,0.38922155688622756,13.310561213812347,10000
+multi-core,isolcpus reverted,tight,0.1,2,2.214970829625235,13.052536915830686,10000
+multi-core,isolcpus reverted,tight,0.1,3,0.059982005398380486,2.618341284764742,10000
+multi-core,isolcpus reverted,tight,0.1,4,0.059982005398380486,1.5341863208381843,10000
+multi-core,isolcpus reverted,tight,0.5,1,0.07996801279488205,2.1673956713270943,10000
+multi-core,isolcpus reverted,tight,0.5,2,0.5982053838484547,2.8408322229873475,10000
+multi-core,isolcpus reverted,tight,0.5,3,0.0,1.5626694956443092,10000
+multi-core,isolcpus reverted,tight,0.5,4,0.059982005398380486,1.5086721901516946,10000
+multi-core,isolcpus reverted,tight,0.7,1,0.07996801279488205,1.859533843618975,10000
+multi-core,isolcpus reverted,tight,0.7,2,3.6324366777930495,2.5680215495635075,10000
+multi-core,isolcpus reverted,tight,0.7,3,0.18981018981018982,1.4470461217486477,10000
+multi-core,isolcpus reverted,tight,0.7,4,0.49875311720698257,2.1062016592111097,10000
+multi-core,nohz_full reverted,soft,0.1,1,0.0,1.3261178688898512,10000
+multi-core,nohz_full reverted,soft,0.1,2,0.0,11.750551000850333,10000
+multi-core,nohz_full reverted,soft,0.1,3,0.0,1.1170334233803059,10000
+multi-core,nohz_full reverted,soft,0.1,4,0.0,1.1499983858413838,10000
+multi-core,nohz_full reverted,soft,0.5,1,0.0,1.1486885175718096,10000
+multi-core,nohz_full reverted,soft,0.5,2,0.0,1.048225568360775,10000
+multi-core,nohz_full reverted,soft,0.5,3,0.0,1.1994752612096027,10000
+multi-core,nohz_full reverted,soft,0.5,4,0.0,1.1390784234681164,10000
+multi-core,nohz_full reverted,soft,0.7,1,0.0,1.0444671444644664,10000
+multi-core,nohz_full reverted,soft,0.7,2,0.0,1.0574672101535252,10000
+multi-core,nohz_full reverted,soft,0.7,3,0.0,1.0533534651875305,10000
+multi-core,nohz_full reverted,soft,0.7,4,0.0,1.0547586564367921,10000
+multi-core,nohz_full reverted,soft,0.94,1,0.0,1.106913971039922,10000
+multi-core,nohz_full reverted,soft,0.94,2,0.0,1.2974919874134307,10000
+multi-core,nohz_full reverted,soft,0.94,3,0.0,1.024357763257881,10000
+multi-core,nohz_full reverted,soft,0.94,4,0.0,1.1414791132777304,10000
+multi-core,nohz_full reverted,tight,0.1,1,0.0,1.1139805776986345,10000
+multi-core,nohz_full reverted,tight,0.1,2,0.0,1.083890153658395,10000
+multi-core,nohz_full reverted,tight,0.1,3,0.0,11.165659913822898,10000
+multi-core,nohz_full reverted,tight,0.1,4,0.019998000199980003,1.1205265428529163,10000
+multi-core,nohz_full reverted,tight,0.5,1,0.0,1.5520002112793367,10000
+multi-core,nohz_full reverted,tight,0.5,2,0.0,1.6027931529023076,10000
+multi-core,nohz_full reverted,tight,0.5,3,0.05997001499250375,1.0653834067401269,10000
+multi-core,nohz_full reverted,tight,0.5,4,0.0,1.3737732511411878,10000
+multi-core,nohz_full reverted,tight,0.7,1,0.0,1.5452714860869716,10000
+multi-core,nohz_full reverted,tight,0.7,2,0.0,1.0649281726512856,10000
+multi-core,nohz_full reverted,tight,0.7,3,0.0,1.524250845517281,10000
+multi-core,nohz_full reverted,tight,0.7,4,0.0,1.5531943807757662,10000
+multi-core,nohz_full reverted,tight,0.94,1,0.0,1.0723186037736985,10000
+multi-core,nohz_full reverted,tight,0.94,2,0.019998000199980003,1.115496943906338,10000
+multi-core,nohz_full reverted,tight,0.94,3,0.5385459259998006,1.5972064066249547,10000
+multi-core,nohz_full reverted,tight,0.94,4,0.35935316430425235,1.4873007264718878,10000
+multi-core,rcu_nocbs reverted,soft,0.1,1,0.0,10.683437237392239,10000
+multi-core,rcu_nocbs reverted,soft,0.1,2,0.7571229328551504,11.96854610980001,10000
+multi-core,rcu_nocbs reverted,soft,0.1,3,0.15987210231814547,1.6757557090726416,10000
+multi-core,rcu_nocbs reverted,soft,0.1,4,0.0,10.917158545470837,10000
+multi-core,rcu_nocbs reverted,soft,0.5,1,0.019998000199980003,1.4901482971512352,10000
+multi-core,rcu_nocbs reverted,soft,0.5,2,0.0,2.2464449864070364,10000
+multi-core,rcu_nocbs reverted,soft,0.5,3,0.0,1.523390631976735,10000
+multi-core,rcu_nocbs reverted,soft,0.5,4,0.059982005398380486,1.3151526197911798,10000
+multi-core,rcu_nocbs reverted,soft,0.7,1,0.0,1.6342155735819834,10000
+multi-core,rcu_nocbs reverted,soft,0.7,2,0.08995502248875563,1.2385791153931702,10000
+multi-core,rcu_nocbs reverted,soft,0.7,3,0.0,1.5515323905879868,10000
+multi-core,rcu_nocbs reverted,soft,0.7,4,0.0,1.508473811187297,10000
+multi-core,rcu_nocbs reverted,soft,0.94,1,0.099930048965724,1.1980762496944444,10000
+multi-core,rcu_nocbs reverted,soft,0.94,2,0.059982005398380486,1.14306489943428,10000
+multi-core,rcu_nocbs reverted,soft,0.94,3,0.09995002498750624,1.3560239159405298,10000
+multi-core,rcu_nocbs reverted,soft,0.94,4,0.3992015968063872,1.4863637004635033,10000
+multi-core,rcu_nocbs reverted,tight,0.1,1,0.7273089568596194,22.96882193001516,10000
+multi-core,rcu_nocbs reverted,tight,0.1,2,1.3309495431068732,13.77599350239685,10000
+multi-core,rcu_nocbs reverted,tight,0.1,3,3.806160486560722,14.062140328584931,10000
+multi-core,rcu_nocbs reverted,tight,0.1,4,0.508423885953544,15.48709815289431,10000
+multi-core,rcu_nocbs reverted,tight,0.5,1,0.03999200159968006,1.9300682984662532,10000
+multi-core,rcu_nocbs reverted,tight,0.5,2,0.059982005398380486,2.0285857728772805,10000
+multi-core,rcu_nocbs reverted,tight,0.5,3,0.09995002498750624,2.3746349331535255,10000
+multi-core,rcu_nocbs reverted,tight,0.5,4,0.09995002498750624,2.5937871179398178,10000
+multi-core,rcu_nocbs reverted,tight,0.7,1,0.09995002498750624,1.898183454745193,10000
+multi-core,rcu_nocbs reverted,tight,0.7,2,0.22972433080303636,2.003815376848979,10000
+multi-core,rcu_nocbs reverted,tight,0.7,3,0.8166517279155463,2.27812341546575,10000
+multi-core,rcu_nocbs reverted,tight,0.7,4,0.9950248756218906,2.261107403023047,10000
+multi-core,rcu_nocbs reverted,tight,0.94,1,0.3590664272890485,1.4697459871507843,10000
+multi-core,rcu_nocbs reverted,tight,0.94,2,1.498610559745931,1.8097239581595537,10000
+multi-core,rcu_nocbs reverted,tight,0.94,3,0.21975826590750175,1.5487636436804746,10000
+multi-core,rcu_nocbs reverted,tight,0.94,4,1.8821198613174839,1.8520488261651078,10000
+multi-core,systemd containment reverted,soft,0.1,1,0.0,11.83811323924147,10000
+multi-core,systemd containment reverted,soft,0.1,2,0.0,1.2055697611538325,10000
+multi-core,systemd containment reverted,soft,0.1,3,0.03999200159968006,1.4696683261709655,10000
+multi-core,systemd containment reverted,soft,0.1,4,0.019998000199980003,1.10863712061534,10000
+multi-core,systemd containment reverted,soft,0.5,1,0.0,1.223758018124898,10000
+multi-core,systemd containment reverted,soft,0.5,2,0.0,1.0878862654197115,10000
+multi-core,systemd containment reverted,soft,0.5,3,0.23944926668662078,1.0617890140974244,10000
+multi-core,systemd containment reverted,soft,0.5,4,0.0,2.344220464480121,10000
+multi-core,systemd containment reverted,soft,0.7,1,0.03999200159968006,1.2532069117975133,10000
+multi-core,systemd containment reverted,soft,0.7,2,0.0,1.2723799367174762,10000
+multi-core,systemd containment reverted,soft,0.7,3,0.0,1.184745162561848,10000
+multi-core,systemd containment reverted,soft,0.7,4,0.0,1.0488244668285873,10000
+multi-core,systemd containment reverted,soft,0.94,1,0.0,1.2336285210880331,10000
+multi-core,systemd containment reverted,soft,0.94,2,0.0,1.0601635886089578,10000
+multi-core,systemd containment reverted,soft,0.94,3,0.019998000199980003,1.2100030050528965,10000
+multi-core,systemd containment reverted,soft,0.94,4,0.0,1.0934342322731654,10000
+multi-core,systemd containment reverted,tight,0.1,1,0.3792793691985228,12.986294023249648,10000
+multi-core,systemd containment reverted,tight,0.1,2,0.059982005398380486,11.888303510499716,10000
+multi-core,systemd containment reverted,tight,0.1,3,0.3394229809324149,13.415829317455554,10000
+multi-core,systemd containment reverted,tight,0.1,4,0.019998000199980003,12.312520502390376,10000
+multi-core,systemd containment reverted,tight,0.5,1,0.019998000199980003,1.493283920929616,10000
+multi-core,systemd containment reverted,tight,0.5,2,0.05997001499250375,1.894117264886948,10000
+multi-core,systemd containment reverted,tight,0.5,3,0.0,1.5632018641113665,10000
+multi-core,systemd containment reverted,tight,0.5,4,0.019998000199980003,1.2924475382660598,10000
+multi-core,systemd containment reverted,tight,0.7,1,0.059982005398380486,1.6316108858306793,10000
+multi-core,systemd containment reverted,tight,0.7,2,0.14980525317087787,1.6054111797824913,10000
+multi-core,systemd containment reverted,tight,0.7,3,0.03999200159968006,1.188061325703022,10000
+multi-core,systemd containment reverted,tight,0.7,4,0.03999200159968006,1.5311502294364172,10000
+multi-core,systemd containment reverted,tight,0.94,1,0.49875311720698257,1.525229680645834,10000
+multi-core,systemd containment reverted,tight,0.94,2,0.3792793691985228,1.498095396615818,10000
+multi-core,systemd containment reverted,tight,0.94,3,0.6776958341638429,1.5480063290859243,10000
+multi-core,systemd containment reverted,tight,0.94,4,0.4191198483185311,1.581100119444769,10000
+multi-core,IRQ steering reverted,soft,0.1,1,0.0,1.1316133982923045,10000
+multi-core,IRQ steering reverted,soft,0.1,2,0.0,1.1025597934177478,10000
+multi-core,IRQ steering reverted,soft,0.1,3,0.0,1.1111724475144409,10000
+multi-core,IRQ steering reverted,soft,0.1,4,0.0,11.70376802538238,10000
+multi-core,IRQ steering reverted,soft,0.5,1,0.0,1.2660539700973164,10000
+multi-core,IRQ steering reverted,soft,0.5,2,0.0,1.1818715335556995,10000
+multi-core,IRQ steering reverted,soft,0.5,3,0.0,1.0789095047231654,10000
+multi-core,IRQ steering reverted,soft,0.5,4,0.0,1.224577678507376,10000
+multi-core,IRQ steering reverted,soft,0.7,1,0.0,1.0959798954781657,10000
+multi-core,IRQ steering reverted,soft,0.7,2,0.0,1.2745477555717002,10000
+multi-core,IRQ steering reverted,soft,0.7,3,0.0,1.063680548445256,10000
+multi-core,IRQ steering reverted,soft,0.7,4,0.059982005398380486,1.2904106924008183,10000
+multi-core,IRQ steering reverted,soft,0.94,1,0.0,1.0368720447823403,10000
+multi-core,IRQ steering reverted,soft,0.94,2,0.0,1.1758907914436103,10000
+multi-core,IRQ steering reverted,soft,0.94,3,0.0,1.109150996708994,10000
+multi-core,IRQ steering reverted,soft,0.94,4,0.43903412492516464,2.1411814741611837,10000
+multi-core,IRQ steering reverted,tight,0.1,1,0.019998000199980003,2.5698065431865516,10000
+multi-core,IRQ steering reverted,tight,0.1,2,0.029994001199760048,12.187873152986898,10000
+multi-core,IRQ steering reverted,tight,0.1,3,0.07996801279488205,10.468919431205194,10000
+multi-core,IRQ steering reverted,tight,0.1,4,0.6180223285486444,13.259851741111264,10000
+multi-core,IRQ steering reverted,tight,0.5,1,0.0,1.2873380865156774,10000
+multi-core,IRQ steering reverted,tight,0.5,2,0.0,1.5147576755461911,10000
+multi-core,IRQ steering reverted,tight,0.5,3,0.0,1.5690106307468117,10000
+multi-core,IRQ steering reverted,tight,0.5,4,0.059982005398380486,2.104287851792722,10000
+multi-core,IRQ steering reverted,tight,0.7,1,0.23971234518577705,2.0239967928785525,10000
+multi-core,IRQ steering reverted,tight,0.7,2,0.0,1.0607567613065587,10000
+multi-core,IRQ steering reverted,tight,0.7,3,0.0,1.0910447468702063,10000
+multi-core,IRQ steering reverted,tight,0.7,4,0.07996801279488205,1.9693620970404109,10000
+multi-core,IRQ steering reverted,tight,0.94,1,0.3792793691985228,1.5360004973313637,10000
+multi-core,IRQ steering reverted,tight,0.94,2,0.019998000199980003,1.056986083289817,10000
+multi-core,IRQ steering reverted,tight,0.94,3,0.46887470071827614,1.5114407365696427,10000
+multi-core,IRQ steering reverted,tight,0.94,4,1.0542018896071605,1.671056128824888,10000
+multi-core,frequency pinning reverted,soft,0.1,1,0.0,1.5857109258113011,10000
+multi-core,frequency pinning reverted,soft,0.1,2,0.16974538192710933,1.2071995333821024,10000
+multi-core,frequency pinning reverted,soft,0.1,3,0.0,1.1586238392993062,10000
+multi-core,frequency pinning reverted,soft,0.1,4,0.059982005398380486,1.5675973475177085,10000
+multi-core,frequency pinning reverted,soft,0.5,1,0.20960175666234154,1.0976131826362694,10000
+multi-core,frequency pinning reverted,soft,0.5,2,0.0,1.2247882381801503,10000
+multi-core,frequency pinning reverted,soft,0.5,3,0.0,1.1900618150660014,10000
+multi-core,frequency pinning reverted,soft,0.5,4,0.0,1.2681544920169279,10000
+multi-core,frequency pinning reverted,soft,0.7,1,0.059982005398380486,1.281047282838043,10000
+multi-core,frequency pinning reverted,soft,0.7,2,0.18965861449391097,1.2306350974966638,10000
+multi-core,frequency pinning reverted,soft,0.7,3,0.0,1.1671096502905953,10000
+multi-core,frequency pinning reverted,soft,0.7,4,0.0,1.2388399681807958,10000
+multi-core,frequency pinning reverted,soft,0.94,1,0.0,1.0936905972106963,10000
+multi-core,frequency pinning reverted,soft,0.94,2,0.0,1.1484664437045355,10000
+multi-core,frequency pinning reverted,soft,0.94,3,0.0,1.2405341956372564,10000
+multi-core,frequency pinning reverted,soft,0.94,4,0.0,1.0496758298968911,10000
+multi-core,frequency pinning reverted,tight,0.1,1,0.019998000199980003,10.760342834628203,10000
+multi-core,frequency pinning reverted,tight,0.1,2,0.019998000199980003,11.811108671747517,10000
+multi-core,frequency pinning reverted,tight,0.1,3,0.2596624388295216,13.05368406690244,10000
+multi-core,frequency pinning reverted,tight,0.1,4,0.0,11.76326604597864,10000
+multi-core,frequency pinning reverted,tight,0.5,1,0.21975826590750175,2.7923010589564536,10000
+multi-core,frequency pinning reverted,tight,0.5,2,0.11992804317409554,2.554672122973207,10000
+multi-core,frequency pinning reverted,tight,0.5,3,0.03999200159968006,1.5763179457507603,10000
+multi-core,frequency pinning reverted,tight,0.5,4,0.0,1.6584478875455013,10000
+multi-core,frequency pinning reverted,tight,0.7,1,0.03999200159968006,1.4833003884184777,10000
+multi-core,frequency pinning reverted,tight,0.7,2,0.07996801279488205,1.6261730425666308,10000
+multi-core,frequency pinning reverted,tight,0.7,3,0.09995002498750624,1.813843188888015,10000
+multi-core,frequency pinning reverted,tight,0.7,4,0.0,1.3856079968348716,10000
+multi-core,frequency pinning reverted,tight,0.94,1,0.5584363781412046,1.5773589015678178,10000
+multi-core,frequency pinning reverted,tight,0.94,2,0.6180839397866613,1.5427325649582537,10000
+multi-core,frequency pinning reverted,tight,0.94,3,0.49875311720698257,1.519164292546208,10000
+multi-core,frequency pinning reverted,tight,0.94,4,0.6379585326953748,1.5448315904321182,10000
+multi-core,boot-params bundle reverted,soft,0.1,1,0.14979029358897544,1.091317154328339,10000
+multi-core,boot-params bundle reverted,soft,0.1,2,0.0,1.113682443255084,10000
+multi-core,boot-params bundle reverted,soft,0.1,3,0.0,1.0825547721827395,10000
+multi-core,boot-params bundle reverted,soft,0.1,4,0.0,1.1654427257196507,10000
+multi-core,boot-params bundle reverted,soft,0.5,1,0.0,1.0314486085546601,10000
+multi-core,boot-params bundle reverted,soft,0.5,2,0.0,1.2813264634260124,10000
+multi-core,boot-params bundle reverted,soft,0.5,3,0.0,1.0387984276011208,10000
+multi-core,boot-params bundle reverted,soft,0.5,4,0.0,1.0509407280859249,10000
+multi-core,boot-params bundle reverted,soft,0.7,1,0.0,1.055260623527142,10000
+multi-core,boot-params bundle reverted,soft,0.7,2,0.0,1.1446808520789873,10000
+multi-core,boot-params bundle reverted,soft,0.7,3,0.0,1.0192926773051845,10000
+multi-core,boot-params bundle reverted,soft,0.7,4,0.0,1.0586377809462237,10000
+multi-core,boot-params bundle reverted,soft,0.94,1,0.0,1.068090548420208,10000
+multi-core,boot-params bundle reverted,soft,0.94,2,0.0,1.0847655707060573,10000
+multi-core,boot-params bundle reverted,soft,0.94,3,0.0,1.0192047719568853,10000
+multi-core,boot-params bundle reverted,soft,0.94,4,0.0,1.2718175048653708,10000
+multi-core,boot-params bundle reverted,tight,0.1,1,0.6379585326953748,13.303332980029376,10000
+multi-core,boot-params bundle reverted,tight,0.1,2,0.11992804317409554,1.7140604913566775,10000
+multi-core,boot-params bundle reverted,tight,0.1,3,0.019998000199980003,1.5298622312551116,10000
+multi-core,boot-params bundle reverted,tight,0.1,4,0.019998000199980003,1.5988878647430083,10000
+multi-core,boot-params bundle reverted,tight,0.5,1,0.039988003598920324,1.826237582956129,10000
+multi-core,boot-params bundle reverted,tight,0.5,2,0.059982005398380486,2.13996282654953,10000
+multi-core,boot-params bundle reverted,tight,0.5,3,0.0,1.498947575051622,10000
+multi-core,boot-params bundle reverted,tight,0.5,4,0.07996801279488205,1.5156452074134183,10000
+multi-core,boot-params bundle reverted,tight,0.7,1,0.3992015968063872,2.0934341409823896,10000
+multi-core,boot-params bundle reverted,tight,0.7,2,0.019998000199980003,1.0485284962818442,10000
+multi-core,boot-params bundle reverted,tight,0.7,3,0.019998000199980003,1.5664671702344202,10000
+multi-core,boot-params bundle reverted,tight,0.7,4,0.6975585450921774,2.133707906429323,10000
+multi-core,boot-params bundle reverted,tight,0.94,1,0.7174172977281785,1.6625818025199623,10000
+multi-core,boot-params bundle reverted,tight,0.94,2,0.6578291637595933,1.6185961346585025,10000
+multi-core,boot-params bundle reverted,tight,0.94,3,0.019998000199980003,1.065345907128358,10000
+multi-core,boot-params bundle reverted,tight,0.94,4,0.0,1.1037454047203166,10000
+multi-core,all defaults,soft,0.1,1,2.7613412228796843,12.020385671585569,10000
+multi-core,all defaults,soft,0.1,2,0.0,1.0349921300327853,10000
+multi-core,all defaults,soft,0.1,3,0.0,1.0346811595946772,10000
+multi-core,all defaults,soft,0.1,4,0.696656050955414,11.867964973730508,10000
+multi-core,all defaults,soft,0.5,1,0.0,1.3794849105199278,10000
+multi-core,all defaults,soft,0.5,2,0.0,1.0209243944531108,10000
+multi-core,all defaults,soft,0.5,3,0.0,1.0243984543752085,10000
+multi-core,all defaults,soft,0.5,4,0.0,1.2617949866251765,10000
+multi-core,all defaults,soft,0.7,1,0.0,1.0892804158827176,10000
+multi-core,all defaults,soft,0.7,2,0.0,1.0210540897033884,10000
+multi-core,all defaults,soft,0.7,3,0.0,1.0229192272438419,10000
+multi-core,all defaults,soft,0.7,4,0.0,1.1405306926769123,10000
+multi-core,all defaults,tight,0.1,1,0.6166699820966779,11.819347709621065,10000
+multi-core,all defaults,tight,0.1,2,0.0,1.0999140276776136,10000
+multi-core,all defaults,tight,0.1,3,0.059976009596161534,1.0468479360580007,10000
+multi-core,all defaults,tight,0.1,4,0.23971234518577705,12.714703710491024,10000
+multi-core,all defaults,tight,0.5,1,0.07995202878273036,1.6260097742927362,10000
+multi-core,all defaults,tight,0.5,2,0.0,1.0707576848427378,10000
+multi-core,all defaults,tight,0.5,3,0.0,1.0240544633996105,10000
+multi-core,all defaults,tight,0.5,4,0.0,1.2115073989054155,10000
+multi-core,all defaults,tight,0.7,1,0.17974835230677053,1.3929745211182742,10000
+multi-core,all defaults,tight,0.7,2,0.17971246006389777,1.047757119731495,10000
+multi-core,all defaults,tight,0.7,3,0.0,1.0207584665381486,10000
+multi-core,all defaults,tight,0.7,4,0.23971234518577705,2.0236566080599956,10000

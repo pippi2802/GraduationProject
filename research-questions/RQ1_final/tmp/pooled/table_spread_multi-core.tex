@@ -1,0 +1,24 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|rrrr|rrrr}
+\toprule
+ & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+full isolation & 11.10 & 1.57 & 1.55 & 1.55 & 1.73 & 1.22 & 1.19 & 1.37 \\
+\cmidrule{1-9}
+isolcpus reverted & 13.51 & 2.65 & 2.34 & n/r & 1.19 & 1.17 & 1.27 & n/r \\
+nohz\_full reverted & 1.57 & 1.56 & 1.53 & 1.50 & 1.43 & 1.15 & 1.04 & 1.11 \\
+rcu\_nocbs reverted & 14.83 & 2.26 & 2.23 & 1.78 & 11.88 & 1.55 & 1.54 & 1.35 \\
+systemd containment reverted & 13.21 & 1.62 & 1.59 & 1.55 & 11.47 & 1.21 & 1.29 & 1.16 \\
+IRQ steering reverted & 12.41 & 1.71 & 1.56 & 1.58 & 1.49 & 1.23 & 1.20 & 1.18 \\
+frequency pinning reverted & 11.57 & 2.46 & 1.65 & 1.56 & 1.33 & 1.22 & 1.26 & 1.13 \\
+boot-params bundle reverted & 13.14 & 1.92 & 2.07 & 1.57 & 1.13 & 1.13 & 1.14 & 1.11 \\
+all defaults & 10.32 & 1.30 & 1.32 & n/r & 11.90 & 1.30 & 1.09 & n/r \\
+\bottomrule
+\end{tabular}}
+\caption{Tail spread $S = p_{99.9}(R)/\mathrm{median}(R)$, multi-core, all eight runs of a cell pooled (earlier campaign and rerun, four rounds each). n/r: not run.}
+\label{tab:rq1-pooled-spread-multi-core}
+\end{table}

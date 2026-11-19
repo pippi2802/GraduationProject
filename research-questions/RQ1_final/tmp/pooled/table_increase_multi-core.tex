@@ -1,0 +1,24 @@
+\begin{table}[ht]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|rrrr|rrrr}
+\toprule
+ & \multicolumn{4}{c}{Tight, $P = 10$ ms} & \multicolumn{4}{c}{Soft, $P = 100$ ms} \\
+Configuration & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
+\midrule
+full isolation & -- & -- & -- & -- & -- & -- & -- & -- \\
+\cmidrule{1-9}
+isolcpus reverted & +0.622 & +0.133 & +1.083 & n/r & +0.013 & +0.022 & +0.000 & n/r \\
+nohz\_full reverted & -0.058 & -0.037 & -0.028 & -0.247 & -0.012 & +0.000 & +0.000 & -0.113 \\
+rcu\_nocbs reverted & +1.538 & +0.023 & +0.508 & +0.515 & +0.218 & +0.020 & +0.022 & +0.052 \\
+systemd containment reverted & +0.136 & -0.027 & +0.044 & +0.017 & +0.003 & +0.060 & +0.010 & -0.108 \\
+IRQ steering reverted & +0.124 & -0.037 & +0.052 & +0.004 & -0.012 & +0.000 & +0.015 & -0.003 \\
+frequency pinning reverted & +0.012 & +0.043 & +0.027 & +0.101 & +0.045 & +0.052 & +0.062 & -0.113 \\
+boot-params bundle reverted & +0.136 & -0.007 & +0.256 & -0.128 & +0.025 & +0.000 & +0.000 & -0.113 \\
+all defaults & +0.166 & -0.032 & +0.122 & n/r & +0.859 & +0.000 & +0.000 & n/r \\
+\bottomrule
+\end{tabular}}
+\caption{Increase of the miss+skip rate over full isolation (percentage points), multi-core, all eight runs of a cell pooled: $M_{config} - M_{FI}$ with $M = 100\,(\mathrm{misses}+\mathrm{skipped})/(\mathrm{jobs}+\mathrm{skipped})$. n/r: not run.}
+\label{tab:rq1-pooled-increase-multi-core}
+\end{table}
