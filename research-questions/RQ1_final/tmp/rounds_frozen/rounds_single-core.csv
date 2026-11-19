@@ -1,0 +1,69 @@
+placement,configuration,scale,U,n_rounds,M_min,M_max,rounds_above_FI_max
+single-core,full isolation,tight,0.1,4,0.0,0.04004004004004004,
+single-core,full isolation,tight,0.5,4,0.0,0.04004004004004004,
+single-core,full isolation,tight,0.7,4,0.0,0.4188272836059035,
+single-core,full isolation,tight,0.94,4,0.04004004004004004,0.04004004004004004,
+single-core,full isolation,soft,0.1,4,0.0,0.08006405124099279,
+single-core,full isolation,soft,0.5,4,0.0,0.04004004004004004,
+single-core,full isolation,soft,0.7,4,0.0,0.14,
+single-core,full isolation,soft,0.94,4,0.0,0.04004004004004004,
+single-core,isolcpus reverted,tight,0.1,4,0.04004004004004004,9.234878839916046,3.0
+single-core,isolcpus reverted,tight,0.5,4,0.04004004004004004,5.188219231519407,3.0
+single-core,isolcpus reverted,tight,0.7,4,0.04004004004004004,2.84247927358863,1.0
+single-core,isolcpus reverted,soft,0.1,4,0.0,15.18963922294172,3.0
+single-core,isolcpus reverted,soft,0.5,4,0.0,10.761652140962486,3.0
+single-core,isolcpus reverted,soft,0.7,4,0.0,3.463203463203463,1.0
+single-core,nohz_full reverted,tight,0.1,4,0.0,0.817384370015949,2.0
+single-core,nohz_full reverted,tight,0.5,4,0.0,0.12007204322593557,2.0
+single-core,nohz_full reverted,tight,0.7,4,0.0,0.08006405124099279,0.0
+single-core,nohz_full reverted,tight,0.94,4,0.0,0.24,1.0
+single-core,nohz_full reverted,soft,0.1,4,0.08006405124099279,2.4134520276953513,3.0
+single-core,nohz_full reverted,soft,0.5,4,0.0,0.0,0.0
+single-core,nohz_full reverted,soft,0.7,4,0.0,0.0,0.0
+single-core,nohz_full reverted,soft,0.94,4,0.0,0.0,0.0
+single-core,rcu_nocbs reverted,tight,0.1,4,0.0,0.0,0.0
+single-core,rcu_nocbs reverted,tight,0.5,4,0.0,0.04004004004004004,0.0
+single-core,rcu_nocbs reverted,tight,0.7,4,0.0,0.10004001600640255,0.0
+single-core,rcu_nocbs reverted,tight,0.94,4,0.0,0.04004004004004004,0.0
+single-core,rcu_nocbs reverted,soft,0.1,4,0.0,0.0,0.0
+single-core,rcu_nocbs reverted,soft,0.5,4,0.0,0.0,0.0
+single-core,rcu_nocbs reverted,soft,0.7,4,0.0,0.0,0.0
+single-core,rcu_nocbs reverted,soft,0.94,4,0.0,0.0,0.0
+single-core,systemd containment reverted,tight,0.1,4,0.04004004004004004,1.766223457035126,3.0
+single-core,systemd containment reverted,tight,0.5,4,0.0,0.9962143853357243,2.0
+single-core,systemd containment reverted,tight,0.7,4,0.0,0.1600640256102441,0.0
+single-core,systemd containment reverted,tight,0.94,4,0.0,0.2599480103979204,1.0
+single-core,systemd containment reverted,soft,0.1,4,0.0,3.2696474295844,3.0
+single-core,systemd containment reverted,soft,0.5,4,0.0,0.04004004004004004,0.0
+single-core,systemd containment reverted,soft,0.7,4,0.0,0.04004004004004004,0.0
+single-core,systemd containment reverted,soft,0.94,4,0.0,0.0,0.0
+single-core,IRQ steering reverted,tight,0.1,4,0.0,0.12007204322593557,1.0
+single-core,IRQ steering reverted,tight,0.5,4,0.0,0.04004004004004004,0.0
+single-core,IRQ steering reverted,tight,0.7,4,0.0,0.04004004004004004,0.0
+single-core,IRQ steering reverted,tight,0.94,4,0.0,0.04004004004004004,0.0
+single-core,IRQ steering reverted,soft,0.1,4,0.0,0.12002400480096019,1.0
+single-core,IRQ steering reverted,soft,0.5,4,0.0,0.0,0.0
+single-core,IRQ steering reverted,soft,0.7,4,0.0,0.0,0.0
+single-core,IRQ steering reverted,soft,0.94,4,0.0,0.23976023976023977,1.0
+single-core,frequency pinning reverted,tight,0.1,4,0.0,0.04004004004004004,0.0
+single-core,frequency pinning reverted,tight,0.5,4,0.0,0.5774591796097173,1.0
+single-core,frequency pinning reverted,tight,0.7,4,0.0,0.04004004004004004,0.0
+single-core,frequency pinning reverted,tight,0.94,4,0.0,0.04004004004004004,0.0
+single-core,frequency pinning reverted,soft,0.1,4,0.0,0.0,0.0
+single-core,frequency pinning reverted,soft,0.5,4,0.0,0.0,0.0
+single-core,frequency pinning reverted,soft,0.7,4,0.0,0.0,0.0
+single-core,frequency pinning reverted,soft,0.94,4,0.0,0.0,0.0
+single-core,boot-params bundle reverted,tight,0.1,4,0.0,0.0600480384307446,1.0
+single-core,boot-params bundle reverted,tight,0.5,4,0.0,0.04004004004004004,0.0
+single-core,boot-params bundle reverted,tight,0.7,4,0.0,0.04004004004004004,0.0
+single-core,boot-params bundle reverted,tight,0.94,4,0.0,0.08004802881729037,1.0
+single-core,boot-params bundle reverted,soft,0.1,4,0.0,0.0,0.0
+single-core,boot-params bundle reverted,soft,0.5,4,0.0,0.0,0.0
+single-core,boot-params bundle reverted,soft,0.7,4,0.0,0.0,0.0
+single-core,boot-params bundle reverted,soft,0.94,4,0.0,0.0,0.0
+single-core,all defaults,tight,0.1,4,0.0,8.042024832855779,2.0
+single-core,all defaults,tight,0.5,4,0.0,4.040800313848568,1.0
+single-core,all defaults,tight,0.7,4,0.0,2.1002575787596593,1.0
+single-core,all defaults,soft,0.1,4,0.0,1.194267515923567,2.0
+single-core,all defaults,soft,0.5,4,0.0,0.0,0.0
+single-core,all defaults,soft,0.7,4,0.0,0.5579912315663611,1.0
