@@ -63,6 +63,14 @@ multi-core,frequency pinning removed,soft,0.1,2.035649776829714,1.51642338190098
 multi-core,frequency pinning removed,soft,0.5,1.29735151206201,1.1077878720359662,0.0,other settings (band),False
 multi-core,frequency pinning removed,soft,0.7,1.2982232196658838,1.0754209319914023,0.0,other settings (band),False
 multi-core,frequency pinning removed,soft,0.94,1.190285942827482,0.8514433272928152,0.0,other settings (band),False
+multi-core,all defaults,tight,0.1,1.6958556969841267,0.15246131455866457,0.0,own line,False
+multi-core,all defaults,tight,0.5,1.304270520414404,0.8281625976063662,0.0,own line,False
+multi-core,all defaults,tight,0.7,1.3236000634463594,0.8437959379705022,0.0,own line,False
+multi-core,all defaults,tight,0.94,,,,own line,False
+multi-core,all defaults,soft,0.1,11.900912985605972,8.865386827712477,0.0,own line,False
+multi-core,all defaults,soft,0.5,1.2982016505801692,1.1085137918281054,0.0,own line,False
+multi-core,all defaults,soft,0.7,1.0902525654728121,0.9031423967047388,0.0,own line,False
+multi-core,all defaults,soft,0.94,,,,own line,False
 multi-core,SMT enabled,tight,0.1,12.080875167666967,1.0860983704905838,0.0,reference,False
 multi-core,SMT enabled,tight,0.5,1.2379297562483322,0.7860387140108763,0.0,reference,False
 multi-core,SMT enabled,tight,0.7,2.2527208425501346,1.4361110646791115,0.0,reference,False

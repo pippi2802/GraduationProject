@@ -6,14 +6,14 @@ Run: `python3 significance_tests.py` then `python3 compare_frozen.py` (needs num
 
 ## Procedure
 
-- **Data, configurations, cells, warm-up:** as `os-experiments/results_final/make_results_final.py`: the same CSVs, the same 7 levers (+ SMT enabled for multi-core; scenario 07 is not in the frozen tables, so not here), cells = period (tight, soft) x U in {0.1, 0.5, 0.7, 0.94}, the first N = 6 jobs of every round dropped with the releases skipped after them.
+- **Data, configurations, cells, warm-up:** as `os-experiments/results_final/make_results_final.py`: the same CSVs, the same 7 levers (+ SMT enabled for multi-core; scenario 07 "all defaults" is included from the rerun data (K 8-10% lower than FI, no U = 0.94)), cells = period (tight, soft) x U in {0.1, 0.5, 0.7, 0.94}, the first N = 6 jobs of every round dropped with the releases skipped after them.
 - **Run:** one round of one cell. For each run (`runs.csv`): S = p99.9(R_wall_us) / median(R_wall_us) of the executed jobs, M = 100 x (misses + skipped) / (jobs + skipped), same formulas as the frozen tables but on one round.
 - **Test**, per configuration c != FI, placement and metric (S, M), cells with at least one run of both c and FI:
   1. in each cell the runs of c and FI are ranked together, mid-ranks for ties;
   2. T_obs = sum over cells of the rank sums of c;
   3. 100,000 permutations; the c/FI labels are shuffled within every cell independently, never across cells; T recomputed;
   4. one-sided p = (1 + #{T_perm >= T_obs}) / (1 + 100000), "worse" = larger S or larger M. The smallest possible p is therefore 1e-5;
-  5. Holm over all 30 tests (14 single-core, 16 multi-core), `significant` = p_holm < 0.05.
+  5. Holm over all 34 tests (16 single-core, 18 multi-core), `significant` = p_holm < 0.05.
 - **Seed:** 20261104 (numpy `default_rng`), one generator used in a fixed test order, so the output is reproducible.
 - **Effect size** (`effects.csv`), per cell: Hodges-Lehmann estimate = median of all pairwise differences (c run minus FI run). For S it is exp(median of log S_c - log S_FI), a factor; for M it is the difference in percentage points.
 

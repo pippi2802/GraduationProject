@@ -26,6 +26,7 @@ BASE_DATA = RES.parent.parent / "kubedeadline-experiments" / "analysis" / "data"
 TESTS = RES.parent.parent / "rq1_significance" / "tests.csv"     # permutation tests, Holm-adjusted (one per configuration, placement, metric; pooled over periods and U)
 
 FULL = "full isolation"
+SMT = "SMT enabled"                                   # multi-core only, drawn as the last row; not a reverted lever
 # (scenario code, name in the tables, label in the figures); order = row order top to bottom
 LEVERS = [("01", "isolcpus removed", "isolcpus reverted"),
           ("02", "nohz_full removed", "nohz_full reverted"),
@@ -33,7 +34,8 @@ LEVERS = [("01", "isolcpus removed", "isolcpus reverted"),
           ("04", "systemd containment removed", "systemd containment reverted"),
           ("05", "IRQ steering removed", "IRQ steering reverted"),
           ("08", "frequency pinning removed", "frequency pinning reverted"),
-          ("06", "boot-params bundle removed", "boot-params bundle reverted")]
+          ("06", "boot-params bundle removed", "boot-params bundle reverted"),
+          ("07", "all defaults", "all defaults")]
 PLACEMENTS = [("single-core", "singlecore", "Single-core", "model1", "model1"),
               ("multi-core", "multicore", "Multi-core", "model5", "model5-phys")]
 SCALES = [("tight", "tight", 10), ("soft", "soft", 100)]
@@ -61,6 +63,8 @@ def compute():
     rows = []
     for place, _, _, model, base in PLACEMENTS:
         srcs = [(FULL, BASE_DATA / f"{base}.csv")] + [(name, OS_DATA / f"{code}-{model}.csv") for code, name, _ in LEVERS]
+        if place == "multi-core":
+            srcs.append((SMT, BASE_DATA / "model5-smt.csv"))
         for name, path in srcs:
             df = read(path)
             for (scale, u), g in df.groupby(["scale", "U"]):
@@ -80,7 +84,6 @@ def check_tables(t):
     bad = []
     for place, *_ in PLACEMENTS:
         tab = pd.read_csv(RES / f"table_{place}.csv").dropna(subset=["jobs"])
-        tab = tab[tab.configuration != "SMT enabled"]
         m = tab.merge(t[t.placement == place], on=["configuration", "scale", "U"], suffixes=("_tab", ""))
         print(f"  {place}: {len(tab)} cells in table, {len(m)} matched")
         for _, r in m.iterrows():
@@ -101,20 +104,12 @@ def fmt_p(p):
 def figure(t, place, pslug, ptitle, scale, sslug, P, xl, xr):
     lab = {name: l for _, name, l in LEVERS}
     lab[FULL] = "full isolation"
-    names = [FULL] + [n for _, n, _ in LEVERS]
-    tests = pd.read_csv(TESTS)
-    tests = tests[tests.placement == place].set_index(["configuration", "metric"])
+    lab[SMT] = "SMT enabled"
+    names = [FULL] + [n for _, n, _ in LEVERS] + ([SMT] if place == "multi-core" else [])
     sub = t[(t.placement == place) & (t.scale == scale)]
     with plt.rc_context({"font.family": "sans-serif", "font.size": 10, "svg.fonttype": "path"}):
         fig, axes = plt.subplots(1, 2, figsize=(8.2, 4.4), sharey=True)
         for ax, col, ref, met in zip(axes, ["S", "dM"], [1, 0], ["S", "M"]):
-            if met == "S":
-              ax.text(1.02, 1.0, f"Holm p ({met})", transform=ax.transAxes, ha="left", va="bottom", fontsize=9, color=AXIS)
-            for i, n in enumerate(names):
-                if met == "S" and (n, met) in tests.index:
-                    r = tests.loc[(n, met)]
-                    ax.text(1.02, i, fmt_p(r.p_holm) + (" *" if r.significant else ""), transform=ax.get_yaxis_transform(), ha="left", va="center",
-                            fontsize=9.5, color=TEXT, fontweight="bold" if r.significant else "normal", clip_on=False)
             for i, n in enumerate(names):
                 g = sub[sub.configuration == n].sort_values("U").dropna(subset=[col])
                 if n == FULL and col == "dM":
@@ -138,15 +133,19 @@ def figure(t, place, pslug, ptitle, scale, sslug, P, xl, xr):
             ax.tick_params(axis="y", length=0)
         axes[0].set_xscale("log"); axes[0].set_xlim(*xl)
         axes[0].set_xticks(TICKS_L); axes[0].set_xticklabels([f"{x:g}" for x in TICKS_L]); axes[0].minorticks_off()
-        axes[1].set_xlim(*xr); axes[1].set_xticks(range(0, 7))
+        if place == "multi-core":                  # SMT enabled reaches +87 pp: symlog (linear between -1 and 1 pp, log beyond), room for the labels
+            axes[1].set_xscale("symlog", linthresh=1.0, linscale=1.0); axes[1].set_xlim(-0.5, 900)
+            axes[1].set_xticks([0, 1, 5, 20, 100]); axes[1].set_xticklabels(["0", "1", "5", "20", "100"]); axes[1].minorticks_off()
+        else:
+            axes[1].set_xlim(*xr); axes[1].set_xticks(range(0, 7))
         axes[0].set_ylim(len(names) - 0.4, -0.6)
         axes[0].set_yticks(range(len(names))); axes[0].set_yticklabels([lab[n] for n in names], color=TEXT)
         axes[0].set_xlabel("tail spread $S = p_{99.9}\\,/\\,\\mathrm{median}$", color=TEXT)
-        axes[1].set_xlabel("miss rate - miss rate of\nfull isolation [pp]", color=TEXT)
+        axes[1].set_xlabel("change in miss rate from\nfull isolation [percentage points]" + ("\n(symlog axis)" if place == "multi-core" else ""), color=TEXT)
         handles = [Line2D([], [], marker="o", ls="", ms=8, mfc=UCOL[u], mec="white", mew=1.5, label=f"U = {u:g}") for u in UTILS]
         fig.legend(handles=handles, loc="upper center", ncol=4, frameon=False, bbox_to_anchor=(0.5, 0.925), labelcolor=TEXT, handletextpad=0.1, columnspacing=1.2, fontsize=10)
         fig.suptitle(f"{ptitle}, {sslug} period (P = {P} ms)", x=0.01, ha="left", y=0.985, fontsize=12, fontweight="bold", color=TEXT)
-        fig.subplots_adjust(left=0.285, right=0.985, top=0.80, bottom=0.20, wspace=0.30)
+        fig.subplots_adjust(left=0.285, right=0.985, top=0.80, bottom=0.20, wspace=0.20)
         for ext, kw in (("svg", {}), ("png", {"dpi": 200})):
             fig.savefig(HERE / f"rq1_{pslug}_{sslug}.{ext}", facecolor="white", **kw)
         plt.close(fig)
@@ -162,6 +161,7 @@ def main():
     t.to_csv(HERE / "rq1_figures_values.csv", index=False)
 
     d = t[t.configuration != FULL]
+    d_lever = d[d.configuration != SMT]                  # axis limits of the single-core figures come from the levers only
     print("\nS range incl. full isolation:", round(t.S.min(), 3), "..", round(t.S.max(), 3))
     print("\nCHECK 2: values on the 'better' side (rho < 1 relative to FI, or dM < 0)")
     for _, r in d[d.rho < 1].iterrows():
@@ -172,8 +172,8 @@ def main():
     xl, xr = XLIM_L, XLIM_R
     if t.S.min() < xl[0] or t.S.max() > xl[1]:
         xl = (min(xl[0], t.S.min() * 0.9), max(xl[1], t.S.max() * 1.5))
-    if d.dM.min() < xr[0] or d.dM.max() > xr[1]:
-        xr = (min(xr[0], np.floor(d.dM.min() * 2) / 2 - 0.25), max(xr[1], np.ceil(d.dM.max() * 2) / 2 + 0.5))
+    if d_lever.dM.min() < xr[0] or d_lever.dM.max() > xr[1]:
+        xr = (min(xr[0], np.floor(d_lever.dM.min() * 2) / 2 - 0.25), max(xr[1], np.ceil(d_lever.dM.max() * 2) / 2 + 0.5))
     print(f"\nrange: S {t.S.min():.3f}..{t.S.max():.3f}, dM {d.dM.min():.3f}..{d.dM.max():.3f}; limits used: left {xl}, right {xr}"
           + ("  (WIDENED)" if (xl, xr) != (XLIM_L, XLIM_R) else "  (defaults kept)"))
     for place, pslug, ptitle, *_ in PLACEMENTS:

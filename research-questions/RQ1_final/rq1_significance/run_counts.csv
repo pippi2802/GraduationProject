@@ -15,6 +15,14 @@ multi-core,SMT enabled,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
 multi-core,SMT enabled,soft,0.5,4,1 2 3 4,4,1 2 3 4,equal
 multi-core,SMT enabled,soft,0.7,4,1 2 3 4,4,1 2 3 4,equal
 multi-core,SMT enabled,soft,0.94,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,tight,0.1,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,tight,0.5,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,tight,0.7,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,tight,0.94,0,,4,1 2 3 4,not run
+multi-core,all defaults,soft,0.1,4,1 2 3 4,3,2 3 4,unequal
+multi-core,all defaults,soft,0.5,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,soft,0.7,4,1 2 3 4,4,1 2 3 4,equal
+multi-core,all defaults,soft,0.94,0,,4,1 2 3 4,not run
 multi-core,boot-params bundle removed,tight,0.1,4,1 2 3 4,4,1 2 3 4,equal
 multi-core,boot-params bundle removed,tight,0.5,4,1 2 3 4,4,1 2 3 4,equal
 multi-core,boot-params bundle removed,tight,0.7,4,1 2 3 4,4,1 2 3 4,equal
@@ -79,6 +87,14 @@ single-core,IRQ steering removed,soft,0.1,4,1 2 3 4,4,1 2 3 4,equal
 single-core,IRQ steering removed,soft,0.5,4,1 2 3 4,4,1 2 3 4,equal
 single-core,IRQ steering removed,soft,0.7,4,1 2 3 4,4,1 2 3 4,equal
 single-core,IRQ steering removed,soft,0.94,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,tight,0.1,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,tight,0.5,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,tight,0.7,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,tight,0.94,0,,4,1 2 3 4,not run
+single-core,all defaults,soft,0.1,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,soft,0.5,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,soft,0.7,4,1 2 3 4,4,1 2 3 4,equal
+single-core,all defaults,soft,0.94,0,,4,1 2 3 4,not run
 single-core,boot-params bundle removed,tight,0.1,4,1 2 3 4,4,1 2 3 4,equal
 single-core,boot-params bundle removed,tight,0.5,4,1 2 3 4,4,1 2 3 4,equal
 single-core,boot-params bundle removed,tight,0.7,4,1 2 3 4,4,1 2 3 4,equal

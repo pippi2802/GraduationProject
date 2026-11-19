@@ -18,7 +18,8 @@ BASE_DATA = RQ1 / "kubedeadline-experiments" / "analysis" / "data"
 
 FULL = "full isolation"
 SCENARIOS = [("01", "isolcpus removed"), ("02", "nohz_full removed"), ("03", "rcu_nocbs removed"), ("04", "systemd containment removed"),
-             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed")]
+             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed"),
+             ("07", "all defaults")]
 SMT = "SMT enabled"
 PLACEMENTS = [("single-core", "model1", "model1"), ("multi-core", "model5", "model5-phys")]
 SMT_FILE = "model5-smt"

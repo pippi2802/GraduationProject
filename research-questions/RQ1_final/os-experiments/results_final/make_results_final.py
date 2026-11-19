@@ -40,7 +40,8 @@ BASE_DATA = HERE.parent.parent / "kubedeadline-experiments" / "analysis" / "data
 
 FULL = "full isolation"
 SCENARIOS = [("01", "isolcpus removed"), ("02", "nohz_full removed"), ("03", "rcu_nocbs removed"), ("04", "systemd containment removed"),
-             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed")]
+             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed"),
+             ("07", "all defaults")]
 SMT = "SMT enabled"                                                                              # multi-core only: full isolation with SMT switched on
 CONFIGS = [FULL] + [name for _, name in SCENARIOS]
 CONFIGS_OF = {"single-core": CONFIGS, "multi-core": CONFIGS + [SMT]}
@@ -149,7 +150,7 @@ def table_tex(t, label):
             lines.append(f"{first} & {name} & " + " & ".join(f(v) for v in vals) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}}",
               r"\caption{Isolation levers, " + label + r". Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. "
-              r"Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run.}",
+              r"Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run. ``All defaults'' removes every setting together; it is a separate run (rerun) whose K is 8--10\% lower than that of the other rows; U = 0.94 was not run.}",
               r"\label{tab:rq1-" + label + r"}", r"\end{table}"]
     return "\n".join(lines) + "\n"
 
@@ -212,13 +213,13 @@ def heatmap(t, label, stem):
         r"\begin{figure}[ht]", r"\centering", r"\includegraphics[width=\textwidth]{" + stem + ".png}",
         r"\caption{Worst window of $k = 100$ consecutive releases for every configuration, period and utilization, " + label + r". Each cell gives $m$, the smallest number of releases "
         r"that met their deadline and were not skipped in any window of 100 releases. Cells with $m = 100$ have no colour; the more releases lost, the more intense the red, and black means "
-        r"that every release of the window was lost. The colour follows the loss $(k-m)/k$ on a \emph{square-root} scale, so that small losses stay distinguishable from zero. The first six jobs after every restart are excluded. Hatched cells were not run.}",
+        r"that every release of the window was lost. The colour follows the loss $(k-m)/k$ on a \emph{square-root} scale, so that small losses stay distinguishable from zero. The first six jobs after every restart are excluded. Hatched cells were not run. ``All defaults'' removes every setting together; it is a separate run (rerun) whose K is 8--10\% lower than that of the other rows; U = 0.94 was not run.}",
         r"\label{fig:rq1-" + stem.replace("_", "-") + "}", r"\end{figure}"]) + "\n")
 
 
 # ---------------------------------------------------------------- relative spread against utilization
-LINES = {"isolcpus removed": "#0072B2", "nohz_full removed": "#D55E00", "systemd containment removed": "#009E73", "rcu_nocbs removed": "#CC79A7"}
-LINE_MARK = {"isolcpus removed": "o", "nohz_full removed": "s", "systemd containment removed": "^", "rcu_nocbs removed": "D"}
+LINES = {"isolcpus removed": "#0072B2", "nohz_full removed": "#D55E00", "systemd containment removed": "#009E73", "rcu_nocbs removed": "#CC79A7", "all defaults": "#E69F00"}
+LINE_MARK = {"isolcpus removed": "o", "nohz_full removed": "s", "systemd containment removed": "^", "rcu_nocbs removed": "D", "all defaults": "v"}
 # SMT is not drawn: it shifts the whole distribution (the median moves to about P), so the tail-to-median ratio cannot show its effect (see the miss-rate table and the heatmap)
 OTHER = ["IRQ steering removed", "boot-params bundle removed", "frequency pinning removed"]          # drawn as one min-max band
 OTHER_NAME = "IRQ steering, boot-params, frequency pinning removed (min-max)"
@@ -281,7 +282,7 @@ def spread_figure(t, label, stem):
         r"maximum of IRQ steering, the boot-params bundle and frequency pinning. " + (r"Hollow points are cells whose $p_{99.9}$ is dominated by the start-up of the rounds: at least a quarter of the jobs above it are among the first five retained jobs of a round, "
         r"in the configuration or in full isolation (the reference); they are left out of the band, but the lines still pass through them. " if single.any() else "") +
         r"The first six jobs after every restart are excluded. The vertical axis is logarithmic. SMT enabled is not drawn: it shifts the whole distribution, "
-        r"including the median, so a tail-to-median ratio cannot show its effect (see Table~\ref{tab:rq1-multi-core} and the heatmap).}", r"\label{fig:rq1-" + stem.replace("_", "-") + "}", r"\end{figure}"]) + "\n")
+        r"including the median, so a tail-to-median ratio cannot show its effect (see Table~\ref{tab:rq1-multi-core} and the heatmap). ``All defaults'' removes every setting together; it is a separate run (rerun) whose K is 8--10\% lower than that of the other rows; U = 0.94 was not run.}", r"\label{fig:rq1-" + stem.replace("_", "-") + "}", r"\end{figure}"]) + "\n")
 
 
 # ---------------------------------------------------------------- main

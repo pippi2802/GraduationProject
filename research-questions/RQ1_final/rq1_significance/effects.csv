@@ -31,6 +31,18 @@ SMT enabled,multi-core,soft,0.1,M,4,3,0.30958,percentage points
 SMT enabled,multi-core,soft,0.5,M,4,4,52.4056,percentage points
 SMT enabled,multi-core,soft,0.7,M,4,4,0.259972,percentage points
 SMT enabled,multi-core,soft,0.94,M,4,4,82.1146,percentage points
+all defaults,multi-core,tight,0.1,S,4,4,0.776787,factor (exp of median log-ratio)
+all defaults,multi-core,tight,0.5,S,4,4,0.725308,factor (exp of median log-ratio)
+all defaults,multi-core,tight,0.7,S,4,4,0.88625,factor (exp of median log-ratio)
+all defaults,multi-core,soft,0.1,S,4,3,2.63774,factor (exp of median log-ratio)
+all defaults,multi-core,soft,0.5,S,4,4,0.920926,factor (exp of median log-ratio)
+all defaults,multi-core,soft,0.7,S,4,4,0.873439,factor (exp of median log-ratio)
+all defaults,multi-core,tight,0.1,M,4,4,0.115003,percentage points
+all defaults,multi-core,tight,0.5,M,4,4,-0.040036,percentage points
+all defaults,multi-core,tight,0.7,M,4,4,0.149917,percentage points
+all defaults,multi-core,soft,0.1,M,4,3,0.348745,percentage points
+all defaults,multi-core,soft,0.5,M,4,4,0,percentage points
+all defaults,multi-core,soft,0.7,M,4,4,0,percentage points
 boot-params bundle removed,multi-core,tight,0.1,S,4,4,0.303758,factor (exp of median log-ratio)
 boot-params bundle removed,multi-core,tight,0.5,S,4,4,1.14506,factor (exp of median log-ratio)
 boot-params bundle removed,multi-core,tight,0.7,S,4,4,0.980183,factor (exp of median log-ratio)
@@ -139,6 +151,18 @@ IRQ steering removed,single-core,soft,0.1,M,4,4,0,percentage points
 IRQ steering removed,single-core,soft,0.5,M,4,4,0,percentage points
 IRQ steering removed,single-core,soft,0.7,M,4,4,0,percentage points
 IRQ steering removed,single-core,soft,0.94,M,4,4,0,percentage points
+all defaults,single-core,tight,0.1,S,4,4,1.02761,factor (exp of median log-ratio)
+all defaults,single-core,tight,0.5,S,4,4,1.01758,factor (exp of median log-ratio)
+all defaults,single-core,tight,0.7,S,4,4,1.09671,factor (exp of median log-ratio)
+all defaults,single-core,soft,0.1,S,4,4,3.37229,factor (exp of median log-ratio)
+all defaults,single-core,soft,0.5,S,4,4,1.00467,factor (exp of median log-ratio)
+all defaults,single-core,soft,0.7,S,4,4,1.07401,factor (exp of median log-ratio)
+all defaults,single-core,tight,0.1,M,4,4,0.060012,percentage points
+all defaults,single-core,tight,0.5,M,4,4,0,percentage points
+all defaults,single-core,tight,0.7,M,4,4,0,percentage points
+all defaults,single-core,soft,0.1,M,4,4,0.359003,percentage points
+all defaults,single-core,soft,0.5,M,4,4,0,percentage points
+all defaults,single-core,soft,0.7,M,4,4,0,percentage points
 boot-params bundle removed,single-core,tight,0.1,S,4,4,0.996551,factor (exp of median log-ratio)
 boot-params bundle removed,single-core,tight,0.5,S,4,4,0.988551,factor (exp of median log-ratio)
 boot-params bundle removed,single-core,tight,0.7,S,4,4,1.00306,factor (exp of median log-ratio)
