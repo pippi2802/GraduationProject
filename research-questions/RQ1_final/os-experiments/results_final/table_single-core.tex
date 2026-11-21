@@ -30,8 +30,11 @@ Configuration & Metric & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
 \cmidrule{1-10}
 \multirow[t]{2}{*}{frequency pinning removed} & Miss rate [\%] & 0.020 & 0.155 & 0.020 & 0.010 & 0.000 & 0.000 & 0.000 & 0.000 \\
  & Tail spread & 1.08 & 1.09 & 1.08 & 1.05 & 1.06 & 1.04 & 1.06 & 1.05 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{all defaults} & Miss rate [\%] & 2.122 & 1.036 & 0.549 & -- & 0.499 & 0.000 & 0.140 & -- \\
+ & Tail spread & 13.95 & 3.10 & 2.17 & -- & 11.79 & 1.07 & 1.24 & -- \\
 \bottomrule
 \end{tabular}}
-\caption{Isolation levers, single-core. Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run.}
+\caption{Isolation levers, single-core. Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run. ``All defaults'' removes every setting together; it is a separate run (rerun) whose K is 8--10\% lower than that of the other rows; U = 0.94 was not run.}
 \label{tab:rq1-single-core}
 \end{table}

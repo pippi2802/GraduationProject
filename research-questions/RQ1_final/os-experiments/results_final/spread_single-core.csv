@@ -63,3 +63,11 @@ single-core,frequency pinning removed,soft,0.1,1.0636873496438526,1.019111333931
 single-core,frequency pinning removed,soft,0.5,1.0375849418362995,0.9899774773513823,0.0,other settings (band),False
 single-core,frequency pinning removed,soft,0.7,1.05670073452622,1.0231960194077967,0.0,other settings (band),False
 single-core,frequency pinning removed,soft,0.94,1.0471552606013295,1.0230115181051922,0.0,other settings (band),False
+single-core,all defaults,tight,0.1,13.950645030688312,13.063008175838355,0.0,own line,False
+single-core,all defaults,tight,0.5,3.1004230272957285,2.9189828385411145,0.0,own line,False
+single-core,all defaults,tight,0.7,2.1674273061473084,2.1146353176288324,0.0,own line,False
+single-core,all defaults,tight,0.94,,,,own line,False
+single-core,all defaults,soft,0.1,11.78530695364935,11.291419320107046,0.0,own line,False
+single-core,all defaults,soft,0.5,1.0737582600444306,1.024491056782997,0.0,own line,False
+single-core,all defaults,soft,0.7,1.2406552840917633,1.2013179386206272,0.0,own line,False
+single-core,all defaults,soft,0.94,,,,own line,False

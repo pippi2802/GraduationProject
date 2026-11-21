@@ -31,10 +31,16 @@ Configuration & Metric & 0.1 & 0.5 & 0.7 & 0.94 & 0.1 & 0.5 & 0.7 & 0.94 \\
 \multirow[t]{2}{*}{frequency pinning removed} & Miss rate [\%] & 0.140 & 0.150 & 0.100 & 1.046 & 0.095 & 0.105 & 0.125 & 0.000 \\
  & Tail spread & 12.43 & 2.54 & 1.79 & 1.60 & 2.04 & 1.30 & 1.30 & 1.19 \\
 \cmidrule{1-10}
+\multirow[t]{2}{*}{all defaults} & Miss rate [\%] & 0.230 & 0.020 & 0.150 & -- & 0.872 & 0.000 & 0.000 & -- \\
+ & Tail spread & 1.70 & 1.30 & 1.32 & -- & 11.90 & 1.30 & 1.09 & -- \\
+\cmidrule{1-10}
 \multirow[t]{2}{*}{SMT enabled} & Miss rate [\%] & 22.774 & 66.744 & 28.391 & 87.607 & 0.325 & 62.613 & 18.832 & 76.722 \\
  & Tail spread & 12.08 & 1.24 & 2.25 & 1.29 & 13.70 & 1.25 & 1.87 & 1.19 \\
+\cmidrule{1-10}
+\multirow[t]{2}{*}{pinned tasks} & Miss rate [\%] & 3.097 & 0.115 & 0.045 & 0.020 & 0.000 & 0.000 & 0.000 & 0.000 \\
+ & Tail spread & 15.35 & 1.39 & 1.24 & 1.16 & 1.12 & 1.08 & 1.06 & 1.06 \\
 \bottomrule
 \end{tabular}}
-\caption{Isolation levers, multi-core. Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run.}
+\caption{Isolation levers, multi-core. Miss rate: share of releases lost, that is jobs with $R>P$ plus releases skipped after an overrun, over all releases of the cell. Tail spread: $p_{99.9}/\mathrm{median}$ of the response time of the executed jobs. The first six jobs after every restart are excluded. Cells marked -- were not run. ``All defaults'' removes every setting together; it is a separate run (rerun) whose K is 8--10\% lower than that of the other rows; U = 0.94 was not run.}
 \label{tab:rq1-multi-core}
 \end{table}

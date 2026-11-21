@@ -63,6 +63,30 @@ multi-core,SMT enabled,tight,0.94,1,9988,8543,8542,1.20671,92.1969
 multi-core,SMT enabled,tight,0.94,2,9988,6760,6753,1.29782,80.6843
 multi-core,SMT enabled,tight,0.94,3,9988,9962,9961,1.30042,99.8647
 multi-core,SMT enabled,tight,0.94,4,9988,5886,5884,1.30754,74.1464
+multi-core,all defaults,soft,0.1,1,4994,70,70,12.0207,2.76461
+multi-core,all defaults,soft,0.1,2,4994,0,0,1.03499,0
+multi-core,all defaults,soft,0.1,3,4994,0,0,1.03469,0
+multi-core,all defaults,soft,0.1,4,4994,24,11,11.8682,0.697489
+multi-core,all defaults,soft,0.5,1,4994,0,0,1.37951,0
+multi-core,all defaults,soft,0.5,2,4994,0,0,1.02094,0
+multi-core,all defaults,soft,0.5,3,4994,0,0,1.02441,0
+multi-core,all defaults,soft,0.5,4,4994,0,0,1.26195,0
+multi-core,all defaults,soft,0.7,1,4994,0,0,1.08944,0
+multi-core,all defaults,soft,0.7,2,4994,0,0,1.02108,0
+multi-core,all defaults,soft,0.7,3,4994,0,0,1.02292,0
+multi-core,all defaults,soft,0.7,4,4994,0,0,1.14056,0
+multi-core,all defaults,tight,0.1,1,4994,27,4,10.3616,0.617407
+multi-core,all defaults,tight,0.1,2,4994,0,0,1.09884,0
+multi-core,all defaults,tight,0.1,3,4994,2,1,1.04685,0.060048
+multi-core,all defaults,tight,0.1,4,4994,6,6,12.7148,0.24
+multi-core,all defaults,tight,0.5,1,4994,3,1,1.6272,0.080048
+multi-core,all defaults,tight,0.5,2,4994,0,0,1.06991,0
+multi-core,all defaults,tight,0.5,3,4994,0,0,1.02406,0
+multi-core,all defaults,tight,0.5,4,4994,0,0,1.21184,0
+multi-core,all defaults,tight,0.7,1,4994,7,2,1.39312,0.179964
+multi-core,all defaults,tight,0.7,2,4994,8,1,1.04778,0.179928
+multi-core,all defaults,tight,0.7,3,4994,0,0,1.02076,0
+multi-core,all defaults,tight,0.7,4,4994,6,6,2.02358,0.24
 multi-core,boot-params bundle removed,soft,0.1,1,4994,14,1,1.25441,0.299521
 multi-core,boot-params bundle removed,soft,0.1,2,4994,0,0,1.32489,0
 multi-core,boot-params bundle removed,soft,0.1,3,4994,0,0,1.36648,0
@@ -214,6 +238,38 @@ multi-core,nohz_full removed,tight,0.94,1,4994,0,0,1.0373,0
 multi-core,nohz_full removed,tight,0.94,2,4994,0,0,1.03044,0
 multi-core,nohz_full removed,tight,0.94,3,4994,27,27,1.66518,1.07548
 multi-core,nohz_full removed,tight,0.94,4,4994,18,18,1.58382,0.718276
+multi-core,pinned tasks,soft,0.1,1,9988,0,0,1.1409,0
+multi-core,pinned tasks,soft,0.1,2,9988,0,0,1.0486,0
+multi-core,pinned tasks,soft,0.1,3,9988,0,0,1.13552,0
+multi-core,pinned tasks,soft,0.1,4,9988,0,0,1.03527,0
+multi-core,pinned tasks,soft,0.5,1,9988,0,0,1.02938,0
+multi-core,pinned tasks,soft,0.5,2,9988,0,0,1.01271,0
+multi-core,pinned tasks,soft,0.5,3,9988,0,0,1.03846,0
+multi-core,pinned tasks,soft,0.5,4,9988,0,0,1.04897,0
+multi-core,pinned tasks,soft,0.7,1,9988,0,0,1.05182,0
+multi-core,pinned tasks,soft,0.7,2,9988,0,0,1.03556,0
+multi-core,pinned tasks,soft,0.7,3,9988,0,0,1.01023,0
+multi-core,pinned tasks,soft,0.7,4,9988,0,0,1.03758,0
+multi-core,pinned tasks,soft,0.94,1,9988,0,0,1.0151,0
+multi-core,pinned tasks,soft,0.94,2,9988,0,0,1.01275,0
+multi-core,pinned tasks,soft,0.94,3,9988,0,0,1.00675,0
+multi-core,pinned tasks,soft,0.94,4,9988,0,0,1.01165,0
+multi-core,pinned tasks,tight,0.1,1,9988,3,3,1.21546,0.060054
+multi-core,pinned tasks,tight,0.1,2,9988,41,41,14.7617,0.817629
+multi-core,pinned tasks,tight,0.1,3,9988,583,576,15.6927,10.964
+multi-core,pinned tasks,tight,0.1,4,9988,5,5,1.52319,0.10007
+multi-core,pinned tasks,tight,0.5,1,9988,0,0,1.00982,0
+multi-core,pinned tasks,tight,0.5,2,9988,5,3,1.44014,0.080056
+multi-core,pinned tasks,tight,0.5,3,9988,0,0,1.39895,0
+multi-core,pinned tasks,tight,0.5,4,9988,36,2,1.51052,0.37909
+multi-core,pinned tasks,tight,0.7,1,9988,1,1,1.01132,0.020022
+multi-core,pinned tasks,tight,0.7,2,9988,6,6,1.24824,0.120072
+multi-core,pinned tasks,tight,0.7,3,9988,2,2,1.27425,0.04004
+multi-core,pinned tasks,tight,0.7,4,9988,0,0,1.15429,0
+multi-core,pinned tasks,tight,0.94,1,9988,0,0,1.012,0
+multi-core,pinned tasks,tight,0.94,2,9988,2,2,1.07239,0.04004
+multi-core,pinned tasks,tight,0.94,3,9988,2,2,1.18245,0.04004
+multi-core,pinned tasks,tight,0.94,4,9988,0,0,1.02137,0
 multi-core,rcu_nocbs removed,soft,0.1,1,4994,0,0,11.4831,0
 multi-core,rcu_nocbs removed,soft,0.1,2,4994,38,38,13.0885,1.51033
 multi-core,rcu_nocbs removed,soft,0.1,3,4994,8,8,12.0892,0.319872
@@ -310,6 +366,30 @@ single-core,IRQ steering removed,tight,0.94,1,4994,1,1,1.10715,0.04004
 single-core,IRQ steering removed,tight,0.94,2,4994,1,1,1.10237,0.04004
 single-core,IRQ steering removed,tight,0.94,3,4994,0,0,1.01866,0
 single-core,IRQ steering removed,tight,0.94,4,4994,1,1,1.01594,0.04004
+single-core,all defaults,soft,0.1,1,4994,30,30,11.8066,1.19427
+single-core,all defaults,soft,0.1,2,4994,1,1,1.03964,0.04004
+single-core,all defaults,soft,0.1,3,4994,0,0,1.04372,0
+single-core,all defaults,soft,0.1,4,4994,19,19,11.8474,0.758029
+single-core,all defaults,soft,0.5,1,4994,0,0,1.10026,0
+single-core,all defaults,soft,0.5,2,4994,0,0,1.02273,0
+single-core,all defaults,soft,0.5,3,4994,0,0,1.02235,0
+single-core,all defaults,soft,0.5,4,4994,0,0,1.07013,0
+single-core,all defaults,soft,0.7,1,4994,24,4,1.35154,0.557991
+single-core,all defaults,soft,0.7,2,4994,0,0,1.02647,0
+single-core,all defaults,soft,0.7,3,4994,0,0,1.14232,0
+single-core,all defaults,soft,0.7,4,4994,0,0,1.08205,0
+single-core,all defaults,tight,0.1,1,4994,241,180,25.2493,8.04202
+single-core,all defaults,tight,0.1,2,4994,0,0,1.08457,0
+single-core,all defaults,tight,0.1,3,4994,0,0,1.05842,0
+single-core,all defaults,tight,0.1,4,4994,4,4,1.29699,0.160064
+single-core,all defaults,tight,0.5,1,4994,104,102,3.70123,4.0408
+single-core,all defaults,tight,0.5,2,4994,0,0,1.08135,0
+single-core,all defaults,tight,0.5,3,4994,0,0,1.0322,0
+single-core,all defaults,tight,0.5,4,4994,1,1,1.08662,0.04004
+single-core,all defaults,tight,0.7,1,4994,53,53,2.2412,2.10026
+single-core,all defaults,tight,0.7,2,4994,0,0,1.10004,0
+single-core,all defaults,tight,0.7,3,4994,0,0,1.03222,0
+single-core,all defaults,tight,0.7,4,4994,2,2,1.15609,0.0800641
 single-core,boot-params bundle removed,soft,0.1,1,4994,0,0,1.039,0
 single-core,boot-params bundle removed,soft,0.1,2,4994,0,0,1.04733,0
 single-core,boot-params bundle removed,soft,0.1,3,4994,0,0,1.03649,0

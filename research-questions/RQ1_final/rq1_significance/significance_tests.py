@@ -18,10 +18,13 @@ BASE_DATA = RQ1 / "kubedeadline-experiments" / "analysis" / "data"
 
 FULL = "full isolation"
 SCENARIOS = [("01", "isolcpus removed"), ("02", "nohz_full removed"), ("03", "rcu_nocbs removed"), ("04", "systemd containment removed"),
-             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed")]
+             ("05", "IRQ steering removed"), ("06", "boot-params bundle removed"), ("08", "frequency pinning removed"),
+             ("07", "all defaults")]
 SMT = "SMT enabled"
+PINNED = "pinned tasks"            # multi-core only: full isolation with each task pinned to one of the two reserved cpus
 PLACEMENTS = [("single-core", "model1", "model1"), ("multi-core", "model5", "model5-phys")]
 SMT_FILE = "model5-smt"
+PINNED_FILE = "model5-phys-pinned"
 SCALES = ["tight", "soft"]
 UTILS = [0.1, 0.5, 0.7, 0.94]
 N_DROP = 6
@@ -56,6 +59,7 @@ def load_runs():
         sources = [(FULL, BASE_DATA / f"{base_file}.csv")] + [(name, OS_DATA / f"{code}-{model}.csv") for code, name in SCENARIOS]
         if placement == "multi-core":
             sources.append((SMT, BASE_DATA / f"{SMT_FILE}.csv"))
+            sources.append((PINNED, BASE_DATA / f"{PINNED_FILE}.csv"))
         for name, path in sources:
             rows += runs_of(read(path), name, placement)
     return pd.DataFrame(rows).sort_values(["placement", "configuration", "scale", "U", "round"]).reset_index(drop=True)
