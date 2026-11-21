@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# check_isolation.sh <namespace> <label> <rt_cpus> [secs=40] [mode=task|idle]
+# check_isolation.sh <namespace> <label> <rt_cpus> [secs=40] [mode=task|idle|busy]
 #
 # Direct validation of the isolation on the node: interrupts per second on the RT core(s) during a window.
 # Runs from the control machine through the rq1-agent pod (nsenter into the host), like verify_scenario.sh.
 #   mode=idle : no task, window starts immediately.
+#   mode=busy : a pure spin loop (no timers, no sleeping) pinned to the first RT cpu for the whole window: the clean nohz_full test
+#               (~1 timer interrupt/s with nohz_full, ~CONFIG_HZ/s without). Needs nothing else running there.
 #   mode=task : waits until the `workload` process runs (start run_job.sh for ONE utilization in another terminal), skips WARM s of
 #               calibration/start-up, then measures. nohz_full only stops the tick while ONE task runs on the core.
 # Before/after: /proc/interrupts (all lines: LOC timer, HVS Hyper-V synthetic timer, HYP hypervisor callback, RES, CAL, TLB, ...).
@@ -11,7 +13,7 @@
 # Once: boot state (isolated, nohz_full, cmdline), IRQ affinities, rcuo* threads' Cpus_allowed_list.
 # Output: stdout and results/<label>.txt next to this script.
 set -euo pipefail
-NS="${1:?usage: check_isolation.sh <namespace> <label> <rt_cpus e.g. 1 or 1,2,3> [secs] [task|idle]}"
+NS="${1:?usage: check_isolation.sh <namespace> <label> <rt_cpus e.g. 1 or 1,2,3> [secs] [task|idle|busy]}"
 LABEL="${2:?label}"; RT="${3:?rt cpus}"; SECS="${4:-40}"; MODE="${5:-task}"; WARM=${WARM:-15}
 HERE="$(cd "$(dirname "$0")" && pwd)"; mkdir -p "$HERE/results"
 AGENT=$(kubectl -n "$NS" get pod -l app=rq1-agent -o jsonpath='{.items[0].metadata.name}')
@@ -42,13 +44,19 @@ if [ "$MODE" = task ]; then
   echo "workload threads: $(ps -eLo psr,comm,pid | awk '$2=="workload"{print "cpu"$1}' | sort | uniq -c | tr '\n' ' ')"
 fi
 
+BUSYPID=""
+if [ "$MODE" = busy ]; then
+  C1=${CPUS%% *}; taskset -c "$C1" sh -c 'while :; do :; done' & BUSYPID=$!
+  echo "[busy] spin loop pid $BUSYPID on cpu$C1; warm-up ${WARM}s" >&2; sleep "$WARM"
+fi
 snap > /tmp/irq_before.$$; t0=$(date +%s.%N); : > /tmp/ps_samples.$$
 end=$(( $(date +%s) + SECS ))
 while [ "$(date +%s)" -lt "$end" ]; do
-  ps -eLo psr,comm,pid | awk -v cpus="$CPUS" 'BEGIN{n=split(cpus,c," "); for(i=1;i<=n;i++) w[c[i]]=1} $1 in w{print "cpu"$1" "$2}' >> /tmp/ps_samples.$$
+  ps -eLo psr,stat,comm,pid | awk -v cpus="$CPUS" 'BEGIN{n=split(cpus,c," "); for(i=1;i<=n;i++) w[c[i]]=1} $1 in w{print "cpu"$1" "substr($2,1,1)" "$3}' >> /tmp/ps_samples.$$
   sleep 2
 done
 snap > /tmp/irq_after.$$; t1=$(date +%s.%N)
+[ -n "$BUSYPID" ] && kill "$BUSYPID" 2>/dev/null
 DT=$(echo "$t1 - $t0" | bc)
 
 echo; echo "=== $LABEL: interrupts per second on the RT cores over ${DT}s (window ${SECS}s, mode=$MODE) ==="
@@ -56,7 +64,7 @@ printf "%-10s %-5s %12s %10s\n" irq cpu delta per_s
 join -t'|' -j1 <(awk -F'|' '{print $1"/"$2"|"$3}' /tmp/irq_before.$$ | sort -t'|' -k1,1) <(awk -F'|' '{print $1"/"$2"|"$3}' /tmp/irq_after.$$ | sort -t'|' -k1,1) \
  | awk -F'|' -v dt="$DT" '{d=$3-$2; if (d>0) {split($1,a,"/"); printf "%-10s cpu%-2s %12d %10.2f\n", a[1], a[2], d, d/dt}}' | sort -k2,2 -k3,3nr
 echo "(only lines with delta > 0 are listed; LOC = local timer, HVS = Hyper-V synthetic timer, HYP = hypervisor callback, RES = reschedule IPI, CAL = function call IPI)"
-echo; echo "=== threads seen on the RT cores (ps -eLo psr,comm, every 2 s; count = samples) ==="
+echo; echo "=== threads seen on the RT cores (ps -eLo psr,comm, every 2 s; count = samples; state R = runnable/running, S/I = sleeping) ==="
 sort /tmp/ps_samples.$$ | uniq -c | sort -k2,2 -k1,1nr
 rm -f /tmp/irq_before.$$ /tmp/irq_after.$$ /tmp/ps_samples.$$
 CORE

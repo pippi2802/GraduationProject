@@ -17,4 +17,10 @@ Single-core task = model1, RT core = the cpu of the claim (check with the pod's 
 cd ../ && U_LIST=0.1 OUT_TAG=_iso RESULTS_ROOT=results_iso ./run_job.sh model1 tight
 ```
 (second argument = scale; scratch RESULTS_ROOT so the data is not mixed with the experiments)
+2b. busy: `./check_isolation.sh <ns> <cfg>_busy 2 40 busy` (spin loop, no timers; the clean nohz_full test)
 3. repeat for the full default (d07 / `all defaults`) VM, and, if wanted, once for `nohz_full removed` (d02) as the contrast.
+
+## Does the frequency pinning do anything? (`check_frequency.sh <ns> <label> <cpu> [secs]`)
+Static state (driver, governor, turbo, MHz, flags, perf cycles) plus a timing test: a fixed amount of integer work pinned to the cpu, for three phases
+(as configured / governor powersave + turbo allowed / restored). Settings are restored. If A and B agree within noise the guest setting has no effect on
+the hardware (Azure decides the clock); the per-10 s medians in phase A show drift. Run on an idle node (no workload pod).
