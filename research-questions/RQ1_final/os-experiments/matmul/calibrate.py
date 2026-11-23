@@ -28,6 +28,9 @@ HERE = Path(__file__).resolve().parent
 BIN = HERE / "workload"
 CV_THRESHOLD = 0.05
 PROBE_JOBS, PROBE_WARMUP = 400, 100
+# matmul change: the probe runs with the cell's REAL period (not back to back), so the idle gaps between jobs (cold caches, lower clock after the
+# vCPU idles) are in the calibration. CALIB_PERIOD_US is set per cell in main(); 0 = back to back (the sieve behaviour).
+CALIB_PERIOD_US = 0
 
 
 def run(cmd, input_text=None):
@@ -54,8 +57,9 @@ def median_cv(csv_text):
 
 
 def measure(K, matrix_n, local, rt_cpu, ns, pod):
-    args = ["--K", str(K), "--matrix-n", str(matrix_n), "--period-us", "0",
-            "--n-jobs", str(PROBE_JOBS), "--warmup", str(PROBE_WARMUP),
+    n_jobs, warm = (PROBE_JOBS, PROBE_WARMUP) if CALIB_PERIOD_US <= 20000 else (200, 50)   # about 25 s per measurement at a 100 ms period
+    args = ["--K", str(K), "--matrix-n", str(matrix_n), "--period-us", str(CALIB_PERIOD_US),
+            "--n-jobs", str(n_jobs), "--warmup", str(warm),
             "--priority", "90", "--cpu", str(rt_cpu)]
     if local:
         proc = run([str(BIN), *args])
@@ -126,6 +130,7 @@ spec:
 
 
 def main() -> int:
+    global CALIB_PERIOD_US
     ap = argparse.ArgumentParser(description="RQ1_final K calibration (freq-pinned)")
     ap.add_argument("model")
     ap.add_argument("--local", action="store_true")
@@ -152,6 +157,7 @@ def main() -> int:
                 print(f"[calib] {key}: cached K={table[key]['K']}; skip"); continue
             Q = int(round(u * P))
             target = int(round(cfg["headroom_frac"] * Q))
+            CALIB_PERIOD_US = P
             K, med, cv = solve_K(target, matrix_n, args.local, args.rt_cpu, ns, pod)
             effective_u = med / P   # the utilization this cell ACTUALLY runs at
             off_target = med > 0 and abs(med - target) > 0.03 * target
