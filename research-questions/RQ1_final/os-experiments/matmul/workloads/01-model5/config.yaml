@@ -30,7 +30,7 @@ image: pippina2/rq1final-matmul:v1
 headroom_frac: 0.7
 utilizations: [0.1, 0.5, 0.7, 0.94]
 scales:
-  soft: { period_us: 100000, matrix_n: 256 }
+  soft: { period_us: 100000, matrix_n: 192 }
   tight: { period_us: 10000, matrix_n: 64 }
 k_threads: 2          # informational -- see comment above, job.yaml hardcodes the actual count
 requested_cpus: [1, 2]  # cross-physical-core pair (1's sibling is 0, 3's sibling is 2)

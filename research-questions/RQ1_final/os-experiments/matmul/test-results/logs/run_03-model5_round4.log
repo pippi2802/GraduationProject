@@ -1,0 +1,33 @@
+[run] model=03-model5 ns=mm-03-model5 agent=rq1-agent-h76xf cells=8 has_neighbours=0 has_competitor=0
+[run] *** workload=sieve (workload.c; the WORKLOAD_KIND=matmul label below is a harmless leftover default from RQ1's matmul/primes split -- RQ1_final only ever runs the sieve binary) GEN_DIR=generated k_table=k_table.json ***
+[run] kubepods-besteffort.slice period mismatch (have 10000, need 100000) -- resetting
+[run] kubepods-besteffort.slice period now 100000, runtime cleared
+[run] === soft/U0.1 (workloads/03-model5/generated/soft/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/soft/U0.1
+[run] === soft/U0.5 (workloads/03-model5/generated/soft/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/soft/U0.5
+[run] === soft/U0.7 (workloads/03-model5/generated/soft/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/soft/U0.7
+[run] === soft/U0.94 (workloads/03-model5/generated/soft/U0.94.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/soft/U0.94
+[run] kubepods-besteffort.slice period mismatch (have 100000, need 10000) -- resetting
+[run] kubepods-besteffort.slice period now 10000, runtime cleared
+[run] === tight/U0.1 (workloads/03-model5/generated/tight/U0.1.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/tight/U0.1
+[run] === tight/U0.5 (workloads/03-model5/generated/tight/U0.5.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/tight/U0.5
+[run] === tight/U0.7 (workloads/03-model5/generated/tight/U0.7.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/tight/U0.7
+[run] === tight/U0.94 (workloads/03-model5/generated/tight/U0.94.yaml) ===
+[run] running...
+[run] collected 5000/5000 rows -> test-results/results/03-model5_round4/tight/U0.94
+
+[run] done. all 8 cell(s) collected their expected row count.
+[run] results under test-results/results/03-model5_round4/
